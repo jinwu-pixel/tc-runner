@@ -65,9 +65,16 @@ def cmd_run(args):
         reporter.print_tc_result(tc_result)
         reporter.results.append(tc_result)
 
+    if not reporter.results:
+        print("\nERROR: 실행된 T/C가 없습니다.")
+        sys.exit(1)
+
     reporter.print_summary()
-    html_path = reporter.generate_html()
-    print(f"\nHTML report: {html_path}")
+    try:
+        html_path = reporter.generate_html()
+        print(f"\nHTML report: {html_path}")
+    except Exception as e:
+        print(f"\nWARNING: HTML 리포트 생성 실패 — {e}")
 
 
 def cmd_convert(args):
