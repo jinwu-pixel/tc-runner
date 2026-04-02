@@ -1,5 +1,7 @@
 import argparse
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 from src.adb import ADB
@@ -7,6 +9,37 @@ from src.tc_loader import load_tc, TCValidationError
 from src.action_runner import ActionRunner
 from src.reporter import Reporter, TCResult
 from src.excel_converter import convert_excel_to_yaml
+
+
+def _resolve_tc_files(patterns: list[str]) -> tuple[list[Path], list[Path]]:
+    """입력 패턴들을 YAML 파일 목록으로 변환한다.
+
+    .xlsx 파일은 임시 디렉토리에 YAML로 변환한다.
+
+    Returns:
+        (tc_files, temp_dirs) — 실행할 YAML 파일 목록과 정리할 임시 디렉토리 목록
+    """
+    tc_files = []
+    temp_dirs = []
+
+    for pattern in patterns:
+        path = Path(pattern)
+
+        if path.suffix.lower() == ".xlsx" and path.is_file():
+            tmp_dir = Path(tempfile.mkdtemp(prefix="tc_runner_"))
+            temp_dirs.append(tmp_dir)
+            try:
+                converted = convert_excel_to_yaml(path, tmp_dir)
+                print(f"엑셀 변환: {path.name} → {len(converted)}개 T/C")
+                tc_files.extend(converted)
+            except Exception as e:
+                print(f"WARNING: 엑셀 변환 실패 ({path.name}) — {e}")
+        elif path.is_file():
+            tc_files.append(path)
+        else:
+            tc_files.extend(Path(".").glob(pattern))
+
+    return tc_files, temp_dirs
 
 
 def cmd_run(args):
@@ -24,15 +57,11 @@ def cmd_run(args):
     reporter.device_info = adb.get_device_info()
     runner = ActionRunner(adb=adb, screenshot_dir=screenshot_dir)
 
-    tc_files = []
-    for pattern in args.tc_files:
-        path = Path(pattern)
-        if path.is_file():
-            tc_files.append(path)
-        else:
-            tc_files.extend(Path(".").glob(pattern))
+    tc_files, temp_dirs = _resolve_tc_files(args.tc_files)
 
     if not tc_files:
+        for d in temp_dirs:
+            shutil.rmtree(d, ignore_errors=True)
         print("ERROR: T/C 파일을 찾을 수 없습니다.")
         sys.exit(1)
 
@@ -40,41 +69,45 @@ def cmd_run(args):
           f"(Android {reporter.device_info.get('android_version', '?')})")
     print(f"T/C files: {len(tc_files)}")
 
-    for tc_file in tc_files:
-        try:
-            tc_data = load_tc(tc_file)
-        except TCValidationError as e:
-            print(f"\nSKIP: {tc_file} — {e}")
-            continue
-
-        reporter.print_tc_header(tc_data["name"])
-        tc_result = TCResult(
-            name=tc_data["name"],
-            description=tc_data.get("description", ""),
-        )
-
-        for i, step in enumerate(tc_data["steps"]):
-            step_result = runner.run_step(step)
-            tc_result.steps.append(step_result)
-            reporter.print_step(tc_data["name"], i, step_result)
-
-            # verify action 실패 시 이 T/C 중단, 다음 T/C로
-            if not step_result.passed and step["action"].startswith("verify"):
-                break
-
-        reporter.print_tc_result(tc_result)
-        reporter.results.append(tc_result)
-
-    if not reporter.results:
-        print("\nERROR: 실행된 T/C가 없습니다.")
-        sys.exit(1)
-
-    reporter.print_summary()
     try:
-        html_path = reporter.generate_html()
-        print(f"\nHTML report: {html_path}")
-    except Exception as e:
-        print(f"\nWARNING: HTML 리포트 생성 실패 — {e}")
+        for tc_file in tc_files:
+            try:
+                tc_data = load_tc(tc_file)
+            except TCValidationError as e:
+                print(f"\nSKIP: {tc_file} — {e}")
+                continue
+
+            reporter.print_tc_header(tc_data["name"])
+            tc_result = TCResult(
+                name=tc_data["name"],
+                description=tc_data.get("description", ""),
+            )
+
+            for i, step in enumerate(tc_data["steps"]):
+                step_result = runner.run_step(step)
+                tc_result.steps.append(step_result)
+                reporter.print_step(tc_data["name"], i, step_result)
+
+                # verify action 실패 시 이 T/C 중단, 다음 T/C로
+                if not step_result.passed and step["action"].startswith("verify"):
+                    break
+
+            reporter.print_tc_result(tc_result)
+            reporter.results.append(tc_result)
+
+        if not reporter.results:
+            print("\nERROR: 실행된 T/C가 없습니다.")
+            sys.exit(1)
+
+        reporter.print_summary()
+        try:
+            html_path = reporter.generate_html()
+            print(f"\nHTML report: {html_path}")
+        except Exception as e:
+            print(f"\nWARNING: HTML 리포트 생성 실패 — {e}")
+    finally:
+        for d in temp_dirs:
+            shutil.rmtree(d, ignore_errors=True)
 
 
 def cmd_convert(args):
@@ -107,7 +140,7 @@ def main():
 
     # run
     run_parser = subparsers.add_parser("run", help="T/C 실행")
-    run_parser.add_argument("tc_files", nargs="+", help="YAML T/C 파일 경로")
+    run_parser.add_argument("tc_files", nargs="+", help="YAML 또는 엑셀(.xlsx) T/C 파일 경로")
     run_parser.set_defaults(func=cmd_run)
 
     # convert
