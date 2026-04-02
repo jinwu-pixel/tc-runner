@@ -1,0 +1,27 @@
+name: 전화 발신 테스트
+description: 전화 앱에서 번호를 입력하고 발신한다
+steps:
+  - action: key
+    keycode: HOME
+
+  - action: tap_text
+    text: "전화"
+
+  - action: wait
+    seconds: 1
+
+  - action: input_text
+    text: "01012345678"
+
+  - action: tap_id
+    id: "com.samsung.android.dialer:id/floating_action_button"
+
+  - action: wait
+    seconds: 5
+
+  - action: verify_shell
+    command: "dumpsys telephony.registry | grep mCallState"
+    expected: "mCallState=2"
+
+  - action: key
+    keycode: ENDCALL

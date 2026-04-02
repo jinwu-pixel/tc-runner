@@ -1,0 +1,24 @@
+name: Wi-Fi 연결 테스트
+description: Wi-Fi를 켜고 연결 상태를 확인한다
+steps:
+  - action: key
+    keycode: HOME
+
+  - action: tap_text
+    text: "설정"
+
+  - action: tap_text
+    text: "연결"
+
+  - action: tap_text
+    text: "Wi-Fi"
+
+  - action: wait
+    seconds: 3
+
+  - action: verify_text
+    text: "연결됨"
+
+  - action: verify_shell
+    command: "dumpsys wifi | grep 'Wi-Fi is'"
+    expected: "enabled"
