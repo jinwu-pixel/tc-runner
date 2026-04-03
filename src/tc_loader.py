@@ -6,7 +6,7 @@ import yaml
 VALID_ACTIONS = {
     "tap_text", "tap_id", "tap_xy", "swipe", "key",
     "shell", "wait", "screenshot", "verify_text",
-    "verify_shell", "input_text",
+    "verify_shell", "input_text", "manual_pause",
 }
 
 
@@ -43,4 +43,8 @@ def validate_tc(tc: dict, filepath: Path | None = None) -> None:
             raise TCValidationError(
                 f"{source}: step {i+1}의 action '{step['action']}'은(는) 지원하지 않습니다. "
                 f"지원: {', '.join(sorted(VALID_ACTIONS))}"
+            )
+        if step["action"] == "manual_pause" and "description" not in step:
+            raise TCValidationError(
+                f"{source}: step {i+1}의 manual_pause에는 'description' 필드가 필요합니다"
             )

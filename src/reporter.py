@@ -32,12 +32,26 @@ class Reporter:
         self.start_time: datetime = datetime.now()
 
     def print_step(self, tc_name: str, step_index: int, result: StepResult) -> None:
-        status = "PASS" if result.passed else "FAIL"
-        symbol = "✓" if result.passed else "✗"
-        msg = f"  [{symbol}] Step {step_index+1}: {result.action} — {status}"
-        if result.message:
-            msg += f" ({result.message[:80]})"
-        print(msg)
+        manual_action = getattr(result, "manual_action", "")
+        skip_reason = getattr(result, "skip_reason", "")
+        execution_mode = getattr(result, "execution_mode", "")
+        paused = getattr(result, "paused", False)
+
+        if manual_action == "skip":
+            symbol = "S"
+            status = f"SKIPPED: {skip_reason}"
+        elif manual_action and paused:
+            symbol = "M"
+            status = f"MANUAL ({manual_action})"
+        elif result.passed:
+            symbol = "O"
+            status = "PASS"
+        else:
+            symbol = "X"
+            status = f"FAIL - {result.message}"
+
+        mode_label = f" [{execution_mode}]" if execution_mode else ""
+        print(f"  [{symbol}] Step {step_index+1}: {result.action}{mode_label} - {status}")
 
     def print_tc_header(self, tc_name: str) -> None:
         print(f"\n{'='*60}")
@@ -52,13 +66,18 @@ class Reporter:
         summary = self.get_summary()
         print(f"\n{'='*60}")
         print(f"  SUMMARY: {summary['passed']}/{summary['total']} passed, "
-              f"{summary['failed']} failed")
+              f"{summary['skipped']} skipped, {summary['failed']} failed")
         print(f"{'='*60}")
 
     def get_summary(self) -> dict:
         total = len(self.results)
         passed = sum(1 for r in self.results if r.is_pass)
-        return {"total": total, "passed": passed, "failed": total - passed}
+        skipped = sum(
+            1 for r in self.results
+            if any(getattr(s, "manual_action", "") == "skip" for s in r.steps)
+        )
+        failed = total - passed - skipped
+        return {"total": total, "passed": passed, "skipped": skipped, "failed": failed}
 
     def generate_html(self) -> Path:
         self.report_dir.mkdir(parents=True, exist_ok=True)
