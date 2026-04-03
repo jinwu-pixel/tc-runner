@@ -187,7 +187,20 @@ if keyword in SHELL_CANDIDATES:
 
 SHELL_AUTO 승격은 "후보"일 뿐이고, 실제 shell step 생성 확정은 compiler에서 `resolve + params resolution` 성공 시점이다.
 
-재분류 우선순위: `MANUAL_REQUIRED > EXTERNAL_EVENT > SHELL_AUTO > SETUP_TEARDOWN`
+**ExecutionMode refinement priority**는 아래와 같다.
+
+- `MANUAL_REQUIRED > EXTERNAL_EVENT > SHELL_AUTO`
+
+이는 **ExecutionMode 축에만 적용되는 우선순위**이다.
+
+`StepRole` (`ACTION`, `ASSERT`, `SETUP`, `TEARDOWN`)은 별도 규칙으로 판정하며,
+ExecutionMode 우선순위와 직접 경쟁하지 않는다.
+
+즉:
+- ExecutionMode는 "이 step을 어떤 방식으로 수행/대기할 것인가"를 나타낸다.
+- StepRole은 "이 step이 실행/검증/준비/정리 중 어떤 역할인가"를 나타낸다.
+
+두 축은 독립적으로 판정되며, 하나의 우선순위 체계로 섞어 다루지 않는다.
 
 **3단계: 메타데이터 보정**
 
@@ -209,17 +222,33 @@ StepClassifier를 항상 실행한다. TC-level 분류는 step 결과 집계로 
 def summarize_tc_class(self, classified: list[ClassifiedIntent]) -> str:
     if not classified:
         return "AMBIGUOUS_NL"
-    
-    modes = {c.execution_mode for c in classified}
-    
-    if "UNSUPPORTED" in modes:
-        return "AMBIGUOUS_NL"
+
+    modes = [c.execution_mode for c in classified]
+    total = len(modes)
+    unsupported_count = sum(1 for m in modes if m == "UNSUPPORTED")
+
     if "MANUAL_REQUIRED" in modes or "EXTERNAL_EVENT" in modes:
         return "SEMI_AUTO"
+
+    if unsupported_count == total:
+        return "AMBIGUOUS_NL"
+
+    # 일부 step만 unsupported인 경우는 기본적으로 SEMI_AUTO로 완화
+    if unsupported_count > 0:
+        return "SEMI_AUTO"
+
     if all(m in {"UI_AUTO", "SHELL_AUTO"} for m in modes):
         return "FULL_AUTO"
+
     return "AMBIGUOUS_NL"
 ```
+
+설계 원칙:
+- `UNSUPPORTED`가 일부 포함되더라도 전체 TC를 즉시 `AMBIGUOUS_NL`로 강등하지 않는다.
+- 소수의 unsupported step이 포함된 경우 기본적으로 `SEMI_AUTO`로 분류한다.
+- 전체 step이 unsupported이거나, 핵심 step 다수가 unsupported인 경우에만 `AMBIGUOUS_NL`로 본다.
+
+향후 필요하면 unsupported 비율 또는 핵심 step 여부를 반영하는 방식으로 정교화할 수 있다.
 
 기존 `MMITCClassifier`는 coarse pre-check으로 유지하되, 최종 TC 분류는 이 집계 결과를 사용. 이후 안정화되면 `MMITCClassifier`는 backward compatibility 용도로 축소 가능.
 
@@ -427,6 +456,47 @@ placeholder 포함 step은 실행 가능한 step처럼 보이면 안 된다:
   _unresolved_params: ["package", "activity"]
 ```
 
+### 5.4.1 Alias Registry (앱/권한 번역 계층)
+
+TC 자연어에는 보통 Android 시스템 식별자 대신 사람이 읽는 이름이 등장한다.
+예:
+- "카카오톡 실행"
+- "유튜브 강제 종료"
+- "카메라 권한 허용"
+- "위치 권한 거부"
+
+따라서 Shell Action Map이 실제 command를 생성하려면
+자연어 이름을 Android 식별자로 변환하는 별도 번역 계층이 필요하다.
+
+초기 설계:
+- `APP_ALIAS_REGISTRY`
+- `PERMISSION_ALIAS_REGISTRY`
+
+예시:
+
+```python
+APP_ALIAS_REGISTRY = {
+    "카카오톡": "com.kakao.talk",
+    "유튜브": "com.google.android.youtube",
+    "설정": "com.android.settings",
+}
+
+PERMISSION_ALIAS_REGISTRY = {
+    "카메라 권한": "android.permission.CAMERA",
+    "위치 권한": "android.permission.ACCESS_FINE_LOCATION",
+    "전화 권한": "android.permission.READ_PHONE_STATE",
+}
+```
+
+파라미터 해결 순서:
+
+1. 자연어에서 직접 시스템 식별자가 명시된 경우 우선 사용
+2. alias registry로 변환 시도
+3. context(precondition / extra / prior resolved app)에서 보완 추론
+4. 그래도 실패하면 placeholder + `UNRESOLVED_PARAMS`
+
+이 계층이 없으면 `package`, `permission` 추출 실패로 인해 placeholder 비율이 과도하게 높아질 수 있다.
+
 ### 5.5 Compiler 연동
 
 compiler가 `ClassifiedIntent`를 받을 때, `execution_mode == "SHELL_AUTO"`이면 shell_action_map을 조회:
@@ -451,6 +521,9 @@ SETTINGS_INTENTS = {
 
 alias normalize 필요: `와이파이`, `wifi`, `WiFi` → `Wi-Fi`
 exact mapping 실패 시 일반 설정 화면(`android.settings.SETTINGS`)으로 fallback.
+
+`open_settings`의 alias normalize는 settings 메뉴명 전용이며,
+앱 패키지명/권한명 변환은 `APP_ALIAS_REGISTRY` / `PERMISSION_ALIAS_REGISTRY`가 담당한다.
 
 ### 5.7 제한사항
 
@@ -523,6 +596,12 @@ def _normalize(self, text: str) -> str:
     return text
 ```
 
+### 6.5.1 구현 메모
+
+- numbered split 정규식은 줄 시작 또는 공백 경계를 고려해야 한다.
+- 예: `\d+\)` / `\d+\.` 패턴을 문장 중간 숫자와 혼동하지 않도록 주의
+- 괄호 내부 텍스트는 연결어 후처리 전에 임시 보호한 뒤 복원하는 방식이 바람직하다
+
 ### 6.6 기존 `/` 구분자 유지
 
 기존 패턴에 있던 `/` 구분자를 low-priority delimiter로 유지한다. 제거 시 회귀 테스트로 영향 확인.
@@ -557,6 +636,19 @@ python -m src.cli export-mmi TC_1.xlsx --sheet "SS-TC 1" \
 - 사용자 명시 옵션:
   - `--skip-unrunnable`: unrunnable TC 제외하고 나머지만 export
   - `--export-unrunnable`: placeholder/warning 포함 상태로 export
+
+Fail-fast 판정 순서:
+
+1. 먼저 export 대상 필터를 적용한다.
+   - `--only-class`
+   - `--include-semi`
+   - 기타 class 관련 필터
+2. 필터 적용 후 실제 export 대상 집합을 확정한다.
+3. 그 대상 집합에 대해 runnable 여부를 검사한다.
+4. 기본 정책에서는 unrunnable TC가 하나라도 있으면 export 전체를 중단하고 Exit Code 1을 반환한다.
+
+즉, export 대상이 아닌 TC의 unrunnable 상태 때문에 전체 export가 중단되지는 않는다.
+Abort 판정은 항상 **필터 적용 후 최종 export 대상 집합**을 기준으로 한다.
 
 ### 7.3 Export 대상 필터
 
@@ -612,8 +704,11 @@ steps:
 ### 7.5 tc_loader 호환성
 
 - `manual_pause`를 `VALID_ACTIONS`에 추가
-- `manual_pause`에 대한 action-specific validation 지원 (`description`, `manual_timeout`, `on_timeout`, `allow_skip`)
-- `metadata`, `execution_mode`, `step_role`, `compile_status`, `_unresolved_params` 필드를 optional로 허용 (permissive validation)
+- `manual_pause`에 대한 action-specific validation 지원
+  - required: `description`
+  - optional: `execution_mode`, `step_role`, `manual_timeout`, `on_timeout`, `allow_skip`
+- `metadata`, `execution_mode`, `step_role`, `compile_status`, `_unresolved_params` 필드를 optional로 허용
+- 단, permissive validation이라도 완전 무제한 허용은 아니며, 알 수 없는 핵심 필드는 warning 또는 validation error 대상으로 남긴다
 
 ### 7.6 파일명 정책
 
@@ -664,3 +759,4 @@ Export aborted: unrunnable TC 2개 발견
 2. **자연어 파라미터 추출**: package, permission 등 구체 값을 자연어에서 안정적으로 추출하기 어려움. placeholder + 수동 보완이 현실적 전략.
 3. **grant/revoke permission**: Android 버전/권한 종류에 따라 제약 존재.
 4. **기존 MMITCClassifier**: 당분간 유지하되 향후 StepClassifier 기반 집계로 대체 가능.
+5. **Alias Registry 필요성**: package / permission / settings menu의 자연어 표현과 Android 시스템 식별자 간 번역 계층이 충분히 준비되지 않으면 placeholder 생성 비율이 높아질 수 있다. 초기 구현 단계에서 alias registry를 병행 구축하는 것이 권장된다.
