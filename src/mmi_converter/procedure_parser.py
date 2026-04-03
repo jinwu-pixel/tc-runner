@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from enum import Enum
 
 from .models import Intent
 
@@ -32,32 +33,139 @@ TOGGLE_OFF_PATTERNS = [
 ]
 
 
-class ProcedureSegmenter:
-    _split_pattern = re.compile(
-        r"""
-        \s*>\s*|
-        \s*→\s*|
-        \s*->\s*|
-        \n+|
-        \r\n+|
-        \s+후\s+|
-        \s+그리고\s+|
-        \s*/\s*
-        """,
-        re.VERBOSE,
-    )
+class ProcedureFormat(Enum):
+    MENU_CHAIN = "menu_chain"
+    NUMBERED_PAREN = "numbered_paren"
+    NUMBERED_DOT = "numbered_dot"
+    CIRCLED = "circled"
+    NEWLINE = "newline"
+    MIXED = "mixed"
 
+
+class ProcedureSegmenter:
+    _menu_pattern = re.compile(r"\s*[>→]\s*|\s*->\s*")
+    _numbered_paren_pattern = re.compile(r"(?:^|\s)\d+\)\s*")
+    _numbered_dot_pattern = re.compile(r"(?:^|\s)\d+\.\s+")
+    _circled_pattern = re.compile(r"[①-⑳]\s*")
+    _connector_pattern = re.compile(r"\s+후\s+|\s+그리고\s+|\s+이후\s+")
+    _slash_pattern = re.compile(r"\s*/\s*")
     _numbered_prefix = re.compile(r"^\d+\.\s*")
+    _numbered_paren_prefix = re.compile(r"^\d+\)\s*")
+    _circled_prefix = re.compile(r"^[①-⑳]\s*")
 
     def split(self, text: str) -> list[str]:
         if not text:
             return []
-        raw_parts = self._split_pattern.split(text)
-        return [self._normalize(part) for part in raw_parts if self._normalize(part)]
+        fmt = self._detect_format(text)
+        raw = self._split_by_format(text, fmt)
+        return [self._normalize(part) for part in raw if self._normalize(part)]
+
+    def _detect_format(self, text: str) -> ProcedureFormat:
+        has_arrow = bool(re.search(r"[>→]|->", text))
+        has_num_paren = bool(re.search(r"\d+\)\s*\S", text))
+        has_num_dot = bool(re.search(r"\d+\.\s+\S", text))
+        has_circled = bool(re.search(r"[①-⑳]", text))
+        non_empty_lines = sum(1 for line in text.split("\n") if line.strip())
+        has_newlines = non_empty_lines >= 2
+
+        signals = sum([has_arrow, has_num_paren, has_num_dot, has_circled])
+        if signals >= 2:
+            return ProcedureFormat.MIXED
+        if has_num_paren:
+            return ProcedureFormat.NUMBERED_PAREN
+        if has_num_dot:
+            return ProcedureFormat.NUMBERED_DOT
+        if has_circled:
+            return ProcedureFormat.CIRCLED
+        if has_arrow:
+            return ProcedureFormat.MENU_CHAIN
+        if has_newlines:
+            return ProcedureFormat.NEWLINE
+        return ProcedureFormat.MIXED
+
+    def _split_by_format(self, text: str, fmt: ProcedureFormat) -> list[str]:
+        if fmt == ProcedureFormat.MENU_CHAIN:
+            parts = self._menu_pattern.split(text)
+        elif fmt == ProcedureFormat.NUMBERED_PAREN:
+            parts = self._numbered_paren_pattern.split(text)
+        elif fmt == ProcedureFormat.NUMBERED_DOT:
+            parts = self._numbered_dot_pattern.split(text)
+        elif fmt == ProcedureFormat.CIRCLED:
+            parts = self._circled_pattern.split(text)
+        elif fmt == ProcedureFormat.NEWLINE:
+            parts = text.split("\n")
+        else:
+            # MIXED: hierarchical
+            parts = self._split_mixed(text)
+
+        # Post-process: connectors at paren depth 0, then slash
+        result = []
+        for part in parts:
+            sub = self._split_connectors_safe(part)
+            for s in sub:
+                result.extend(self._slash_pattern.split(s))
+        return result
+
+    def _split_mixed(self, text: str) -> list[str]:
+        # Level 1: outer structure (numbered/circled/newline)
+        outer = re.split(r"(?:^|\s)\d+\)\s*|\d+\.\s+|[①-⑳]\s*|\n+", text)
+        # Level 2: menu chains inside each piece
+        result = []
+        for piece in outer:
+            if ">" in piece or "→" in piece or "->" in piece:
+                result.extend(self._menu_pattern.split(piece))
+            else:
+                result.append(piece)
+        return result
+
+    def _split_connectors_safe(self, text: str) -> list[str]:
+        """괄호 depth 0에서만 연결어로 분리."""
+        if "(" not in text:
+            return self._connector_pattern.split(text)
+
+        # Has parens — collect tokens at depth-0 and paren-enclosed blocks separately,
+        # then only split depth-0 tokens on connectors.
+        tokens: list[tuple[bool, str]] = []  # (is_depth0_text, chunk)
+        buf = ""
+        paren_depth = 0
+        for char in text:
+            if char == "(" and paren_depth == 0:
+                if buf:
+                    tokens.append((True, buf))
+                    buf = ""
+                paren_depth = 1
+                buf = char
+            elif char == "(" :
+                paren_depth += 1
+                buf += char
+            elif char == ")" and paren_depth == 1:
+                buf += char
+                tokens.append((False, buf))
+                buf = ""
+                paren_depth = 0
+            elif char == ")":
+                paren_depth = max(0, paren_depth - 1)
+                buf += char
+            else:
+                buf += char
+        if buf:
+            tokens.append((True, buf))
+
+        # Now split only depth-0 tokens on connectors, keep paren blocks intact
+        result = []
+        for is_depth0, chunk in tokens:
+            if is_depth0:
+                result.extend(self._connector_pattern.split(chunk))
+            else:
+                result.append(chunk)
+        return result if result else [text]
 
     def _normalize(self, text: str) -> str:
         text = " ".join(text.strip().split())
         text = self._numbered_prefix.sub("", text).strip()
+        text = self._numbered_paren_prefix.sub("", text).strip()
+        text = self._circled_prefix.sub("", text).strip()
+        text = re.sub(r"\(\s*\)", "", text).strip()
         return text
 
 

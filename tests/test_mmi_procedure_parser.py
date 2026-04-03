@@ -152,3 +152,42 @@ class TestParserMetadata:
         intents = parser.parse("Home 키 입력")
         assert intents[0].extra.get("matched_rule") == "key"
         assert intents[0].extra.get("parser_confidence") == 1.0
+
+
+class TestMultiFormatSegmenter:
+    def test_numbered_paren(self, segmenter):
+        result = segmenter.split("1) 앱 실행 2) 권한 거부 3) 뒤로가기")
+        assert result == ["앱 실행", "권한 거부", "뒤로가기"]
+
+    def test_numbered_dot(self, segmenter):
+        result = segmenter.split("1. 앱 실행 2. 권한 거부")
+        assert result == ["앱 실행", "권한 거부"]
+
+    def test_circled_numbers(self, segmenter):
+        result = segmenter.split("① 홈 화면 ② 설정 진입 ③ 확인")
+        assert result == ["홈 화면", "설정 진입", "확인"]
+
+    def test_menu_chain_still_works(self, segmenter):
+        result = segmenter.split("설정 > 네트워크 > Wi-Fi")
+        assert result == ["설정", "네트워크", "Wi-Fi"]
+
+    def test_mixed_numbered_and_menu(self, segmenter):
+        result = segmenter.split("1) 설정 > 네트워크 > Wi-Fi 2) 토글 On")
+        assert len(result) == 4
+        assert result[0] == "설정"
+        assert result[1] == "네트워크"
+        assert result[2] == "Wi-Fi"
+        assert result[3] == "토글 On"
+
+    def test_newline_format(self, segmenter):
+        result = segmenter.split("앱 실행\n권한 거부\n수신 전화")
+        assert result == ["앱 실행", "권한 거부", "수신 전화"]
+
+    def test_connector_after_in_parens_preserved(self, segmenter):
+        result = segmenter.split("(예: 원격제어 앱 실행 후 확인)")
+        # 괄호 내부의 "후"로 분리하지 않음
+        assert len(result) == 1
+
+    def test_slash_still_works(self, segmenter):
+        result = segmenter.split("설정 / 네트워크")
+        assert result == ["설정", "네트워크"]
