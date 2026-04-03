@@ -129,9 +129,77 @@ class TCRunnerCompiler:
                 return [{"action": "shell", "command": cmd, "execution_mode": "SHELL_AUTO"}], warnings
             warnings.append(f"shell_resolve_failed: {intent.target}")
 
+        # Semantic intent handlers
+        if intent.type == "app_launch":
+            return self._compile_app_launch(intent, ci, warnings)
+        if intent.type == "app_close":
+            return self._compile_app_close(intent, ci, warnings)
+        if intent.type == "navigate_back":
+            return [{"action": "key", "keycode": "BACK"}], warnings
+
+        # Toggle fallback: emit manual_pause instead of silent drop
+        if intent.type == "toggle":
+            target = intent.target or "대상 불명"
+            value = intent.value or "변경"
+            step = {
+                "action": "manual_pause",
+                "execution_mode": "MANUAL_REQUIRED",
+                "step_role": ci.step_role,
+                "description": f"{target} 토글을 {value}으로 변경하세요",
+                "manual_timeout": 300,
+                "on_timeout": "fail",
+            }
+            warnings.append(f"toggle_compile_not_implemented: '{target}' (value={value})")
+            warnings.append(f"manual_pause_inserted_for_toggle: {target}")
+            return [step], warnings
+
         # Default: use existing intent compilation
         compiled = self._compile_intent(intent, warnings)
         return compiled, warnings
+
+    def _compile_app_launch(self, intent: Intent, ci: ClassifiedIntent,
+                             warnings: list[str]) -> tuple[list[dict], list[str]]:
+        """app_launch intent → am start shell command."""
+        target = intent.target or ""
+        package = None
+        for name, pkg in APP_ALIAS_REGISTRY.items():
+            if name in target:
+                package = pkg
+                break
+        if package:
+            activity = ".MainActivity"
+            cmd = f"am start -n {package}/{activity}"
+            return [{"action": "shell", "command": cmd, "execution_mode": "SHELL_AUTO"}], warnings
+        # No package match — fallback to manual
+        step = {
+            "action": "manual_pause",
+            "execution_mode": "MANUAL_REQUIRED",
+            "step_role": ci.step_role,
+            "description": f"앱을 실행하세요: {target}",
+        }
+        warnings.append(f"app_launch_no_package_match: '{target}'")
+        return [step], warnings
+
+    def _compile_app_close(self, intent: Intent, ci: ClassifiedIntent,
+                            warnings: list[str]) -> tuple[list[dict], list[str]]:
+        """app_close intent → am force-stop shell command."""
+        target = intent.target or ""
+        package = None
+        for name, pkg in APP_ALIAS_REGISTRY.items():
+            if name in target:
+                package = pkg
+                break
+        if package:
+            cmd = f"am force-stop {package}"
+            return [{"action": "shell", "command": cmd, "execution_mode": "SHELL_AUTO"}], warnings
+        step = {
+            "action": "manual_pause",
+            "execution_mode": "MANUAL_REQUIRED",
+            "step_role": ci.step_role,
+            "description": f"앱을 종료하세요: {target}",
+        }
+        warnings.append(f"app_close_no_package_match: '{target}'")
+        return [step], warnings
 
     def _extract_shell_params(self, intent: Intent, action) -> dict:
         params = {}

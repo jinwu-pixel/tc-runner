@@ -1,6 +1,16 @@
 from __future__ import annotations
 
+import re
+
 from .models import ClassifiedIntent, ExecutionMode, Intent, StepRole
+
+
+# Semantic patterns: procedure text → intent type reclassification
+_SEMANTIC_PATTERNS: dict[str, list[str]] = {
+    "app_launch": [r"앱\s*실행", r"앱을?\s*(열|켜|실행)", r"실행\s*한다"],
+    "app_close": [r"앱\s*종료", r"종료\s*한다", r"앱을?\s*(닫|끄)"],
+    "navigate_back": [r"뒤로\s*가기", r"이전\s*화면", r"뒤로\s*이동", r"뒤로\s*돌아"],
+}
 
 
 EXTERNAL_KEYWORDS = [
@@ -34,6 +44,9 @@ _DEFAULT_MODE: dict[str, ExecutionMode] = {
     "verify_text": "UI_AUTO",
     "verify_shell": "SHELL_AUTO",
     "manual_required": "MANUAL_REQUIRED",
+    "app_launch": "SHELL_AUTO",
+    "app_close": "SHELL_AUTO",
+    "navigate_back": "UI_AUTO",
 }
 
 _DEFAULT_ROLE: dict[str, StepRole] = {
@@ -106,6 +119,15 @@ class StepClassifier:
         mode: ExecutionMode = _DEFAULT_MODE.get(intent.type, "UNSUPPORTED")
         role: StepRole = _DEFAULT_ROLE.get(intent.type, "ACTION")
 
+        # Stage 1.5: semantic reclassification
+        # If intent is UNSUPPORTED or generic navigate, check if the raw text
+        # matches a semantic pattern for a more specific intent type.
+        reclassified_type = self._try_semantic_reclassify(intent)
+        if reclassified_type:
+            intent.type = reclassified_type
+            mode = _DEFAULT_MODE.get(reclassified_type, mode)
+            reasons.append(f"semantic_reclassified: {reclassified_type}")
+
         if mode == "UNSUPPORTED":
             reasons.append(f"default_unsupported: intent type '{intent.type}'")
             return mode, role, confidence, reasons
@@ -125,6 +147,26 @@ class StepClassifier:
         role = self._refine_role(role, search_text, index, total)
 
         return mode, role, confidence, reasons
+
+    def _try_semantic_reclassify(self, intent: Intent) -> str | None:
+        """Check if intent's raw text matches a semantic pattern.
+
+        Only reclassifies UNSUPPORTED intents or generic 'navigate' intents
+        whose target text semantically describes an action (e.g. "앱 실행").
+        """
+        if intent.type not in ("navigate", "manual_required") and \
+           _DEFAULT_MODE.get(intent.type, "UNSUPPORTED") != "UNSUPPORTED":
+            return None
+
+        search = self._get_search_text(intent)
+        if not search:
+            return None
+
+        for intent_type, patterns in _SEMANTIC_PATTERNS.items():
+            for pattern in patterns:
+                if re.search(pattern, search):
+                    return intent_type
+        return None
 
     def _get_search_text(self, intent: Intent) -> str:
         parts = []

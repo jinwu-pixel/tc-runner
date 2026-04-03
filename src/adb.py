@@ -17,6 +17,7 @@ class ADB:
             result = subprocess.run(
                 self._base_cmd + ["shell", command],
                 capture_output=True, text=True, timeout=timeout,
+                encoding="utf-8", errors="replace",
             )
             return result.stdout
         except subprocess.TimeoutExpired:
@@ -42,6 +43,7 @@ class ADB:
             subprocess.run(
                 self._base_cmd + ["pull", remote, str(local_path)],
                 capture_output=True, text=True, timeout=10,
+                encoding="utf-8", errors="replace",
             )
         except subprocess.TimeoutExpired:
             raise TimeoutError("ADB pull screenshot timeout")
@@ -55,6 +57,7 @@ class ADB:
             result = subprocess.run(
                 self._base_cmd + ["shell", "cat", remote],
                 capture_output=True, text=True, timeout=10,
+                encoding="utf-8", errors="replace",
             )
             return result.stdout
         except subprocess.TimeoutExpired:
@@ -72,6 +75,7 @@ class ADB:
             result = subprocess.run(
                 self._base_cmd + ["devices"],
                 capture_output=True, text=True, timeout=5,
+                encoding="utf-8", errors="replace",
             )
             lines = result.stdout.strip().split("\n")
             return len(lines) > 1 and "device" in lines[1]

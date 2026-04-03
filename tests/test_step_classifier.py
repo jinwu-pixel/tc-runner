@@ -107,7 +107,7 @@ class TestStage2KeywordRefinement:
 
     def test_shell_candidate_without_map_stays_ui(self, classifier):
         """shell_action_map 없으면 SHELL_AUTO 승격 안 함."""
-        intents = [Intent(type="navigate", target="앱 실행")]
+        intents = [Intent(type="navigate", target="로그 초기화")]
         result = classifier.classify(intents)
         assert result[0].execution_mode == "UI_AUTO"
         assert any("shell_mapping_missing" in r for r in result[0].reasons)
@@ -181,3 +181,67 @@ class TestSummarizeTcClass:
             ClassifiedIntent(Intent(type="navigate", target="???"), "UNSUPPORTED", "ACTION"),
         ]
         assert classifier.summarize_tc_class(classified) == "SEMI_AUTO"
+
+
+class TestSemanticReclassification:
+    """시맨틱 패턴 기반 intent type 재분류 테스트."""
+
+    def test_navigate_app_launch_reclassified(self, classifier):
+        """'앱 실행' navigate intent → app_launch로 재분류."""
+        intents = [Intent(type="navigate", target="카카오톡 앱 실행")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "app_launch"
+        assert result[0].execution_mode == "SHELL_AUTO"
+        assert any("semantic_reclassified" in r for r in result[0].reasons)
+
+    def test_navigate_app_close_reclassified(self, classifier):
+        """'앱 종료' navigate intent → app_close로 재분류."""
+        intents = [Intent(type="navigate", target="앱 종료")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "app_close"
+        assert result[0].execution_mode == "SHELL_AUTO"
+
+    def test_navigate_back_reclassified(self, classifier):
+        """'뒤로 가기' navigate intent → navigate_back으로 재분류."""
+        intents = [Intent(type="navigate", target="뒤로 가기")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "navigate_back"
+        assert result[0].execution_mode == "UI_AUTO"
+
+    def test_navigate_back_from_raw_segment(self, classifier):
+        """raw_segment에 '이전 화면'이 있으면 navigate_back으로 재분류."""
+        intents = [Intent(type="navigate", target="돌아감",
+                          extra={"raw_segment": "이전 화면으로 돌아감"})]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "navigate_back"
+
+    def test_regular_navigate_not_reclassified(self, classifier):
+        """일반 navigate intent는 재분류되지 않음."""
+        intents = [Intent(type="navigate", target="설정")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "navigate"
+        assert result[0].execution_mode == "UI_AUTO"
+
+    def test_non_navigate_not_reclassified(self, classifier):
+        """tap_text 등 이미 구체적인 타입은 시맨틱 재분류 대상 아님."""
+        intents = [Intent(type="tap_text", target="앱 실행")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "tap_text"
+
+    def test_verify_text_not_reclassified(self, classifier):
+        """verify_text는 시맨틱 재분류 대상 아님."""
+        intents = [Intent(type="verify_text", target="앱 실행 확인")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "verify_text"
+
+    def test_app_launch_variant_앱을_연다(self, classifier):
+        """'앱을 연다' 패턴도 app_launch로 재분류."""
+        intents = [Intent(type="navigate", target="앱을 열기")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "app_launch"
+
+    def test_app_close_variant_닫는다(self, classifier):
+        """'앱을 닫는다' 패턴도 app_close로 재분류."""
+        intents = [Intent(type="navigate", target="앱을 닫는다")]
+        result = classifier.classify(intents)
+        assert result[0].intent.type == "app_close"

@@ -182,3 +182,86 @@ class TestClassifiedIntentCompilation:
         )
         steps, warnings = compiler.compile_classified(ci)
         assert steps[0] == {"action": "tap_text", "text": "설정"}
+
+    def test_toggle_emits_manual_pause_not_drop(self):
+        """toggle intent가 drop되지 않고 manual_pause 1건으로 살아남는다."""
+        compiler = TCRunnerCompiler()
+        ci = ClassifiedIntent(
+            intent=Intent(type="toggle", target="Wi-Fi", value="ON"),
+            execution_mode="UI_AUTO",
+            step_role="ACTION",
+        )
+        steps, warnings = compiler.compile_classified(ci)
+        assert len(steps) == 1
+        assert steps[0]["action"] == "manual_pause"
+        assert steps[0]["execution_mode"] == "MANUAL_REQUIRED"
+        assert "Wi-Fi" in steps[0]["description"]
+        assert "ON" in steps[0]["description"]
+        assert steps[0]["manual_timeout"] == 300
+        assert steps[0]["on_timeout"] == "fail"
+        assert any("toggle_compile_not_implemented" in w for w in warnings)
+        assert any("manual_pause_inserted_for_toggle" in w for w in warnings)
+
+
+class TestSemanticIntentCompilation:
+    """시맨틱 intent 타입(app_launch, app_close, navigate_back) 컴파일 테스트."""
+
+    def test_app_launch_known_package(self):
+        compiler = TCRunnerCompiler()
+        ci = ClassifiedIntent(
+            intent=Intent(type="app_launch", target="카카오톡 앱 실행"),
+            execution_mode="SHELL_AUTO",
+            step_role="ACTION",
+        )
+        steps, warnings = compiler.compile_classified(ci)
+        assert len(steps) == 1
+        assert steps[0]["action"] == "shell"
+        assert "com.kakao.talk" in steps[0]["command"]
+        assert "am start" in steps[0]["command"]
+
+    def test_app_launch_unknown_package_fallback(self):
+        compiler = TCRunnerCompiler()
+        ci = ClassifiedIntent(
+            intent=Intent(type="app_launch", target="알수없는앱"),
+            execution_mode="SHELL_AUTO",
+            step_role="ACTION",
+        )
+        steps, warnings = compiler.compile_classified(ci)
+        assert len(steps) == 1
+        assert steps[0]["action"] == "manual_pause"
+        assert any("app_launch_no_package_match" in w for w in warnings)
+
+    def test_app_close_known_package(self):
+        compiler = TCRunnerCompiler()
+        ci = ClassifiedIntent(
+            intent=Intent(type="app_close", target="유튜브 앱 종료"),
+            execution_mode="SHELL_AUTO",
+            step_role="ACTION",
+        )
+        steps, warnings = compiler.compile_classified(ci)
+        assert len(steps) == 1
+        assert steps[0]["action"] == "shell"
+        assert "am force-stop" in steps[0]["command"]
+        assert "com.google.android.youtube" in steps[0]["command"]
+
+    def test_app_close_unknown_package_fallback(self):
+        compiler = TCRunnerCompiler()
+        ci = ClassifiedIntent(
+            intent=Intent(type="app_close", target="미등록앱"),
+            execution_mode="SHELL_AUTO",
+            step_role="ACTION",
+        )
+        steps, warnings = compiler.compile_classified(ci)
+        assert steps[0]["action"] == "manual_pause"
+        assert any("app_close_no_package_match" in w for w in warnings)
+
+    def test_navigate_back(self):
+        compiler = TCRunnerCompiler()
+        ci = ClassifiedIntent(
+            intent=Intent(type="navigate_back", target="이전 화면"),
+            execution_mode="UI_AUTO",
+            step_role="ACTION",
+        )
+        steps, warnings = compiler.compile_classified(ci)
+        assert len(steps) == 1
+        assert steps[0] == {"action": "key", "keycode": "BACK"}

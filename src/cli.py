@@ -1,8 +1,17 @@
 import argparse
+import io
+import os
 import shutil
 import sys
 import tempfile
 from pathlib import Path
+
+# Windows 콘솔 UTF-8 강제
+if sys.platform == "win32":
+    os.system("")  # enable ANSI/VT100
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from src.adb import ADB
 from src.tc_loader import load_tc, TCValidationError
@@ -12,6 +21,7 @@ from src.excel_converter import convert_excel_to_yaml
 from src.mmi_converter.row_loader import load_mmi_rows
 from src.mmi_converter.service import MMIConversionService
 from src.mmi_converter.exporter import YAMLExporter, check_runnable
+from src.app_explorer import AppExplorer
 
 
 def _terminal_manual_handler(ctx: ManualStepContext) -> ManualStepAction:
@@ -287,6 +297,31 @@ def cmd_preview_mmi(args):
 
 
 
+def cmd_explore(args):
+    """앱 자동 탐색 커맨드: 앱의 화면 구조를 수집하여 JSON 맵으로 저장한다."""
+    adb = ADB()
+    if not adb.is_connected():
+        print("ERROR: ADB에 연결된 단말이 없습니다.")
+        sys.exit(1)
+
+    package = args.package
+    activity = args.activity or ".MainActivity"
+    output = Path(args.output) if args.output else Path(f"app_map_{package.split('.')[-1]}.json")
+
+    print(f"앱 탐색 시작: {package}")
+    print(f"Device: {adb.get_device_info().get('model', '?')}")
+
+    explorer = AppExplorer(
+        adb=adb,
+        wait_after_tap=args.wait,
+        max_elements=args.max_elements,
+    )
+    app_map = explorer.explore(package, activity)
+    explorer.save(app_map, output)
+    explorer.print_summary(app_map)
+    print(f"\n  저장 완료: {output}")
+
+
 def cmd_export_mmi(args):
     """MMI 엑셀 T/C 변환 및 YAML export."""
     xlsx_path = Path(args.xlsx_file)
@@ -368,11 +403,37 @@ def cmd_export_mmi(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Android T/C 자동 실행 도구")
+    parser = argparse.ArgumentParser(
+        description="tc-runner: Android T/C 자동 실행 도구",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""사용 예시:
+  python -m src.cli devices                              # 연결된 단말 확인
+  python -m src.cli explore com.example.app              # 앱 화면 구조 탐색
+  python -m src.cli run exported_tc1/SS_*.yaml           # TC 실행
+  python -m src.cli run tc_samples/TC_1.xlsx             # 엑셀 TC 직접 실행
+  python -m src.cli convert tc_samples/TC_1.xlsx         # 엑셀 → YAML 변환
+  python -m src.cli preview-mmi tc_samples/TC_1.xlsx     # MMI TC 분석 미리보기
+  python -m src.cli export-mmi tc_samples/TC_1.xlsx      # MMI TC → YAML export
+""",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    # devices
+    devices_parser = subparsers.add_parser("devices", help="연결된 단말 확인")
+    devices_parser.set_defaults(func=cmd_devices)
+
+    # explore
+    explore_parser = subparsers.add_parser(
+        "explore", help="앱 화면 구조 자동 탐색 → JSON 맵 저장")
+    explore_parser.add_argument("package", help="앱 패키지명 (예: com.example.seniorshield)")
+    explore_parser.add_argument("--activity", help="시작 액티비티 (기본: .MainActivity)")
+    explore_parser.add_argument("--output", "-o", help="출력 JSON 경로 (기본: app_map_<앱명>.json)")
+    explore_parser.add_argument("--wait", type=float, default=2.0, help="탭 후 대기 시간 (초, 기본: 2.0)")
+    explore_parser.add_argument("--max-elements", type=int, default=20, help="최대 탐색 요소 수 (기본: 20)")
+    explore_parser.set_defaults(func=cmd_explore)
+
     # run
-    run_parser = subparsers.add_parser("run", help="T/C 실행")
+    run_parser = subparsers.add_parser("run", help="YAML/엑셀 T/C 실행")
     run_parser.add_argument("tc_files", nargs="+", help="YAML 또는 엑셀(.xlsx) T/C 파일 경로")
     run_parser.set_defaults(func=cmd_run)
 
@@ -382,12 +443,8 @@ def main():
     convert_parser.add_argument("-o", "--output", help="출력 디렉토리 (기본: tc_samples/)")
     convert_parser.set_defaults(func=cmd_convert)
 
-    # devices
-    devices_parser = subparsers.add_parser("devices", help="연결된 단말 확인")
-    devices_parser.set_defaults(func=cmd_devices)
-
     # preview-mmi
-    preview_parser = subparsers.add_parser("preview-mmi", help="MMI 엑셀 T/C 변환 미리보기")
+    preview_parser = subparsers.add_parser("preview-mmi", help="MMI 엑셀 T/C 분석 미리보기")
     preview_parser.add_argument("xlsx_file", help="MMI 엑셀 파일 경로")
     preview_parser.add_argument("--sheet", default="ODIN 기본기능 TC(MMI 내용추가)(4번)", help="시트명")
     preview_parser.add_argument("--rows", help="행 범위 (예: 1-20, 5,10,15)")

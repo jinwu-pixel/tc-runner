@@ -38,6 +38,9 @@ IntentType = Literal[
     "verify_text",
     "verify_shell",
     "manual_required",
+    "app_launch",
+    "app_close",
+    "navigate_back",
 ]
 
 

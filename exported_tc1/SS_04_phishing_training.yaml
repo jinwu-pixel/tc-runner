@@ -1,0 +1,33 @@
+name: "SS_04_보이스피싱대응연습_진입확인"
+description: "메인 → 보이스피싱 대응 연습 → 시나리오 목록 확인 → 뒤로"
+steps:
+  - action: key
+    keycode: HOME
+  - action: wait
+    seconds: 1
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    seconds: 3
+  - action: tap_text
+    text: "보이스피싱 대응 연습"
+  - action: wait
+    seconds: 2
+  - action: screenshot
+    name: "SS04_01_training_screen"
+  - action: verify_text
+    text: "실제 보이스피싱 시나리오를 체험하고"
+  - action: verify_text
+    text: "검찰 사칭 사기"
+  - action: verify_text
+    text: "3단계"
+  - action: verify_text
+    text: "대출 사기"
+  - action: verify_text
+    text: "2단계"
+  - action: verify_text
+    text: "자녀 사칭 사기"
+  - action: screenshot
+    name: "SS04_02_verified"
+  - action: key
+    keycode: BACK

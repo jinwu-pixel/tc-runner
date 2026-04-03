@@ -17,6 +17,7 @@ def test_shell_returns_output(mock_run):
     mock_run.assert_called_once_with(
         ["adb", "shell", "dumpsys wifi"],
         capture_output=True, text=True, timeout=10,
+        encoding="utf-8", errors="replace",
     )
 
 
@@ -39,6 +40,7 @@ def test_tap_calls_input_tap(mock_run):
     mock_run.assert_called_once_with(
         ["adb", "shell", "input tap 500 1000"],
         capture_output=True, text=True, timeout=10,
+        encoding="utf-8", errors="replace",
     )
 
 
@@ -50,6 +52,7 @@ def test_key_calls_keyevent(mock_run):
     mock_run.assert_called_once_with(
         ["adb", "shell", "input keyevent HOME"],
         capture_output=True, text=True, timeout=10,
+        encoding="utf-8", errors="replace",
     )
 
 

@@ -16,7 +16,7 @@ class MMIConversionService:
         self.compiler = TCRunnerCompiler()
         self.step_classifier = StepClassifier()
 
-    def convert_row(self, row: MMIRow) -> ConversionPreview:
+    def convert_row(self, row: MMIRow, app_context: dict | None = None) -> ConversionPreview:
         classification = self.classifier.classify(row)
 
         # Always parse and classify steps (no short-circuit)
@@ -34,10 +34,13 @@ class MMIConversionService:
 
         # Step-level classification
         all_intents = ir.all_intents
-        classified = self.step_classifier.classify(all_intents, context={
+        ctx = {
             "precondition": row.precondition,
             "source_row": row,
-        })
+        }
+        if app_context:
+            ctx["app_context"] = app_context
+        classified = self.step_classifier.classify(all_intents, context=ctx)
         tc_class_from_steps = self.step_classifier.summarize_tc_class(classified)
 
         if not classification.is_convertible and not all_intents:
@@ -53,27 +56,48 @@ class MMIConversionService:
                 classified_intents=classified,
             )
 
-        # Non-convertible classes from the row-level classifier take precedence
-        if not classification.is_convertible:
-            return ConversionPreview(
-                tc_name=row.tc_name,
-                automation_class=classification.automation_class,
-                source_procedure=row.procedure,
-                source_expected=row.expected_result,
-                parsed_intents=all_intents,
-                compiled_steps=[],
-                warnings=[],
-                reasons=classification.reasons,
-                classified_intents=classified,
-            )
-
-        # Compile via ClassifiedIntent path (honors ExecutionMode)
+        # Always compile via ClassifiedIntent path (honors ExecutionMode)
         compiled_steps = []
         all_warnings = list(ir.warnings)
         for ci in classified:
             steps, warns = self.compiler.compile_classified(ci)
             compiled_steps.extend(steps)
             all_warnings.extend(warns)
+
+        # Legacy override: if legacy says non-convertible but step-level
+        # classifier says automatable AND compilation produced real auto
+        # steps, trust the step-level result instead.
+        _AUTO_ACTIONS = {"tap_text", "tap_id", "tap_xy", "key", "shell",
+                         "input_text", "swipe", "wait", "screenshot"}
+        if not classification.is_convertible:
+            has_auto_steps = any(
+                s.get("action") in _AUTO_ACTIONS for s in compiled_steps
+            )
+            override = (
+                tc_class_from_steps in ("FULL_AUTO", "SEMI_AUTO")
+                and has_auto_steps
+            )
+            if override:
+                all_warnings.append(
+                    f"legacy_override_applied: legacy={classification.automation_class}, "
+                    f"step_summary={tc_class_from_steps}"
+                )
+                all_warnings.append(
+                    f"legacy_non_convertible_but_step_summary_{tc_class_from_steps.lower()}"
+                )
+            else:
+                # Legacy is correct — no steps or step classifier also says non-auto
+                return ConversionPreview(
+                    tc_name=row.tc_name,
+                    automation_class=classification.automation_class,
+                    source_procedure=row.procedure,
+                    source_expected=row.expected_result,
+                    parsed_intents=all_intents,
+                    compiled_steps=compiled_steps,
+                    warnings=all_warnings,
+                    reasons=classification.reasons,
+                    classified_intents=classified,
+                )
 
         final_class = self._maybe_downgrade(
             tc_class_from_steps,

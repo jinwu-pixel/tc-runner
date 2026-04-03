@@ -1,0 +1,29 @@
+name: "SS_03_전체감지기록_진입확인"
+description: "메인 → 전체 감지 기록 보기 → 기록 항목 확인 → 뒤로"
+steps:
+  - action: key
+    keycode: HOME
+  - action: wait
+    seconds: 1
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    seconds: 3
+  - action: tap_text
+    text: "전체 감지 기록 보기"
+  - action: wait
+    seconds: 2
+  - action: screenshot
+    name: "SS03_01_detection_history"
+  - action: verify_text
+    text: "전체 감지 기록"
+  - action: verify_text
+    text: "반복 전화 경고"
+  - action: verify_text
+    text: "장시간 의심 통화 감지"
+  - action: verify_text
+    text: "금융사기 의심 흐름 감지"
+  - action: screenshot
+    name: "SS03_02_verified"
+  - action: key
+    keycode: BACK
