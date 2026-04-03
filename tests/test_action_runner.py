@@ -2,7 +2,7 @@ import time
 from unittest.mock import MagicMock, patch
 from pathlib import Path
 
-from src.action_runner import ActionRunner, StepResult
+from src.action_runner import ActionRunner, StepResult, ManualStepAction, ManualStepContext
 
 
 SAMPLE_XML = """<?xml version="1.0" encoding="UTF-8"?>
@@ -105,3 +105,54 @@ def test_verify_text_not_found():
     runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
     result = runner.run_step({"action": "verify_text", "text": "없는텍스트"})
     assert result.passed is False
+
+
+class TestHybridPause:
+    def test_manual_step_without_handler_fails(self):
+        """no-handler → fail-fast."""
+        runner = make_runner()
+        step = {"action": "manual_pause", "execution_mode": "MANUAL_REQUIRED",
+                "description": "이어폰 연결"}
+        result = runner.run_step(step)
+        assert not result.passed
+        assert "manual handler not configured" in result.message
+
+    def test_manual_step_continue(self):
+        """continue → passed=True."""
+        def handler(ctx):
+            return ManualStepAction(decision="continue")
+        adb = MagicMock()
+        runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"),
+                            on_manual_step=handler)
+        step = {"action": "manual_pause", "execution_mode": "EXTERNAL_EVENT",
+                "description": "보조폰에서 전화"}
+        result = runner.run_step(step)
+        assert result.passed
+        assert result.manual_action == "continue"
+
+    def test_manual_step_skip(self):
+        """skip → passed=False, manual_action='skip'."""
+        def handler(ctx):
+            return ManualStepAction(decision="skip", reason="장비 없음")
+        adb = MagicMock()
+        runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"),
+                            on_manual_step=handler)
+        step = {"action": "manual_pause", "execution_mode": "MANUAL_REQUIRED",
+                "description": "이어폰 연결"}
+        result = runner.run_step(step)
+        assert not result.passed
+        assert result.manual_action == "skip"
+        assert result.skip_reason == "장비 없음"
+
+    def test_manual_step_fail(self):
+        """fail → passed=False, manual_action='fail'."""
+        def handler(ctx):
+            return ManualStepAction(decision="fail")
+        adb = MagicMock()
+        runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"),
+                            on_manual_step=handler)
+        step = {"action": "manual_pause", "execution_mode": "MANUAL_REQUIRED",
+                "description": "test"}
+        result = runner.run_step(step)
+        assert not result.passed
+        assert result.manual_action == "fail"

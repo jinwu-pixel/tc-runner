@@ -6,11 +6,35 @@ from pathlib import Path
 
 from src.adb import ADB
 from src.tc_loader import load_tc, TCValidationError
-from src.action_runner import ActionRunner
+from src.action_runner import ActionRunner, ManualStepAction, ManualStepContext
 from src.reporter import Reporter, TCResult
 from src.excel_converter import convert_excel_to_yaml
 from src.mmi_converter.row_loader import load_mmi_rows
 from src.mmi_converter.service import MMIConversionService
+
+
+def _terminal_manual_handler(ctx: ManualStepContext) -> ManualStepAction:
+    mode = ctx.execution_mode
+    desc = ctx.step.get("description", ctx.step.get("text", ""))
+    timeout = ctx.timeout_seconds or 300
+
+    print(f"\n  !! [{mode}] 수동 개입 필요:")
+    print(f"     {desc}")
+    print(f"     제한 시간: {timeout}초")
+    print(f"     [c] 계속  [s] 건너뛰기  [f] 실패 처리")
+
+    while True:
+        try:
+            choice = input("     선택: ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            return ManualStepAction(decision="fail")
+        if choice in ("c", "continue", ""):
+            return ManualStepAction(decision="continue")
+        if choice in ("s", "skip"):
+            reason = input("     사유: ").strip()
+            return ManualStepAction(decision="skip", reason=reason)
+        if choice in ("f", "fail"):
+            return ManualStepAction(decision="fail")
 
 
 def _resolve_tc_files(patterns: list[str]) -> tuple[list[Path], list[Path]]:
@@ -57,7 +81,8 @@ def cmd_run(args):
     screenshot_dir = report_dir / "screenshots"
     reporter = Reporter(report_dir=report_dir)
     reporter.device_info = adb.get_device_info()
-    runner = ActionRunner(adb=adb, screenshot_dir=screenshot_dir)
+    runner = ActionRunner(adb=adb, screenshot_dir=screenshot_dir,
+                         on_manual_step=_terminal_manual_handler)
 
     tc_files, temp_dirs = _resolve_tc_files(args.tc_files)
 
