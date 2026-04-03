@@ -156,3 +156,32 @@ class TestHybridPause:
         result = runner.run_step(step)
         assert not result.passed
         assert result.manual_action == "fail"
+
+    def test_manual_step_timeout(self):
+        """timeout → fail with timeout reason."""
+        import time as _time
+        def slow_handler(ctx):
+            _time.sleep(10)  # will be interrupted by timeout
+            return ManualStepAction(decision="continue")
+        adb = MagicMock()
+        runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"),
+                            on_manual_step=slow_handler)
+        step = {"action": "manual_pause", "execution_mode": "MANUAL_REQUIRED",
+                "description": "test", "manual_timeout": 1}
+        result = runner.run_step(step)
+        assert not result.passed
+        assert result.manual_action == "fail"
+        assert "timeout" in result.message.lower() or "timeout" in (result.skip_reason or "")
+
+    def test_manual_step_handler_exception(self):
+        """handler exception → fail gracefully."""
+        def error_handler(ctx):
+            raise RuntimeError("device disconnected")
+        adb = MagicMock()
+        runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"),
+                            on_manual_step=error_handler)
+        step = {"action": "manual_pause", "execution_mode": "MANUAL_REQUIRED",
+                "description": "test"}
+        result = runner.run_step(step)
+        assert not result.passed
+        assert "error" in result.message.lower() or "disconnect" in result.message.lower()

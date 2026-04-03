@@ -256,6 +256,12 @@ def cmd_preview_mmi(args):
         if preview.reasons:
             print(f"  Reasons   : {'; '.join(preview.reasons)}")
 
+        # 병목 분석: 레거시 분류기가 차단한 경우
+        if preview.automation_class in ("AMBIGUOUS_NL", "OUT_OF_SCOPE") and preview.classified_intents:
+            step_class = svc.step_classifier.summarize_tc_class(preview.classified_intents)
+            if step_class in ("FULL_AUTO", "SEMI_AUTO"):
+                print(f"  Bottleneck: 레거시 분류기가 차단 (StepClassifier 판정: {step_class})")
+
     # 요약
     total = sum(stats.values())
     print(f"\n{'='*60}")
@@ -267,6 +273,18 @@ def cmd_preview_mmi(args):
             print(f"  {cls:20s}: {cnt:4d} ({pct:.1f}%)")
     print(f"  {'Warnings':20s}: {warning_count:4d}")
     print(f"  {'Displayed':20s}: {displayed:4d}")
+
+    # 병목 통계
+    legacy_blocked = 0
+    for row in rows:
+        preview = svc.convert_row(row)
+        if preview.automation_class in ("AMBIGUOUS_NL", "OUT_OF_SCOPE") and preview.classified_intents:
+            step_class = svc.step_classifier.summarize_tc_class(preview.classified_intents)
+            if step_class in ("FULL_AUTO", "SEMI_AUTO"):
+                legacy_blocked += 1
+    if legacy_blocked:
+        print(f"  {'Legacy blocked':20s}: {legacy_blocked:4d} (StepClassifier로는 자동화 가능)")
+
 
 
 def cmd_export_mmi(args):

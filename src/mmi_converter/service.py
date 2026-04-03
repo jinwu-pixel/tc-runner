@@ -67,14 +67,20 @@ class MMIConversionService:
                 classified_intents=classified,
             )
 
-        compiled = self.compiler.compile(ir, automation_class=tc_class_from_steps)
+        # Compile via ClassifiedIntent path (honors ExecutionMode)
+        compiled_steps = []
+        all_warnings = list(ir.warnings)
+        for ci in classified:
+            steps, warns = self.compiler.compile_classified(ci)
+            compiled_steps.extend(steps)
+            all_warnings.extend(warns)
 
         final_class = self._maybe_downgrade(
             tc_class_from_steps,
             intents=intents,
             expected_intents=expected_intents,
-            compiled_steps=compiled["steps"],
-            warnings=compiled["metadata"]["warnings"],
+            compiled_steps=compiled_steps,
+            warnings=all_warnings,
             segments=self.procedure_parser.segmenter.split(row.procedure),
             has_expected_text=bool(row.expected_result.strip()),
         )
@@ -85,8 +91,8 @@ class MMIConversionService:
             source_procedure=row.procedure,
             source_expected=row.expected_result,
             parsed_intents=ir.all_intents,
-            compiled_steps=compiled["steps"],
-            warnings=compiled["metadata"]["warnings"],
+            compiled_steps=compiled_steps,
+            warnings=all_warnings,
             reasons=classification.reasons,
             classified_intents=classified,
         )

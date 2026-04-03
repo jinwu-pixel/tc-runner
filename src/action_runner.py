@@ -1,3 +1,4 @@
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -96,7 +97,17 @@ class ActionRunner:
             timeout_seconds=step.get("manual_timeout", 300),
         )
 
-        result_action = self.on_manual_step(ctx)
+        try:
+            result_action = self._invoke_handler_with_timeout(ctx)
+        except Exception as e:
+            duration = time.time() - start
+            return StepResult(
+                action=action, passed=False,
+                message=f"Manual handler error: {e}",
+                duration=duration, execution_mode=exec_mode,
+                manual_action="fail", paused=True,
+                pause_screenshot_path=pause_screenshot,
+            )
         duration = time.time() - start
 
         if result_action.decision == "continue":
@@ -116,13 +127,42 @@ class ActionRunner:
                 paused=True, pause_screenshot_path=pause_screenshot,
             )
         else:  # fail
+            fail_msg = f"Manual step failed: {result_action.reason}" if result_action.reason else "Manual step failed"
             return StepResult(
                 action=action, passed=False,
-                message="Manual step failed",
+                message=fail_msg,
                 duration=duration, execution_mode=exec_mode,
                 manual_action="fail", paused=True,
                 pause_screenshot_path=pause_screenshot,
             )
+
+    def _invoke_handler_with_timeout(self, ctx: ManualStepContext) -> ManualStepAction:
+        """Handler를 timeout 제한 내에서 호출한다."""
+        timeout = ctx.timeout_seconds or 300
+        result_holder: list[ManualStepAction] = []
+        error_holder: list[Exception] = []
+
+        def _run():
+            try:
+                result_holder.append(self.on_manual_step(ctx))
+            except Exception as e:
+                error_holder.append(e)
+
+        thread = threading.Thread(target=_run, daemon=True)
+        thread.start()
+        thread.join(timeout=timeout)
+
+        if thread.is_alive():
+            # Timeout — thread은 daemon이므로 프로세스 종료 시 자동 정리
+            return ManualStepAction(decision="fail", reason=f"timeout ({timeout}s)")
+
+        if error_holder:
+            raise error_holder[0]
+
+        if result_holder:
+            return result_holder[0]
+
+        return ManualStepAction(decision="fail", reason="handler returned no result")
 
     def _dispatch(self, action: str, step: dict) -> tuple[bool, str]:
         handlers = {

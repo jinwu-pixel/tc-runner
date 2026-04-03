@@ -32,7 +32,7 @@ def _make_filename(tc_name: str, procedure: str, expected: str) -> str:
     safe = re.sub(r"\s+", "_", safe.strip())[:80]
     content_hash = hashlib.sha256(
         f"{tc_name}{procedure}{expected}".encode()
-    ).hexdigest()[:4]
+    ).hexdigest()[:8]
     return f"{safe}_{content_hash}.yaml"
 
 
