@@ -11,6 +11,7 @@ from src.reporter import Reporter, TCResult
 from src.excel_converter import convert_excel_to_yaml
 from src.mmi_converter.row_loader import load_mmi_rows
 from src.mmi_converter.service import MMIConversionService
+from src.mmi_converter.exporter import YAMLExporter, check_runnable
 
 
 def _terminal_manual_handler(ctx: ManualStepContext) -> ManualStepAction:
@@ -268,6 +269,86 @@ def cmd_preview_mmi(args):
     print(f"  {'Displayed':20s}: {displayed:4d}")
 
 
+def cmd_export_mmi(args):
+    """MMI 엑셀 T/C 변환 및 YAML export."""
+    xlsx_path = Path(args.xlsx_file)
+    if not xlsx_path.exists():
+        print(f"ERROR: {xlsx_path} not found")
+        sys.exit(1)
+
+    try:
+        rows = load_mmi_rows(xlsx_path, sheet_name=args.sheet)
+    except ValueError as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+
+    if not rows:
+        print("ERROR: No rows loaded")
+        sys.exit(1)
+
+    svc = MMIConversionService()
+    previews = []
+    for row in rows:
+        preview = svc.convert_row(row)
+        previews.append((row, preview))
+
+    # Filter by class
+    target_classes = {"FULL_AUTO"}
+    if args.include_semi:
+        target_classes.add("SEMI_AUTO")
+    if args.only_class:
+        target_classes = {args.only_class}
+
+    filtered = [(r, p) for r, p in previews if p.automation_class in target_classes]
+
+    if args.dry_run:
+        for _, preview in filtered:
+            runnable, issues = check_runnable(preview)
+            status = "RUNNABLE" if runnable else "UNRUNNABLE"
+            print(f"  [{status}] {preview.tc_name} [{preview.automation_class}]")
+            for issue in issues:
+                print(f"    ! {issue}")
+        print(f"\nTotal: {len(filtered)} TCs")
+        return
+
+    # Check runnable (fail-fast)
+    unrunnable = [(r, p) for r, p in filtered if not check_runnable(p)[0]]
+    if unrunnable and not args.skip_unrunnable and not args.export_unrunnable:
+        print(f"Export aborted: unrunnable TC {len(unrunnable)}개 발견")
+        for _, p in unrunnable:
+            _, issues = check_runnable(p)
+            print(f"  {p.tc_name}: {'; '.join(issues)}")
+        print(f"\n힌트:")
+        print(f"  --skip-unrunnable         제외하고 계속 진행")
+        print(f"  --export-unrunnable       placeholder 포함 export")
+        sys.exit(1)
+
+    if args.skip_unrunnable:
+        filtered = [(r, p) for r, p in filtered if check_runnable(p)[0]]
+
+    output_dir = Path(args.output_dir)
+    exporter = YAMLExporter(output_dir=output_dir, overwrite=args.overwrite)
+
+    created = 0
+    skipped = 0
+    for row, preview in filtered:
+        path = exporter.export_one(
+            preview,
+            source_file=xlsx_path.name,
+            source_sheet=args.sheet,
+            source_row=row.row_index,
+        )
+        if path:
+            created += 1
+        else:
+            skipped += 1
+
+    print(f"\nExport 완료:")
+    print(f"  생성      : {created}개")
+    print(f"  건너뜀    : {skipped}개")
+    print(f"  출력 디렉토리: {output_dir}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Android T/C 자동 실행 도구")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -296,6 +377,19 @@ def main():
     preview_parser.add_argument("--limit", type=int, help="최대 출력 건수")
     preview_parser.add_argument("--show-warnings-only", action="store_true", help="경고가 있는 건만 출력")
     preview_parser.set_defaults(func=cmd_preview_mmi)
+
+    # export-mmi
+    export_parser = subparsers.add_parser("export-mmi", help="MMI 엑셀 T/C → YAML export")
+    export_parser.add_argument("xlsx_file", help="MMI 엑셀 파일 경로")
+    export_parser.add_argument("--sheet", default="ODIN 기본기능 TC(MMI 내용추가)(4번)", help="시트명")
+    export_parser.add_argument("--output-dir", default="exported", help="출력 디렉토리")
+    export_parser.add_argument("--dry-run", action="store_true", help="미리보기만 (파일 생성 없음)")
+    export_parser.add_argument("--only-class", help="분류 필터")
+    export_parser.add_argument("--include-semi", action="store_true", help="SEMI_AUTO도 포함")
+    export_parser.add_argument("--skip-unrunnable", action="store_true", help="unrunnable 제외")
+    export_parser.add_argument("--export-unrunnable", action="store_true", help="unrunnable도 export")
+    export_parser.add_argument("--overwrite", action="store_true", help="기존 파일 덮어쓰기")
+    export_parser.set_defaults(func=cmd_export_mmi)
 
     args = parser.parse_args()
     args.func(args)
