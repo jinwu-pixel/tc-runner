@@ -106,6 +106,7 @@ class ConversionPreview:
     compiled_steps: list[dict]
     warnings: list[str] = field(default_factory=list)
     reasons: list[str] = field(default_factory=list)
+    classified_intents: list[ClassifiedIntent] = field(default_factory=list)
 
 
 @dataclass(slots=True)

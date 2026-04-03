@@ -9,6 +9,8 @@ from src.tc_loader import load_tc, TCValidationError
 from src.action_runner import ActionRunner
 from src.reporter import Reporter, TCResult
 from src.excel_converter import convert_excel_to_yaml
+from src.mmi_converter.row_loader import load_mmi_rows
+from src.mmi_converter.service import MMIConversionService
 
 
 def _resolve_tc_files(patterns: list[str]) -> tuple[list[Path], list[Path]]:
@@ -134,6 +136,113 @@ def cmd_devices(args):
         print("연결된 단말이 없습니다.")
 
 
+def _parse_row_filter(rows_arg: str | None, total: int) -> set[int] | None:
+    """--rows 인자를 파싱하여 인덱스 set을 반환한다."""
+    if not rows_arg:
+        return None
+    indices = set()
+    for part in rows_arg.split(","):
+        part = part.strip()
+        if "-" in part:
+            start, end = part.split("-", 1)
+            indices.update(range(int(start), int(end) + 1))
+        else:
+            indices.add(int(part))
+    return indices
+
+
+def cmd_preview_mmi(args):
+    """MMI 엑셀 T/C 변환 미리보기."""
+    xlsx_path = Path(args.xlsx_file)
+    if not xlsx_path.exists():
+        print(f"ERROR: {xlsx_path} not found")
+        sys.exit(1)
+
+    try:
+        rows = load_mmi_rows(xlsx_path, sheet_name=args.sheet)
+    except ValueError as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+
+    if not rows:
+        print("ERROR: No rows loaded")
+        sys.exit(1)
+
+    svc = MMIConversionService()
+    row_filter = _parse_row_filter(args.rows, len(rows))
+
+    stats = {"FULL_AUTO": 0, "SEMI_AUTO": 0, "MANUAL_REQUIRED": 0, "AMBIGUOUS_NL": 0, "OUT_OF_SCOPE": 0}
+    warning_count = 0
+    displayed = 0
+
+    for i, row in enumerate(rows, 1):
+        if row_filter and i not in row_filter:
+            continue
+
+        preview = svc.convert_row(row)
+        stats[preview.automation_class] = stats.get(preview.automation_class, 0) + 1
+
+        if preview.warnings:
+            warning_count += 1
+
+        if args.only_class and preview.automation_class != args.only_class:
+            continue
+
+        if args.show_warnings_only and not preview.warnings:
+            continue
+
+        if args.limit and displayed >= args.limit:
+            continue
+
+        displayed += 1
+
+        # 출력
+        class_label = preview.automation_class
+        print(f"\n{'='*60}")
+        print(f"  [{i}] {preview.tc_name}  [{class_label}]")
+        print(f"{'='*60}")
+        print(f"  Procedure : {preview.source_procedure[:120]}")
+        print(f"  Expected  : {preview.source_expected[:100]}")
+
+        if preview.parsed_intents:
+            print(f"  Intents   :")
+            for intent in preview.parsed_intents:
+                extra = f" target={intent.target}" if intent.target else ""
+                extra += f" value={intent.value}" if intent.value else ""
+                print(f"    - {intent.type}{extra}")
+
+        if preview.classified_intents:
+            print(f"  Step Classes:")
+            for ci in preview.classified_intents:
+                extra = f" target={ci.intent.target}" if ci.intent.target else ""
+                print(f"    - [{ci.execution_mode}|{ci.step_role}] {ci.intent.type}{extra}")
+
+        if preview.compiled_steps:
+            print(f"  Steps     :")
+            for step in preview.compiled_steps:
+                print(f"    - {step}")
+
+        if preview.warnings:
+            print(f"  Warnings  :")
+            for w in preview.warnings:
+                print(f"    ! {w[:100]}")
+
+        if preview.reasons:
+            print(f"  Reasons   : {'; '.join(preview.reasons)}")
+
+    # 요약
+    total = sum(stats.values())
+    print(f"\n{'='*60}")
+    print(f"  SUMMARY ({total} rows)")
+    print(f"{'='*60}")
+    for cls, cnt in stats.items():
+        if cnt > 0:
+            pct = cnt / total * 100 if total else 0
+            print(f"  {cls:20s}: {cnt:4d} ({pct:.1f}%)")
+    print(f"  {'Warnings':20s}: {warning_count:4d}")
+    print(f"  {'Displayed':20s}: {displayed:4d}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Android T/C 자동 실행 도구")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -152,6 +261,16 @@ def main():
     # devices
     devices_parser = subparsers.add_parser("devices", help="연결된 단말 확인")
     devices_parser.set_defaults(func=cmd_devices)
+
+    # preview-mmi
+    preview_parser = subparsers.add_parser("preview-mmi", help="MMI 엑셀 T/C 변환 미리보기")
+    preview_parser.add_argument("xlsx_file", help="MMI 엑셀 파일 경로")
+    preview_parser.add_argument("--sheet", default="ODIN 기본기능 TC(MMI 내용추가)(4번)", help="시트명")
+    preview_parser.add_argument("--rows", help="행 범위 (예: 1-20, 5,10,15)")
+    preview_parser.add_argument("--only-class", help="분류 필터 (예: FULL_AUTO, SEMI_AUTO, MANUAL_REQUIRED)")
+    preview_parser.add_argument("--limit", type=int, help="최대 출력 건수")
+    preview_parser.add_argument("--show-warnings-only", action="store_true", help="경고가 있는 건만 출력")
+    preview_parser.set_defaults(func=cmd_preview_mmi)
 
     args = parser.parse_args()
     args.func(args)
