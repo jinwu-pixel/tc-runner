@@ -1,9 +1,13 @@
 name: "SS_05_전체화면순회_E2E"
-description: "앱 실행 → 메인 확인 → 4개 서브화면 순회 → 각 화면 검증 → 홈"
+description: "앱 실행 → 메인 확인 → 서브화면 순회 → 각 화면 검증 → 홈 (2026-04-16 리디자인 반영)"
 steps:
-  # 1. 앱 실행 및 메인 화면 확인
+  # 1. 앱 강제종료 후 재실행
   - action: key
     keycode: HOME
+  - action: wait
+    seconds: 1
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
   - action: wait
     seconds: 1
   - action: shell
@@ -15,43 +19,15 @@ steps:
   - action: verify_text
     text: "시니어쉴드"
   - action: verify_text
-    text: "위험 감지"
+    text: "현재 보호 상태"
 
-  # 2. 가족에게 바로 연락하기
-  - action: tap_text
-    text: "가족에게 바로 연락하기"
-  - action: wait
-    seconds: 2
-  - action: screenshot
-    name: "SS05_02_family"
-  - action: verify_text
-    text: "가족에게 전화하기"
-  - action: key
-    keycode: BACK
-  - action: wait
-    seconds: 1
-
-  # 3. 전체 감지 기록 보기
-  - action: tap_text
-    text: "전체 감지 기록 보기"
-  - action: wait
-    seconds: 2
-  - action: screenshot
-    name: "SS05_03_history"
-  - action: verify_text
-    text: "전체 감지 기록"
-  - action: key
-    keycode: BACK
-  - action: wait
-    seconds: 1
-
-  # 4. 보이스피싱 대응 연습
+  # 2. 보이스피싱 대응 연습
   - action: tap_text
     text: "보이스피싱 대응 연습"
   - action: wait
     seconds: 2
   - action: screenshot
-    name: "SS05_04_training"
+    name: "SS05_02_training"
   - action: verify_text
     text: "검찰 사칭 사기"
   - action: verify_text
@@ -63,22 +39,68 @@ steps:
   - action: wait
     seconds: 1
 
-  # 5. 위험 감지 탭
-  - action: tap_text
-    text: "위험 감지"
+  # 3. 앱 설정 (하단이므로 스크롤 2회)
+  - action: swipe
+    x1: 240
+    y1: 600
+    x2: 240
+    y2: 200
+    duration: 500
   - action: wait
     seconds: 1
+  - action: swipe
+    x1: 240
+    y1: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    seconds: 1
+  - action: tap_text
+    text: "앱 설정"
+  - action: wait
+    seconds: 2
   - action: screenshot
-    name: "SS05_05_danger_detect"
+    name: "SS05_03_settings"
   - action: verify_text
-    text: "반복 전화 경고"
+    text: "앱 설정"
   - action: key
     keycode: BACK
   - action: wait
     seconds: 1
 
-  # 6. 종료
+  # 4. 서비스 원칙 및 정책 (하단이므로 스크롤 2회)
+  - action: swipe
+    x1: 240
+    y1: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    seconds: 1
+  - action: swipe
+    x1: 240
+    y1: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    seconds: 1
+  - action: tap_text
+    text: "서비스 원칙 및 정책"
+  - action: wait
+    seconds: 2
   - action: screenshot
-    name: "SS05_06_final"
+    name: "SS05_04_policy"
+  - action: verify_text
+    text: "서비스 원칙"
+  - action: key
+    keycode: BACK
+  - action: wait
+    seconds: 1
+
+  # 5. 종료
+  - action: screenshot
+    name: "SS05_05_final"
   - action: key
     keycode: HOME

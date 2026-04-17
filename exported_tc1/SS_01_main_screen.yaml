@@ -1,8 +1,12 @@
 name: "SS_01_앱실행_메인화면확인"
-description: "시니어쉴드 앱 실행 후 메인 화면 주요 UI 요소 존재 확인"
+description: "시니어쉴드 앱 실행 후 메인 화면 주요 UI 요소 존재 확인 (2026-04-16 리디자인 반영)"
 steps:
   - action: key
     keycode: HOME
+  - action: wait
+    seconds: 1
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
   - action: wait
     seconds: 1
   - action: shell
@@ -14,16 +18,12 @@ steps:
   - action: verify_text
     text: "시니어쉴드"
   - action: verify_text
-    text: "위험 감지"
+    text: "현재 보호 상태"
   - action: verify_text
-    text: "반복 전화 경고"
-  - action: verify_text
-    text: "가족에게 바로 연락하기"
-  - action: verify_text
-    text: "전체 감지 기록 보기"
+    text: "안전합니다"
   - action: verify_text
     text: "보이스피싱 대응 연습"
   - action: verify_text
-    text: "주의 안내"
+    text: "이번 주 예방 팁"
   - action: screenshot
     name: "SS01_02_verified"

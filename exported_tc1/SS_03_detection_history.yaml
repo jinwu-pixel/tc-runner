@@ -1,28 +1,34 @@
-name: "SS_03_전체감지기록_진입확인"
-description: "메인 → 전체 감지 기록 보기 → 기록 항목 확인 → 뒤로"
+name: "SS_03_권한설정_진입확인"
+description: "메인 → 권한 설정 및 안내 진입 → 권한 항목 확인 → 뒤로 (2026-04-16 리디자인 반영)"
 steps:
   - action: key
     keycode: HOME
   - action: wait
     seconds: 1
   - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    seconds: 1
+  - action: shell
     command: "am start -n com.example.seniorshield/.MainActivity"
   - action: wait
     seconds: 3
+  - action: swipe
+    x1: 240
+    y1: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    seconds: 1
   - action: tap_text
-    text: "전체 감지 기록 보기"
+    text: "권한 설정 및 안내"
   - action: wait
     seconds: 2
   - action: screenshot
-    name: "SS03_01_detection_history"
+    name: "SS03_01_permissions"
   - action: verify_text
-    text: "전체 감지 기록"
-  - action: verify_text
-    text: "반복 전화 경고"
-  - action: verify_text
-    text: "장시간 의심 통화 감지"
-  - action: verify_text
-    text: "금융사기 의심 흐름 감지"
+    text: "권한 설정"
   - action: screenshot
     name: "SS03_02_verified"
   - action: key

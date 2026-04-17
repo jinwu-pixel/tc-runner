@@ -6,6 +6,10 @@ steps:
   - action: wait
     seconds: 1
   - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    seconds: 1
+  - action: shell
     command: "am start -n com.example.seniorshield/.MainActivity"
   - action: wait
     seconds: 3
@@ -16,7 +20,7 @@ steps:
   - action: screenshot
     name: "SS04_01_training_screen"
   - action: verify_text
-    text: "실제 보이스피싱 시나리오를 체험하고"
+    text: "보이스피싱 대응 연습"
   - action: verify_text
     text: "검찰 사칭 사기"
   - action: verify_text

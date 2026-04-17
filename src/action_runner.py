@@ -255,7 +255,8 @@ class ActionRunner:
     def _verify_shell(self, step: dict) -> tuple[bool, str]:
         command = step["command"]
         expected = step["expected"]
-        output = self.adb.shell(command)
+        timeout = step.get("timeout", 30)
+        output = self.adb.shell(command, timeout=timeout)
         if expected in output:
             return True, f"'{expected}' found in output"
         return False, f"Expected '{expected}' not found in: {output.strip()[:200]}"

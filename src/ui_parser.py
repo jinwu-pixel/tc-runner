@@ -23,7 +23,7 @@ def _find_nodes(xml_str: str) -> list[dict]:
 
 def find_element_by_text(xml_str: str, text: str) -> Optional[dict]:
     for node in _find_nodes(xml_str):
-        if node.get("text") == text:
+        if text in node.get("text", ""):
             coords = _parse_bounds(node.get("bounds", ""))
             return {"x": coords["x"], "y": coords["y"], "text": text}
     return None

@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 # Windows 콘솔 UTF-8 강제
@@ -24,6 +25,45 @@ from src.mmi_converter.exporter import YAMLExporter, check_runnable
 from src.app_explorer import AppExplorer
 
 
+def _timed_input(prompt: str, timeout: int) -> str | None:
+    """timeout 초 이내에 한 줄 입력을 받는다. 초과 시 None 반환.
+
+    Windows에서는 msvcrt로 non-blocking 처리하여 daemon thread의
+    stdin 점유 문제를 방지한다.
+    """
+    print(prompt, end='', flush=True)
+
+    if sys.platform == "win32":
+        import msvcrt
+        chars: list[str] = []
+        start = time.time()
+        while time.time() - start < timeout:
+            if msvcrt.kbhit():
+                ch = msvcrt.getwch()
+                if ch in ('\r', '\n'):
+                    print()
+                    return ''.join(chars)
+                if ch == '\x03':  # Ctrl+C
+                    raise KeyboardInterrupt
+                if ch == '\x08':  # Backspace
+                    if chars:
+                        chars.pop()
+                        print('\b \b', end='', flush=True)
+                    continue
+                chars.append(ch)
+                print(ch, end='', flush=True)
+            time.sleep(0.1)
+        print()
+        return None
+    else:
+        import select
+        ready, _, _ = select.select([sys.stdin], [], [], timeout)
+        if ready:
+            return sys.stdin.readline()
+        print()
+        return None
+
+
 def _terminal_manual_handler(ctx: ManualStepContext) -> ManualStepAction:
     mode = ctx.execution_mode
     desc = ctx.step.get("description", ctx.step.get("text", ""))
@@ -34,15 +74,28 @@ def _terminal_manual_handler(ctx: ManualStepContext) -> ManualStepAction:
     print(f"     제한 시간: {timeout}초")
     print(f"     [c] 계속  [s] 건너뛰기  [f] 실패 처리")
 
+    deadline = time.time() + timeout
     while True:
+        remaining = int(deadline - time.time())
+        if remaining <= 0:
+            print("     시간 초과")
+            return ManualStepAction(decision="fail", reason=f"timeout ({timeout}s)")
+
         try:
-            choice = input("     선택: ").strip().lower()
+            raw = _timed_input("     선택: ", remaining)
         except (EOFError, KeyboardInterrupt):
             return ManualStepAction(decision="fail")
+
+        if raw is None:
+            print("     시간 초과")
+            return ManualStepAction(decision="fail", reason=f"timeout ({timeout}s)")
+
+        choice = raw.strip().lower()
         if choice in ("c", "continue", ""):
             return ManualStepAction(decision="continue")
         if choice in ("s", "skip"):
-            reason = input("     사유: ").strip()
+            reason_raw = _timed_input("     사유: ", min(remaining, 60))
+            reason = reason_raw.strip() if reason_raw else ""
             return ManualStepAction(decision="skip", reason=reason)
         if choice in ("f", "fail"):
             return ManualStepAction(decision="fail")
