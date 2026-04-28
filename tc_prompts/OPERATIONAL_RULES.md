@@ -17,10 +17,7 @@
   - 누적 데이터는 다음 TC 작성과 delta 탐색의 입력으로 재사용한다.
   - 데이터가 남지 않는 자동화는 도입하지 않는다.
   - 단기 속도 개선이 정확성·재현성·누적 가능성을 훼손하면 채택하지 않는다.
-  - planned 누적 위치:
-    - `reports/lint/`
-    - `reports/preflight/`
-    - `<app>/catalog/`
+  - 누적 위치 enumeration은 CLAUDE.md GATE 4 Evidence Accumulation Rule을 단일 source로 한다.
   - 현재 runtime HTML 리포트는 기존 구현 경로를 따른다.
 
 # 검증 루프

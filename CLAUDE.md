@@ -66,7 +66,7 @@ GATE 1 → GATE 2 → GATE 3 → GATE 4
   `validate PASS`는 `runtime PASS`를 의미하지 않는다.
   FAIL도 가능한 한 컨텍스트를 붙인다.
   예: `step verify_text FAIL`, `load_tc rejection`, `runtime precondition FAIL`
-- **Source-of-truth Policy**: 신규 action·schema·catalog 항목 추가는 정의(스키마/문서) → 코드 → 테스트 정렬을 같은 PR 안에서 맞춘다. 스키마·문서·loader·runner·테스트 중 일부만 갱신된 상태는 drift로 간주한다. 임시 예외가 필요하면 drift risk와 후속 정리 티켓을 보고서에 명시한다.
+- **Source-of-truth Policy**: 신규 action·schema·catalog 항목 추가는 정의(스키마/문서) → 코드 → 테스트 정렬을 같은 PR 안에서 맞춘다. 스키마·문서·loader·runner·테스트 중 일부만 갱신된 상태는 drift로 간주한다. 임시 예외가 필요하면 drift risk와 후속 정리 티켓을 보고서에 명시한다. PR 0 verify_gone drift가 본 정책의 근거 사례다.
 
 ### GATE 3. 검증 통과 확인
 
@@ -81,10 +81,10 @@ GATE 1 → GATE 2 → GATE 3 → GATE 4
   ```
 - gen_excel.py는 execution_type/manual_detail 누락 시 즉시 중단된다 (fail-fast)
 - **Evidence Accumulation Rule**: TC 작성/실행/실패 산출물은 휘발 출력에 그치지 않고 누적 자료로 남긴다.
-  - validate/lint 결과 → `reports/lint/<run_id>.json` (planned from PR 1)
+  - validate/lint 결과 → `reports/lint/<run_id>.json` (lint 도입 시)
   - runtime 실행 결과 → 현재 `reports/*_report.html`, 향후 구조화 시 `reports/<run_id>/`
-  - runtime preflight 결과 → `reports/preflight/<run_id>/` (planned from PR 2)
-  - 화면/selector/실패원인 catalog → `<app>/catalog/` (planned from PR 3)
+  - runtime preflight 결과 → `reports/preflight/<run_id>/` (preflight 도입 시)
+  - 화면/selector/실패원인 catalog → `<app>/catalog/` (catalog 도입 시)
 
   세션 로그·메모리만에 의존하는 자동화는 거부한다.
   아직 구현되지 않은 누적 경로는 planned 항목으로만 취급하며, 실제 구현은 각 PR에서 별도로 수행한다.
