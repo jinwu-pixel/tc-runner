@@ -176,6 +176,7 @@ class ActionRunner:
             "screenshot": self._screenshot,
             "verify_text": self._verify_text,
             "verify_shell": self._verify_shell,
+            "verify_gone": self._verify_gone,
             "input_text": self._input_text,
             "manual_pause": lambda step: (False, "manual_pause requires handler"),
         }
@@ -185,7 +186,10 @@ class ActionRunner:
         return handler(step)
 
     def _tap_text(self, step: dict) -> tuple[bool, str]:
-        text = step["text"]
+        # 'text' 또는 'target' 모두 허용
+        text = step.get("text") or step.get("target")
+        if not text:
+            raise KeyError("'text' 또는 'target' 필드가 필요합니다")
         for attempt in range(self.max_retries):
             xml = self.adb.dump_ui()
             element = find_element_by_text(xml, text)
@@ -214,13 +218,20 @@ class ActionRunner:
         return True, f"Tapped ({x}, {y})"
 
     def _swipe(self, step: dict) -> tuple[bool, str]:
-        x1, y1, x2, y2 = step["x1"], step["y1"], step["x2"], step["y2"]
+        # 'x1/y1' 또는 'x/y' 모두 허용 (시작점 별칭)
+        x1 = step.get("x1") if step.get("x1") is not None else step.get("x")
+        y1 = step.get("y1") if step.get("y1") is not None else step.get("y")
+        x2, y2 = step["x2"], step["y2"]
+        if x1 is None or y1 is None:
+            raise KeyError("'x1/y1' 또는 'x/y' 필드가 필요합니다")
         duration = step.get("duration", 300)
         self.adb.swipe(x1, y1, x2, y2, duration)
         return True, f"Swiped ({x1},{y1}) -> ({x2},{y2})"
 
     def _key(self, step: dict) -> tuple[bool, str]:
-        keycode = step["keycode"]
+        keycode = step.get("keycode") or step.get("key")
+        if not keycode:
+            raise KeyError("'keycode' 또는 'key' 필드가 필요합니다")
         self.adb.key(keycode)
         return True, f"Key: {keycode}"
 
@@ -230,7 +241,13 @@ class ActionRunner:
         return True, f"Shell: {command} -> {output.strip()[:100]}"
 
     def _wait(self, step: dict) -> tuple[bool, str]:
-        seconds = step["seconds"]
+        # 'seconds' (초 단위) 또는 'duration' (밀리초 단위) 모두 허용
+        if "seconds" in step:
+            seconds = step["seconds"]
+        elif "duration" in step:
+            seconds = step["duration"] / 1000.0
+        else:
+            raise KeyError("'seconds' 또는 'duration' 필드가 필요합니다")
         time.sleep(seconds)
         return True, f"Waited {seconds}s"
 
@@ -242,7 +259,10 @@ class ActionRunner:
         return True, f"Screenshot saved: {path}"
 
     def _verify_text(self, step: dict) -> tuple[bool, str]:
-        text = step["text"]
+        # 'text' 또는 'target' 모두 허용
+        text = step.get("text") or step.get("target")
+        if not text:
+            raise KeyError("'text' 또는 'target' 필드가 필요합니다")
         for attempt in range(self.max_retries):
             xml = self.adb.dump_ui()
             element = find_element_by_text(xml, text)
@@ -251,6 +271,37 @@ class ActionRunner:
             if attempt < self.max_retries - 1:
                 time.sleep(self.retry_interval)
         return False, f"Text '{text}' not found on screen"
+
+    def _verify_gone(self, step: dict) -> tuple[bool, str]:
+        # "Gone" = target substring NOT found in the *currently dumped* uiautomator
+        # hierarchy. Snapshot-level only — does not cover off-screen / lazily loaded /
+        # virtualized list content. PASSes as soon as absence is observed once;
+        # does not assert sustained absence.
+        text = step.get("text") or step.get("target")
+        if not text:
+            raise KeyError("'text' 또는 'target' 필드가 필요합니다")
+
+        timeout_ms = step.get("timeout")
+        if timeout_ms is not None:
+            poll_interval = 0.5
+            deadline = time.time() + (timeout_ms / 1000.0)
+            while True:
+                xml = self.adb.dump_ui()
+                element = find_element_by_text(xml, text)
+                if element is None:
+                    return True, f"Text '{text}' is gone"
+                if time.time() >= deadline:
+                    return False, f"Text '{text}' still present after {timeout_ms}ms"
+                time.sleep(poll_interval)
+        else:
+            for attempt in range(self.max_retries):
+                xml = self.adb.dump_ui()
+                element = find_element_by_text(xml, text)
+                if element is None:
+                    return True, f"Text '{text}' is gone"
+                if attempt < self.max_retries - 1:
+                    time.sleep(self.retry_interval)
+            return False, f"Text '{text}' still present after {self.max_retries} attempts"
 
     def _verify_shell(self, step: dict) -> tuple[bool, str]:
         command = step["command"]

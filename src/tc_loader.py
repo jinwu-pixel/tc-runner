@@ -6,7 +6,7 @@ import yaml
 VALID_ACTIONS = {
     "tap_text", "tap_id", "tap_xy", "swipe", "key",
     "shell", "wait", "screenshot", "verify_text",
-    "verify_shell", "input_text", "manual_pause",
+    "verify_shell", "verify_gone", "input_text", "manual_pause",
 }
 
 
@@ -17,6 +17,9 @@ class TCValidationError(Exception):
 def load_tc(filepath: Path) -> dict:
     with open(filepath, "r", encoding="utf-8") as f:
         tc = yaml.safe_load(f)
+    # tc_name → name 정규화 (MiniFile TC 포맷 호환)
+    if isinstance(tc, dict) and "name" not in tc and "tc_name" in tc:
+        tc["name"] = tc["tc_name"]
     validate_tc(tc, filepath)
     return tc
 
