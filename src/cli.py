@@ -23,6 +23,7 @@ from src.mmi_converter.row_loader import load_mmi_rows
 from src.mmi_converter.service import MMIConversionService
 from src.mmi_converter.exporter import YAMLExporter, check_runnable
 from src.app_explorer import AppExplorer
+from src import preflight as preflight_mod
 
 
 def _timed_input(prompt: str, timeout: int) -> str | None:
@@ -455,6 +456,75 @@ def cmd_export_mmi(args):
     print(f"  출력 디렉토리: {output_dir}")
 
 
+def cmd_preflight(args):
+    """Runtime preflight: TC 실행 전 단말 상태 스냅샷 수집.
+
+    tc_file 단일 또는 --dir 디렉토리 중 정확히 하나 지정.
+    """
+    if bool(args.tc_file) == bool(args.dir):
+        print(
+            "ERROR: tc_file 또는 --dir 중 정확히 하나만 지정해야 합니다.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    adb = ADB()
+    if not adb.is_connected():
+        print("ERROR: ADB에 연결된 단말이 없습니다.", file=sys.stderr)
+        print("USB 케이블과 USB 디버깅 설정을 확인해주세요.", file=sys.stderr)
+        sys.exit(1)
+
+    run_id = args.run_id or preflight_mod._now_run_id()
+    base_out = Path("reports") / "preflight" / run_id
+
+    if args.tc_file:
+        tc_path = Path(args.tc_file)
+        if not tc_path.is_file():
+            print(f"ERROR: TC 파일을 찾을 수 없습니다: {tc_path}", file=sys.stderr)
+            sys.exit(1)
+        manifest = preflight_mod.run_preflight(
+            tc_path=tc_path,
+            output_dir=base_out,
+            adb=adb,
+            run_id=run_id,
+            take_screenshot=not args.no_screenshot,
+        )
+        level = manifest["preflight_status"]["level"]
+        reasons = manifest["preflight_status"]["reasons"]
+        print(f"preflight {level} — {tc_path.name}")
+        if reasons:
+            print(f"  reasons: {', '.join(reasons)}")
+        print(f"  manifest: {base_out / 'manifest.json'}")
+        return
+
+    dir_path = Path(args.dir)
+    if not dir_path.is_dir():
+        print(f"ERROR: 디렉토리를 찾을 수 없습니다: {dir_path}", file=sys.stderr)
+        sys.exit(1)
+
+    tc_files = preflight_mod._resolve_dir_tc_files(dir_path)
+    if not tc_files:
+        print(f"ERROR: {dir_path} 안에 *.yaml 파일이 없습니다.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"preflight run_id={run_id}, TC {len(tc_files)}개")
+    for tc_path in tc_files:
+        sub_out = base_out / tc_path.stem
+        manifest = preflight_mod.run_preflight(
+            tc_path=tc_path,
+            output_dir=sub_out,
+            adb=adb,
+            run_id=run_id,
+            take_screenshot=not args.no_screenshot,
+        )
+        level = manifest["preflight_status"]["level"]
+        reasons = manifest["preflight_status"]["reasons"]
+        suffix = f" ({', '.join(reasons)})" if reasons else ""
+        print(f"  [{level}] {tc_path.name}{suffix}")
+
+    print(f"\n출력: {base_out}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="tc-runner: Android T/C 자동 실행 도구",
@@ -489,6 +559,25 @@ def main():
     run_parser = subparsers.add_parser("run", help="YAML/엑셀 T/C 실행")
     run_parser.add_argument("tc_files", nargs="+", help="YAML 또는 엑셀(.xlsx) T/C 파일 경로")
     run_parser.set_defaults(func=cmd_run)
+
+    # preflight
+    preflight_parser = subparsers.add_parser(
+        "preflight",
+        help="Runtime preflight: TC 실행 전 단말 상태 스냅샷 수집",
+    )
+    preflight_parser.add_argument(
+        "tc_file", nargs="?", help="단일 TC YAML 파일 경로 (--dir 와 상호배타)"
+    )
+    preflight_parser.add_argument(
+        "--dir", help="디렉토리 모드: 디렉토리 내 *.yaml 전부 처리"
+    )
+    preflight_parser.add_argument(
+        "--no-screenshot", action="store_true", help="screenshot 생략 (XML dump는 수행)"
+    )
+    preflight_parser.add_argument(
+        "--run-id", help="run_id override (기본: %%Y%%m%%dT%%H%%M%%SZ UTC)"
+    )
+    preflight_parser.set_defaults(func=cmd_preflight)
 
     # convert
     convert_parser = subparsers.add_parser("convert", help="엑셀 → YAML 변환")

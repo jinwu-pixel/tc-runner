@@ -70,6 +70,20 @@ class ADB:
         version = self.shell("getprop ro.build.version.release").strip()
         return {"model": model, "android_version": version}
 
+    def device_serial(self) -> str | None:
+        try:
+            result = subprocess.run(
+                self._base_cmd + ["get-serialno"],
+                capture_output=True, text=True, timeout=5,
+                encoding="utf-8", errors="replace",
+            )
+            serial = result.stdout.strip()
+            if serial and serial != "unknown":
+                return serial
+            return None
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            return None
+
     def is_connected(self) -> bool:
         try:
             result = subprocess.run(
