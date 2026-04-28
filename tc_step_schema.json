@@ -1,0 +1,218 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TC Runner Test Case",
+  "description": "tc-runner가 실행하는 테스트 케이스의 표준 스키마. 클로드코드가 TC 변환 시 이 스키마를 준수해야 합니다.",
+  "type": "object",
+  "required": ["tc_name", "metadata", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "tc_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_\\-/]+$",
+      "description": "TC 식별자. 영문/숫자/언더스코어/하이픈만 허용"
+    },
+    "description": {
+      "type": "string",
+      "description": "TC가 검증하는 내용을 한 문장으로 요약"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["runnable", "tc_class", "execution_type", "manual_detail"],
+      "additionalProperties": true,
+      "properties": {
+        "runnable": {
+          "type": "boolean",
+          "description": "check_runnable() 통과 여부"
+        },
+        "tc_class": {
+          "type": "string",
+          "enum": ["FULL_AUTO", "SEMI_AUTO", "AMBIGUOUS_NL"],
+          "description": "TC 전체 자동화 수준"
+        },
+        "has_manual_steps": {
+          "type": "boolean"
+        },
+        "has_shell_actions": {
+          "type": "boolean"
+        },
+        "has_unresolved_params": {
+          "type": "boolean"
+        },
+        "execution_type": {
+          "type": "string",
+          "enum": ["AUTO", "MANUAL_LOCAL", "EXTERNAL_EVENT"],
+          "description": "실제 수행 방식. step-level 정보에서 파생 계산. EXTERNAL_EVENT > MANUAL_LOCAL > AUTO 우선순위"
+        },
+        "manual_detail": {
+          "type": "string",
+          "pattern": "^(NONE|CALL_RECEIVE|CALL_PLACE|APP_INSTALL|BUTTON_TOUCH|PHYSICAL_ACTION|PAIRING|MULTI_DEVICE|SERVER_CALLBACK|UNKNOWN)(\\|(CALL_RECEIVE|CALL_PLACE|APP_INSTALL|BUTTON_TOUCH|PHYSICAL_ACTION|PAIRING|MULTI_DEVICE|SERVER_CALLBACK|UNKNOWN))*$",
+          "description": "수동/외부 개입 세부 사유. 복수 사유는 | 연결. AUTO이면 NONE 필수"
+        },
+        "source": {
+          "type": "string",
+          "description": "원본 TC 출처 (예: 'TC_1.xlsx / Sheet1 / Row 5')"
+        }
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "TC 실행 전 충족해야 할 조건 목록"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" },
+      "description": "실행할 스텝 목록. 순서대로 실행됨"
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": ["action"],
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "tap_text", "tap_id", "tap_xy",
+            "key", "shell", "input_text",
+            "swipe", "wait", "screenshot",
+            "manual_pause",
+            "verify_text", "verify_shell", "verify_gone"
+          ],
+          "description": "실행할 액션 타입"
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["UI_AUTO", "SHELL_AUTO", "MANUAL_REQUIRED", "EXTERNAL_EVENT", "UNSUPPORTED"],
+          "description": "이 스텝의 실행 방식"
+        },
+        "step_role": {
+          "type": "string",
+          "enum": ["ACTION", "ASSERT", "SETUP", "TEARDOWN"],
+          "description": "이 스텝의 역할"
+        },
+        "target": {
+          "type": "string",
+          "description": "tap_text: 탭할 텍스트, tap_id: 리소스ID, verify_text: 확인할 텍스트"
+        },
+        "command": {
+          "type": "string",
+          "description": "shell/verify_shell 액션에서 실행할 ADB shell 명령"
+        },
+        "expected": {
+          "type": "string",
+          "description": "verify_shell에서 기대하는 출력 값"
+        },
+        "text": {
+          "type": "string",
+          "description": "input_text 액션에서 입력할 문자열"
+        },
+        "key": {
+          "type": "string",
+          "description": "key 액션에서 보낼 키코드 (예: KEYCODE_HOME)"
+        },
+        "x": { "type": "integer", "description": "tap_xy/swipe 좌표" },
+        "y": { "type": "integer", "description": "tap_xy/swipe 좌표" },
+        "x2": { "type": "integer", "description": "swipe 끝 좌표" },
+        "y2": { "type": "integer", "description": "swipe 끝 좌표" },
+        "duration": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "wait 대기 시간(ms) 또는 swipe 지속 시간(ms)"
+        },
+        "description": {
+          "type": "string",
+          "description": "manual_pause에서 수동 작업자에게 보여줄 지시. manual_pause 시 필수"
+        },
+        "manual_timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 300,
+          "description": "manual_pause 제한 시간(초)"
+        },
+        "on_timeout": {
+          "type": "string",
+          "enum": ["fail", "skip", "warn"],
+          "default": "fail",
+          "description": "manual_pause 타임아웃 시 동작"
+        },
+        "timeout": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "verify 계열 액션의 대기 제한(ms)"
+        },
+        "retry": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "실패 시 재시도 횟수"
+        },
+        "post_wait": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "액션 실행 후 대기 시간(ms). UI 전환 대기에 사용"
+        },
+        "lint_allow": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["TAP_XY_USED", "LONG_FIXED_WAIT", "WEAK_VERIFY_TEXT"]
+          },
+          "description": "Step-level lint suppression. 등록된 rule_id의 lint finding을 이 step에서 suppress (sidecar에는 suppressed=true로 보존)"
+        },
+        "wait_intent": {
+          "type": "string",
+          "enum": ["timer_modeling"],
+          "description": "wait 의도 분류. timer_modeling = SUT 타이머 모델링(쿨다운/TTL 등). LONG_FIXED_WAIT lint suppression 근거. polling은 본 PR 미도입"
+        },
+        "selector_fallback_reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "tap_xy 등 selector-less 액션 사용 사유. TAP_XY_USED finding의 evidence로 보존"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "action": { "const": "shell" } } },
+          "then": { "required": ["action", "command"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "verify_shell" } } },
+          "then": { "required": ["action", "command", "expected"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "tap_text" } } },
+          "then": { "required": ["action", "target"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "verify_text" } } },
+          "then": { "required": ["action", "target"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "verify_gone" } } },
+          "then": { "required": ["action", "target"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "key" } } },
+          "then": { "required": ["action", "key"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "input_text" } } },
+          "then": { "required": ["action", "text"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "manual_pause" } } },
+          "then": { "required": ["action", "description"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "wait" } } },
+          "then": { "required": ["action", "duration"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "swipe" } } },
+          "then": { "required": ["action", "x", "y", "x2", "y2"] }
+        }
+      ]
+    }
+  }
+}
