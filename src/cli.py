@@ -25,6 +25,7 @@ from src.mmi_converter.exporter import YAMLExporter, check_runnable
 from src.app_explorer import AppExplorer
 from src import preflight as preflight_mod
 from src import catalog as catalog_mod
+from src import catalog_delta as catalog_delta_mod
 
 
 def _timed_input(prompt: str, timeout: int) -> str | None:
@@ -578,6 +579,41 @@ def cmd_catalog_show(args):
     print(text)
 
 
+def cmd_catalog_delta(args):
+    """Catalog delta: 단일 manifest 와 catalog 비교 → reports/catalog_delta/<run_id>.json."""
+    catalog_dir = Path(args.catalog_dir)
+    manifest = Path(args.manifest)
+    output_dir = Path(args.output) if args.output else catalog_delta_mod.DEFAULT_OUTPUT_DIR
+    threshold = args.jaccard_threshold
+
+    try:
+        report = catalog_delta_mod.cmd_delta(
+            catalog_dir,
+            manifest,
+            output_dir=output_dir,
+            threshold=threshold,
+        )
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    run_id = report.get("run_id")
+    verdict = (report.get("delta") or {}).get("verdict")
+    flags = report.get("interpretation_flags") or []
+    reasons = report.get("insufficient_reasons") or []
+    output_path = output_dir / f"{run_id}.json"
+
+    print(f"catalog_delta {verdict} — run_id={run_id}")
+    if flags:
+        print(f"  flags: {', '.join(flags)}")
+    if reasons:
+        print(f"  insufficient_reasons: {', '.join(reasons)}")
+    print(f"  report: {output_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="tc-runner: Android T/C 자동 실행 도구",
@@ -635,7 +671,7 @@ def main():
     # catalog
     catalog_parser = subparsers.add_parser(
         "catalog",
-        help="PR 3 Screen Identity Catalog (build / show)",
+        help="Screen Identity Catalog (build / show / delta)",
     )
     catalog_subparsers = catalog_parser.add_subparsers(dest="catalog_cmd", required=True)
 
@@ -667,6 +703,39 @@ def main():
     )
     catalog_show_parser.add_argument("--app-dir", required=True, help="catalog 대상 앱 루트")
     catalog_show_parser.set_defaults(func=cmd_catalog_show)
+
+    def _threshold_type(s: str) -> float:
+        try:
+            v = float(s)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"jaccard threshold 는 float 여야 합니다: {s}")
+        if not (0.0 <= v <= 1.0):
+            raise argparse.ArgumentTypeError(
+                f"jaccard threshold 는 0.0 ~ 1.0 범위여야 합니다: {v}"
+            )
+        return v
+
+    catalog_delta_parser = catalog_subparsers.add_parser(
+        "delta",
+        help="단일 preflight manifest 와 catalog 비교 → delta report",
+    )
+    catalog_delta_parser.add_argument(
+        "--catalog-dir", required=True, help="catalog 디렉토리 (예: 'ODIN2 - My gallary/catalog')"
+    )
+    catalog_delta_parser.add_argument(
+        "--manifest", required=True, help="preflight manifest.json 경로"
+    )
+    catalog_delta_parser.add_argument(
+        "--jaccard-threshold",
+        type=_threshold_type,
+        default=catalog_delta_mod.DEFAULT_JACCARD_THRESHOLD,
+        help=f"changed_texts 판정 임계값 (기본: {catalog_delta_mod.DEFAULT_JACCARD_THRESHOLD})",
+    )
+    catalog_delta_parser.add_argument(
+        "--output",
+        help=f"출력 디렉토리 (기본: {catalog_delta_mod.DEFAULT_OUTPUT_DIR})",
+    )
+    catalog_delta_parser.set_defaults(func=cmd_catalog_delta)
 
     # convert
     convert_parser = subparsers.add_parser("convert", help="엑셀 → YAML 변환")
