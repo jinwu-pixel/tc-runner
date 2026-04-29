@@ -187,6 +187,44 @@ def test_extract_package_name_missing():
     assert extract_package_name({"metadata": {"runnable": True}}) is None
 
 
+def test_extract_package_name_from_target_app_nested():
+    tc = {"metadata": {"target_app": {"package": "com.example.gallery"}}}
+    assert extract_package_name(tc) == "com.example.gallery"
+
+
+def test_extract_package_name_priority_top_level_wins():
+    tc = {
+        "package_name": "com.top.level",
+        "metadata": {
+            "package_name": "com.metadata.flat",
+            "target_app": {"package": "com.metadata.target"},
+        },
+    }
+    assert extract_package_name(tc) == "com.top.level"
+
+
+def test_extract_package_name_priority_metadata_over_target_app():
+    tc = {
+        "metadata": {
+            "package_name": "com.metadata.flat",
+            "target_app": {"package": "com.metadata.target"},
+        }
+    }
+    assert extract_package_name(tc) == "com.metadata.flat"
+
+
+def test_extract_package_name_target_app_invalid():
+    # target_app이 dict가 아닐 때
+    assert extract_package_name({"metadata": {"target_app": "not a dict"}}) is None
+    assert extract_package_name({"metadata": {"target_app": ["x"]}}) is None
+    # target_app은 dict지만 package 키 없음
+    assert extract_package_name({"metadata": {"target_app": {"version": "1.0"}}}) is None
+    # package가 빈 문자열
+    assert extract_package_name({"metadata": {"target_app": {"package": "   "}}}) is None
+    # package가 문자열이 아님
+    assert extract_package_name({"metadata": {"target_app": {"package": 42}}}) is None
+
+
 # ---------------------------------------------------------------------------
 # ADB / parser mocking (5)
 # ---------------------------------------------------------------------------
@@ -375,6 +413,7 @@ def test_run_preflight_full_success(tmp_path):
 
 
 def test_run_preflight_package_missing(tmp_path):
+    """required=[] + package_name missing — PR 2.1 의미 정리: parse_status="ok"."""
     tc_path = _write_tc(
         tmp_path,
         "tc_no_pkg",
@@ -395,10 +434,107 @@ def test_run_preflight_package_missing(tmp_path):
     assert manifest["app"]["installed"] is None
     assert manifest["app"]["version_name"] is None
     assert manifest["app"]["version_code"] is None
-    assert manifest["permissions"]["parse_status"] == "failed"
+    assert manifest["permissions"]["parse_status"] == "ok"
+    assert manifest["permissions"]["required"] == []
     assert manifest["permissions"]["grants"] == {}
     assert "package_name_missing" in manifest["preflight_status"]["reasons"]
     assert manifest["preflight_status"]["level"] == "WARN"
+
+
+def test_run_preflight_target_app_package_resolved(tmp_path):
+    """metadata.target_app.package 형태 → package_name 추출 + installed/version 진입."""
+    tc_path = _write_tc(
+        tmp_path,
+        "tc_target_app",
+        {
+            "tc_name": "TC_TARGET_APP",
+            "metadata": {
+                "target_app": {
+                    "package": "com.example.foo",
+                    "version": "1.2.3",
+                }
+            },
+            "steps": [{"action": "verify_text", "target": "확인"}],
+        },
+    )
+    adb = _make_adb_mock(
+        dumpsys_output="    versionName=1.2.3\n    versionCode=42\n",
+        xml_output='<hierarchy><node text="확인" /></hierarchy>',
+    )
+    out_dir = tmp_path / "out"
+    manifest = run_preflight(
+        tc_path=tc_path,
+        output_dir=out_dir,
+        adb=adb,
+        run_id="RID",
+    )
+    assert manifest["app"]["package_name"] == "com.example.foo"
+    assert manifest["app"]["installed"] is True
+    assert manifest["app"]["version_name"] == "1.2.3"
+    assert manifest["app"]["version_code"] == 42
+    # required=[] 이므로 parse_status는 "ok"
+    assert manifest["permissions"]["parse_status"] == "ok"
+    # package_name이 추출되었으므로 reason에 package_name_missing 없어야 함
+    assert "package_name_missing" not in manifest["preflight_status"]["reasons"]
+
+
+def test_run_preflight_no_required_no_package(tmp_path):
+    """required=[] + package_name missing — permissions parse_status="ok", reasons에 package_name_missing 유지."""
+    tc_path = _write_tc(
+        tmp_path,
+        "tc_no_req_no_pkg",
+        {
+            "tc_name": "TC_NO_REQ_NO_PKG",
+            "steps": [{"action": "verify_text", "target": "확인"}],
+        },
+    )
+    adb = _make_adb_mock(xml_output='<hierarchy><node text="확인" /></hierarchy>')
+    out_dir = tmp_path / "out"
+    manifest = run_preflight(
+        tc_path=tc_path,
+        output_dir=out_dir,
+        adb=adb,
+        run_id="RID",
+    )
+    assert manifest["permissions"]["required"] == []
+    assert manifest["permissions"]["grants"] == {}
+    assert manifest["permissions"]["parse_status"] == "ok"
+    assert "package_name_missing" in manifest["preflight_status"]["reasons"]
+    assert "permissions_dump_failed" not in manifest["preflight_status"]["reasons"]
+
+
+def test_run_preflight_required_but_no_package(tmp_path):
+    """required exists + package_name missing — parse_status="failed", package_name_missing reason 유지."""
+    tc_path = _write_tc(
+        tmp_path,
+        "tc_req_no_pkg",
+        {
+            "tc_name": "TC_REQ_NO_PKG",
+            # package_name 의도적으로 누락; pm grant 라인은 다른 패키지명을 갖지만
+            # extract_required_permissions에 package_name=None을 넘기면 모든 매칭이 채택됨.
+            "steps": [
+                {
+                    "action": "shell",
+                    "command": "pm grant com.someother.app android.permission.READ_PHONE_STATE",
+                },
+                {"action": "verify_text", "target": "확인"},
+            ],
+        },
+    )
+    adb = _make_adb_mock(xml_output='<hierarchy><node text="확인" /></hierarchy>')
+    out_dir = tmp_path / "out"
+    manifest = run_preflight(
+        tc_path=tc_path,
+        output_dir=out_dir,
+        adb=adb,
+        run_id="RID",
+    )
+    assert manifest["permissions"]["required"] == ["android.permission.READ_PHONE_STATE"]
+    assert manifest["permissions"]["grants"] == {}
+    assert manifest["permissions"]["parse_status"] == "failed"
+    assert "package_name_missing" in manifest["preflight_status"]["reasons"]
+    # 새 분기에서는 dumpsys 단계까지 진입하지 않으므로 permissions_dump_failed 미발생
+    assert "permissions_dump_failed" not in manifest["preflight_status"]["reasons"]
 
 
 def test_run_preflight_screenshot_skipped(tmp_path):

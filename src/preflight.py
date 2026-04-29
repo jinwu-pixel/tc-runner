@@ -89,7 +89,13 @@ def extract_expected_texts(tc: dict) -> list[str]:
 def extract_package_name(tc: dict) -> str | None:
     """TC top-level 또는 metadata에서 package_name을 추출한다.
 
-    표준 필드 lookup만 수행. shell command parsing은 본 PR 범위 밖.
+    Lookup 우선순위 (PR 2.1):
+        1. tc.package_name
+        2. metadata.package_name
+        3. metadata.target_app.package (target_app이 dict인 경우에만)
+
+    값이 문자열이고 strip 후 non-empty일 때만 채택한다.
+    shell command parsing은 본 PR 범위 밖.
     """
     if isinstance(tc.get("package_name"), str) and tc["package_name"].strip():
         return tc["package_name"].strip()
@@ -98,6 +104,11 @@ def extract_package_name(tc: dict) -> str | None:
         value = metadata.get("package_name")
         if isinstance(value, str) and value.strip():
             return value.strip()
+        target_app = metadata.get("target_app")
+        if isinstance(target_app, dict):
+            nested = target_app.get("package")
+            if isinstance(nested, str) and nested.strip():
+                return nested.strip()
     return None
 
 
@@ -291,36 +302,37 @@ def run_preflight(
         "version_code": version_code,
     }
 
-    if package_name is None:
-        permissions = {
-            "required": required_permissions,
-            "grants": {},
-            "parse_status": "failed",
-        }
-    elif required_permissions:
-        if dumpsys_pkg_out:
-            grants = parse_dumpsys_permissions(dumpsys_pkg_out, required_permissions)
-            unknowns = [p for p, s in grants.items() if s == "unknown"]
-            permissions = {
-                "required": required_permissions,
-                "grants": grants,
-                "parse_status": "partial" if unknowns else "ok",
-            }
-            if unknowns:
-                reasons.append("permissions_partial")
-        else:
-            permissions = {
-                "required": required_permissions,
-                "grants": {},
-                "parse_status": "failed",
-            }
-            reasons.append("permissions_dump_failed")
-    else:
+    if not required_permissions:
+        # 권한 요구가 없으면 package_name 유무와 무관하게 parse 자체가 N/A.
+        # package_name_missing reason은 permissions 분기 밖(line 257)에서 별도 유지.
         permissions = {
             "required": [],
             "grants": {},
             "parse_status": "ok",
         }
+    elif package_name is None:
+        permissions = {
+            "required": required_permissions,
+            "grants": {},
+            "parse_status": "failed",
+        }
+    elif dumpsys_pkg_out:
+        grants = parse_dumpsys_permissions(dumpsys_pkg_out, required_permissions)
+        unknowns = [p for p, s in grants.items() if s == "unknown"]
+        permissions = {
+            "required": required_permissions,
+            "grants": grants,
+            "parse_status": "partial" if unknowns else "ok",
+        }
+        if unknowns:
+            reasons.append("permissions_partial")
+    else:
+        permissions = {
+            "required": required_permissions,
+            "grants": {},
+            "parse_status": "failed",
+        }
+        reasons.append("permissions_dump_failed")
 
     current_activity = get_current_activity(adb)
     if current_activity is None:
