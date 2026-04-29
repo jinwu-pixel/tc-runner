@@ -24,6 +24,7 @@ from src.mmi_converter.service import MMIConversionService
 from src.mmi_converter.exporter import YAMLExporter, check_runnable
 from src.app_explorer import AppExplorer
 from src import preflight as preflight_mod
+from src import catalog as catalog_mod
 
 
 def _timed_input(prompt: str, timeout: int) -> str | None:
@@ -525,6 +526,58 @@ def cmd_preflight(args):
     print(f"\n출력: {base_out}")
 
 
+def cmd_catalog_build(args):
+    """Catalog build: preflight manifest를 누적하여 screens.json + visits.jsonl 작성."""
+    app_dir = Path(args.app_dir)
+
+    from_reports = Path(args.from_reports) if args.from_reports else None
+    manifest = Path(args.manifest) if args.manifest else None
+
+    if from_reports is not None and manifest is not None:
+        print(
+            "ERROR: --from-reports 와 --manifest 는 동시 지정할 수 없습니다.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    target_package = args.target_package or None
+
+    try:
+        summary = catalog_mod.cmd_build(
+            app_dir,
+            from_reports=from_reports,
+            manifest=manifest,
+            target_package=target_package,
+        )
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"app_dir: {app_dir}")
+    print(f"catalog: {app_dir / 'catalog'}")
+    print(f"target_package: {summary['target_package']}")
+    print(f"discovered: {summary['discovered']}")
+    print(f"  added: {summary['added']}")
+    print(f"  updated: {summary['updated']}")
+    print(f"  skipped_duplicate: {summary['skipped_duplicate']}")
+    print(f"  skipped_missing_run_id: {summary['skipped_missing_run_id']}")
+    print(f"  skipped_no_xml_hash: {summary['skipped_no_xml_hash']}")
+    print(f"  skipped_invalid_json: {summary['skipped_invalid_json']}")
+    if summary["mixed_package_warning"]:
+        print("WARNING: 입력 manifest 들에 다중 package_name이 섞여있습니다 (PR 4 후속)")
+
+
+def cmd_catalog_show(args):
+    """Catalog show: screens.json 요약 출력."""
+    app_dir = Path(args.app_dir)
+    try:
+        text = catalog_mod.cmd_show(app_dir)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    print(text)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="tc-runner: Android T/C 자동 실행 도구",
@@ -578,6 +631,42 @@ def main():
         "--run-id", help="run_id override (기본: %%Y%%m%%dT%%H%%M%%SZ UTC)"
     )
     preflight_parser.set_defaults(func=cmd_preflight)
+
+    # catalog
+    catalog_parser = subparsers.add_parser(
+        "catalog",
+        help="PR 3 Screen Identity Catalog (build / show)",
+    )
+    catalog_subparsers = catalog_parser.add_subparsers(dest="catalog_cmd", required=True)
+
+    catalog_build_parser = catalog_subparsers.add_parser(
+        "build",
+        help="preflight manifest를 누적하여 <app_dir>/catalog/ 생성",
+    )
+    catalog_build_parser.add_argument(
+        "--app-dir", required=True, help="catalog 대상 앱 루트 (예: 'ODIN2 - My gallary')"
+    )
+    catalog_build_input = catalog_build_parser.add_mutually_exclusive_group()
+    catalog_build_input.add_argument(
+        "--from-reports",
+        help="manifest.json 디렉토리 (기본: reports/preflight)",
+    )
+    catalog_build_input.add_argument(
+        "--manifest",
+        help="단일 manifest.json 경로 (--from-reports 와 상호배타)",
+    )
+    catalog_build_parser.add_argument(
+        "--target-package",
+        help="target package 명시 (기본: 첫 valid manifest.app.package_name)",
+    )
+    catalog_build_parser.set_defaults(func=cmd_catalog_build)
+
+    catalog_show_parser = catalog_subparsers.add_parser(
+        "show",
+        help="<app_dir>/catalog/screens.json 요약 출력",
+    )
+    catalog_show_parser.add_argument("--app-dir", required=True, help="catalog 대상 앱 루트")
+    catalog_show_parser.set_defaults(func=cmd_catalog_show)
 
     # convert
     convert_parser = subparsers.add_parser("convert", help="엑셀 → YAML 변환")
