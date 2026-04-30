@@ -1,0 +1,225 @@
+tc_name: "MUSIC_SMOKE_02_navigate_home_tabs"
+description: |
+  [Music · ODIN2 SMOKE 02 — HOME 탭 4종 비파괴 전환 검증]
+  Phase 1B 첫 SMOKE. 콜드 런치 후 HOME 4 탭 (전체 / 최근 재생 /
+  즐겨찾기 / 플레이리스트) 을 tap_text 로 순회하며 탭 전환이
+  비파괴적으로 동작하는지 verify 한다.
+
+  Probe (manual_music_smoke02_probe_*, 2026-04-30) 실측 결과:
+    - 4 탭 라벨이 모든 탭 화면에 항상 노출 → 탭 라벨은 전환 anchor 부적합
+    - selected="true" 속성 노출 없음 → state anchor 불가
+    - resource-id / content-desc 모두 빈 값 → selector 후보 없음
+    - 탭 leaf TextView clickable=false, parent View clickable=true
+    - 탭 라벨 화면 내 unique → tap_text duplicate risk 없음
+
+  본 TC가 사용하는 anchor 방식 (D1~D2 결정):
+    - 전체:       verify_text "곡, 아티스트 검색…"
+                  (탭 한정 검색 hint, preset-stable)
+    - 최근 재생: verify_gone "곡, 아티스트 검색…"
+                  최근 재생 탭은 XML에 고유 positive anchor가 없어, 전체 탭
+                  전용 검색 hint 부재로 전체 탭 이탈만 검증한다.
+    - 즐겨찾기:   verify_text "즐겨찾기한 곡이 없습니다"
+                  (preset-dependent empty state)
+    - 플레이리스트: verify_text "플레이리스트가 없습니다"
+                  (preset-dependent empty state)
+
+  본 TC가 검증하지 않는 것 (의도적 제외):
+    - playback / play-pause / scrub
+    - 검색 입력
+    - 즐겨찾기 toggle
+    - 플레이리스트 생성/삭제
+    - 곡 row 텍스트 / artist / duration (preset 의존성)
+    - selected-state UI indicator (XML 미노출)
+    - xml_sha256 비교 (현재 TC schema scope 밖)
+
+metadata:
+  source: "music_phase1b smoke 02 · 2026-04-30 · probe-driven anchors"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "com.mive.music 설치, version_name=1.0.2604231952"
+  - "keyguard 해제 상태"
+  - "단말 즐겨찾기 0건 (preset-dependent empty state anchor 사용)"
+  - "단말 플레이리스트 0건 (preset-dependent empty state anchor 사용)"
+
+steps:
+  # ──── SETUP: 콜드 런치 ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: HOME baseline (헤더 + 4 탭 라벨) ────
+  - action: verify_text
+    target: "Mive Music"
+    description: "앱 헤더 라벨 (HOME baseline)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "전체"
+    description: "탭1 (전체) HOME baseline. length=2 WEAK_VERIFY_TEXT step-level suppress"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    lint_allow:
+      - WEAK_VERIFY_TEXT
+
+  - action: verify_text
+    target: "최근 재생"
+    description: "탭2 (최근 재생) HOME baseline"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "즐겨찾기"
+    description: "탭3 (즐겨찾기) HOME baseline"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "플레이리스트"
+    description: "탭4 (플레이리스트) HOME baseline"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── 최근 재생 탭 전환 + absence-only 검증 ────
+  - action: tap_text
+    target: "최근 재생"
+    description: "탭2 (최근 재생) 전환"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "최근 재생 화면 — 헤더 잔존"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_gone
+    target: "곡, 아티스트 검색…"
+    description: "최근 재생 화면 — 전체 탭 전용 검색 hint 부재로 전체 탭 이탈만 검증 (positive anchor 없음)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── 즐겨찾기 탭 전환 + empty-state 검증 ────
+  - action: tap_text
+    target: "즐겨찾기"
+    description: "탭3 (즐겨찾기) 전환"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "즐겨찾기 화면 — 헤더 잔존"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "즐겨찾기한 곡이 없습니다"
+    description: "즐겨찾기 화면 empty state (preset-dependent: 즐겨찾기 0건 가정)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── 플레이리스트 탭 전환 + empty-state 검증 ────
+  - action: tap_text
+    target: "플레이리스트"
+    description: "탭4 (플레이리스트) 전환"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "플레이리스트 화면 — 헤더 잔존"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "플레이리스트가 없습니다"
+    description: "플레이리스트 화면 empty state (preset-dependent: 플레이리스트 0건 가정)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── 전체 탭 복귀 + positive identity 검증 ────
+  - action: tap_text
+    target: "전체"
+    description: "탭1 (전체) 복귀"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "전체 화면 — 헤더 잔존"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "곡, 아티스트 검색…"
+    description: "전체 화면 — 검색 hint (탭 한정 positive anchor)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK

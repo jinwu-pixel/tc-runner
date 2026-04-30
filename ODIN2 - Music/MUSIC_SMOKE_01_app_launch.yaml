@@ -1,0 +1,104 @@
+tc_name: "MUSIC_SMOKE_01_app_launch"
+description: |
+  [Music · ODIN2 SMOKE 01 — 앱 콜드 런치 + HOME 라벨 정합성]
+  Phase 1A 첫 SMOKE. force-stop 후 colder launch → HOME 화면 핵심 네비게이션
+  라벨이 일관되게 노출되는지 verify 한다.
+
+  본 TC가 검증하지 않는 것 (의도적 제외):
+    - playback / play-pause / scrub
+    - 검색 입력
+    - 즐겨찾기 toggle
+    - 플레이리스트 전환
+    - 곡 row 텍스트와 duration (preset 의존성)
+  위 항목은 SMOKE_02~05 후속 분리 대상.
+
+metadata:
+  source: "music_phase1a smoke 01 · 2026-04-30"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "com.mive.music 설치, version_name=1.0.2604231952"
+  - "keyguard 해제 상태"
+
+steps:
+  # ──── SETUP: 콜드 런치 ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: HOME 라벨 정합성 ────
+  - action: screenshot
+    name: "MUSIC_SMOKE_01_home"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "앱 헤더 라벨"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "전체"
+    description: "탭1 (전체) — Music HOME 고정 라벨, length=2 WEAK_VERIFY_TEXT step-level suppress"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    lint_allow:
+      - WEAK_VERIFY_TEXT
+
+  - action: verify_text
+    target: "최근 재생"
+    description: "탭2 (최근 재생)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "즐겨찾기"
+    description: "탭3 (즐겨찾기)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "플레이리스트"
+    description: "탭4 (플레이리스트)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "곡, 아티스트 검색…"
+    description: "검색바 hint"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK

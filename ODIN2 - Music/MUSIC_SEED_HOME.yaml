@@ -1,0 +1,40 @@
+tc_name: "MUSIC_SEED_HOME"
+description: |
+  [Music greenfield Phase 0 preflight seed only]
+  Not a runnable playback TC. Used by `cli preflight` twice with different --run-id:
+    1) manual_music_lockscreen_seed — non-target/lockscreen baseline (Music NOT foreground)
+    2) manual_music_home_seed       — target_app foreground baseline  (Music IS foreground)
+  Seed intent: capture device/package/screen baseline for catalog ingestion.
+  Real Music SMOKE / playback automation is deferred to Phase 1.
+
+  Schema-compliance note (B-compliant placeholder, 2026-04-30):
+    - tc_class=AMBIGUOUS_NL is a placeholder for the seed-only intent.
+      A first-class SEED enum is prebooked for PR 5 schema extension.
+    - manual_detail=NONE is the schema-required value for execution_type=AUTO.
+      Free-form "preflight seed only" intent is preserved here in description and metadata.source.
+
+metadata:
+  source: "music_phase0 preflight seed · 2026-04-30 · B-compliant placeholder (SEED intent → AMBIGUOUS_NL placeholder, PR 5 schema extension prebooked)"
+  runnable: false
+  tc_class: AMBIGUOUS_NL
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: false
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "screen-on 처리는 preflight 실행 직전 외부 단계에서 수행 (KEYCODE_WAKEUP)"
+  - "Music foreground 여부는 run_id 별로 외부에서 처리 (KEYCODE_HOME / monkey LAUNCHER)"
+
+steps:
+  - action: screenshot
+    name: "MUSIC_SEED_baseline"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
