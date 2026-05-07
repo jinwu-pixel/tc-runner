@@ -1,0 +1,162 @@
+tc_name: "MUSIC_SMOKE_04_search_focus_keyboard"
+description: |
+  [Music · ODIN2 SMOKE 04 — HOME 검색 field tap → focus + IME 노출 검증]
+  Phase 1D 첫 SMOKE. 콜드 런치 후 HOME 검색 hint 를 tap_text 로 1회 탭하여
+  EditText focus 획득 + soft keyboard (IME) 노출 transition 을 검증한다.
+  검색어 입력 / 결과 화면 진입은 본 TC scope 밖이며, BACK 1회 + force-stop
+  으로 회수한다.
+
+  Probe (manual_music_smoke04_probe, 2026-05-07) 실측 결과:
+    - HOME 검색 hint TextView "곡, 아티스트 검색…" clickable=false,
+      bounds [136,344][392,392]
+    - 부모 EditText clickable=true, focusable=true, focused=false,
+      bounds [32,312][688,424], resource-id/content-desc 모두 공란
+    - tap_text "곡, 아티스트 검색…" → ancestor bubbling 으로 EditText 점유
+      (post-tap focused=true 확인)
+    - IME 상태:
+        pre-tap : mInputShown=false / mIsInputViewShown=false
+        post-tap: mInputShown=true  / mIsInputViewShown=true
+        BACKx1  : mInputShown=false (IME 회수, 사용자 관점 cleanup OK)
+    - 검색 hint TextView 는 EditText text 가 빈 상태에서는 post-tap 후에도
+      잔존 (Android 표준 동작). 따라서 hint 부재를 focus 증거로 쓸 수 없음.
+    - current_activity 는 tap 전·후·BACK 후 모두 동일
+      (com.mive.music/.presentation.main.MainActivity) → 결과 화면 미진입
+
+  본 TC 가 사용하는 anchor 방식:
+    - primary focus anchor : verify_shell "dumpsys input_method"
+                  expected "mInputShown=true"
+                  (IME 노출 = EditText focus 획득의 사용자 관점 결과)
+    - HOME baseline anchor : verify_shell "dumpsys input_method"
+                  expected "mInputShown=false"
+                  (cold launch 직후 IME 미노출 baseline)
+    - hint 노출 baseline   : verify_text "곡, 아티스트 검색…"
+                  (tap target 자체. tap 후에도 잔존하나 baseline 용도로만
+                   사용)
+    - cleanup anchor       : verify_shell "dumpsys input_method"
+                  expected "mInputShown=false"
+                  (BACK x1 로 IME 회수 후)
+
+  본 TC 가 검증하지 않는 것 (의도적 제외):
+    - 검색어 입력 (input_text 미사용 → SMOKE 4 scope Option A)
+    - 검색 결과 화면 (검색어 미입력이므로 진입 불가)
+    - 특정 IME 키 라벨 / IME 종류 (locale·IME 의존)
+    - EditText focused 속성 직접 검사 (verify_text 는 text 노드 매칭이라
+      focused="true" attribute 검증 불가 → IME 가시성으로 대체)
+    - tap_text 실패 시 좌표 fallback (probe 결과상 단일 EditText·단일 hint
+      이므로 ancestor bubbling 으로 충분, src/schema 변경 불필요)
+
+metadata:
+  source: "music_phase1d smoke 04 · 2026-05-07 · probe-driven IME-anchor"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "com.mive.music 설치, version_name=1.0.2604231952"
+  - "keyguard 해제 상태"
+  - "기본 IME (시스템 기본 soft keyboard) 활성화 상태"
+
+steps:
+  # ──── SETUP: 콜드 런치 ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── HOME baseline: 헤더 + 검색 hint + IME 미노출 ────
+  - action: verify_text
+    target: "Mive Music"
+    description: "앱 헤더 라벨 (HOME baseline)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "곡, 아티스트 검색…"
+    description: "HOME 검색 hint 노출 (tap target baseline)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys input_method"
+    expected: "mInputShown=false"
+    description: "HOME baseline — IME 미노출 (cold launch 직후)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION: 검색 hint 1회 탭 → EditText focus + IME 노출 ────
+  - action: tap_text
+    target: "곡, 아티스트 검색…"
+    description: "검색 hint TextView 탭 (clickable=false leaf → parent EditText clickable=true ancestor bubbling)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: focus 획득 = IME 노출 ────
+  - action: verify_shell
+    command: "dumpsys input_method"
+    expected: "mInputShown=true"
+    description: "검색 EditText focus 획득 → soft keyboard 노출 (focus 획득 증거)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── CLEANUP: BACK 1회로 IME 회수 → force-stop ────
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "IME 회수 (BACK 1회). EditText focus 속성은 잔존하나 사용자 관점 cleanup OK"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys input_method"
+    expected: "mInputShown=false"
+    description: "IME 회수 확인 (BACK 후)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.mive.music"
+    description: "전체 cleanup (focus 잔존 정리)"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
