@@ -1,0 +1,343 @@
+tc_name: "MUSIC_SMOKE_06_favorite_add_remove_cleanup"
+description: |
+  [Music · ODIN2 SMOKE 06 — player surface 즐겨찾기 add → 검증 → remove → 검증 → 영속성 회수]
+  Phase 1F-Retry. 1차 SMOKE_06 시도가 BLOCKED_BY_RUNNER_CAPABILITY 로 닫힘
+  (player favorite control 이 content-desc 만 가진 icon button + clickable=false
+  leaf, selected/checked 가 toggle 후에도 false 유지, drawable-only state).
+  PR 5 (commit 469a555) 의 tap_content_desc / verify_content_desc capability
+  를 적용해 좌표 없이 favorite 컨트롤을 toggle 하고, **add/remove 결과는 favorite
+  tab 의 empty-state 문구 변화** 만으로 검증한다 (selected/checked/drawable
+  미관여, mini player text false-positive 회피).
+
+  Probe (probe_dump_smoke06_*.xml, 2026-05-07) 실측 결과:
+    - player surface top bar: content-desc="즐겨찾기" 단일 출현
+                              (text="" / clickable=false leaf,
+                               clickable=true ancestor bounds [520,96][616,192])
+    - HOME 4 탭 라벨 "즐겨찾기" 는 text= 속성 (content-desc 부재)
+                              → tap_content_desc 와 tap_text 가 attribute 단위
+                                분리되어 cross-surface false-tap 위험 없음
+    - favorite tab empty-state: text="즐겨찾기한 곡이 없습니다"
+                              (favorite tab 안에서만 출현, mini player 부재)
+    - selected / checked: add 전후 모두 false (drawable-only 상태)
+                              → attribute 기반 add 검증 불가
+    - 곡 row text ("After The Hurricane" / "Jazmine Sullivan") 은 mini player
+      에도 노출 가능 → primary anchor 부적합
+
+  본 TC 가 사용하는 anchor 방식 (사용자 결정):
+    - HOME baseline       : verify_text "Mive Music"
+    - favorite tab empty  : verify_text "즐겨찾기한 곡이 없습니다"
+    - 전체 탭 baseline    : verify_text "곡, 아티스트 검색…"
+    - player surface anchor: verify_content_desc "즐겨찾기"
+                            (favorite tab 에는 text 만 존재 → content-desc
+                             검증으로 player surface 식별)
+    - favorite control    : tap_content_desc "즐겨찾기"
+                            (clickable=false leaf → ancestor bubbling)
+    - add 검증 primary    : verify_gone "즐겨찾기한 곡이 없습니다"
+                            (empty-state 문구가 사라지면 add 성공 — mini
+                             player 영향 없음)
+    - remove 검증 primary : verify_text "즐겨찾기한 곡이 없습니다"
+                            (empty-state 복귀 → remove 성공)
+    - 영속성 회수         : force-stop + monkey LAUNCHER 후 동일 anchor
+
+  본 TC 가 검증하지 않는 것 (의도적 제외):
+    - selected / checked / drawable / icon image (PR 5 가 해결하지 않음)
+    - 곡 제목·아티스트 text 매칭을 add primary 로 사용 (mini player false-positive)
+    - tap_xy / x,y 좌표 (PR 5 capability 로 좌표 없이 가능)
+    - mini player 자체 (별도 capability 필요, scope out)
+    - playback 지속 / audio focus / media_session
+    - 다중 곡 favorite (preset 첫 곡만)
+
+  Persistent state (mutation HIGH):
+    - favorite list 는 force-stop / relaunch 후에도 보존됨 → add → remove 가
+      한 TC 안에서 닫혀야 하며, 시작 precondition 으로 favorite tab empty
+      상태를 verify_text "즐겨찾기한 곡이 없습니다" 로 강제한다. 시작 시점에
+      empty 가 아니면 BLOCKED 으로 종료 (verify_text 실패 → runner abort).
+
+  Preset baseline (사용자 결정):
+    - 전체 탭 첫 곡 = After The Hurricane / Jazmine Sullivan / 3:58
+    - 시작 시 favorite tab 은 empty (이전 회차 mutation 이 cleanup 까지 닫혔다고 가정)
+    - preset 변경 시 본 TC 실패 → 앱 버그가 아니라 preset/state drift 로 먼저
+      분류한다 (SMOKE_03/05 정책 재사용)
+
+metadata:
+  source: "music_phase1f_retry smoke 06 · 2026-05-07 · PR 5 content-desc capability + empty-state anchor"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "com.mive.music 설치, version_name=1.0.2604231952"
+  - "keyguard 해제 상태"
+  - "전체 탭 첫 곡 = After The Hurricane / Jazmine Sullivan / 3:58 (preset baseline 고정)"
+  - "favorite tab empty (이전 회차 cleanup 이 닫혀 있어야 함; 시작 verify 가 강제)"
+
+steps:
+  # ──── SETUP: 콜드 런치 (force-stop + monkey LAUNCHER 페어 의무) ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── HOME baseline: 헤더 ────
+  - action: verify_text
+    target: "Mive Music"
+    description: "앱 헤더 라벨 (HOME baseline)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── PRECONDITION: favorite tab empty (mutation 진행 전 강제) ────
+  - action: tap_text
+    target: "즐겨찾기"
+    description: "HOME 4 탭 중 즐겨찾기 탭 진입 (text= 라벨, content-desc 부재 → tap_text 사용)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "즐겨찾기한 곡이 없습니다"
+    description: "시작 precondition: favorite tab empty (이 verify 실패 시 mutation 진행 금지)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── 전체 탭 복귀 → 첫 곡 진입 준비 ────
+  - action: tap_text
+    target: "전체"
+    description: "전체 탭 복귀 (HOME 첫 곡 list 노출)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "곡, 아티스트 검색…"
+    description: "전체 탭 baseline (검색 hint 노출, cold launch 후 첫 곡 list 화면)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION: 첫 곡 진입 → player surface 도착 → favorite ADD ────
+  - action: tap_text
+    target: "After The Hurricane"
+    description: "첫 곡 row 탭 (SMOKE_03 검증된 path) → player surface 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_content_desc
+    target: "즐겨찾기"
+    description: "player surface 도착 anchor (favorite tab 에 content-desc 부재 → surface 식별)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_content_desc
+    target: "즐겨찾기"
+    description: "favorite ADD (clickable=false leaf → ancestor bubbling, 좌표 사용 안 함)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── BACK → HOME 복귀 → favorite tab 재진입 → ADD 확인 ────
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "player surface 종료 (HOME 으로 복귀; favorite tab 직행 가정 안 함)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "HOME 헤더 anchor (BACK 결과가 HOME 임을 강제 — favorite tab 직행 가정 차단)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_text
+    target: "즐겨찾기"
+    description: "favorite tab 재진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_gone
+    target: "즐겨찾기한 곡이 없습니다"
+    description: "ADD 검증 primary — empty-state 문구 사라짐 (mini player 무관)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION: favorite tab 곡 row → player 재진입 → favorite REMOVE ────
+  - action: tap_text
+    target: "After The Hurricane"
+    description: "favorite tab 의 곡 row 탭 (= 추가된 곡) → player surface 재진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_content_desc
+    target: "즐겨찾기"
+    description: "player surface 재도달 anchor (REMOVE 직전)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_content_desc
+    target: "즐겨찾기"
+    description: "favorite REMOVE (toggle off — content-desc 동일 유지, drawable 만 변경됨이 probe 결과)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── BACK → HOME 복귀 → favorite tab 재진입 → REMOVE 확인 ────
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "player surface 종료 (HOME 복귀; favorite tab 직행 가정 안 함)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "Mive Music"
+    description: "HOME 헤더 anchor"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_text
+    target: "즐겨찾기"
+    description: "favorite tab 재진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "즐겨찾기한 곡이 없습니다"
+    description: "REMOVE 검증 primary — empty-state 복귀"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── PERSISTENCE CLEANUP: force-stop + relaunch 후 empty 재확인 ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    description: "프로세스 회수"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    description: "재기동"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_text
+    target: "즐겨찾기"
+    description: "재기동 후 favorite tab 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "즐겨찾기한 곡이 없습니다"
+    description: "영속성 회수 검증 — relaunch 후에도 favorite tab empty 유지 (REMOVE persistent 확인)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
