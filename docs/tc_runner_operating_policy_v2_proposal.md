@@ -1,7 +1,7 @@
 # tc-runner Operating Policy v2 Proposal
 
-**Status:** DRAFT (proposal only, no commit, no code change)
-**Origin baseline:** origin/master = `7af206d`
+**Status:** DRAFT proposal; repo-fixed at `b4552c4`; policy v2 not applied; no code change.
+**Origin baseline:** origin/master = `7af206d` (proposal authoring snapshot)
 **Empirical basis:** Music greenfield SMOKE_01~06 (cumulative runtime 112/112 PASS)
 
 본 문서는 안전장치 제거 문서가 아니다. Music Phase 1에서 드러난 운영 비용(승인·audit·commit·push·memory)을 줄이기 위한 정책 초안이며, 검토 자체를 제거하지 않고 검토 시점을 일부 이동하는 제한적 최적화 제안이다.
