@@ -9,6 +9,9 @@
 - delta verdict `changed_texts` jaccard=1.0 / added=removed=[] 가 같은 cold-launch에서 발생.
   텍스트 set 동일하지만 xml_sha256/screen_id 다름 → UI 구조 미세 변화 또는 prebuilt id 변동.
   버그 아님. PR 4 verdict 분류 알고리즘 evidence 로 의미 있음. SMOKE_02 작성 시 동일 패턴 반복되는지 확인 필요.
+- BT 오디오 연결 해제 상태에서 player surface 진입 후 `media_session state=ERROR(7), error="블루투스 오디오가 연결 해제됨"`이 관찰됨.
+  SMOKE_03은 playback 지속 검증이 아니라 player surface 진입 검증으로 제한한다.
+  앱 버그가 아니라 단말 환경(BT 라우팅 부재) 부수효과로 분류. 향후 BT 연결 또는 헤드셋 환경에서 재확인 시 별도 evidence 수집 가능.
 
 ## 세션 결과
 - 실행일: 2026-04-30

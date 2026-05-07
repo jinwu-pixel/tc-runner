@@ -42,6 +42,20 @@
 - 전체/최근 재생 화면: `[24,208][204,304] / [204,208][384,304] / [384,208][564,304] / [564,208][720,304]`
 - 즐겨찾기/플레이리스트 화면 (컨텐츠 reflow): `[0,208][149,304] / [149,208][329,304] / [329,208][509,304] / [509,208][696,304]`
 
+### Player surface 화면 (Phase 1C SMOKE_03 probe, 2026-04-30)
+- 진입: HOME 전체 탭 첫 곡 row 1회 탭 (row container clickable=true, leaf TextView clickable=false)
+- 같은 Activity (`…/MainActivity`) 내부에서 fragment 전환. `current_activity` 변동 없음. xml_sha256 변동 (`33b419fc…` → `320c0ac1…`)
+- 곡 1 row container bounds `[0,432][720,568]`. 우측 NAF Button (더보기 추정) `[616,452][712,548]` — tap 좌표 (360,500) 회피
+- player-unique anchors:
+  - text: `1.0x` (속도 셀렉터, length=3 lint OK) ← **primary**
+  - class: `android.widget.SeekBar` `[28,992][692,1080]`
+  - content-desc: `셔플`, `반복`, `이전 곡`, `다음 곡`, `가사`, `즐겨찾기`, `수면 타이머`
+- preset-dependent (HOME 중복 가능):
+  - 곡 metadata: `After The Hurricane`, `Jazmine Sullivan` (player 헤더 + 메인 이중 노출)
+  - duration: `3:58` (HOME row 에도 등장 → player-unique 아님)
+  - progress time: `0:02` 등 (시점 의존)
+- side effect 관찰 (BT 오디오 disconnect 환경): `media_session state=ERROR(7), error="블루투스 오디오가 연결 해제됨"`. notification 0건. force-stop 1회로 회수.
+
 ## 미확인 (Phase 1 SMOKE 작성 시 보강)
 - 곡 탭 시 진입하는 player 화면 구성 (재생/일시정지/스크럽바 좌표)
 - 탭 내부 정렬·필터 옵션 (탭 헤더 외 영역)

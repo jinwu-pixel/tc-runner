@@ -1,0 +1,149 @@
+tc_name: "MUSIC_SMOKE_03_open_first_track_player"
+description: |
+  [Music · ODIN2 SMOKE 03 — 전체 탭 첫 곡 탭 → player surface 진입 검증]
+  Phase 1C 첫 SMOKE. 콜드 런치 후 HOME 전체 탭 첫 곡 row 를
+  tap_text 로 1회 탭하여 full-screen player surface 로 진입했는지를
+  player-unique anchor 로 검증한다. 종료 시 force-stop 으로 회수한다.
+
+  Probe (manual_music_smoke03_probe, 2026-04-30) 실측 결과:
+    - HOME 전체 탭 첫 곡 row container clickable=true,
+      leaf TextView (title/artist/duration) clickable=false
+    - 같은 row 우측에 NAF Button (더보기 추정) 존재 → tap_text 는
+      title leaf 매칭 → ancestor bubbling 으로 row container 점유
+    - tap 후 동일 Activity (MainActivity) 내부에서 player fragment 전환
+    - player surface 고유 anchor: SeekBar 클래스, "1.0x" 속도 텍스트,
+      "셔플"/"반복"/"이전 곡"/"다음 곡" content-desc
+    - HOME 에는 "1.0x" 텍스트 부재 → player 진입 강력 anchor
+
+  본 TC 가 사용하는 anchor 방식 (옵션 1, 사용자 결정):
+    - primary player anchor: verify_text "1.0x"
+                  (length=3, lint OK, default speed selector,
+                   HOME 에 부재)
+    - 보조 cross-check: verify_text "After The Hurricane"
+                  (preset-dependent first-track title; player 헤더 +
+                   메인 양쪽 노출. player 진입 단독 증거 아님 — preset
+                   매칭 cross-check 용도)
+    - HOME 부재 baseline: verify_gone "1.0x"
+                  (tap 전 HOME 에는 "1.0x" 부재 → 탭 후 등장으로
+                   player 진입 transition 검증)
+
+  본 TC 가 검증하지 않는 것 (의도적 제외):
+    - playback 지속 여부 (BT 오디오 라우팅 부재 시 media_session 가
+      ERROR 로 전이될 수 있음 — 본 TC scope 밖, NOTE 만 기록)
+    - SeekBar / 셔플 / 반복 / 이전 곡 / 다음 곡 등 content-desc anchor
+      (현 runner verify_text 는 text 노드 매칭 → schema 확장 필요)
+    - "3:58" duration (HOME row 에도 등장 → player-unique 아님)
+    - "0:02" 등 progress time (시점 의존)
+    - audio focus / notification / media_session state
+    - 시스템 볼륨 / BT / audio route 조작 (사용자 정책상 금지)
+
+  Preset baseline (사용자 결정):
+    - 전체 탭 첫 곡 = After The Hurricane / Jazmine Sullivan / 3:58
+    - preset 변경 시 본 TC 실패 → 앱 버그가 아니라 preset/state drift
+      로 먼저 분류한다.
+
+metadata:
+  source: "music_phase1c smoke 03 · 2026-04-30 · probe-driven option-1 anchors"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "com.mive.music 설치, version_name=1.0.2604231952"
+  - "keyguard 해제 상태"
+  - "전체 탭 첫 곡 = After The Hurricane / Jazmine Sullivan / 3:58 (preset baseline 고정)"
+
+steps:
+  # ──── SETUP: 콜드 런치 ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── HOME baseline: 헤더 + 첫 곡 preset + player anchor 부재 ────
+  - action: verify_text
+    target: "Mive Music"
+    description: "앱 헤더 라벨 (HOME baseline)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "After The Hurricane"
+    description: "전체 탭 첫 곡 title (preset baseline)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "Jazmine Sullivan"
+    description: "전체 탭 첫 곡 artist (preset baseline cross-check)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_gone
+    target: "1.0x"
+    description: "HOME baseline — player surface 미진입 (1.0x 속도 셀렉터 부재)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION: 전체 탭 첫 곡 1회 탭 → player 전환 ────
+  - action: tap_text
+    target: "After The Hurricane"
+    description: "첫 곡 row 탭 (leaf TextView clickable=false → parent View clickable=true ancestor bubbling)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: player surface 진입 검증 ────
+  - action: verify_text
+    target: "1.0x"
+    description: "player surface primary anchor (속도 셀렉터, HOME 에 부재)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "After The Hurricane"
+    description: "player 헤더/메인 양쪽 노출 — preset cross-check (단독 증거 아님)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── CLEANUP: force-stop ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
