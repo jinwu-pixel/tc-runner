@@ -1,0 +1,192 @@
+tc_name: "MUSIC_SMOKE_05_search_query_results"
+description: |
+  [Music · ODIN2 SMOKE 05 — HOME 검색 query 입력 → inline filter 결과 검증]
+  Phase 1E 첫 SMOKE. SMOKE_04 (focus + IME)에서 발견한 검색 EditText에
+  ASCII query "Jazmine" 을 input_text 로 1회 입력하여 inline filter 결과로
+  preset 곡(After The Hurricane / Jazmine Sullivan)이 노출되고 unrelated
+  preset 곡("너 말이야")이 verify_gone 되는지를 검증한다.
+  cleanup 은 force-stop 단독.
+
+  Probe (manual_music_smoke05_probe, 2026-05-07) 실측 결과:
+    - input_text "Jazmine" 정상 입력 (EditText.text="Jazmine"),
+      Korean IME composition 회피
+    - current_activity 변동 0 (`com.mive.music/.presentation.main.MainActivity`)
+      → inline filter 확정. 별도 result activity 미생성
+    - post-input HOME 구조 유지: 헤더(Mive Music) + 4 탭(전체/즐겨찾기/
+      최근 재생/플레이리스트) 잔존
+    - 결과 노출: Jazmine Sullivan(artist), After The Hurricane(track),
+      3:58(duration). 부재: 5dolls / 너 말이야 / 3:37 (verify_gone 후보)
+    - search hint "곡, 아티스트 검색…" 은 query 가 입력되면 부재 (query
+      노출로 치환). post-input baseline 으로는 사용 불가
+    - cleanup 정책 측정:
+        BACK x1 → IME 회수만, query/focus/filter 모두 잔존 → cleanup 부적합
+        force-stop + monkey LAUNCHER → clean HOME 복귀 (EditText.text="",
+          focused=false, search hint 복귀, 전 곡 list 복귀, query/history
+          잔존 0)
+        ⇒ 채택: force-stop 단독 cleanup
+    - SETUP 정책: monkey LAUNCHER 단독은 last-activity 복원 위험 (player
+      surface 진입 사례 관찰) → force-stop + monkey LAUNCHER 페어 의무
+    - NAF Button trap: EditText 우측 [592,320][688,416] NAF Button 은
+      clear 가 아니라 app exit trap. SMOKE_05 좌표 tap 절대 금지
+
+  본 TC 가 사용하는 anchor 방식:
+    - HOME baseline       : verify_text "Mive Music" + verify_text
+                            "곡, 아티스트 검색…"
+    - IME baseline        : verify_shell "dumpsys input_method"
+                            expected "mInputShown=false"
+    - focus 획득          : verify_shell "dumpsys input_method"
+                            expected "mInputShown=true" (post-tap)
+    - 결과 primary anchor : verify_text "Jazmine Sullivan"
+                            (artist 정확 매칭, preset 의존)
+    - 결과 secondary      : verify_text "After The Hurricane"
+                            (track match, preset 의존)
+    - filter-effect anchor: verify_gone "너 말이야"
+                            (post-input dump 부재 확인, preset 의존)
+    - cleanup             : shell am force-stop (검증 step 없이 종료)
+
+  본 TC 가 검증하지 않는 것 (의도적 제외):
+    - 검색 결과 row tap (player 진입 → SMOKE_03 영역 중복)
+    - clear button / NAF Button 조작 (app exit trap)
+    - BACK 활용 cleanup (query/focus/filter 잔존하므로 부적합)
+    - Korean query 입력 (IME composition risk)
+    - 검색 history / 자동완성 / 음성 검색
+    - 결과 row 좌표 tap / class·content-desc 매칭
+
+  Preset baseline (사용자 결정):
+    - 전체 탭 곡 list 에 Jazmine Sullivan / After The Hurricane / 너 말이야
+      / 5dolls 가 존재
+    - query "Jazmine" → 결과: Jazmine Sullivan + After The Hurricane,
+      verify_gone: 너 말이야 (5dolls 등 다른 preset 곡)
+    - preset 변경 시 본 TC 실패 → 앱 버그가 아니라 preset/state drift
+      로 먼저 분류 (SMOKE_03 정책 재사용)
+
+metadata:
+  source: "music_phase1e smoke 05 · 2026-05-07 · probe-driven inline-filter anchors"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.mive.music"
+    version: "1.0.2604231952"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "com.mive.music 설치, version_name=1.0.2604231952"
+  - "keyguard 해제 상태"
+  - "기본 IME (시스템 기본 soft keyboard) 활성화 상태"
+  - "전체 탭 곡 preset: Jazmine Sullivan / After The Hurricane / 너 말이야 / 5dolls 존재"
+
+steps:
+  # ──── SETUP: 콜드 런치 (force-stop + monkey LAUNCHER 페어 의무) ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.mive.music -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── HOME baseline: 헤더 + 검색 hint + IME 미노출 ────
+  - action: verify_text
+    target: "Mive Music"
+    description: "앱 헤더 라벨 (HOME baseline)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "곡, 아티스트 검색…"
+    description: "HOME 검색 hint 노출 (cold-launch 직후 query 미입력)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys input_method"
+    expected: "mInputShown=false"
+    description: "HOME baseline — IME 미노출 (cold launch 직후)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION 1: 검색 hint 탭 → focus 획득 + IME 노출 ────
+  - action: tap_text
+    target: "곡, 아티스트 검색…"
+    description: "검색 hint TextView 탭 (clickable=false leaf → parent EditText clickable=true ancestor bubbling)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys input_method"
+    expected: "mInputShown=true"
+    description: "검색 EditText focus 획득 → soft keyboard 노출"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION 2: ASCII query 입력 → inline filter 동작 ────
+  - action: input_text
+    text: "Jazmine"
+    description: "ASCII query 입력 (Korean IME composition 회피)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: inline filter 결과 ────
+  - action: verify_text
+    target: "Jazmine Sullivan"
+    description: "결과 primary anchor — artist 정확 매칭 (preset 의존)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "After The Hurricane"
+    description: "결과 secondary anchor — track match (preset 의존)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_gone
+    target: "너 말이야"
+    description: "filter-effect anchor — unrelated preset 곡 부재 (preset 의존)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── CLEANUP: force-stop 단독 (BACK / clear / NAF Button 사용 금지) ────
+  - action: shell
+    command: "am force-stop com.mive.music"
+    description: "단일 force-stop 으로 query/focus/filter 일괄 회수"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
