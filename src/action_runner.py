@@ -5,7 +5,12 @@ from pathlib import Path
 from typing import Callable, Literal, Optional
 
 from src.adb import ADB
-from src.ui_parser import find_element_by_text, find_element_by_id
+from src.ui_parser import (
+    count_content_desc_matches,
+    find_clickable_target_by_content_desc,
+    find_element_by_id,
+    find_element_by_text,
+)
 
 
 @dataclass
@@ -178,6 +183,8 @@ class ActionRunner:
             "verify_shell": self._verify_shell,
             "verify_gone": self._verify_gone,
             "input_text": self._input_text,
+            "tap_content_desc": self._tap_content_desc,
+            "verify_content_desc": self._verify_content_desc,
             "manual_pause": lambda step: (False, "manual_pause requires handler"),
         }
         handler = handlers.get(action)
@@ -316,6 +323,40 @@ class ActionRunner:
         text = step["text"]
         self.adb.input_text(text)
         return True, f"Input: {text}"
+
+    def _tap_content_desc(self, step: dict) -> tuple[bool, str]:
+        target = step.get("target")
+        if not target:
+            raise KeyError("'target' 필드가 필요합니다")
+        last_status = "not_found"
+        last_info: object = None
+        for attempt in range(self.max_retries):
+            xml = self.adb.dump_ui()
+            status, info = find_clickable_target_by_content_desc(xml, target)
+            if status == "ok":
+                self.adb.tap(info["x"], info["y"])
+                return True, f"Tapped content-desc '{target}' at ({info['x']}, {info['y']})"
+            if status == "duplicate":
+                return False, f"content-desc '{target}' matched {info} nodes (duplicate)"
+            if status == "not_clickable":
+                return False, f"content-desc '{target}' found but no clickable ancestor"
+            last_status, last_info = status, info
+            if attempt < self.max_retries - 1:
+                time.sleep(self.retry_interval)
+        return False, f"content-desc '{target}' not found"
+
+    def _verify_content_desc(self, step: dict) -> tuple[bool, str]:
+        target = step.get("target")
+        if not target:
+            raise KeyError("'target' 필드가 필요합니다")
+        for attempt in range(self.max_retries):
+            xml = self.adb.dump_ui()
+            count = count_content_desc_matches(xml, target)
+            if count >= 1:
+                return True, f"content-desc '{target}' present (count={count})"
+            if attempt < self.max_retries - 1:
+                time.sleep(self.retry_interval)
+        return False, f"content-desc '{target}' not found"
 
     def _capture_failure_screenshot(self, action: str) -> Optional[Path]:
         try:

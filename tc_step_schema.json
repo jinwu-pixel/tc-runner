@@ -75,10 +75,12 @@
           "type": "string",
           "enum": [
             "tap_text", "tap_id", "tap_xy",
+            "tap_content_desc",
             "key", "shell", "input_text",
             "swipe", "wait", "screenshot",
             "manual_pause",
-            "verify_text", "verify_shell", "verify_gone"
+            "verify_text", "verify_shell", "verify_gone",
+            "verify_content_desc"
           ],
           "description": "실행할 액션 타입"
         },
@@ -94,7 +96,7 @@
         },
         "target": {
           "type": "string",
-          "description": "tap_text: 탭할 텍스트, tap_id: 리소스ID, verify_text: 확인할 텍스트"
+          "description": "tap_text: 탭할 텍스트, tap_id: 리소스ID, verify_text: 확인할 텍스트, tap_content_desc/verify_content_desc: content-desc 정확 매칭"
         },
         "command": {
           "type": "string",
@@ -190,6 +192,14 @@
         },
         {
           "if": { "properties": { "action": { "const": "verify_gone" } } },
+          "then": { "required": ["action", "target"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "tap_content_desc" } } },
+          "then": { "required": ["action", "target"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "verify_content_desc" } } },
           "then": { "required": ["action", "target"] }
         },
         {

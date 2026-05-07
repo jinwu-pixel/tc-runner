@@ -4,9 +4,11 @@ import yaml
 
 
 VALID_ACTIONS = {
-    "tap_text", "tap_id", "tap_xy", "swipe", "key",
+    "tap_text", "tap_id", "tap_xy", "tap_content_desc",
+    "swipe", "key",
     "shell", "wait", "screenshot", "verify_text",
-    "verify_shell", "verify_gone", "input_text", "manual_pause",
+    "verify_shell", "verify_gone", "verify_content_desc",
+    "input_text", "manual_pause",
 }
 
 

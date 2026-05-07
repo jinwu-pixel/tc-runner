@@ -13,6 +13,41 @@ SAMPLE_XML = """<?xml version="1.0" encoding="UTF-8"?>
 </hierarchy>"""
 
 
+# Music player favorite-style hierarchy for content-desc 테스트
+CD_HIERARCHY_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node bounds="[0,0][720,1560]" clickable="false">
+    <node clickable="true" bounds="[520,96][616,192]">
+      <node text="" content-desc="즐겨찾기" clickable="false" bounds="[544,120][592,168]" />
+    </node>
+    <node text="홈탭문구" content-desc="홈탭" clickable="true" bounds="[100,1500][200,1560]" />
+    <node text="" content-desc="비클릭" clickable="false" bounds="[300,300][400,400]" />
+  </node>
+</hierarchy>"""
+
+# tap_text vs tap_content_desc cross-cutting:
+# HOME tab text="즐겨찾기" + player content-desc="즐겨찾기" 공존
+CROSS_CUT_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node bounds="[0,0][720,1560]" clickable="false">
+    <node clickable="true" bounds="[520,96][616,192]">
+      <node text="" content-desc="즐겨찾기" clickable="false" bounds="[544,120][592,168]" />
+    </node>
+    <node text="즐겨찾기" content-desc="" clickable="true" bounds="[100,1500][200,1560]" />
+  </node>
+</hierarchy>"""
+
+DUP_CD_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node clickable="true" bounds="[0,0][100,100]">
+    <node content-desc="중복" clickable="false" bounds="[10,10][50,50]" />
+  </node>
+  <node clickable="true" bounds="[200,200][300,300]">
+    <node content-desc="중복" clickable="false" bounds="[210,210][250,250]" />
+  </node>
+</hierarchy>"""
+
+
 def make_runner(adb_mock=None):
     adb = adb_mock or MagicMock()
     return ActionRunner(adb=adb, screenshot_dir=Path("/tmp/screenshots"))
@@ -105,6 +140,130 @@ def test_verify_text_not_found():
     runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
     result = runner.run_step({"action": "verify_text", "text": "없는텍스트"})
     assert result.passed is False
+
+
+# ─── tap_content_desc / verify_content_desc ───
+
+def test_tap_content_desc_clickable_leaf_taps_leaf_center():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = make_runner(adb)
+    result = runner.run_step({"action": "tap_content_desc", "target": "홈탭"})
+    assert result.passed is True
+    adb.tap.assert_called_once_with(150, 1530)
+
+
+def test_tap_content_desc_bubbles_to_clickable_parent_when_leaf_non_clickable():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = make_runner(adb)
+    result = runner.run_step({"action": "tap_content_desc", "target": "즐겨찾기"})
+    assert result.passed is True
+    # 즐겨찾기 leaf clickable=false → parent center (568, 144)
+    adb.tap.assert_called_once_with(568, 144)
+
+
+def test_tap_content_desc_not_found_fails_after_retries():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
+    result = runner.run_step({"action": "tap_content_desc", "target": "없는항목"})
+    assert result.passed is False
+    assert "not found" in result.message
+    adb.tap.assert_not_called()
+
+
+def test_tap_content_desc_duplicate_fails_immediately():
+    adb = MagicMock()
+    adb.dump_ui.return_value = DUP_CD_XML
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
+    result = runner.run_step({"action": "tap_content_desc", "target": "중복"})
+    assert result.passed is False
+    assert "duplicate" in result.message.lower()
+    adb.tap.assert_not_called()
+
+
+def test_tap_content_desc_no_clickable_ancestor_fails():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
+    result = runner.run_step({"action": "tap_content_desc", "target": "비클릭"})
+    assert result.passed is False
+    assert "no clickable ancestor" in result.message
+    adb.tap.assert_not_called()
+
+
+def test_tap_content_desc_missing_target_fails():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = make_runner(adb)
+    result = runner.run_step({"action": "tap_content_desc"})
+    assert result.passed is False
+    # KeyError surfaces via run_step exception path
+    adb.tap.assert_not_called()
+
+
+def test_verify_content_desc_present_passes():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = make_runner(adb)
+    result = runner.run_step({"action": "verify_content_desc", "target": "즐겨찾기"})
+    assert result.passed is True
+    assert "present" in result.message
+
+
+def test_verify_content_desc_duplicate_passes():
+    # presence assertion이라 duplicate도 PASS
+    adb = MagicMock()
+    adb.dump_ui.return_value = DUP_CD_XML
+    runner = make_runner(adb)
+    result = runner.run_step({"action": "verify_content_desc", "target": "중복"})
+    assert result.passed is True
+    assert "count=2" in result.message
+
+
+def test_verify_content_desc_not_found_fails():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
+    result = runner.run_step({"action": "verify_content_desc", "target": "없는항목"})
+    assert result.passed is False
+    assert "not found" in result.message
+
+
+def test_verify_content_desc_missing_target_fails():
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = make_runner(adb)
+    result = runner.run_step({"action": "verify_content_desc"})
+    assert result.passed is False
+
+
+def test_tap_text_vs_tap_content_desc_target_separation():
+    # HOME tab text="즐겨찾기" + player content-desc="즐겨찾기" 동시 존재 시
+    # tap_text 는 text 노드 (HOME tab) 를 tap, tap_content_desc 는 content-desc 노드 (player)
+    adb_text = MagicMock()
+    adb_text.dump_ui.return_value = CROSS_CUT_XML
+    runner_text = make_runner(adb_text)
+    result = runner_text.run_step({"action": "tap_text", "target": "즐겨찾기"})
+    assert result.passed is True
+    adb_text.tap.assert_called_once_with(150, 1530)  # HOME tab center
+
+    adb_cd = MagicMock()
+    adb_cd.dump_ui.return_value = CROSS_CUT_XML
+    runner_cd = make_runner(adb_cd)
+    result = runner_cd.run_step({"action": "tap_content_desc", "target": "즐겨찾기"})
+    assert result.passed is True
+    adb_cd.tap.assert_called_once_with(568, 144)  # player parent center
+
+
+def test_tap_content_desc_no_coordinate_fallback_when_not_found():
+    # not_found 케이스에서 좌표 fallback 으로 tap 하지 않는다
+    adb = MagicMock()
+    adb.dump_ui.return_value = CD_HIERARCHY_XML
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
+    runner.run_step({"action": "tap_content_desc", "target": "없는항목", "x": 500, "y": 500})
+    adb.tap.assert_not_called()
 
 
 EMPTY_XML = '<?xml version="1.0" encoding="UTF-8"?><hierarchy rotation="0"></hierarchy>'
