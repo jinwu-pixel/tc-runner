@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy>
+  <node class="android.widget.ProgressBar" content-desc="로딩 중" />
+  <node class="android.widget.TextView" text="콘텐츠 불러오는 중" />
+</hierarchy>

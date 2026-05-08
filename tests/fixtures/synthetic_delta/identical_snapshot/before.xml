@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy>
+  <node class="android.widget.LinearLayout">
+    <node class="android.widget.TextView" text="홈" />
+    <node class="android.widget.TextView" text="재생목록" />
+    <node class="android.widget.TextView" text="즐겨찾기" />
+    <node class="android.widget.TextView" text="최근 재생" />
+    <node class="android.widget.Button" text="재생" content-desc="재생 버튼" />
+  </node>
+</hierarchy>

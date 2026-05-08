@@ -1,0 +1,7 @@
+{
+  "name": "insufficient_evidence",
+  "expected_verdict": "insufficient",
+  "target_text": null,
+  "noise_text_hints": [],
+  "notes": "양쪽 모두 visible_texts < 3 (loading 화면)"
+}

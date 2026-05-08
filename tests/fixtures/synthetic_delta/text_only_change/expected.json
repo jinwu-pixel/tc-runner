@@ -1,0 +1,7 @@
+{
+  "name": "text_only_change",
+  "expected_verdict": "meaningful_delta",
+  "target_text": "홈",
+  "noise_text_hints": [],
+  "notes": "재생 N곡 카운트 한 줄만 변경, anchor 동일"
+}

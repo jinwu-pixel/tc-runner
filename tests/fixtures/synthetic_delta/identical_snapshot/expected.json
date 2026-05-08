@@ -1,0 +1,7 @@
+{
+  "name": "identical_snapshot",
+  "expected_verdict": "stable",
+  "target_text": "홈",
+  "noise_text_hints": [],
+  "notes": "before == after, 6 visible texts, target anchor 동일"
+}
