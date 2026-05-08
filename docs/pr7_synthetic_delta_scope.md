@@ -1,6 +1,6 @@
 # PR 7 — Synthetic Delta Measurement (Scope)
 
-**Status:** SCOPE PROPOSAL; not committed; no code change; implementation not started.
+**Status:** SCOPE PROPOSAL; repo-fixed at `e35bf65`; no code change; implementation not started.
 **Adoption Order context:** v2 Adoption Order 4단계 (PR 6 git audit 트랙 종료 후, Tier 정의·자동화 *전*)
 **PR 6 track closure:**
 - PR 6A `5e6a2b8` — `tools/git_safe_push_audit.py` JSON audit + 10 tests
