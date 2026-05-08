@@ -1,0 +1,319 @@
+"""Tests for tools/git_safe_push_audit.py (PR 6A required suite).
+
+Each test creates a fresh git repo + bare origin under tmp_path so the audit
+runs against real git output (no mocks of git itself). Tests verify that the
+audit is read-only and that verdict aggregation responds to staging, branch
+divergence, path policy, and Windows-style path inputs.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import subprocess
+import sys
+from pathlib import Path
+from typing import List
+
+import pytest
+
+_ROOT = Path(__file__).resolve().parent.parent
+_TOOL_PATH = _ROOT / "tools" / "git_safe_push_audit.py"
+_spec = importlib.util.spec_from_file_location("git_safe_push_audit", _TOOL_PATH)
+audit = importlib.util.module_from_spec(_spec)
+sys.modules["git_safe_push_audit"] = audit
+_spec.loader.exec_module(audit)
+
+
+def _git(args: List[str], cwd: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git"] + args, cwd=cwd, capture_output=True, check=True
+    )
+
+
+def _git_init_workdir(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    _git(["-c", "init.defaultBranch=master", "init"], cwd=path)
+    _git(["config", "user.email", "test@test.com"], cwd=path)
+    _git(["config", "user.name", "Test"], cwd=path)
+    _git(["config", "commit.gpgsign", "false"], cwd=path)
+
+
+def _make_repo(tmp_path: Path) -> tuple[Path, Path]:
+    """Create work repo + bare origin with one shared initial commit on master."""
+    bare = tmp_path / "origin.git"
+    bare.mkdir()
+    _git(["-c", "init.defaultBranch=master", "init", "--bare"], cwd=bare)
+    _git(["symbolic-ref", "HEAD", "refs/heads/master"], cwd=bare)
+
+    repo = tmp_path / "repo"
+    _git_init_workdir(repo)
+    _git(["remote", "add", "origin", str(bare)], cwd=repo)
+
+    (repo / "README.md").write_text("init\n", encoding="utf-8")
+    _git(["add", "README.md"], cwd=repo)
+    _git(["commit", "-m", "init"], cwd=repo)
+    _git(["push", "origin", "master"], cwd=repo)
+    return repo, bare
+
+
+def _stage_file(repo: Path, rel_path: str, content: str = "x\n") -> None:
+    full = repo / rel_path
+    full.parent.mkdir(parents=True, exist_ok=True)
+    full.write_text(content, encoding="utf-8")
+    _git(["add", "--", rel_path], cwd=repo)
+
+
+def _check(result: dict, check_id: str) -> dict:
+    for c in result["checks"]:
+        if c["id"] == check_id:
+            return c
+    raise AssertionError(f"check {check_id!r} not in result")
+
+
+def test_docs_only_pass(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "hello\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["docs/foo.md"],
+        allowed_prefixes=["docs/"],
+        do_fetch=False,
+    )
+
+    assert result["verdict"] == "PASS", result
+    assert _check(result, "forbidden_path_guard")["status"] == "PASS"
+    assert _check(result, "candidate_whitelist_match")["status"] == "PASS"
+    assert _check(result, "allowed_whitelist_match")["status"] == "PASS"
+    assert _check(result, "head_minus_origin_empty")["status"] == "PASS"
+
+
+def test_generated_artifact_staged_fails(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "reports/run.html", "<html/>\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["reports/run.html"],
+        do_fetch=False,
+    )
+
+    assert result["verdict"] == "FAIL"
+    fpg = _check(result, "forbidden_path_guard")
+    assert fpg["status"] == "FAIL"
+    assert any(
+        f["path"] == "reports/run.html" for f in fpg["data"]["forbidden"]
+    )
+
+
+def test_unexpected_staged_path_fails(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+    _stage_file(repo, "docs/bar.md", "b\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["docs/foo.md"],
+        do_fetch=False,
+    )
+
+    assert result["verdict"] == "FAIL"
+    cwm = _check(result, "candidate_whitelist_match")
+    assert cwm["status"] == "FAIL"
+    assert "docs/bar.md" in cwm["data"]["unexpected"]
+    assert cwm["data"]["missing"] == []
+
+
+def test_behind_origin_fails(tmp_path):
+    repo, bare = _make_repo(tmp_path)
+
+    pusher = tmp_path / "pusher"
+    _git(["clone", str(bare), str(pusher)], cwd=tmp_path)
+    _git(["config", "user.email", "p@t.com"], cwd=pusher)
+    _git(["config", "user.name", "Pusher"], cwd=pusher)
+    _git(["config", "commit.gpgsign", "false"], cwd=pusher)
+    (pusher / "remote.txt").write_text("from remote\n", encoding="utf-8")
+    _git(["add", "remote.txt"], cwd=pusher)
+    _git(["commit", "-m", "remote ahead"], cwd=pusher)
+    _git(["push", "origin", "master"], cwd=pusher)
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=True,
+    )
+
+    assert result["verdict"] == "FAIL"
+    hme = _check(result, "head_minus_origin_empty")
+    assert hme["status"] == "FAIL"
+    assert hme["data"]["behind"] >= 1
+
+
+def test_diverged_branch_fails(tmp_path):
+    repo, bare = _make_repo(tmp_path)
+
+    (repo / "local.txt").write_text("local\n", encoding="utf-8")
+    _git(["add", "local.txt"], cwd=repo)
+    _git(["commit", "-m", "local commit"], cwd=repo)
+
+    pusher = tmp_path / "pusher"
+    _git(["clone", str(bare), str(pusher)], cwd=tmp_path)
+    _git(["config", "user.email", "p@t.com"], cwd=pusher)
+    _git(["config", "user.name", "Pusher"], cwd=pusher)
+    _git(["config", "commit.gpgsign", "false"], cwd=pusher)
+    (pusher / "remote.txt").write_text("from remote\n", encoding="utf-8")
+    _git(["add", "remote.txt"], cwd=pusher)
+    _git(["commit", "-m", "remote ahead"], cwd=pusher)
+    _git(["push", "origin", "master"], cwd=pusher)
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=1,
+        do_fetch=True,
+    )
+
+    assert result["verdict"] == "FAIL"
+    hme = _check(result, "head_minus_origin_empty")
+    assert hme["status"] == "FAIL"
+    ab = _check(result, "ahead_behind_count")["data"]
+    assert ab["ahead"] == 1
+    assert ab["behind"] >= 1
+
+
+def test_untracked_generated_warn(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    rep_dir = repo / "reports"
+    rep_dir.mkdir()
+    (rep_dir / "stray.html").write_text("<html/>\n", encoding="utf-8")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+
+    assert result["verdict"] == "WARN"
+    ufr = _check(result, "untracked_forbidden_report")
+    assert ufr["status"] == "WARN"
+    assert any(
+        f["path"] == "reports/stray.html" for f in ufr["data"]["forbidden"]
+    )
+    assert _check(result, "forbidden_path_guard")["status"] == "PASS"
+
+
+def test_candidate_whitelist_mismatch_fails(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["docs/foo.md", "docs/bar.md"],
+        do_fetch=False,
+    )
+
+    assert result["verdict"] == "FAIL"
+    cwm = _check(result, "candidate_whitelist_match")
+    assert cwm["status"] == "FAIL"
+    assert "docs/bar.md" in cwm["data"]["missing"]
+    assert cwm["data"]["unexpected"] == []
+
+
+def test_force_prohibition_notice_present(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+
+    assert result["recommended"]["force_prohibited"] is True
+    assert result["recommended"]["human_review_required"] is True
+    assert "READ-ONLY" in result["recommended"]["note"]
+    fpn = _check(result, "force_prohibition_notice")
+    assert fpn["status"] == "INFO"
+    assert fpn["data"]["force_prohibited"] is True
+
+
+def test_windows_path_normalization(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=[r"docs\foo.md"],
+        allowed_prefixes=[r"docs\\"],
+        do_fetch=False,
+    )
+
+    assert result["verdict"] == "PASS"
+    cwm = _check(result, "candidate_whitelist_match")
+    assert cwm["status"] == "PASS"
+    assert cwm["data"]["expected"] == ["docs/foo.md"]
+    awl = _check(result, "allowed_whitelist_match")
+    assert awl["status"] == "PASS"
+    assert "docs/" in [p.rstrip("/") + "/" for p in awl["data"]["prefixes"]]
+
+
+def test_read_only_audit(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "hello\n")
+    (repo / "tracked.txt").write_text("untouched\n", encoding="utf-8")
+    _git(["add", "tracked.txt"], cwd=repo)
+    _git(["commit", "-m", "second"], cwd=repo)
+    (repo / "tracked.txt").write_text("dirty edit\n", encoding="utf-8")
+
+    head_before = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo
+    ).strip()
+    index_before = (repo / ".git" / "index").read_bytes()
+    status_before = subprocess.check_output(
+        ["git", "status", "--porcelain"], cwd=repo
+    )
+    worktree_before = {
+        p.name: p.read_bytes()
+        for p in repo.iterdir()
+        if p.is_file()
+    }
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=1,
+        expected_paths=["docs/foo.md"],
+        allowed_prefixes=["docs/"],
+        do_fetch=False,
+    )
+
+    head_after = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repo
+    ).strip()
+    index_after = (repo / ".git" / "index").read_bytes()
+    status_after = subprocess.check_output(
+        ["git", "status", "--porcelain"], cwd=repo
+    )
+    worktree_after = {
+        p.name: p.read_bytes()
+        for p in repo.iterdir()
+        if p.is_file()
+    }
+
+    assert head_before == head_after
+    assert index_before == index_after
+    assert status_before == status_after
+    assert worktree_before == worktree_after
+    assert result["verdict"] in {"PASS", "WARN", "FAIL"}
