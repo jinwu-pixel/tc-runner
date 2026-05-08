@@ -87,7 +87,7 @@ Tier 0 허용 조건:
 - **동일 app 안에서** 동일 screen-kind/action-pattern으로 3회 이상 4단 운영 패턴 PASS
 - 앱 경계를 넘는 screen-kind 재사용은 **Tier 0 적용 금지** (별 결정 사안)
 - 본 결정은 active corpus 정의(앱 단위)와 정합한다
-- 앱 경계를 넘는 패턴 재사용 결정은 PR 6 anchor recommender 도입 후 별 결정으로 진행
+- 앱 경계를 넘는 패턴 재사용 결정은 PR 8 anchor recommender 도입 후 별 결정으로 진행
 - 같은 anchor 전략으로 PASS한 이력 필요
 - 신규 capability 없음
 - 신규 action 없음

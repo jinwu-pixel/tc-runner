@@ -1,6 +1,6 @@
 # PR 6 — Git Safe Push Audit Script (Scope Proposal)
 
-**Status:** SCOPE PROPOSAL (no code change, no commit until approved)
+**Status:** SCOPE PROPOSAL; repo-fixed at `c68e045`; no code change; implementation not started.
 **Adoption Order context:** v2 Adoption Order 2단계 (운영 노트 anchor 다음 단계, Tier 정의 이전)
 **Empirical basis:** Music Phase 1 (SMOKE_01~06)에서 매 commit·push마다 사용자가 수동 수행한 audit 7항목
 
