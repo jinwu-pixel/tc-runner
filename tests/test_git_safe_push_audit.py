@@ -481,3 +481,41 @@ def test_read_only_audit(tmp_path):
     assert status_before == status_after
     assert worktree_before == worktree_after
     assert result["verdict"] in {"PASS", "WARN", "FAIL"}
+
+
+# PR 6C — forbidden path policy drift baseline.
+#
+# Each baseline test pins the exact ordered tuple of forbidden patterns/prefixes/
+# names declared in tools/git_safe_push_audit.py. Tuple-exact comparison (not set
+# comparison) is intentional: the goal is to surface ANY drift — including
+# reorderings — as a conscious-step trigger so docs/code/test stay aligned per
+# the Source-of-truth Policy.
+_BASELINE_FORBIDDEN_BASENAME_PATTERNS = (
+    "probe_*.xml",
+    "_probe_*.py",
+    "probe_dump_*.xml",
+    "ui_*.xml",
+    "popup_*.xml",
+    "screenshot_*.png",
+)
+
+_BASELINE_FORBIDDEN_DIRECTORY_PREFIXES = (
+    "generated/",
+    "reports/",
+)
+
+_BASELINE_FORBIDDEN_DIRECTORY_NAMES = (
+    "catalog",
+)
+
+
+def test_baseline_forbidden_basename_patterns():
+    assert audit.FORBIDDEN_BASENAME_PATTERNS == _BASELINE_FORBIDDEN_BASENAME_PATTERNS
+
+
+def test_baseline_forbidden_directory_prefixes():
+    assert audit.FORBIDDEN_DIRECTORY_PREFIXES == _BASELINE_FORBIDDEN_DIRECTORY_PREFIXES
+
+
+def test_baseline_forbidden_directory_names():
+    assert audit.FORBIDDEN_DIRECTORY_NAMES == _BASELINE_FORBIDDEN_DIRECTORY_NAMES
