@@ -1,6 +1,6 @@
 # PR 6 — Git Safe Push Audit Script (Implementation Plan)
 
-**Status:** PLAN; repo-fixed at `6f6aceb`; implementation not started.
+**Status:** PLAN; repo-fixed at `6f6aceb`; PR 6A implemented at `5e6a2b8`; PR 6B/6C deferred.
 **Scope source-of-truth:** `docs/pr6_git_audit_scope.md` (repo-fixed at `c68e045`)
 **Adoption Order context:** v2 Adoption Order 2단계 (운영 노트 anchor 다음, Tier 정의 이전)
 **Empirical basis:** Music Phase 1 (SMOKE_01~06)에서 매 commit·push마다 사용자가 수동 수행한 audit 7항목
