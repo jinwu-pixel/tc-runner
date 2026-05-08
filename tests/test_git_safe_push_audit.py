@@ -269,6 +269,170 @@ def test_windows_path_normalization(tmp_path):
     assert "docs/" in [p.rstrip("/") + "/" for p in awl["data"]["prefixes"]]
 
 
+_EXPECTED_CHECK_IDS = [
+    "branch_current",
+    "remote_fetch",
+    "ahead_behind_count",
+    "head_minus_origin_empty",
+    "origin_minus_head_count",
+    "staged_files_list",
+    "tracked_dirty",
+    "untracked_count",
+    "untracked_forbidden_report",
+    "allowed_whitelist_match",
+    "forbidden_path_guard",
+    "candidate_whitelist_match",
+    "force_prohibition_notice",
+]
+
+
+def test_markdown_output_pass_contains_verdict_header(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "hello\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["docs/foo.md"],
+        allowed_prefixes=["docs/"],
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert md.startswith("# Git Safe Push Audit — PASS")
+
+
+def test_markdown_output_fail_contains_blocking_reason(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "reports/run.html", "<html/>\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["reports/run.html"],
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert "# Git Safe Push Audit — FAIL" in md
+    assert "## Failures" in md
+    assert "forbidden_path_guard" in md
+    assert "Decision required: do not push" in md
+
+
+def test_markdown_output_warn_lists_untracked_forbidden(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    rep_dir = repo / "reports"
+    rep_dir.mkdir()
+    (rep_dir / "stray.html").write_text("<html/>\n", encoding="utf-8")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert "# Git Safe Push Audit — WARN" in md
+    assert "## Warnings" in md
+    assert "reports/stray.html" in md
+
+
+def test_markdown_output_contains_recommended_push_command(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert "## Recommended push command" in md
+    assert "git push origin HEAD:master" in md
+
+
+def test_markdown_output_contains_force_prohibition(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert "--force" in md
+    assert "--force-with-lease" in md
+    assert "prohibited" in md.lower()
+
+
+def test_json_default_output_unchanged(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "hello\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        expected_paths=["docs/foo.md"],
+        allowed_prefixes=["docs/"],
+        do_fetch=False,
+    )
+
+    assert result["schema_version"] == 1
+    assert result["tool_version"] == "pr6-git-audit-v1"
+    assert set(result.keys()) >= {
+        "schema_version", "tool_version", "run_id", "generated_at",
+        "verdict", "branch", "staging", "path_policy", "checks", "recommended",
+    }
+    check_ids = [c["id"] for c in result["checks"]]
+    assert check_ids == _EXPECTED_CHECK_IDS
+    assert set(result["recommended"].keys()) == {
+        "push_command", "force_prohibited", "human_review_required", "note",
+    }
+    assert result["recommended"]["push_command"] == "git push origin HEAD:master"
+
+
+def test_markdown_output_human_review_reminder(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert "human review" in md.lower()
+
+
+def test_markdown_output_checks_table_completeness(tmp_path):
+    repo, _ = _make_repo(tmp_path)
+    _stage_file(repo, "docs/foo.md", "a\n")
+
+    result = audit.run_audit(
+        cwd=str(repo),
+        base="origin/master",
+        expected_ahead=0,
+        do_fetch=False,
+    )
+    md = audit.render_markdown_report(result)
+
+    assert "| ID | Status | Detail |" in md
+    for cid in _EXPECTED_CHECK_IDS:
+        assert f"`{cid}`" in md, f"check ID {cid!r} missing in markdown"
+
+
 def test_read_only_audit(tmp_path):
     repo, _ = _make_repo(tmp_path)
     _stage_file(repo, "docs/foo.md", "hello\n")

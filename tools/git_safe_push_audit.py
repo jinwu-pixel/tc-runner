@@ -1,4 +1,4 @@
-"""Git Safe Push Audit (PR 6A skeleton).
+"""Git Safe Push Audit (PR 6A baseline + PR 6B markdown formatter).
 
 Read-only pre-push audit. Inspects local git state and reports whether the
 working tree is in a shape worth pushing to a base ref (default origin/master).
@@ -12,7 +12,8 @@ Hard guarantees:
   inspects the git surface — branch, ahead/behind, staging, untracked,
   and path policy.
 
-Exit code: 0 on PASS, 0 on WARN, 1 on FAIL. Output is JSON on stdout.
+Exit code: 0 on PASS, 0 on WARN, 1 on FAIL.
+Output: JSON (default) or Markdown via --format json|markdown|md.
 """
 
 from __future__ import annotations
@@ -178,6 +179,23 @@ def aggregate_verdict(checks: List[dict]) -> str:
     if any(c["status"] == "WARN" for c in checks):
         return "WARN"
     return "PASS"
+
+
+def derive_push_command(branch: str, base: str) -> str:
+    """Build `git push <remote> HEAD:<target-branch>` from base ref.
+
+    Returns an `ERROR: ...` marker (not a valid command) for detached HEAD or
+    a base that is not in `<remote>/<branch>` form. The caller must surface
+    the marker as an explicit error in any rendered output (no silent fallback).
+    """
+    if not branch:
+        return "ERROR: detached HEAD; cannot derive push command"
+    if "/" not in base:
+        return f"ERROR: --base {base!r} not in 'remote/branch' form"
+    remote_name, _, target_branch = base.partition("/")
+    if not target_branch:
+        return f"ERROR: --base {base!r} missing target branch"
+    return f"git push {remote_name} HEAD:{target_branch}"
 
 
 def run_audit(
@@ -400,10 +418,7 @@ def run_audit(
     })
 
     verdict = aggregate_verdict(checks)
-    remote_name = base.partition("/")[0] if "/" in base else "origin"
-    push_command = (
-        f"git push {remote_name} {branch}" if branch else f"git push {remote_name}"
-    )
+    push_command = derive_push_command(branch, base)
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -434,9 +449,131 @@ def run_audit(
     }
 
 
+def render_markdown_report(result: dict) -> str:
+    """Render the audit `result` dict as a human-readable Markdown report.
+
+    Pure function: does not call git, does not access the filesystem, does
+    not mutate the input. The same `result` dict drives both the JSON and
+    Markdown outputs (single source of truth).
+    """
+    lines: List[str] = []
+    verdict = result["verdict"]
+    lines.append(f"# Git Safe Push Audit — {verdict}")
+    lines.append("")
+
+    branch = result["branch"]
+    ab_check = next(
+        (c for c in result["checks"] if c["id"] == "ahead_behind_count"), None
+    )
+    ahead = ab_check["data"].get("ahead") if ab_check else None
+    behind = ab_check["data"].get("behind") if ab_check else None
+    base = ab_check["data"].get("base") if ab_check else "?"
+    n_staged = len(result["staging"]["staged"])
+    n_dirty = len(result["staging"]["tracked_dirty"])
+    n_untracked = result["staging"]["untracked_count"]
+    lines.append(
+        f"branch=`{branch['current']}` ahead={ahead} behind={behind} "
+        f"staged={n_staged} dirty={n_dirty} untracked={n_untracked} base=`{base}`"
+    )
+    lines.append("")
+
+    lines.append("## Branch state")
+    lines.append(f"- current: `{branch['current']}`")
+    lines.append(f"- is_master: {branch['is_master']}")
+    lines.append(f"- base: `{base}`")
+    lines.append(f"- ahead: {ahead}")
+    lines.append(f"- behind: {behind}")
+    lines.append("")
+
+    lines.append("## Staged scope")
+    staged = result["staging"]["staged"]
+    if staged:
+        lines.append(f"- {len(staged)} staged file(s):")
+        for p in staged:
+            lines.append(f"  - `{p}`")
+    else:
+        lines.append("- 0 staged file(s)")
+    expected = result["path_policy"]["expected_paths"]
+    if expected:
+        lines.append(f"- expected paths ({len(expected)}):")
+        for p in expected:
+            lines.append(f"  - `{p}`")
+    allowed = result["path_policy"]["allowed_prefixes"]
+    if allowed:
+        lines.append(f"- allowed prefixes ({len(allowed)}):")
+        for p in allowed:
+            lines.append(f"  - `{p}`")
+    lines.append("")
+
+    lines.append("## Forbidden path check")
+    fs = result["path_policy"]["forbidden_staged"]
+    fu = result["path_policy"]["forbidden_untracked"]
+    ftd = result["path_policy"]["forbidden_tracked_dirty"]
+    lines.append(f"- staged forbidden: {len(fs)}")
+    for f in fs:
+        lines.append(f"  - `{f['path']}` matched `{f['pattern']}`")
+    lines.append(f"- untracked forbidden: {len(fu)}")
+    for f in fu:
+        lines.append(f"  - `{f['path']}` matched `{f['pattern']}`")
+    lines.append(f"- tracked-dirty forbidden: {len(ftd)}")
+    for f in ftd:
+        lines.append(f"  - `{f['path']}` matched `{f['pattern']}`")
+    lines.append("")
+
+    lines.append("## Dirty / untracked summary")
+    lines.append(f"- tracked dirty: {n_dirty}")
+    if n_dirty:
+        for p in result["staging"]["tracked_dirty"]:
+            lines.append(f"  - `{p}`")
+    lines.append(f"- untracked count: {n_untracked}")
+    lines.append("")
+
+    failures = [c for c in result["checks"] if c["status"] == "FAIL"]
+    if failures:
+        lines.append("## Failures")
+        for c in failures:
+            lines.append(f"- `{c['id']}` — {c['detail']}")
+        lines.append("")
+
+    warnings = [c for c in result["checks"] if c["status"] == "WARN"]
+    if warnings:
+        lines.append("## Warnings")
+        for c in warnings:
+            lines.append(f"- `{c['id']}` — {c['detail']}")
+        lines.append("")
+
+    lines.append("## Checks")
+    lines.append("| ID | Status | Detail |")
+    lines.append("|----|--------|--------|")
+    for c in result["checks"]:
+        detail = c["detail"].replace("|", "\\|")
+        lines.append(f"| `{c['id']}` | {c['status']} | {detail} |")
+    lines.append("")
+
+    lines.append("## Recommended push command")
+    push_cmd = result["recommended"]["push_command"]
+    if push_cmd.startswith("ERROR:"):
+        lines.append(f"> {push_cmd}")
+    else:
+        lines.append("```")
+        lines.append(push_cmd)
+        lines.append("```")
+    lines.append("")
+    lines.append("- `--force` and `--force-with-lease` are prohibited.")
+    lines.append("- Decision required: human review before push.")
+    if verdict == "FAIL":
+        lines.append("")
+        lines.append("> Decision required: do not push.")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Read-only git push audit (PR 6A skeleton; JSON output only).",
+        description=(
+            "Read-only git push audit. JSON by default, Markdown via --format markdown."
+        ),
     )
     parser.add_argument("--base", default="origin/master")
     parser.add_argument("--expected-ahead", type=int, default=None)
@@ -444,6 +581,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--allowed-prefix", action="append", default=[])
     parser.add_argument("--no-fetch", action="store_true")
     parser.add_argument("--cwd", default=".")
+    parser.add_argument(
+        "--format",
+        choices=["json", "markdown", "md"],
+        default="json",
+        dest="output_format",
+        help="Output format (default: json). 'md' is an alias for 'markdown'.",
+    )
     args = parser.parse_args(argv)
 
     result = run_audit(
@@ -454,7 +598,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         allowed_prefixes=args.allowed_prefix or None,
         do_fetch=not args.no_fetch,
     )
-    payload = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
+    output_format = "markdown" if args.output_format == "md" else args.output_format
+    if output_format == "json":
+        payload = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
+    else:
+        payload = render_markdown_report(result)
     sys.stdout.buffer.write(payload.encode("utf-8"))
     return {"PASS": 0, "WARN": 0, "FAIL": 1}[result["verdict"]]
 

@@ -1,6 +1,6 @@
 # PR 6B — Git Safe Push Audit Markdown Output (Implementation Plan)
 
-**Status:** PLAN; repo-fixed pending; implementation not started.
+**Status:** PLAN; repo-fixed at `ab42343`; PR 6B implementation in review.
 **Scope source-of-truth:** `docs/pr6b_git_audit_markdown_scope.md` (repo-fixed at `85d5920`)
 **PR 6A baseline:** `5e6a2b8` — `tools/git_safe_push_audit.py` JSON-only audit + `tests/test_git_safe_push_audit.py` 10 tests
 **Adoption Order context:** v2 Adoption Order 3.5단계 (PR 6A 머지 후, PR 6C retrospective fixture 이전)
