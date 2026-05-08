@@ -1,6 +1,6 @@
 # PR 6C — Git Safe Push Audit Retrospective Fixture & Scope Drift (Scope)
 
-**Status:** SCOPE PROPOSAL; repo-fixed at `80c0d04`; no code change; implementation not started.
+**Status:** SCOPE PROPOSAL; repo-fixed at `80c0d04`; PR 6C implemented at `eca3104`; PR 6 track closed.
 **Parent plan:** `docs/pr6_git_audit_implementation_plan.md` (repo-fixed at `6f6aceb`)
 **Parent scope:** `docs/pr6_git_audit_scope.md` (repo-fixed at `c68e045`)
 **PR 6A baseline:** `5e6a2b8` — `tools/git_safe_push_audit.py` JSON-only audit + `tests/test_git_safe_push_audit.py` 10 tests

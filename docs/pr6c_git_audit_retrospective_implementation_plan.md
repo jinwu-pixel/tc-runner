@@ -1,6 +1,6 @@
 # PR 6C — Git Safe Push Audit Retrospective Fixture & Scope Drift (Implementation Plan)
 
-**Status:** PLAN; not committed; no code change; implementation not started.
+**Status:** PLAN; repo-fixed at `af43c48`; PR 6C implemented at `eca3104`; PR 6 track closed.
 **Scope source-of-truth:** `docs/pr6c_git_audit_retrospective_scope.md` (repo-fixed at `80c0d04`)
 **PR 6A baseline:** `5e6a2b8` — `tools/git_safe_push_audit.py` JSON-only audit + `tests/test_git_safe_push_audit.py` 10 tests
 **PR 6B baseline:** `3dd761a` — Markdown output + `derive_push_command` + 8 추가 tests (총 18 tests)
