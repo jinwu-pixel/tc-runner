@@ -1,0 +1,136 @@
+tc_name: "SETTINGS_SMOKE_02_scroll_more_menu_J"
+description: |
+  [Settings · THOR2_J SMOKE 02 — 스크롤 후 추가 메뉴 노출 + 헤더 sticky (ja-JP)]
+  SMOKE_01에 이어 첫 화면 미노출 main label을 scroll 후 verify.
+  480x800 화면 + ja-JP 텍스트 길이 효과로 ROOT 메뉴가 한 화면에 안 들어가는 걸
+  scroll 1회로 흡수.
+
+  본 TC가 검증하는 것:
+    - launch + 첫 화면 baseline (`設定` header, `ネットワークとインターネット` top)
+    - input swipe 1회로 scroll
+    - scroll 후 신규 main label 노출 (`通知`, `安心機能`)
+    - 헤더 `設定`이 scroll 후에도 sticky 유지
+
+  본 TC가 검증하지 않는 것:
+    - 하위 화면 진입 (Phase 1B+)
+    - 추가 scroll 누적 (`バッテリー` / `ストレージ`은 추가 scroll 필요, SMOKE_03 후보)
+    - dynamic sub-label
+    - locale 변경 검증
+
+metadata:
+  source: "thor2_j_settings_phase1b smoke 02 · 2026-05-08"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.android.settings"
+    version: "14"
+  target_device: "THOR2_J (AT-M140 thor2 alt_thor2) 480x800 @ 220dpi, portrait, ja-JP"
+
+preconditions:
+  - "THOR2_J ADB serial B2700125BW000083 연결"
+  - "com.android.settings 설치 (Android 14 stock)"
+  - "persist.sys.locale=ja"
+  - "keyguard 해제 상태"
+  - "SMOKE_01 PASS 가정 (cold launch 안정성 확보)"
+
+steps:
+  # ──── SETUP: 콜드 런치 ────
+  - action: shell
+    command: "am force-stop com.android.settings"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am start -n com.android.settings/.Settings"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: pre-scroll baseline ────
+  - action: screenshot
+    name: "SETTINGS_SMOKE_02_J_pre_scroll"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "設定"
+    description: "pre-scroll 헤더 baseline (length=2 step-level suppress)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    lint_allow:
+      - WEAK_VERIFY_TEXT
+
+  - action: verify_text
+    target: "ネットワークとインターネット"
+    description: "pre-scroll top-level — scroll 전 첫 화면 노출 확인"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── ACTION: scroll down ────
+  - action: shell
+    command: "input swipe 240 600 240 200 500"
+    description: "vertical scroll 1회 (480x800 중앙 기준 down-scroll)"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ──── ASSERT: post-scroll 신규 노출 ────
+  - action: screenshot
+    name: "SETTINGS_SMOKE_02_J_post_scroll"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "設定"
+    description: "post-scroll 헤더 sticky 검증 (length=2 step-level suppress)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    lint_allow:
+      - WEAK_VERIFY_TEXT
+
+  - action: verify_text
+    target: "通知"
+    description: "post-scroll 신규 main label (length=2 step-level suppress)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    lint_allow:
+      - WEAK_VERIFY_TEXT
+
+  - action: verify_text
+    target: "安心機能"
+    description: "post-scroll 신규 main label (ko-KR `안심 기능` 대응, length=4 lint OK)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ──── TEARDOWN ────
+  - action: shell
+    command: "am force-stop com.android.settings"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
