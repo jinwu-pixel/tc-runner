@@ -32,3 +32,14 @@
 - 신규 발견: —
 - 변경·정정: Phase 1C runtime gate closed (RESUME.md 갱신)
 - 다음 확인 항목: SMOKE_04 후보 검토 또는 PR 7B locale_change synthetic fixture scope
+
+## 세션 결과
+- 실행일: 2026-05-11
+- 단말: ODIN2 (AT-M150) c4324122
+- 앱: com.mive.music v1.0.2604231952
+- 범위: Phase 1D SMOKE_04 runtime (IME focus 검증, mutation LOW)
+- PASS: MUSIC_SMOKE_04 runtime 13/13 (13.8s, 단말 wake + dismiss-keyguard 후 재실행)
+- 신규 발견: —
+- 변경·정정: Phase 1D 섹션 RESUME.md 신규 추가
+- 운영 NOTE: 단말 long-idle 후 monkey LAUNCHER 만으로는 wake 보장 안 됨 (첫 시도 Step 4 FAIL → wake + dismiss-keyguard 후 PASS). yaml precondition "keyguard 해제 상태" 만족 책임은 단말 운영 영역
+- 다음 확인 항목: SMOKE_05 후보 보고 (검색 query 입력 — search history risk 분류 필요)

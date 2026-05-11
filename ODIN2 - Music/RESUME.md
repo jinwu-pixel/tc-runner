@@ -53,6 +53,16 @@
 - **runtime PASS** (`cli run`, 2026-05-11): 12/12 steps PASS, exit 0, 22.5s, HTML report `reports/20260511_122359_report.html`
 - 검증 결과 요약: preset baseline (After The Hurricane / Jazmine Sullivan / 3:58) 실측 일치. tap_text 첫 곡 row → player surface 진입 → `1.0x` anchor verify PASS. mutation 0, capability gap 0, TEARDOWN `am force-stop` 1회로 cleanup 완료
 
+## Phase 1D 진행 (2026-05-07 작성, 2026-05-11 runtime PASS)
+- SMOKE_04 작성: `MUSIC_SMOKE_04_search_focus_keyboard.yaml` — 13 step (3 SETUP + 3 HOME baseline + 1 ACTION tap_text + 1 wait + 1 focus ASSERT + 4 TEARDOWN). 좌표 tap 0
+- 사전 probe (manual_music_smoke04_probe, 2026-05-07): HOME 검색 hint `곡, 아티스트 검색…` clickable=false leaf → 부모 EditText ancestor bubbling. IME 상태 `dumpsys input_method` mInputShown false→true→BACK→false transition 확인
+- scope Option A 채택: 검색어 입력 / 결과 화면 진입 제외, focus 획득은 IME 가시성으로 대체 (verify_text 는 focused="true" attribute 검증 불가)
+- anchor 방식: primary focus = verify_shell "dumpsys input_method" expected "mInputShown=true". HOME baseline / cleanup 도 동일 shell anchor 사용
+- validate PASS, lint actionable 0 (`reports/lint/20260511T045649Z.json`)
+- **runtime PASS** (`cli run`, 2026-05-11): 13/13 steps PASS, exit 0, 13.8s, HTML report `reports/20260511_135815_report.html`
+- 운영 NOTE: 첫 시도는 단말 `mWakefulness=Dozing` (long-idle) 상태로 Step 4 verify_text FAIL. monkey LAUNCHER 만으로는 wake 보장 안 됨. wake + dismiss-keyguard 후 재실행 PASS — yaml precondition "keyguard 해제 상태" 만족 책임은 단말 운영 영역으로 유지 (yaml 변경 없음)
+- mutation LOW (검색 기록 0), capability gap 0, cleanup BACK 1회 + `am force-stop` 으로 focus·process 완전 회수
+
 ## Schema gate 결정 (2026-04-30)
 - B 채택: schema-compliant placeholder
   - `tc_class: AMBIGUOUS_NL` (SEED placeholder)
