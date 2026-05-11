@@ -42,7 +42,7 @@
 - 포함 6개: `RESUME.md`, `MENU_TREE.md`, `BUG_LOG.md`, `MUSIC_SEED_HOME.yaml`, `MUSIC_SMOKE_01_app_launch.yaml`, `MUSIC_SMOKE_02_navigate_home_tabs.yaml`
 - 제외: `catalog/`, `probe_dump_*.xml`, `reports/`, `src/*`, schema 파일 — generated/probe-only는 untracked 유지
 
-## Phase 1C 진행 (2026-04-30) — runtime gate 대기
+## Phase 1C 진행 (2026-04-30 작성, 2026-05-11 runtime PASS)
 - 사전 probe (`probe_dump_smoke03_home.xml` / `probe_dump_smoke03_post.xml`, untracked): 첫 곡 row container clickable=true, leaf TextView clickable=false, 우측 NAF Button (더보기) 회피 가능. tap (360,500) 으로 player surface 진입 확인. `1.0x` 텍스트가 player-unique anchor (HOME 부재 ↔ player 등장)
 - BT 오디오 disconnect 환경에서 `media_session state=ERROR(7)` 관찰 (NOTE only, 본 TC scope 밖). cleanup `am force-stop` 1회로 회수 충분
 - 사용자 결정 옵션 1 채택: preset baseline 고정 (`전체 첫 곡 = After The Hurricane / Jazmine Sullivan / 3:58`)
@@ -50,7 +50,8 @@
 - validate PASS, lint actionable 0 (`reports/lint/20260430T095936Z.json`, "1.0x" length=3 lint 통과, suppress 불필요)
 - preflight `manual_music_smoke03_seed`: WARN `expected_texts_missing` coverage 0.75 (3/4). 누락 1건은 `1.0x` post-tap player anchor — 정상 범위. xml_sha256=`33b419fc…` HOME baseline 일치
 - catalog: build 1 updated (read-only invariant 유지, 신규 screen 0). delta verdict=`known_screen`, baseline_screen_id=`16925695fea9…`, jaccard=null, interpretation_flags=[`preset_unknown`]
-- runtime gate: 사용자 승인 대기
+- **runtime PASS** (`cli run`, 2026-05-11): 12/12 steps PASS, exit 0, 22.5s, HTML report `reports/20260511_122359_report.html`
+- 검증 결과 요약: preset baseline (After The Hurricane / Jazmine Sullivan / 3:58) 실측 일치. tap_text 첫 곡 row → player surface 진입 → `1.0x` anchor verify PASS. mutation 0, capability gap 0, TEARDOWN `am force-stop` 1회로 cleanup 완료
 
 ## Schema gate 결정 (2026-04-30)
 - B 채택: schema-compliant placeholder
