@@ -1,3 +1,107 @@
+# CLAUDE.md 확장 설계 — tc-runner (2026-05-21)
+
+## 문서 정체성
+
+- 대상 repo: **tc-runner** (`C:\Users\momen\Projects\tc-runner`)
+- 산출물: 새 `CLAUDE.md` 단일 파일 (전면 재작성) + 분리 문서 `docs/tc_patterns.md`
+- 청자: Claude Code 세션 자동 load (사람도 onboarding 용도 가능)
+
+## 결정 매트릭스 (5점 fix + 보강 3건 + 사실 확인 1건)
+
+| # | 항목 | 결정 |
+|---|---|---|
+| 1 | 출력 구조 | 단일 CLAUDE.md 전면 재작성 |
+| 2 | 추상화 수준 | 원칙 + 대표 사례 1줄 참조 |
+| 3 | 학습·개선 명시 | 각 섹션 끝 1줄 trigger + §8 통합 source |
+| 4 | TC 영역 | 2층 (CLAUDE.md 보편 원칙 + `docs/tc_patterns.md` 구체 패턴) |
+| 5 | 분석·재현 | 독립 §4 "Diagnosis & Repro" |
+| 6 | ToC 접근 | Approach A (Philosophy-first) |
+| 7 | §3b 분리 | `docs/tc_patterns.md` |
+| 8 | 개선 훅 axis | 옵션 1 (분산 = trigger / §8 = source) |
+| 9 | 본 draft repo 정체성 | tc-runner |
+| 10 | `reports/lint/` 상태 | 구현됨 (직전 draft 오기 정정) |
+| 11 | `reports/preflight/` 상태 | 구현됨 (직전 draft 오기 정정) |
+| 12 | §4.4 vs PASS 4종 | §4.4는 `BUG-GAP observed`의 세부 분류임을 명시 |
+| 13 | 단말 호칭 우선순위 | 사용자 호칭 우선 (스타일폴더 2 → AT-M140 순) |
+
+## ToC
+
+```
+1. Project Vision — 학습 루프
+2. Core Operating Principles
+   2.1 작업 승인 게이트
+   2.2 보고 어휘
+   2.3 Source-of-truth Policy
+   2.4 Evidence Accumulation (원칙)
+   2.5 Branch Policy
+3. TC Pipeline (보편 원칙)
+   3.1 STAGE 변환
+   3.2 GATE 1~4 체인
+   3.3 execution_type / manual_detail 파생 원칙
+   3.4 구체 패턴 link → docs/tc_patterns.md
+   3.5 SMOKE TC 연속 진행 규칙
+4. Diagnosis & Repro
+   4.1 가설 분리
+   4.2 매트릭스 충분성
+   4.3 정량 측정
+   4.4 진단 결론 어휘 (BUG-GAP observed 세부 분류)
+   4.5 Repro 도구 지연 단축 정책
+   4.6 대표 사례 1줄
+5. Tools & Evidence Paths
+   5.1 코어 스크립트
+   5.2 Runner 모듈 (src/)
+   5.3 실험·repro 스크립트 (scripts/)
+   5.4 운영 도구 (tools/)
+   5.5 Bat + 환경 함정
+   5.6 누적 경로 (status)
+6. 단말×앱 폴더·문서 컨벤션
+   6.1 폴더 규칙
+   6.2 기본 파일
+   6.3 이슈 lifecycle 어휘
+   6.4 BUG_LOG.md 구조
+   6.5 세션 결과 블록
+7. Git / Commit Policy
+   7.1 글로벌 정책 reference (~/.claude/CLAUDE.md)
+   7.2 본 repo 특화 (master 가드, SMOKE 연속)
+   7.3 위반 시 처리
+8. Continuous Improvement (메타)
+   8.1 개정 trigger
+   8.2 누적 교훈 목록
+   8.3 개정 절차
+   8.4 archive 정책
+```
+
+분리 문서:
+```
+docs/tc_patterns.md
+1. 단말 viewport 패턴
+2. DebugScreen 진입·파싱
+3. SIM 선택 reference
+4. PCAT data profile
+5. USB composition persist 검증
+6. QC AP 로그 (재부팅 무손실)
+```
+
+## 보강 후보 매핑 (10건 1:1)
+
+| 보강 후보 | ToC 위치 |
+|---|---|
+| A. 작업 승인 게이트 | §2.1 |
+| B. 보고 어휘 강화 | §2.2 |
+| C. 실험 설계 원칙 | §4.1~§4.4 |
+| D. Repro 지연 단축 정책 | §4.5 |
+| E. Catalog/Evidence 누적 | §2.4 (원칙) + §5.6 (status) |
+| F. 단말×앱 폴더·문서 | §6 |
+| G. 단말·SIM·환경 reference | `docs/tc_patterns.md` §1·§3·§4 |
+| H. 도구 catalog | §5 |
+| I. DebugScreen·USB·진단 표준 | §4 + `docs/tc_patterns.md` §2·§5·§6 |
+| J. 분기 정책 | §2.5 |
+
+## 본문 draft
+
+### CLAUDE.md
+
+````markdown
 ## 1. Project Vision
 
 tc-runner는 단순 자동화 실행기가 아닌 **누적 학습 루프**다.
@@ -429,7 +533,6 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 | 날짜 | 영역 | 근거 사례 | 반영 섹션 | 상태 |
 |---|---|---|---|---|
 | 2026-05-21 | §1~§8 신설 | 보강 후보 10건 통합 | 전 섹션 | applied |
-| 2026-05-21 | 분량 가드 | 1차 작성 결과 447 lines · spec 가드 250~350 lines 대비 초과 | §8.4 archive 정책 가동 검토 | proposed |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
@@ -446,3 +549,82 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 
 ### 8.5 개선 훅 (메타)
 본 §8 절차 자체가 무력화·우회 시도 발견 시 사용자에게 직접 보고.
+````
+
+### docs/tc_patterns.md
+
+````markdown
+# TC Patterns — 단말·앱별 구체 패턴
+
+CLAUDE.md §3.4가 본 문서를 참조. 횡단 원칙은 CLAUDE.md, 본 문서는 구체 패턴·reference만.
+
+## 1. 단말 viewport 패턴
+
+### 1.1 스타일폴더 2 (AT-M140, 480×800)
+- 단일 swipe로 안 닿는 항목은 **double-swipe**
+- 시스템 오버레이가 selector 가리는 경우 있음
+- 긴 메뉴는 세션 확장 스크롤로 분할 탐색
+
+### 1.2 AT-M150
+- Z0xxxU 빌드 라인 (Z0409U / Z0518U / Z0520U 등)
+
+### 1.3 ODIN2
+- 광주 빌드 라인 (Z0513U_Daily / Z0520U_Daily 등)
+
+### 1.4 THOR2 / THOR2_J
+- 일본향 라인 (RY07260302M / MY01260300 등)
+
+## 2. DebugScreen 진입·파싱 (ODIN2 계열)
+
+1. 진입: `adb shell am start -n com.android.phone/.settings.DebugScreen`
+2. UI dump: `adb shell uiautomator dump /sdcard/dump.xml && adb pull /sdcard/dump.xml`
+3. ground-truth 대조: ServiceState / IMS 등록 / +CGCONTRDP 결과와 dump 텍스트 비교
+4. WCDMA에서 layout 자체 누락 가능 (BTS18697) — IMS PDN/P-CSCF/MMTEL은 별도 명령으로도 활성 확인
+
+## 3. SIM 선택 reference
+
+| carrier | LTE | WCDMA | 비고 |
+|---|---|---|---|
+| SKT 미인증 | 캠프 | **불가** (LTE lock) | WCDMA 검증 SIM 아님 |
+| KT 미인증 | 캠프 | 캠프 | **WCDMA 검증 SIM** |
+| LGU+ | 별도 확인 | 별도 확인 | — |
+
+ODIN2 기준. 단말 라인별 차이는 추후 측정 시 본 표 갱신.
+
+## 4. PCAT data profile
+- profile 추가만으로는 `+CGDCONT`에 미반영
+- **재부팅 후** 확인
+
+## 5. USB composition persist 검증 (히든메뉴)
+- 단말별 function 매핑 그룹화 (`acm` / `serial_cdev` 등)
+- Grep 쿼리 표준 + persist 키 확인
+- 재부팅 후 매핑 유지 = PASS 조건
+
+## 6. QC AP 로그 (재부팅 무손실)
+- 도구: `scripts/qc_ap_log_capture.py` / `QC_AP_Log_Capture.bat`
+- `getprop ro.boot.boot_id` 또는 `/proc/sys/kernel/random/boot_id`로 USB 글리치 vs 실재부팅 구분
+- 누적 위치: `logs/` (장기), `output/QC_AP log/` (1회성)
+
+## 7. 개선 훅
+신규 단말·SIM·viewport·진단 절차 발견 시 CLAUDE.md §8에 1줄 기록 + 본 문서 갱신.
+````
+
+## 작업 단위 (구현 단계로 갈 때)
+
+1. 기존 `CLAUDE.md` 백업 → `docs/CLAUDE.md.bak.2026-05-21.md` (또는 git history 의존)
+2. 새 `CLAUDE.md` 본문 위 draft 그대로 적용
+3. `docs/tc_patterns.md` 신규 작성
+4. validate (단순 마크다운 link 무결성)
+5. 사용자 review
+6. batch commit (글로벌 정책)
+
+## Non-goals
+- 기존 BUG_LOG.md 일괄 마이그레이션 (§6.3 어휘 변경은 신규부터 적용, 과거는 발견 시 정리)
+- `reports/<run_id>/` 구조화 실제 구현 (planned 그대로)
+- 다른 repo (thor2j-tc-appium) CLAUDE.md 갱신
+- §8.2 archive 자동화
+
+## Risk & 가드
+- §6.3 어휘 변경 = 운영 충격 가능. 기존 BUG_LOG.md는 발견 시 incremental 마이그레이션.
+- §5.6 status는 본 spec 시점 기준. 구현 진척 시 §8 trigger.
+- 사례 1줄 reference는 stale 위험 — §8을 통해 갱신.
