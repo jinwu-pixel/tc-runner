@@ -442,7 +442,27 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 자체 판단 본문 직접 갱신 금지 — **사용자 승인 게이트 필수** (§2.1).
 
 ### 8.4 archive 정책
-§8.2 항목 50개 초과 시 별도 archive 파일로 이동 (구현 시점 결정).
+
+§8.2 row 수가 50을 초과하면 archive 발동 후보. 자동 수행 없음 — Claude는 도달 사실만 보고하고, 사용자 명시 승인 후 발동 (§2.1·§8.3 정합).
+
+**archive 대상**:
+- 가장 오래된 completed row (`applied` / `rejected` / `superseded`) 25개
+- 동일 날짜 multi-row 시 §8.2 본문 등장 순서 유지 (stable order)
+- `proposed` row는 archive 안 함 (본문 잔류)
+
+**예외 — completed row < 25**:
+- 자동 partial archive 금지
+- Claude는 예외 보고: 사용자가 (a) wait / (b) partial / (c) skip 결정
+- partial 승인 시: M rows (M < 25) 이동, event row = `YYYY-MM-DD | archive (partial) | oldest M completed rows moved (partial exception) | §8.4 | applied`
+
+**archive 파일**: `docs/claudemd_section8_archive.md` (단일 누적, 시간 순 append-only, schema는 §8.2와 동일)
+
+**archive 후 §8.2**:
+- 해당 25 rows 본문 제거
+- archive event 자체를 §8.2의 새 row로 1줄 추가 (`날짜 | archive | oldest 25 rows moved | §8.4 | applied`)
+- 별도 안내문·counter 없음
+
+**§2.1·§8.3 정합**: archive는 본문 갱신이므로 사용자 승인 게이트 필수. 자체 판단 archive 금지.
 
 ### 8.5 개선 훅 (메타)
 본 §8 절차 자체가 무력화·우회 시도 발견 시 사용자에게 직접 보고.
