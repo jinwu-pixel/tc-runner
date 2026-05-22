@@ -1,0 +1,136 @@
+tc_name: "GAL_FUNC_16_video_orientation"
+description: |
+  [마이 갤러리 · 동영상 재생 시 가로/세로 전환]
+  자동 회전 허용 상태에서 동영상 진입 → 물리적 단말 회전 시 비디오 레이아웃이 가로로 적응하는지 검증.
+  ODIN2 단말은 런처 자체 가로 회전이 제한적일 수 있음 — 동영상 플레이어가 자체적으로
+  가로 대응하는지, 세로 고정인지 확인.
+
+  메뉴트리 note: "동영상 플레이어 (자동 가로 전환)" — 실기 재검증 필요.
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: "BUTTON_TOUCH"
+  has_manual_steps: true
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset"
+  - "ODIN2 단말이 자유롭게 회전 가능한 상태 (책상 위 / 손에 들고)"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 1"
+    description: "자동 회전 허용 (테스트용)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 120
+    y: 418
+    description: "VID_3min.mp4 탭"
+    post_wait: 3000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_16_01_portrait_start"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: manual_pause
+    description: |
+      [수동 · 가로 회전 테스트]
+      단말을 시계방향 90° 회전하여 가로로 두세요 (물리적 회전).
+      관찰:
+      1) 비디오 화면이 가로 전체 너비로 확장되는가?
+         - YES: 메뉴트리 note "자동 가로 전환" 스펙 대로 동작 → [Continue]
+         - NO (세로 유지): 플레이어가 세로 고정 → [Fail] 하고 스펙 재확인
+      2) 컨트롤 바 위치는 정상인가?
+    manual_timeout: 120
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: shell
+    command: "dumpsys window displays | grep mCurrentRotation | head -1"
+    description: "회전 상태 로그 (hook 없이 참고용)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: manual_pause
+    description: |
+      [수동 · 세로 복귀 테스트]
+      단말을 반시계 방향으로 원래 세로 위치로 복귀.
+      관찰:
+      1) 비디오가 세로 레이아웃으로 복귀하는가?
+      2) 재생 위치가 유지되는가 (리셋되지 않는가)?
+      맞으면 [Continue], 아니면 [Fail]
+    manual_timeout: 120
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_16_02_portrait_end"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    post_wait: 1000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # TEARDOWN — 세로 고정 복구
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    description: "자동 회전 원복 (다른 TC 기본 상태 유지)"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

@@ -1,0 +1,143 @@
+tc_name: "MNF_FUNC_18_search_query"
+description: |
+  [MiniFile · 검색 쿼리 결과]
+  "minifile" 검색 → 결과 리스트에 preset 파일 노출 확인.
+  필터 칩 전환 시 해당 타입만 필터링되는지 확인.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+  - "preset minifile_* 파일들 존재"
+
+steps:
+  - action: shell
+    command: "monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 267
+    description: "검색바 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 144
+    description: "입력창 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: shell
+    command: "input text 'minifile'"
+    description: "검색어 입력"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_18_search_results"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_silent.wav"
+    description: "WAV 파일 검색 결과 노출"
+    timeout: 4000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_readme.txt"
+    description: "TXT 파일 검색 결과 노출"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 오디오 필터 선택
+  - action: tap_xy
+    x: 522
+    y: 270
+    description: "오디오 필터 칩 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_18_search_audio_filter"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_silent.wav"
+    description: "오디오 필터 적용 후 WAV 파일 유지"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

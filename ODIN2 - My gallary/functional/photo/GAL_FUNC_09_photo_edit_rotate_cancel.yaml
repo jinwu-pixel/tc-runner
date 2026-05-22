@@ -1,0 +1,187 @@
+tc_name: "GAL_FUNC_09_photo_edit_rotate_cancel"
+description: |
+  [마이 갤러리 · 편집 회전 90°×4 후 취소]
+  편집 화면 진입 → 회전 버튼 4회 탭 (총 360°, 원본 각도로 복귀) → BACK 취소 →
+  원본 파일 크기/수정시각 변경 없음 검증.
+
+  관찰: BACK 시 저장 여부 확인 다이얼로그 없이 즉시 취소됨 (데이터 손실 경고 부재 UX).
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset 환경 (IMG_20260421_024.jpg 기본 상태)"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "stat -c %s /sdcard/DCIM/MyGallery_TC/IMG_20260421_024.jpg > /sdcard/pre_edit_size.txt"
+    description: "원본 크기 기록 (cancel 후 비교용)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 600
+    y: 418
+    description: "IMG 24 상세 진입"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 456
+    y: 128
+    description: "btnEdit 탭 — 편집 진입"
+    post_wait: 2000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnRotate /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "편집 화면 진입 확인 (btnRotate 노출)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_09_01_edit_enter"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 188
+    y: 1148
+    description: "회전 1회 (+90°)"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 188
+    y: 1148
+    description: "회전 2회 (+180°)"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 188
+    y: 1148
+    description: "회전 3회 (+270°)"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 188
+    y: 1148
+    description: "회전 4회 (+360°, 원각도 복귀)"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_09_02_rotated_4x"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnRotate /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "편집 화면 유지 (4회 탭 후에도 btnRotate 노출)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "BACK — 편집 취소 (확인 다이얼로그 없이 즉시 취소)"
+    post_wait: 1000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && (grep -q btnFavorite /sdcard/ui.xml && ! grep -q btnRotate /sdcard/ui.xml) && echo DETAIL || echo STILL_EDIT"
+    expected: "DETAIL"
+    description: "상세 보기로 복귀 (편집 화면 종료)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "PRE=$(cat /sdcard/pre_edit_size.txt); POST=$(stat -c %s /sdcard/DCIM/MyGallery_TC/IMG_20260421_024.jpg); [ \"$PRE\" = \"$POST\" ] && echo UNCHANGED || echo CHANGED_$PRE_$POST"
+    expected: "UNCHANGED"
+    description: "원본 파일 크기 변경 없음 (cancel → 저장 안됨)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: shell
+    command: "rm -f /sdcard/pre_edit_size.txt"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

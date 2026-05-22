@@ -1,0 +1,206 @@
+tc_name: "GAL_FUNC_01_photo_browse"
+description: |
+  [마이 갤러리 · 사진 탭 기본 탐색]
+  앱 진입 → 사진 탭이 기본 활성 → 상단 "마이 갤러리" 타이틀,
+  하단 내비(사진/앨범/휴지통), 날짜 그룹 헤더(t0/t-1), 3열 그리드 확인.
+  아래로 스크롤하여 preset t-2 날짜 그룹까지 도달 가능한지 검증 후
+  상단으로 복귀하여 최초 상태 재확인.
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2(AT-M150) 단말에 mygalleryapp v1.0.26042114 설치"
+  - "scripts/setup_gallery_media.py 실행 완료 (/sdcard/DCIM/MyGallery_TC/ 에 사진 25장 + 영상 2개)"
+  - "마이 갤러리 저장공간 권한 '모두 허용' 상태"
+  - "기기 세로 방향 (TC SETUP에서 강제 고정)"
+
+steps:
+  # ───── SETUP ─────
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    description: "자동 회전 해제"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    description: "세로 방향(0) 고정"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    description: "마이 갤러리 강제 종료"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    description: "마이 갤러리 런처 인텐트로 기동"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    description: "앱 초기화 + RecyclerView 첫 프레임 로드 대기"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ───── 진입 상태 검증 ─────
+  - action: screenshot
+    name: "GAL_FUNC_01_01_launch"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "마이 갤러리"
+    description: "툴바 타이틀 노출"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "사진"
+    description: "하단 내비 '사진' 탭 라벨 노출 (기본 활성)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "앨범"
+    description: "하단 내비 '앨범' 탭 라벨 노출"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "휴지통"
+    description: "하단 내비 '휴지통' 탭 라벨 노출"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "t0 날짜 그룹 헤더 (preset IMG 20~24 + 영상 2개)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 20일"
+    description: "t-1 날짜 그룹 헤더 (preset IMG 10~19)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 스크롤 하강 → t-2 도달 검증 ─────
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 500
+    duration: 400
+    description: "사진 탭 RecyclerView 아래로 스크롤(콘텐츠 상향 이동)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    description: "스크롤 관성 정지 대기"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_01_02_scroll_down"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 19일"
+    description: "t-2 날짜 그룹 헤더 노출 (preset IMG 00~09 구간)"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 상단 복귀 ─────
+  - action: swipe
+    x: 360
+    y: 500
+    x2: 360
+    y2: 1300
+    duration: 400
+    description: "위로 스크롤 1회차(콘텐츠 하향 이동)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 500
+    x2: 360
+    y2: 1300
+    duration: 400
+    description: "위로 스크롤 2회차 — 최상단 복귀"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    description: "스크롤 관성 정지 대기"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_01_03_back_top"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "마이 갤러리"
+    description: "최상단 복귀 후 툴바 타이틀 재노출"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "최상단 복귀 후 t0 헤더 재노출"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── TEARDOWN ─────
+  - action: key
+    key: "KEYCODE_HOME"
+    description: "홈 화면으로 복귀"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

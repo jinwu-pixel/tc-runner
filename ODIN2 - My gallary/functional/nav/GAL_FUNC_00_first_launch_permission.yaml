@@ -1,0 +1,144 @@
+tc_name: "GAL_FUNC_00_first_launch_permission"
+description: |
+  [마이 갤러리 · 최초 실행 미디어 권한 플로우]
+  앱 데이터 초기화 (pm clear) → 최초 실행 → 시스템 미디어 액세스 권한 다이얼로그 노출 확인 →
+  '모두 허용' 선택 → 권한 부여 후 사진 탭 진입.
+  주의: pm clear 는 파괴적 동작 → 수동 실행 전제.
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: "BUTTON_TOUCH"
+  has_manual_steps: true
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset (앱 데이터 초기화 후 권한 플로우 노출되어야 함)"
+  - "이 TC 는 파괴적: pm clear com.example.mygalleryapp 을 수행"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: manual_pause
+    description: |
+      [수동 확인 · 파괴적 SETUP 동의]
+      다음 단계는 마이 갤러리 앱 데이터 전부 초기화 (pm clear) 를 수행.
+      즐겨찾기 / 편집 상태 / 권한 부여 기록 모두 소실됨.
+      진행해도 되면 [Continue], 중지는 [Fail].
+    manual_timeout: 120
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm clear com.example.mygalleryapp"
+    description: "앱 데이터 초기화 (권한 포함)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    description: "최초 실행 상태로 기동"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 4000
+    description: "권한 다이얼로그 로딩 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_00_01_permission_dialog"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q 'com.google.android.permissioncontroller' /sdcard/ui.xml && echo PERM_UI || echo OTHER"
+    expected: "PERM_UI"
+    description: "시스템 권한 다이얼로그 호스트 (permissioncontroller) 노출"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: manual_pause
+    description: |
+      [수동 검증 · 권한 3옵션 확인]
+      화면에서 다음 3개 버튼 노출 확인:
+        1) 제한된 액세스 허용
+        2) 모두 허용
+        3) 허용 안함
+      확인되면 [Continue], 누락되면 [Fail]
+    manual_timeout: 120
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: manual_pause
+    description: |
+      [수동 · 권한 '모두 허용' 탭]
+      화면에서 '모두 허용' 버튼을 직접 탭해주세요.
+      앱이 사진 목록 화면으로 전환되면 [Continue].
+    manual_timeout: 60
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    description: "앱 초기 스캔 완료 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "권한 부여 후 사진 탭 preset 노출"
+    timeout: 10000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys package com.example.mygalleryapp | grep -E 'READ_MEDIA|READ_EXTERNAL' | grep -q granted && echo GRANTED || echo NOT_GRANTED"
+    expected: "GRANTED"
+    description: "미디어 권한 granted 상태 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

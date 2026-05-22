@@ -1,0 +1,224 @@
+tc_name: "MNF_FUNC_34_selection_all_toggle"
+description: |
+  [MiniFile · 전체 선택 기능 부재 확인 (SPEC_GAP)]
+  스펙 page5 §3에 "전체선택/해제"가 기재되어 있으나 실제 앱 선택 모드 btn_more 팝업에는 해당 항목 없음.
+  팝업은 비선택 context menu와 동일한 6개 항목(다음으로 이동 / 다음으로 복사 / 이름 바꾸기 / 휴지통으로 이동 / 파일 정보 / 다른 앱에서 열기)만 노출.
+  본 TC는 MNF-GAP-04 SPEC_GAP의 재현·증명용.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+  - "DCIM/MyGallery_TC 파일 다수 존재"
+
+steps:
+  - action: shell
+    command: "am force-stop com.example.mnnr_files && monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "홈 스크롤 다운 1회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "홈 스크롤 다운 2회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1000
+    description: "내부 저장소 (layout_internal_storage) 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 934
+    description: "DCIM 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 626
+    description: "MyGallery_TC 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # long-press → 선택 모드 (swipe 동일좌표로 long-press 에뮬)
+  - action: swipe
+    x: 360
+    y: 502
+    x2: 360
+    y2: 502
+    duration: 800
+    description: "row0 long-press → 선택 모드 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "1개 선택됨"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 선택 모드에서 row0 의 btn_more 탭
+  # 선택 모드 row 높이 144px, row0 y=283~427 center=355, btn_more x center=608
+  - action: tap_xy
+    x: 608
+    y: 355
+    description: "선택 모드 row0 btn_more 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: shell
+    command: "uiautomator dump /sdcard/ui_sel_more.xml"
+    description: "선택 모드 btn_more 팝업 UI 덤프"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_34_selection_more_menu"
+    description: "선택 모드 btn_more 메뉴 캡처 (SPEC_GAP 증거)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # SPEC_GAP 핵심 assert: "전체 선택" / "전체선택" 항목 부재 (0)
+  - action: verify_shell
+    command: "grep -oE '전체\\s*선택' /sdcard/ui_sel_more.xml | wc -l"
+    expected: "0"
+    description: "SPEC_GAP: 전체 선택 메뉴 항목 부재 확인 (MNF-GAP-04)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 기존 6개 항목 노출 확인 (비선택 context menu 와 동일 구성)
+  - action: verify_shell
+    command: "grep -oE '다음으로 이동|다음으로 복사|이름 바꾸기|휴지통으로 이동|파일 정보|다른 앱에서 열기' /sdcard/ui_sel_more.xml | sort -u | wc -l"
+    expected: "6"
+    description: "선택 모드 btn_more 팝업 기본 6개 항목 모두 노출"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 팝업 닫기
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "팝업 닫기"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  # 선택 모드 해제
+  - action: tap_xy
+    x: 64
+    y: 144
+    description: "toolbar 취소 버튼"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

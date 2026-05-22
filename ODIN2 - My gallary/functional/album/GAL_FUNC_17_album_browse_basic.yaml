@@ -1,0 +1,112 @@
+tc_name: "GAL_FUNC_17_album_browse_basic"
+description: |
+  [마이 갤러리 · 앨범 탭 기본 렌더]
+  하단 '앨범' 탭 진입 → 정렬 드롭다운 '최신순' + 앨범 그리드 노출 확인.
+  MyGallery_TC 앨범 (27개, preset 기준)이 상단에 노출됨.
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1408
+    description: "하단 '앨범' 탭 진입"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_17_01_album_tab"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "앨범"
+    description: "상단 타이틀 '앨범'"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "최신순"
+    description: "정렬 드롭다운 기본 '최신순'"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "MyGallery_TC"
+    description: "preset 앨범 노출"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q tvAlbumCount /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "앨범 카운트 라벨 (tvAlbumCount) 렌더"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q layoutSort /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "정렬 드롭다운 컨테이너 (layoutSort) 렌더"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

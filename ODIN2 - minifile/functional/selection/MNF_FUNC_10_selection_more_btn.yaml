@@ -1,0 +1,191 @@
+tc_name: "MNF_FUNC_10_selection_more_btn"
+description: |
+  [MiniFile · 파일 더보기 버튼 진입 선택 모드]
+  파일 우측 btn_more(More options) 탭 → 단일 선택 모드 진입.
+  단일 선택 전용 메뉴(이름변경/정보)가 노출되는지 확인.
+  전체선택/해제 메뉴 관찰.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+  - "DCIM/MyGallery_TC 파일 존재"
+
+steps:
+  - action: shell
+    command: "am force-stop com.example.mnnr_files && monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "홈 스크롤 다운 1회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "홈 스크롤 다운 2회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1000
+    description: "내부 저장소 (layout_internal_storage) 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 934
+    description: "DCIM 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 626
+    description: "MyGallery_TC 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # btn_more 탭 (첫 번째 파일, x=608 y=502 선택 모드 아닌 상태)
+  - action: tap_xy
+    x: 608
+    y: 502
+    description: "첫 파일 btn_more 탭 → 컨텍스트 메뉴"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_10_more_menu"
+    description: "더보기 메뉴 캡처 (항목 목록 확인)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c '이름 바꾸기' /sdcard/ui.xml || echo 0"
+    expected: "1"
+    description: "단일 선택 전용: 이름 바꾸기 메뉴 존재 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "grep -c '정보' /sdcard/ui.xml || echo 0"
+    expected: "1"
+    description: "단일 선택 전용: 정보 보기 메뉴 존재 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "grep -c '이동' /sdcard/ui.xml || echo 0"
+    expected: "1"
+    description: "이동 메뉴 존재 확인 (uiautomator dump 는 단일 라인이라 다음으로 이동/휴지통으로 이동 있어도 grep -c=1)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "grep -c '복사' /sdcard/ui.xml || echo 0"
+    expected: "1"
+    description: "복사 메뉴 존재 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "grep -c '보안' /sdcard/ui.xml || echo 0"
+    expected: "0"
+    description: "보안폴더로 이동 메뉴 부재 확인 (삭제됨)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "메뉴 닫기"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

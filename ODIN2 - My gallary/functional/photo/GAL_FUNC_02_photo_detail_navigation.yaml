@@ -1,0 +1,299 @@
+tc_name: "GAL_FUNC_02_photo_detail_navigation"
+description: |
+  [마이 갤러리 · 사진 상세 화면 — 상단바 토글 + 좌우 네비게이션 + 즐겨찾기]
+  사진 상세 진입 후 검증 항목:
+    - 본문 단일 탭 → 상단바 토글 (4/21 픽스 회귀 포인트)
+    - 좌/우 스와이프 → 이전/다음 사진 이동 (viewPager)
+    - 즐겨찾기 토글 (btnFavorite content-desc "추가"↔"해제")
+    - 핀치 줌 상태에서 다음 사진으로 넘어가지 않음 (4/21 픽스, 수동 확인)
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: "BUTTON_TOUCH"
+  has_manual_steps: true
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset 환경 (사진 25장 + 영상 2개) 적용됨"
+  - "앱 저장공간 권한 '모두 허용' 상태"
+  - "기기 세로 고정 (TC SETUP)"
+
+steps:
+  # ───── SETUP ─────
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    description: "자동 회전 해제"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    description: "세로 고정"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    description: "마이 갤러리 강제 종료"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    description: "마이 갤러리 기동"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    description: "앱 초기화 대기"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "preset 노출 확인 (리스트 진입)"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_01_list"
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ───── 상세 진입 ─────
+  - action: tap_xy
+    x: 600
+    y: 418
+    description: "04/21 섹션 3번째 그리드 셀 (IMG 24) 탭 — 상세 진입"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_02_detail_enter"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_gone
+    target: "2026년 04월 21일"
+    description: "리스트 날짜 헤더가 사라짐 (상세 진입 확인)"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnBack /sdcard/ui.xml && echo VISIBLE || echo HIDDEN"
+    expected: "VISIBLE"
+    description: "상단바 노출 상태 (btnBack 존재)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 상단바 탭 토글 (4/21 픽스 회귀) ─────
+  - action: tap_xy
+    x: 360
+    y: 780
+    description: "본문 중앙 단일 탭 — 상단바 숨김 토글"
+    post_wait: 600
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_03_bar_hidden"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnBack /sdcard/ui.xml && echo VISIBLE || echo HIDDEN"
+    expected: "HIDDEN"
+    description: "상단바 숨김 확인 (btnBack 미존재, immersive 모드)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 780
+    description: "본문 중앙 재탭 — 상단바 복귀"
+    post_wait: 600
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_04_bar_restored"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnBack /sdcard/ui.xml && echo VISIBLE || echo HIDDEN"
+    expected: "VISIBLE"
+    description: "상단바 재노출 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 좌우 스와이프 (viewPager 네비게이션) ─────
+  - action: swipe
+    x: 600
+    y: 780
+    x2: 100
+    y2: 780
+    duration: 200
+    description: "왼쪽으로 스와이프 — 다음 미디어로 이동 (IMG 24 → IMG 23)"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_05_next"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnBack /sdcard/ui.xml && echo VISIBLE || echo HIDDEN"
+    expected: "VISIBLE"
+    description: "페이지 이동 후에도 상단바 유지"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: swipe
+    x: 100
+    y: 780
+    x2: 600
+    y2: 780
+    duration: 200
+    description: "오른쪽으로 스와이프 — 이전 미디어로 이동 (IMG 23 → IMG 24)"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_06_prev"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 즐겨찾기 토글 ─────
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q '즐겨찾기 추가' /sdcard/ui.xml && echo ADD_READY || echo MISSING"
+    expected: "ADD_READY"
+    description: "즐겨찾기 버튼 초기 상태 (추가 가능)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 553
+    y: 128
+    description: "btnFavorite 탭 — 즐겨찾기 추가"
+    post_wait: 600
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_02_07_fav_on"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q '즐겨찾기 해제' /sdcard/ui.xml && echo REMOVE_READY || echo MISSING"
+    expected: "REMOVE_READY"
+    description: "즐겨찾기 설정 상태 반영 (content-desc: 즐겨찾기 해제)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 553
+    y: 128
+    description: "btnFavorite 재탭 — 즐겨찾기 해제 (원복)"
+    post_wait: 600
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q '즐겨찾기 추가' /sdcard/ui.xml && echo ADD_READY || echo MISSING"
+    expected: "ADD_READY"
+    description: "즐겨찾기 해제 후 초기 상태 복귀"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 핀치 줌 (수동 — 회귀 4/21 픽스) ─────
+  - action: manual_pause
+    description: |
+      [수동 확인 · 4/21 픽스 회귀]
+      현재 화면: IMG 24 상세 보기
+      1) 두 손가락으로 이미지를 핀치 줌-인 (확대)
+         → 이미지가 확대되어야 함 (다음 사진으로 넘어가면 FAIL)
+      2) 확대 상태에서 드래그로 이동 가능한지 확인
+      3) 핀치 줌-아웃으로 원래 크기 복귀
+      결과에 따라 [Continue] / [Fail]
+    manual_timeout: 120
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 리스트 복귀 ─────
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "BACK — 리스트로 복귀"
+    post_wait: 1000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "마이 갤러리"
+    description: "리스트 상단 타이틀 재노출"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "리스트 날짜 헤더 재노출"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── TEARDOWN ─────
+  - action: key
+    key: "KEYCODE_HOME"
+    description: "홈 화면 복귀"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

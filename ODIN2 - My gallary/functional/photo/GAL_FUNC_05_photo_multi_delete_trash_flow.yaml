@@ -1,0 +1,228 @@
+tc_name: "GAL_FUNC_05_photo_multi_delete_trash_flow"
+description: |
+  [마이 갤러리 · 다중 선택 삭제 → 휴지통 이동 검증]
+  다중 선택 → 삭제 버튼 → 시스템 MediaStore 확인 다이얼로그 허용 →
+  항목이 리스트에서 제거되고 휴지통 탭에 노출되는지 확인.
+
+  주의: 이 앱은 **휴지통 복원 기능이 없음** (GAL-BUG-004 CONFIRMED).
+  따라서 TEARDOWN에서 `.trashed-*` 파일을 원래 이름으로 mv + MEDIA_SCANNER 브로드캐스트로
+  기본 상태를 복원한다. (앱 UI 경로가 아닌 파일시스템 경로 복원)
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset 환경 적용됨"
+  - "IMG_20260421_020.jpg 존재 + MediaStore 정상 등록 상태"
+  - "앱 저장공간 권한 '모두 허용'"
+
+steps:
+  # ───── SETUP ─────
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/DCIM/MyGallery_TC/IMG_20260421_020.jpg 2>/dev/null && echo EXISTS || echo MISSING"
+    expected: "EXISTS"
+    description: "삭제 대상 IMG 020 존재 확인 (SETUP 무결성)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ───── 다중 선택 → 삭제 ─────
+  - action: swipe
+    x: 120
+    y: 906
+    x2: 120
+    y2: 906
+    duration: 1000
+    description: "IMG 020 셀 롱프레스 (4/21 섹션 8번째, 단일 선택)"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnDeleteContainer /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "다중 선택 모드 진입 (삭제 버튼 노출)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 547
+    y: 1245
+    description: "선택 항목 삭제 버튼 탭"
+    post_wait: 2000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_05_01_confirm_dialog"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q 'com.google.android.providers.media.module' /sdcard/ui.xml && echo SYSTEM_DIALOG || echo OTHER"
+    expected: "SYSTEM_DIALOG"
+    description: "시스템 MediaStore 확인 다이얼로그 호스트 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q '휴지통' /sdcard/ui.xml && echo TRASH_PROMPT || echo MISSING"
+    expected: "TRASH_PROMPT"
+    description: "'휴지통으로 이동' 문구 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 582
+    y: 1089
+    description: "허용 버튼 (android:id/button1)"
+    post_wait: 2000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_05_02_after_delete"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 파일시스템에서 trashed 상태 확인 ─────
+  - action: verify_shell
+    command: "ls /sdcard/DCIM/MyGallery_TC/IMG_20260421_020.jpg 2>/dev/null && echo STILL_THERE || echo MOVED"
+    expected: "MOVED"
+    description: "원본 경로에서 IMG 020 사라짐 (MediaStore가 .trashed-* 로 rename)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/DCIM/MyGallery_TC/.trashed-*IMG_20260421_020* 2>/dev/null | head -1 | grep -q trashed && echo TRASHED || echo NOT_TRASHED"
+    expected: "TRASHED"
+    description: ".trashed-{timestamp}-IMG_020.jpg 생성 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 휴지통 탭 노출 확인 ─────
+  - action: tap_xy
+    x: 600
+    y: 1408
+    description: "하단 '휴지통' 탭 진입"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_05_03_trash_tab"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q 'IMG_20260421_020' /sdcard/ui.xml && echo FOUND || echo MISSING"
+    expected: "FOUND"
+    description: "휴지통 탭에 삭제된 항목 노출 (파일명 기반)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── TEARDOWN: 파일시스템 복원 (앱 UI에 복원 없음 - GAL-BUG-004) ─────
+  - action: key
+    key: "KEYCODE_HOME"
+    description: "홈 복귀 — TEARDOWN 준비"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    description: "갤러리 앱 종료 (MediaStore 캐시 갱신 대비)"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "sh -c 'for f in /sdcard/DCIM/MyGallery_TC/.trashed-*IMG_20260421_020*; do [ -f \"$f\" ] && mv -f \"$f\" /sdcard/DCIM/MyGallery_TC/IMG_20260421_020.jpg; done'"
+    description: ".trashed 접두어 파일을 원래 이름으로 복구 (glob)"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/DCIM/MyGallery_TC/IMG_20260421_020.jpg"
+    description: "MediaStore 스캔 트리거 (복원 반영)"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    description: "스캔 처리 대기"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/DCIM/MyGallery_TC/IMG_20260421_020.jpg 2>/dev/null && echo RESTORED || echo STILL_MISSING"
+    expected: "RESTORED"
+    description: "IMG 020 원래 경로 복구 확인"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

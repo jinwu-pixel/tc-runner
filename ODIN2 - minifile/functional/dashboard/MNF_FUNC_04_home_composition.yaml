@@ -1,0 +1,167 @@
+tc_name: "MNF_FUNC_04_home_composition"
+description: |
+  [MiniFile · 홈 대시보드 구성 전수 확인]
+  타이틀 / 검색바 / 저장공간 카드 / 최근 항목 / 카테고리 6종 / 휴지통 / 저장공간 분석 버튼
+  모두 존재하는지 확인.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+
+steps:
+  - action: shell
+    command: "monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_04_home_top"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "미니파일"
+    description: "앱 타이틀 확인"
+    timeout: 4000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "파일 검색"
+    description: "검색바 placeholder 확인"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "저장공간"
+    description: "저장공간 카드 존재 확인"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "최근 항목"
+    description: "최근 항목 섹션 존재 확인"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "이미지"
+    description: "카테고리: 이미지"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "동영상"
+    description: "카테고리: 동영상"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "오디오"
+    description: "카테고리: 오디오"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 스크롤해서 하단 확인
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "하단 스크롤"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_04_home_scrolled"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "문서"
+    description: "카테고리: 문서"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "다운로드"
+    description: "카테고리: 다운로드"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "앱"
+    description: "카테고리: 앱 (실제 라벨. 스펙 '설치된 앱' 과 다름)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "저장공간 분석"
+    description: "저장공간 분석 버튼 존재 확인"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "휴지통"
+    description: "휴지통 카드 존재 확인"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c '보안' /sdcard/ui.xml || echo 0"
+    expected: "0"
+    description: "보안폴더 진입점 부재 확인 (spec_gap 앵커)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

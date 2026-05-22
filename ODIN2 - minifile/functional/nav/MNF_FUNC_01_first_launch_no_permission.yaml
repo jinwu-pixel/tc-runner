@@ -1,0 +1,120 @@
+tc_name: "MNF_FUNC_01_first_launch_no_permission"
+description: |
+  [MiniFile · 최초 실행 권한 플로우]
+  MANAGE_EXTERNAL_STORAGE=ignore + READ_MEDIA 권한 revoke 상태에서 앱 론칭.
+  관찰 MNF-OBS-001: 권한 없이 홈이 즉시 렌더됨 — 스펙 §0 "MANAGE_EXTERNAL_STORAGE 진입 유도"와 불일치.
+  CONFIRMED 여부 확인 후 BUG_LOG 등록.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "Phase 0 preset 완료"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 0 && settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mnnr_files"
+    description: "클린 상태 보장"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm revoke com.example.mnnr_files android.permission.READ_MEDIA_IMAGES"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm revoke com.example.mnnr_files android.permission.READ_MEDIA_VIDEO"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm revoke com.example.mnnr_files android.permission.READ_MEDIA_AUDIO"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE ignore"
+    description: "MANAGE_EXTERNAL_STORAGE 회수"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    description: "권한 없는 상태에서 첫 실행"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_01_no_perm_launch"
+    description: "권한 없는 첫 실행 화면 캡처"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys window | grep mCurrentFocus"
+    expected: "mnnr_files"
+    description: "앱 또는 설정 화면 포커스 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c 'com.google.android.permissioncontroller' /sdcard/ui.xml || echo 0"
+    expected: "0"
+    description: "MNF-OBS-001 확인: 권한 다이얼로그 없이 홈 렌더됨 (스펙 위반 예상)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # TEARDOWN: 권한 복구
+  - action: shell
+    command: "appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE allow"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "pm grant com.example.mnnr_files android.permission.READ_MEDIA_IMAGES && pm grant com.example.mnnr_files android.permission.READ_MEDIA_VIDEO && pm grant com.example.mnnr_files android.permission.READ_MEDIA_AUDIO"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

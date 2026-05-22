@@ -1,0 +1,73 @@
+tc_name: "MNF_FUNC_20_cat_video"
+description: |
+  [MiniFile · 동영상 카테고리]
+  홈 동영상 탭 → MediaStore 동영상 리스트 진입 → 타이틀 "동영상" 확인.
+  실제: MediaStore 평면 동영상 리스트.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+  - "Movies/ mp4 파일 >= 3"
+
+steps:
+  - action: shell
+    command: "am force-stop com.example.mnnr_files && monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1323
+    description: "동영상 카테고리 탭 (홈 1st viewport 중앙)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_20_videos_category"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "동영상"
+    description: "타이틀 확인 (MediaStore 동영상 리스트)"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

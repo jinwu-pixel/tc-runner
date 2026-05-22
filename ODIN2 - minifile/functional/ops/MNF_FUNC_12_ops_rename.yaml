@@ -1,0 +1,266 @@
+tc_name: "MNF_FUNC_12_ops_rename"
+description: |
+  [MiniFile · 이름 바꾸기]
+  Documents/minifile_sample.txt 선택 → btn_more → "이름 바꾸기" → EditText 클리어 → 새 이름 입력 → "바꾸기".
+  목록에 새 이름 표시 + 파일시스템 rename 검증.
+
+  EditText 클리어 방법 (MNF-OBS-01 rework):
+  Android `input keyevent KEYCODE_CTRL_A` 는 modifier 조합 미지원.
+  대안으로 EditText tap → MOVE_END → KEYCODE_DEL 반복(기존 파일명 길이 초과) 사용.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+  - "Documents/minifile_sample.txt 존재 (preset)"
+
+steps:
+  # 사전 정리: 이전 rename 실패로 잔존 가능한 파일 제거
+  - action: shell
+    command: "rm -f /sdcard/Documents/minifile_renamed.txt /sdcard/Documents/minifile_sampleminifile_renamed.txt.pdf"
+    description: "이전 run 잔존 rename 파일 정리"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mnnr_files && monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 400
+    duration: 400
+    description: "홈 스크롤 다운 1회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 400
+    duration: 400
+    description: "홈 스크롤 다운 2회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1000
+    description: "layout_internal_storage 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_text
+    target: "Documents"
+    description: "Documents 폴더 진입 (텍스트 기반 — 폴더 추가/제거 무관)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_sample.txt"
+    description: "대상 파일 존재 확인"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # row 1(minifile_sample.txt) btn_more
+  # Documents preset: row 0=minifile_sample.pdf, row 1=minifile_sample.txt
+  - action: tap_xy
+    x: 608
+    y: 646
+    description: "row 1 btn_more (minifile_sample.txt)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "이름 바꾸기"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_text
+    target: "이름 바꾸기"
+    description: "이름 바꾸기 메뉴 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_12_rename_dialog"
+    description: "이름 바꾸기 다이얼로그 캡처"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # EditText 포커스 (bounds [50,713][670,805] center=360,759)
+  - action: tap_xy
+    x: 360
+    y: 759
+    description: "EditText 포커스"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # 커서를 끝으로 이동
+  - action: key
+    key: "KEYCODE_MOVE_END"
+    description: "커서 끝으로"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # Backspace 30회로 기존 텍스트 제거 (minifile_sample.txt = 19자, 여유)
+  - action: shell
+    command: "for i in $(seq 1 30); do input keyevent 67; done"
+    description: "KEYCODE_DEL(67) 반복으로 EditText 클리어"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: shell
+    command: "input text 'minifile_renamed.txt'"
+    description: "새 파일명 입력"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # 확인 버튼 — resource-id 로 매치
+  # (하드코딩 좌표는 키보드/텍스트 변화로 shift, tap_text "바꾸기" 는 title "이름 바꾸기" 와 부분매치 충돌)
+  - action: tap_id
+    id: "android:id/button1"
+    description: "바꾸기(button1) 확인 — resource-id 매치"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_renamed.txt"
+    description: "목록에 새 이름 표시"
+    timeout: 4000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Documents/minifile_renamed.txt 2>/dev/null && echo OK || echo MISSING"
+    expected: "OK"
+    description: "파일시스템 rename 검증"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Documents/minifile_sample.txt 2>/dev/null && echo STILL || echo GONE"
+    expected: "GONE"
+    description: "기존 이름 파일 제거됨 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # TEARDOWN: 원래 이름 복원
+  - action: shell
+    command: "mv /sdcard/Documents/minifile_renamed.txt /sdcard/Documents/minifile_sample.txt"
+    description: "파일명 원복"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

@@ -1,0 +1,117 @@
+tc_name: "MNF_FUNC_25_storage_analysis_enter"
+description: |
+  [MiniFile · 저장공간 분석 진입]
+  홈 스크롤 → 저장공간 분석 버튼 탭 → StorageAnalysisActivity 진입.
+  대용량 / 중복 섹션 존재 확인.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+
+steps:
+  - action: shell
+    command: "am force-stop com.example.mnnr_files && monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "스크롤 다운 → 분석 버튼 노출"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "저장공간 분석"
+    description: "분석 버튼 노출 확인"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 558
+    y: 1061
+    description: "저장공간 분석 버튼 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys window | grep mCurrentFocus"
+    expected: "StorageAnalysis"
+    description: "StorageAnalysisActivity 진입 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_25_storage_analysis_main"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "cat /sdcard/ui.xml"
+    expected: "mnnr_files"
+    description: "StorageAnalysisActivity 내 UI 존재 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

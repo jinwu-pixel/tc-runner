@@ -1,0 +1,654 @@
+tc_name: "SMOKE_MNNR"
+description: |
+  [(Mini)Files · ODIN2 스모크]
+  매 세션 시작 시 10분 내 실행. Phase 1A(first-launch) + Phase 1B(granted-state) 2층 구성.
+
+  1A. First-launch smoke
+    - 권한 revoke 후 force-stop, 클린 런칭
+    - MANAGE_EXTERNAL_STORAGE 진입/복귀 플로우 관찰 (screenshot)
+    - 이후 단계 위해 권한 부여 (shell)
+
+  1B. Granted-state smoke
+    - 권한 부여 후 재런칭
+    - 홈 구성 확인 (검색바/저장공간/카테고리/휴지통/최근)
+    - 폴더 진입 (DCIM/MyGallery_TC) + 파일 외부 앱 열기
+    - 파일 1개 선택 → 삭제 (휴지통 이동) → 휴지통 진입 → 복원
+    - 검색 1회
+
+  실패 시 functional/<bucket>/ 개별 TC 로 넘어가 원인 파고들 것.
+
+  좌표·ID 는 실기 walkthrough 로 확정된 것만 사용. 현재 스켈레톤은
+  스펙 텍스트 기반 tap_text 위주. Sonnet 이 Phase 1B 완료 후 RESUME.md
+  좌표 캐시 섹션 채우고 필요 시 tap_xy 로 하드닝.
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "Phase 0 완료: setup_minifile_preset.py 실행됨"
+  - "ODIN2 ADB serial c4324122 연결"
+  - "preset: Music/Documents/Download 각 2개, DCIM/MyGallery_TC=27, Movies>=3"
+
+steps:
+  # ============================================================
+  # SETUP — 공통
+  # ============================================================
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Music/minifile_* 2>/dev/null | wc -l | tr -d ' '"
+    expected: "2"
+    description: "preset audio 무결성"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Documents/minifile_* 2>/dev/null | wc -l | tr -d ' '"
+    expected: "2"
+    description: "preset docs 무결성"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Download/minifile_* 2>/dev/null | wc -l | tr -d ' '"
+    expected: "2"
+    description: "preset download 무결성"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ============================================================
+  # ===== 1A. First-launch smoke =====
+  # ============================================================
+
+  - action: shell
+    command: "am force-stop com.example.mnnr_files"
+    description: "1A-1 클린 상태 보장"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm revoke com.example.mnnr_files android.permission.READ_MEDIA_IMAGES"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm revoke com.example.mnnr_files android.permission.READ_MEDIA_VIDEO"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm revoke com.example.mnnr_files android.permission.READ_MEDIA_AUDIO"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE ignore"
+    description: "1A-2 MANAGE_EXTERNAL_STORAGE 회수 (default 상태로)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    description: "1A-3 첫 실행"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: screenshot
+    name: "SMOKE_1A_first_launch"
+    description: "1A-4 첫 실행 상태 캡처 (권한 UI 관찰)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' | head -2"
+    expected: "mnnr_files"
+    description: "1A-5 앱 또는 설정 진입 확인 (mCurrentFocus 에 패키지명 또는 Settings)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ---- 1A → 1B 전환: 권한 shell grant ----
+
+  - action: shell
+    command: "appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE allow"
+    description: "1A-6 MANAGE_EXTERNAL_STORAGE 부여 (1B 진입 준비)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm grant com.example.mnnr_files android.permission.READ_MEDIA_IMAGES"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm grant com.example.mnnr_files android.permission.READ_MEDIA_VIDEO"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "pm grant com.example.mnnr_files android.permission.READ_MEDIA_AUDIO"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "appops set com.example.mnnr_files android:get_usage_stats allow"
+    description: "PACKAGE_USAGE_STATS 부여 (설치된 앱 카테고리용)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mnnr_files"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ============================================================
+  # ===== 1B. Granted-state smoke =====
+  # ============================================================
+
+  - action: shell
+    command: "monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    description: "1B-1 granted 상태 재런칭"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 3500
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: screenshot
+    name: "SMOKE_1B_home"
+    description: "1B-2 홈 화면 캡처"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ---- 1B-3 홈 구성 확인 (spec-derived text; 실기 후 Sonnet 이 교체 가능) ----
+
+  - action: verify_text
+    target: "이미지"
+    description: "카테고리 그리드: 이미지"
+    timeout: 4000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "동영상"
+    description: "카테고리 그리드: 동영상"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "오디오"
+    description: "카테고리 그리드: 오디오 (2026-04-21 신규)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "문서"
+    description: "카테고리 그리드: 문서"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "다운로드"
+    description: "카테고리 그리드: 다운로드"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "설치된 앱"
+    description: "카테고리 그리드: 설치된 앱"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "휴지통"
+    description: "특수 폴더: 휴지통 진입점"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q '보안' /sdcard/ui.xml && echo FOUND || echo ABSENT"
+    expected: "ABSENT"
+    description: "spec_gap 회귀 앵커: 보안폴더 진입점 부재 (2026-04-21 배포 노트)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ---- 1B-4 폴더 진입 + 뷰어 열기 ----
+  # 관찰: 이미지 카테고리 탭 → 내부저장소 루트 파일브라우저 진입
+  # 관찰: 파일 탭 → ViewerActivity(in-app). 외부 FileProvider chooser 아님.
+
+  - action: tap_xy
+    x: 133
+    y: 1294
+    description: "1B-4a 이미지 카테고리 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 934
+    description: "1B-4b DCIM 폴더 탭 (루트 4번째 항목)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 646
+    description: "1B-4c MyGallery_TC 폴더 탭 (DCIM 2번째 항목)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "MyGallery_TC"
+    description: "타이틀 MyGallery_TC 변경 확인"
+    timeout: 4000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 502
+    description: "1B-4d 첫 파일 탭 → ViewerActivity 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys window | grep mCurrentFocus"
+    expected: "ViewerActivity"
+    description: "1B-4e ViewerActivity 진입 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "1B-4f 뷰어 뒤로"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # ---- 1B-5 선택 모드 → 삭제 → 휴지통 → 복원 ----
+
+  - action: swipe
+    x: 360
+    y: 502
+    x2: 360
+    y2: 502
+    duration: 800
+    description: "1B-5a long-press 첫 파일 → 선택 모드 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "1개 선택됨"
+    description: "1B-5b 선택 카운트 확인"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 560
+    y: 144
+    description: "1B-5c 삭제 버튼 탭 (btn_selection_delete)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 582
+    y: 873
+    description: "1B-5d 삭제 확인 다이얼로그 → 삭제"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "1B-5e 홈 복귀 (3xBACK)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 900
+    x2: 360
+    y2: 300
+    duration: 400
+    description: "1B-5f 홈 스크롤 다운 → 휴지통 카드 노출"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1184
+    description: "1B-5g 휴지통 탭 (scrolled y=1128~1240)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "휴지통"
+    description: "1B-5h 휴지통 타이틀 확인"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "IMG_20260419_000.jpg"
+    description: "1B-5i 삭제된 파일이 휴지통에 존재 확인"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 502
+    x2: 360
+    y2: 502
+    duration: 800
+    description: "1B-5j long-press 휴지통 항목"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 608
+    y: 364
+    description: "1B-5k btn_more 탭 → 복원/완전삭제 메뉴"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "복원"
+    description: "1B-5l 복원 메뉴 항목 확인"
+    timeout: 2000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 524
+    y: 460
+    description: "1B-5m 복원 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/DCIM/MyGallery_TC/IMG_20260419_000.jpg 2>/dev/null && echo RESTORED || echo MISSING"
+    expected: "RESTORED"
+    description: "1B-5n 복원 후 원경로 파일 존재 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "1B-5o 홈 복귀"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # ---- 1B-6 검색 ----
+
+  - action: swipe
+    x: 360
+    y: 300
+    x2: 360
+    y2: 900
+    duration: 400
+    description: "1B-6a 홈 스크롤 업 → 검색바 노출"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 267
+    description: "1B-6b 검색바 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "dumpsys window | grep mCurrentFocus"
+    expected: "SearchActivity"
+    description: "1B-6c SearchActivity 진입 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 144
+    description: "1B-6d 검색 입력창 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: shell
+    command: "input text 'minifile'"
+    description: "1B-6e 검색어 입력"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_silent.wav"
+    description: "1B-6f 검색 결과 확인"
+    timeout: 4000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "1B-6g 홈 복귀"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # ============================================================
+  # TEARDOWN
+  # ============================================================
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

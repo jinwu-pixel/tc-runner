@@ -1,0 +1,271 @@
+tc_name: "GAL_FUNC_10_photo_edit_crop_ratio"
+description: |
+  [마이 갤러리 · 편집 자르기 비율 5종 전환]
+  편집 → 자르기(btnCrop) → 상단 비율 선택 스트립 (1:1 / 3:4 / 원본 / 3:2 / 16:9) 각각 탭 후
+  스크린샷 저장 → BACK×2 로 취소 (변경사항 폐기).
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset 환경"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "stat -c %s /sdcard/DCIM/MyGallery_TC/IMG_20260421_024.jpg > /sdcard/pre_crop_size.txt"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 600
+    y: 418
+    description: "IMG 24 상세 진입"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 456
+    y: 128
+    description: "btnEdit — 편집 진입"
+    post_wait: 2000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 532
+    y: 1148
+    description: "btnCrop — 자르기 서브스크린"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q ucrop_photobox /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "자르기 화면 진입 확인 (ucrop_photobox 노출)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "1:1"
+    description: "비율 스트립 1:1"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "3:4"
+    description: "비율 스트립 3:4"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "원본"
+    description: "비율 스트립 원본 (default)"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "3:2"
+    description: "비율 스트립 3:2"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "16:9"
+    description: "비율 스트립 16:9"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_10_01_default_ratio"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 71
+    y: 1256
+    description: "비율 1:1 선택"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_10_02_ratio_1x1"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 215
+    y: 1256
+    description: "비율 3:4 선택"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_10_03_ratio_3x4"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 504
+    y: 1256
+    description: "비율 3:2 선택"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_10_04_ratio_3x2"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 647
+    y: 1256
+    description: "비율 16:9 선택"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_10_05_ratio_16x9"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1256
+    description: "원본 비율 복귀"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_10_06_ratio_original"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 하단 상태 탭 확인 (Crop / Rotate / Scale)
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q state_aspect_ratio /sdcard/ui.xml && grep -q state_rotate /sdcard/ui.xml && grep -q state_scale /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "하단 상태 탭 3종 (aspect_ratio / rotate / scale) 노출"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 취소: BACK 2회 (자르기 → 편집 → 취소)
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "BACK — 자르기 종료 → 편집 홈"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "BACK — 편집 취소 → 상세 복귀"
+    post_wait: 1000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnFavorite /sdcard/ui.xml && echo DETAIL || echo ELSEWHERE"
+    expected: "DETAIL"
+    description: "상세 보기로 복귀"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "PRE=$(cat /sdcard/pre_crop_size.txt); POST=$(stat -c %s /sdcard/DCIM/MyGallery_TC/IMG_20260421_024.jpg); [ \"$PRE\" = \"$POST\" ] && echo UNCHANGED || echo CHANGED"
+    expected: "UNCHANGED"
+    description: "원본 파일 크기 변경 없음 (cancel 경로)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: shell
+    command: "rm -f /sdcard/pre_crop_size.txt"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

@@ -1,0 +1,234 @@
+tc_name: "GAL_FUNC_03_photo_multi_select"
+description: |
+  [마이 갤러리 · 사진 탭 다중 선택 모드]
+  사진 탭 롱프레스 진입 검증:
+    - 롱프레스 → 다중 선택 모드 (viewSelectionOverlay 첫 항목에 노출)
+    - 하단 플로팅바 3버튼 (btnSelectAllContainer / btnShareContainer / btnDeleteContainer)
+    - 추가 탭으로 선택 추가
+    - 전체 선택 토글
+    - BACK → 다중 선택 모드 탈출 (플로팅바 사라짐)
+  주의: 다중 선택 모드는 타이틀 "마이 갤러리" 그대로 유지 (GAL-BUG-002 [OBSERVED] — 카운터 부재)
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset 환경 (사진 25장 + 영상 2개) 적용됨"
+  - "앱 저장공간 권한 '모두 허용' 상태"
+  - "기기 세로 고정 (TC SETUP)"
+
+steps:
+  # ───── SETUP ─────
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    description: "자동 회전 해제"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    description: "세로 고정"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    description: "마이 갤러리 강제 종료"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    description: "마이 갤러리 기동"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    description: "앱 초기화 대기"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "사진 탭 리스트 진입 확인"
+    timeout: 5000
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_03_01_list_normal"
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  # ───── 롱프레스 → 다중 선택 진입 ─────
+  - action: swipe
+    x: 600
+    y: 418
+    x2: 600
+    y2: 418
+    duration: 1000
+    description: "IMG 24 셀 롱프레스 (제자리 swipe 1000ms) — 다중 선택 모드 진입"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_03_02_multi_entered"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnSelectAllContainer /sdcard/ui.xml && echo BAR_SHOWN || echo BAR_MISSING"
+    expected: "BAR_SHOWN"
+    description: "하단 플로팅바 노출 확인 (btnSelectAllContainer 존재)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnShareContainer /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "공유 버튼 존재 확인 (content-desc: 선택 항목 공유)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnDeleteContainer /sdcard/ui.xml && echo OK || echo FAIL"
+    expected: "OK"
+    description: "삭제 버튼 존재 확인 (content-desc: 선택 항목 삭제)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c viewSelectionOverlay /sdcard/ui.xml"
+    expected: "1"
+    description: "선택 오버레이 1개 (롱프레스한 IMG 24만 선택)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 단일 탭으로 선택 추가 ─────
+  - action: tap_xy
+    x: 120
+    y: 660
+    description: "IMG 23 셀 단일 탭 — 선택 추가"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_03_03_two_selected"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c viewSelectionOverlay /sdcard/ui.xml"
+    expected: "2"
+    description: "선택 오버레이 2개 (IMG 24 + IMG 23)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── 전체 선택 ─────
+  - action: tap_xy
+    x: 172
+    y: 1245
+    description: "전체 선택 버튼 탭"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_03_04_select_all"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && N=$(grep -c viewSelectionOverlay /sdcard/ui.xml); [ $N -ge 7 ] && echo ALL_SELECTED || echo ONLY_$N"
+    expected: "ALL_SELECTED"
+    description: "뷰포트 내 가시 항목 전부 선택 (≥7개, 4/21 섹션 최소 커버)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q '마이 갤러리' /sdcard/ui.xml && echo TITLE_UNCHANGED || echo TITLE_CHANGED"
+    expected: "TITLE_UNCHANGED"
+    description: "다중 선택 모드에도 타이틀 '마이 갤러리' 유지 (GAL-BUG-002 확인 포인트)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── BACK → 다중 선택 종료 ─────
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "BACK — 다중 선택 모드 종료"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_03_05_back_normal"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnSelectAllContainer /sdcard/ui.xml && echo STILL_IN || echo EXITED"
+    expected: "EXITED"
+    description: "하단 플로팅바 사라짐 (다중 선택 종료 확인)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c viewSelectionOverlay /sdcard/ui.xml"
+    expected: "0"
+    description: "선택 오버레이 전부 해제"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "2026년 04월 21일"
+    description: "리스트 정상 복귀 (날짜 헤더 재노출)"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # ───── TEARDOWN ─────
+  - action: key
+    key: "KEYCODE_HOME"
+    description: "홈 화면 복귀"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

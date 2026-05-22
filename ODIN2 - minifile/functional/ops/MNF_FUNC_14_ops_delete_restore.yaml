@@ -1,0 +1,364 @@
+tc_name: "MNF_FUNC_14_ops_delete_restore"
+description: |
+  [MiniFile · 삭제(휴지통 이동) + 완전삭제 경고 (취소)]
+  Download/minifile_readme.txt 선택 → 삭제 → 휴지통 이동 확인.
+  휴지통에서 항목 btn_more → 완전삭제 메뉴 경고 다이얼로그 확인 후 취소.
+  (복원 검증은 TC_28 trash_restore_permanent 에서 수행)
+
+metadata:
+  source_file: "doc/minifile.pdf"
+  source_sheet: null
+  source_row: null
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mnnr_files"
+    version: "1.0.26042210"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "ODIN2 ADB serial c4324122 연결"
+  - "권한 전부 granted"
+  - "Download/minifile_readme.txt 존재 (preset 루트 파일 0)"
+
+steps:
+  - action: shell
+    command: "am force-stop com.example.mnnr_files && monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 400
+    duration: 400
+    description: "홈 스크롤 다운 1회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 400
+    duration: 400
+    description: "홈 스크롤 다운 2회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1000
+    description: "layout_internal_storage 탭"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_text
+    target: "Download"
+    description: "Download 폴더 진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # row 0(minifile_readme.txt) long-press → 선택 모드
+  - action: swipe
+    x: 360
+    y: 502
+    x2: 360
+    y2: 502
+    duration: 800
+    description: "row 0 long-press"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "1개 선택됨"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 선택 toolbar 삭제 버튼 (btn_selection_delete: [512,96][608,192] center=560,144)
+  - action: tap_xy
+    x: 560
+    y: 144
+    description: "선택 toolbar 삭제 버튼"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # 확인 다이얼로그 button1 (삭제=휴지통 이동)
+  - action: tap_xy
+    x: 582
+    y: 873
+    description: "삭제 확인"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # 원본이 휴지통으로 이동됐는지 파일시스템으로 확인
+  - action: verify_shell
+    command: "ls /sdcard/Download/minifile_readme.txt 2>/dev/null && echo STILL || echo MOVED"
+    expected: "MOVED"
+    description: "원본 경로에서 파일 제거됨 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 홈으로 복귀
+  - action: key
+    key: "KEYCODE_BACK"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    description: "루트 → 홈"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # 홈 2회 스크롤하여 휴지통 카드 노출
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 400
+    duration: 400
+    description: "홈 스크롤 다운 1회"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 600
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: swipe
+    x: 360
+    y: 1200
+    x2: 360
+    y2: 400
+    duration: 400
+    description: "홈 스크롤 다운 2회 (card_trash 노출)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 800
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 360
+    y: 1184
+    description: "card_trash 탭 (스크롤 후 center y=1184)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "휴지통"
+    description: "휴지통 타이틀 확인"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "minifile_readme.txt"
+    description: "삭제된 파일 휴지통 존재"
+    timeout: 3000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 완전삭제 경고 다이얼로그 → 취소
+  - action: tap_xy
+    x: 608
+    y: 502
+    description: "휴지통 row 0 btn_more"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1200
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: verify_text
+    target: "복원"
+    timeout: 2000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_text
+    target: "완전 삭제"
+    timeout: 2000
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_text
+    target: "완전 삭제"
+    description: "완전삭제 메뉴 → 경고 다이얼로그"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1500
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "MNF_14_permanent_delete_warning"
+    description: "완전삭제 경고 다이얼로그 캡처"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c 'button1' /sdcard/ui.xml"
+    expected: "1"
+    description: "다이얼로그 button1(확인) 존재"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 취소 (button2 좌측 예상 좌표) — 실제 삭제 방지
+  - action: tap_xy
+    x: 454
+    y: 873
+    description: "취소 버튼 (button2, 실제 삭제 차단)"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1000
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  # 복원 (cleanup — 파일시스템 상 원경로 복귀)
+  - action: tap_xy
+    x: 608
+    y: 502
+    description: "row 0 btn_more 재진입"
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: wait
+    duration: 1200
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_text
+    target: "복원"
+    description: "복원 탭 (cleanup)"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: wait
+    duration: 2000
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Download/minifile_readme.txt 2>/dev/null && echo RESTORED || echo MISSING"
+    expected: "RESTORED"
+    description: "복원 후 원경로 복귀 (cleanup 검증)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

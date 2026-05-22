@@ -1,0 +1,186 @@
+tc_name: "GAL_FUNC_12_photo_edit_save_copy"
+description: |
+  [마이 갤러리 · 편집 저장 = 사본 생성 (덮어쓰기 없음)]
+  편집 → 회전 → 저장(✓ 상단바 저장 버튼) 시:
+    - 원본 파일 변경 없음
+    - /sdcard/Pictures/MyGallery/EDIT_COPY_{timestamp}.jpg 생성
+    - 사본/덮어쓰기 선택 다이얼로그 없음 (항상 사본)
+  관찰: 스펙 문서에는 "사본? 덮어쓰기?" 옵션이 있으나 실기는 항상 사본만. SPEC_GAP 가능성.
+
+metadata:
+  source: "gallery_odin2 functional skeleton · 실기 walkthrough (2026-04-21)"
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+  target_app:
+    package: "com.example.mygalleryapp"
+    version: "1.0.26042114"
+  target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
+
+preconditions:
+  - "GAL_FUNC_01 preset 환경"
+  - "/sdcard/Pictures/MyGallery/ 가 비어 있거나 EDIT_COPY_* 만 존재"
+
+steps:
+  - action: shell
+    command: "settings put system accelerometer_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "settings put system user_rotation 0"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "rm -f /sdcard/Pictures/MyGallery/EDIT_COPY_*.jpg"
+    description: "이전 run 에서 생긴 사본 제거"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "am force-stop com.example.mygalleryapp"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "monkey -p com.example.mygalleryapp -c android.intent.category.LAUNCHER 1"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: wait
+    duration: 3000
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: shell
+    command: "stat -c %s /sdcard/DCIM/MyGallery_TC/IMG_20260421_021.jpg > /sdcard/pre_save_size.txt"
+    description: "원본 크기 기록"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+
+  - action: tap_xy
+    x: 600
+    y: 662
+    description: "IMG 21 상세 진입 (4/21 섹션 7번째)"
+    post_wait: 1500
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 456
+    y: 128
+    description: "btnEdit — 편집 진입"
+    post_wait: 2000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: tap_xy
+    x: 188
+    y: 1148
+    description: "회전 1회 (+90°) — 편집 대기 상태 만들기"
+    post_wait: 800
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_12_01_rotated"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: tap_xy
+    x: 624
+    y: 144
+    description: "btnSave — 상단바 '저장' 탭"
+    post_wait: 3000
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    compile_status: OK
+
+  - action: screenshot
+    name: "GAL_FUNC_12_02_after_save"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # 저장 후 즉시 상세뷰 복귀 (다이얼로그 없음)
+  - action: verify_shell
+    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -q btnFavorite /sdcard/ui.xml && echo DETAIL || echo ELSE"
+    expected: "DETAIL"
+    description: "저장 후 상세뷰 복귀 (선택 다이얼로그 없음)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "PRE=$(cat /sdcard/pre_save_size.txt); POST=$(stat -c %s /sdcard/DCIM/MyGallery_TC/IMG_20260421_021.jpg); [ \"$PRE\" = \"$POST\" ] && echo UNCHANGED || echo OVERWRITTEN"
+    expected: "UNCHANGED"
+    description: "원본 파일 변경 없음 (덮어쓰기 안됨)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Pictures/MyGallery/EDIT_COPY_*.jpg 2>/dev/null | wc -l | tr -d ' '"
+    expected: "1"
+    description: "EDIT_COPY 사본 정확히 1개 생성됨"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  - action: verify_shell
+    command: "ls /sdcard/Pictures/MyGallery/ 2>/dev/null | grep -E '^EDIT_COPY_[0-9]+\\.jpg$' | head -1 | grep -q EDIT_COPY && echo PATTERN_OK || echo BAD_NAME"
+    expected: "PATTERN_OK"
+    description: "사본 파일명 패턴 EDIT_COPY_{timestamp}.jpg 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+
+  # TEARDOWN: 사본 제거 + MediaStore 스캔
+  - action: shell
+    command: "sh -c 'for f in /sdcard/Pictures/MyGallery/EDIT_COPY_*.jpg; do [ -f \"$f\" ] && rm -f \"$f\"; done'"
+    description: "생성된 EDIT_COPY 사본 제거"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Pictures/MyGallery/"
+    description: "MediaStore 디렉토리 스캔 (사본 제거 반영)"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: shell
+    command: "rm -f /sdcard/pre_save_size.txt"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_BACK"
+    post_wait: 500
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+
+  - action: key
+    key: "KEYCODE_HOME"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK

@@ -8,3 +8,19 @@ reports/
 .claude/settings.local.json
 .superpowers/
 *.pid
+
+# per-folder generated reports / evidence (mirror tools/git_safe_push_audit.py forbidden patterns)
+report/
+generated/
+evidence/
+probe_*.xml
+probe_dump_*.xml
+_probe_*.py
+ui_*.xml
+popup_*.xml
+screenshot_*.png
+
+# tool log/output accumulation
+logs/
+logs_apn/
+output/
