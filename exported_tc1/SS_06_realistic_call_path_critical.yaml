@@ -1,0 +1,259 @@
+tc_name: "SS_06_realistic_call_path_critical"
+description: |
+  [SeniorShield 실통화 경로] 의심 수신(미저장 번호, 15초+) → 1~2분 간격 → 은행 ARS(15993333) 발신
+  → 선캡처 성공 → OFFHOOK 즉시 텔레뱅킹 감지 → CRITICAL 전체화면 팝업 + 60초 쿨다운 발동.
+  2026-04-13 스타일폴더 2 (AT-M140, LG U+ SIM) 실기 검증 Run1/Run2 2회 연속 PASS 확보 기반.
+
+metadata:
+  source: "2026-04-13 스타일폴더 2 실기 검증 Run1(pid 18622, 14:26-14:28) / Run2(pid 19114, 14:31-14:34)"
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: "CALL_RECEIVE|CALL_PLACE"
+  has_manual_steps: true
+  has_shell_actions: true
+  has_unresolved_params: false
+  warnings:
+    - "보조폰 1대 필요 — 주 단말(스타일폴더 2)에 저장되지 않은 번호로 수신 유발"
+    - "은행 ARS 15993333 또는 테스트 모드 텔레뱅킹 시뮬레이션 번호 확보 필요"
+    - "수신→발신 간격은 1~2분 권장 — 5분 이상 간격 시 Samsung ROM ACTION_NEW_OUTGOING_CALL miss 가능성 관찰됨 (2026-04-13 drift, 가이드 §5.4 참조)"
+    - "카운트다운 동안 물리 키(D-pad/OK) 입력 금지 — 포커스된 버튼 tap 처리되어 쿨다운 조기 해제"
+    - "dumpsys package의 SYSTEM_ALERT_WINDOW granted=false는 authoritative 아님 — cmd appops로 확인할 것"
+
+preconditions:
+  - "단말: 스타일폴더 2 (AT-M140), Android 14, LG U+ SIM"
+  - "com.example.seniorshield 설치됨 (minSdk 26)"
+  - "SYSTEM_ALERT_WINDOW appop allow"
+  - "READ_PHONE_STATE / READ_CONTACTS / READ_CALL_LOG 권한 허용"
+  - "시니어쉴드 테스트 모드 ON (텔레뱅킹 번호 15993333 매칭 + UNKNOWN_CALLER 임계 10초)"
+  - "보조폰 1대 (주 단말 연락처에 미저장된 번호로 발신 가능)"
+  - "15993333 또는 테스트 ARS 번호 발신 가능"
+
+steps:
+  # ============================================================
+  # SETUP — 앱/권한/로그 초기화
+  # ============================================================
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+    description: "시니어쉴드 강제 종료 (깨끗한 시작 상태)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "앱 강제 종료", source_phase: procedure, position: 1, total_segments: 21 }
+
+  - action: verify_shell
+    command: "cmd appops get com.example.seniorshield SYSTEM_ALERT_WINDOW"
+    expected: "allow"
+    description: "SYSTEM_ALERT_WINDOW appop 허용 확인 (dumpsys package가 아닌 appops가 authoritative)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "오버레이 권한 appops 확인", source_phase: procedure, position: 2, total_segments: 21 }
+
+  - action: shell
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+    description: "통화 상태 감지 권한"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "READ_PHONE_STATE 권한", source_phase: procedure, position: 3, total_segments: 21 }
+
+  - action: shell
+    command: "pm grant com.example.seniorshield android.permission.READ_CALL_LOG"
+    description: "IDLE 텔레뱅킹 폴백 경로용 권한"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "READ_CALL_LOG 권한", source_phase: procedure, position: 4, total_segments: 21 }
+
+  - action: shell
+    command: "pm grant com.example.seniorshield android.permission.READ_CONTACTS"
+    description: "미저장 번호 판별 권한"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "READ_CONTACTS 권한", source_phase: procedure, position: 5, total_segments: 21 }
+
+  - action: shell
+    command: "logcat -G 16M"
+    description: "logcat 버퍼 16MB 확장 — AppMonitor flood로 인한 조기 rollover 방지"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "로그 버퍼 확장", source_phase: procedure, position: 6, total_segments: 21 }
+
+  - action: shell
+    command: "logcat -c"
+    description: "기존 버퍼 클리어"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "logcat clear", source_phase: procedure, position: 7, total_segments: 21 }
+
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+    description: "시니어쉴드 실행 → MonitoringForegroundService 기동"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "앱 실행", source_phase: procedure, position: 8, total_segments: 21 }
+
+  - action: wait
+    duration: 5000
+    description: "service started + coordinator started + TelephonyCallback registered 대기"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace: { raw_segment: "초기화 대기", source_phase: procedure, position: 9, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-CallMonitor:D | grep -c 'TelephonyCallback registered' || echo 0"
+    expected: "1"
+    description: "CallMonitor 콜백 등록 확인 — 미등록 시 IDLE/OFFHOOK 전이를 놓쳐 감지 불가"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "CallMonitor seed 확인", source_phase: expected, position: 10, total_segments: 21 }
+
+  # ============================================================
+  # PHASE 1 — 의심 수신 (보조폰 → 주 단말)
+  # ============================================================
+  - action: manual_pause
+    description: |
+      [Phase 1 — 의심 수신 유발]
+      1. 보조폰에서 주 단말(스타일폴더 2)로 전화 발신 — 주 단말 연락처에 저장되지 않은 번호로
+      2. 주 단말 플립 열어 수신
+      3. 약 15초 이상 통화 유지 (테스트 모드 LONG_CALL_DURATION 임계 10초)
+      4. 플립 닫아 통화 종료
+      종료 후 [Continue] — 시스템은 이후 1~2분 내 Phase 2를 진행합니다.
+    manual_timeout: 180
+    on_timeout: fail
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    compile_status: OK
+    source_trace: { raw_segment: "의심 수신 - 15초 통화 - 종료", source_phase: procedure, position: 11, total_segments: 21 }
+
+  - action: wait
+    duration: 2000
+    description: "Phase 1 종료 후 signals emitted FINAL 기록 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace: { raw_segment: "signal 정리 대기", source_phase: procedure, position: 12, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-Coordinator:D | grep -c 'session score: total=50, level=HIGH, alertState=GUARDED' || echo 0"
+    expected: "1"
+    description: "Phase 1 signal 누적: UNKNOWN_CALLER(20) + LONG_CALL_DURATION(30) = 50 → HIGH/GUARDED"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "Phase 1 점수 누적 검증", source_phase: expected, position: 13, total_segments: 21 }
+
+  # ============================================================
+  # PHASE 2 — 은행 ARS 발신 (1~2분 이내, 사기 실 시나리오 타이밍)
+  # ============================================================
+  - action: manual_pause
+    description: |
+      [Phase 2 — 은행 ARS 발신]
+      Phase 1 종료 후 1~2분 이내에 주 단말에서 직접 발신:
+      1. 다이얼러 열기 → 15993333 입력 → 통화 버튼 (또는 플립 열기)
+      2. 통화 연결 직후 CRITICAL 팝업이 나타날 때까지 기다림 — 키 입력 금지
+      3. 팝업이 표시되면 [Continue]
+      주의: 수신→발신 간격을 5분 이상 벌리지 말 것. Samsung ROM ACTION_NEW_OUTGOING_CALL 브로드캐스트 miss 관찰됨 (2026-04-13 drift).
+    manual_timeout: 240
+    on_timeout: fail
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    compile_status: OK
+    source_trace: { raw_segment: "은행 ARS 15993333 발신", source_phase: procedure, position: 14, total_segments: 21 }
+
+  - action: wait
+    duration: 3000
+    description: "선캡처 + OFFHOOK 전이 + CRITICAL 평가 + 팝업 addView 완료 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace: { raw_segment: "감지 처리 대기", source_phase: procedure, position: 15, total_segments: 21 }
+
+  # ============================================================
+  # ASSERT — 선캡처 성공 → OFFHOOK 즉시 감지 → CRITICAL 팝업
+  # ============================================================
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-CallMonitor:D | grep -c '발신 번호 선캡처: 15993333' || echo 0"
+    expected: "1"
+    description: "ACTION_NEW_OUTGOING_CALL 브로드캐스트 → 선캡처 15993333 성공 (null이면 Samsung ROM drift)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "선캡처 번호 기록", source_phase: expected, position: 16, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-CallMonitor:D | grep -c 'OFFHOOK 텔레뱅킹 체크 (선캡처): number=15993333, matches=true' || echo 0"
+    expected: "1"
+    description: "OFFHOOK 전이 시점 선캡처 매칭 성공 (IDLE 폴백이 아닌 선캡처 경로 — 즉시 감지)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "선캡처 매칭 즉시 감지", source_phase: expected, position: 17, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-Coordinator:D | grep -c 'session score: total=75, level=CRITICAL, alertState=CRITICAL' || echo 0"
+    expected: "1"
+    description: "UNKNOWN_CALLER(20) + LONG_CALL_DURATION(30) + TELEBANKING_AFTER_SUSPICIOUS(25) = 75 → CRITICAL"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "CRITICAL 점수 누적", source_phase: expected, position: 18, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-Overlay:D | grep -c '전체화면 팝업 표시: level=CRITICAL, title=은행 ARS 발신 감지' || echo 0"
+    expected: "1"
+    description: "RiskOverlayManager.addView 성공 — 실제 화면에 CRITICAL 팝업 표시"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "팝업 addView 성공", source_phase: expected, position: 19, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-Cooldown:D | grep -c '쿨다운 발동: level=CRITICAL' || echo 0"
+    expected: "1"
+    description: "BankingCooldownManager 60초 쿨다운 발동 (SS_07에서 카운트다운 측정)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "쿨다운 발동", source_phase: expected, position: 20, total_segments: 21 }
+
+  - action: verify_shell
+    command: "logcat -d | grep -c FATAL || echo 0"
+    expected: "0"
+    description: "테스트 전 구간 FATAL 크래시 없음"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace: { raw_segment: "크래시 없음", source_phase: expected, position: 21, total_segments: 21 }
+
+  # ============================================================
+  # TEARDOWN
+  # ============================================================
+  - action: manual_pause
+    description: |
+      [Teardown]
+      1. 통화가 아직 연결 상태면 플립 닫아 종료
+      2. CRITICAL 팝업이 남아있으면 "앱 열어서 확인하기" 또는 홈 키로 dismiss
+      3. 쿨다운이 진행 중이어도 force-stop이 모두 정리함
+      확인 후 [Continue]
+    manual_timeout: 60
+    on_timeout: warn
+    execution_mode: MANUAL_REQUIRED
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace: { raw_segment: "수동 teardown", source_phase: procedure, position: 21, total_segments: 21 }
+
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+    description: "앱 종료 — 모든 서비스/오버레이/쿨다운 정리"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace: { raw_segment: "force-stop 복구", source_phase: procedure, position: 21, total_segments: 21 }

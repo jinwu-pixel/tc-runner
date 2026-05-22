@@ -1,0 +1,109 @@
+tc_name: "TC-05B"
+description: "정확히 10초 통화 → LONG_CALL_DURATION 발생 확인 (임계값 경계)"
+metadata:
+  source: TC_1.xlsx / SS-TC 1 / TC-05B
+  priority: 필수
+  repeat: 3
+  tc_class: SEMI_AUTO
+  runnable: true
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+  has_manual_steps: true
+steps:
+  # 1. Setup
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 1000
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "logcat -c"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 3000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC05B_01_before"
+
+  # 2. 수동: 정확히 10초 통화
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "보조폰으로 전화를 걸어주세요. 수신 후 정확히 10초 통화한 뒤 종료하세요. (스톱워치 사용 권장)"
+    manual_timeout: 120
+
+  # 3. 대기
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 5000
+
+  # 4. 앱 복귀 — 경고 화면 확인
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC05B_02_after_call"
+
+  # 5. 경고 화면에서 감지 확인
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "장시간 의심 통화 감지"
+
+  # 6. 메인으로 돌아가기
+  - action: key
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    key: BACK
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+
+  # 7. 감지 기록 확인
+  - action: tap_text
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    target: "전체 감지 기록 보기"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC05B_03_history"
+  - action: key
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    key: BACK
+
+  # 8. Telecom 로그로 통화 시간 확인
+  - action: verify_shell
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    command: "logcat -d | grep showCallDuration || echo NOT_FOUND"
+    expected: "showCallDuration"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    name: "TC05B_04_verified"

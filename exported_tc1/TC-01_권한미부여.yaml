@@ -1,0 +1,93 @@
+tc_name: "TC-01"
+description: "READ_PHONE_STATE 거부 상태에서 수신 전화 → 감지 없음, 크래시 없음 확인"
+metadata:
+  source: TC_1.xlsx / SS-TC 1 / TC-01
+  priority: 필수
+  repeat: 2
+  tc_class: SEMI_AUTO
+  runnable: true
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+  has_manual_steps: true
+steps:
+  # 1. Setup: 권한 철회 + 앱 재시작
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 1000
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "logcat -c"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "시니어쉴드"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC01_01_no_permission"
+
+  # 2. 수동: 전화 수신 + 종료
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "보조폰으로 전화를 걸어주세요. 수신 후 짧게 통화하고 종료하세요."
+    manual_timeout: 60
+
+  # 3. 대기
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 5000
+
+  # 4. Cleanup: 권한 복구 (verify 전에 실행하여 후속 TC 안전 보장)
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+
+  # 5. 앱 복귀 — 크래시 없이 정상 동작 확인
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "시니어쉴드"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC01_02_still_alive"
+
+  # 6. 크래시 로그 없음 확인
+  - action: verify_shell
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    command: "logcat -d | grep 'AndroidRuntime.*FATAL' || echo NO_CRASH"
+    expected: "NO_CRASH"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    name: "TC01_03_cleanup"

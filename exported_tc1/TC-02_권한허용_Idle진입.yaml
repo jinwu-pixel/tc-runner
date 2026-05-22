@@ -1,0 +1,77 @@
+tc_name: "TC-02"
+description: "초기 권한 미부여 → 권한 허용 → Idle 진입, 중복 등록 없음 확인"
+metadata:
+  source: TC_1.xlsx / SS-TC 1 / TC-02
+  priority: 필수
+  repeat: 3
+  tc_class: FULL_AUTO
+  runnable: true
+  execution_type: AUTO
+  manual_detail: NONE
+  has_manual_steps: false
+steps:
+  # 1. Setup: 권한 철회 + 앱 시작
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 1000
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "logcat -c"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "시니어쉴드"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC02_01_no_perm"
+
+  # 2. 권한 부여
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC02_02_perm_granted"
+
+  # 3. 앱 정상 동작 확인 (크래시 없음)
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "시니어쉴드"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC02_03_idle"

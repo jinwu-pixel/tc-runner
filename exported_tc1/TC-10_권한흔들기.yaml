@@ -1,0 +1,163 @@
+tc_name: "TC-10"
+description: "권한 허용→철회→재허용 후 통화 → 정상 감지 확인"
+metadata:
+  source: TC_1.xlsx / SS-TC 1 / TC-10
+  priority: 필수
+  repeat: 3
+  tc_class: SEMI_AUTO
+  runnable: true
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+  has_manual_steps: true
+steps:
+  # 1. Setup: 정상 상태 확인
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 1000
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "시니어쉴드"
+
+  # 2. 첫 번째 통화 (권한 있는 상태)
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "[1차] 보조폰으로 전화를 걸어주세요. 수신 후 10초 이상 통화한 뒤 종료하세요."
+    manual_timeout: 120
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 5000
+
+  # 3. 첫 번째 통화 후 경고 화면 확인 + 닫기
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC10_01_first_call_warning"
+  - action: key
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    key: BACK
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+
+  # 4. 권한 철회
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC10_02_revoked"
+
+  # 5. 권한 재부여
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC10_03_regranted"
+
+  # 6. 두 번째 통화 (재부여 후)
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "logcat -c"
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "[2차] 다시 전화를 걸어주세요. 수신 후 10초 이상 통화한 뒤 종료하세요."
+    manual_timeout: 120
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 5000
+
+  # 7. 경고 화면에서 감지 확인
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "장시간 의심 통화 감지"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC10_04_second_call_warning"
+
+  # 8. 메인으로 돌아가서 기록 확인
+  - action: key
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    key: BACK
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+  - action: tap_text
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    target: "전체 감지 기록 보기"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC10_05_history"
+  - action: key
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    key: BACK
+
+  # 9. Cleanup: 권한 복구 (후속 TC 안전)
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"

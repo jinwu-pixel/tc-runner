@@ -1,0 +1,90 @@
+tc_name: "TC-06"
+description: "수신 전화를 받지 않거나 거절 → duration=0, 감지 이벤트 미생성 확인"
+metadata:
+  source: TC_1.xlsx / SS-TC 1 / TC-06
+  priority: 중요
+  repeat: 2
+  tc_class: SEMI_AUTO
+  runnable: true
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+  has_manual_steps: true
+steps:
+  # 1. Setup
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 1000
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "logcat -c"
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    duration: 3000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC06_01_main_before"
+
+  # 2. 수동: 전화 수신 후 거절
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "보조폰으로 전화를 걸어주세요. 벨이 울리면 받지 않거나 거절 버튼을 눌러주세요."
+    manual_timeout: 60
+
+  # 3. 대기
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 5000
+
+  # 4. 앱 복귀 — 경고 화면 없이 메인이어야 함 (거절 통화는 감지 이벤트 없음)
+  - action: shell
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 3000
+  - action: verify_text
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    target: "시니어쉴드"
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC06_02_main_after"
+
+  # 5. 감지 기록 확인 — 새 이벤트 없어야 함
+  - action: tap_text
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    target: "전체 감지 기록 보기"
+  - action: wait
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    duration: 2000
+  - action: screenshot
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    name: "TC06_03_history"
+  - action: key
+    execution_mode: UI_AUTO
+    step_role: ACTION
+    key: BACK

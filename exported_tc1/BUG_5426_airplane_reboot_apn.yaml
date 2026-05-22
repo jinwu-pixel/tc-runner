@@ -1,0 +1,639 @@
+tc_name: "BUG_5426_airplane_reboot_apn"
+description: |
+  [ODIN BUG-5426] 비행기 모드 ON 상태에서 리부팅 시
+  모바일 데이터가 3G(WCDMA) 접속을 시도하는 이슈 재현 검증.
+  시나리오 A: 비행기모드 + pref 변경 + 리부팅
+  시나리오 B: 비행기모드 중 긴급호(118) 발신 후 APN 증가 확인
+  APN 개수 변화 + RILJ 로그 + DATA_REGISTRATION_STATE + QXDM OTA 기반 판정.
+
+metadata:
+  source: "ODIN BUG-5426 (KT SAT Issue)"
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: "PHYSICAL_ACTION"
+  has_manual_steps: true
+  has_shell_actions: true
+  has_unresolved_params: false
+  warnings:
+    - "리부팅 시 ADB 세션 끊김 -> adb wait-for-device로 재연결"
+    - "QXDM 연결 상태에서 테스트 필수 (OTA 메시지 확인용)"
+    - "PC의 WWAN AutoConfig 서비스 중지 필요"
+
+preconditions:
+  - "KT USIM (numeric=45008) 삽입"
+  - "빌드: official T_D 버전"
+  - "PC: WWAN AutoConfig 서비스 중지 (sc stop WwanSvc)"
+  - "QXDM 연결 + OTA filter 설정 (F12 > OTA > LTE > NAS layer 체크)"
+  - "USB 케이블 연결 상태"
+
+steps:
+  # ============================================================
+  # Phase 0: PC 사전 준비 확인
+  # ============================================================
+  - action: manual_pause
+    description: |
+      [PC 사전 준비 확인]
+      1. WWAN AutoConfig 서비스 중지 확인 (PC CMD: sc stop WwanSvc)
+      2. QXDM 실행 및 COM port 연결 확인
+      3. QXDM OTA filter 설정 확인 (F12 > configure > OTA > LTE > NAS layer 체크)
+      준비 완료 후 [Continue]
+    manual_timeout: 120
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: SETUP
+    compile_status: OK
+    source_trace:
+      raw_segment: "QXDM + WWAN AutoConfig 사전 준비"
+      source_phase: procedure
+      position: 1
+      total_segments: 32
+
+  # ============================================================
+  # Phase 1: 초기 상태 스냅샷 (APN baseline)
+  # ============================================================
+  - action: screenshot
+    name: "BUG5426_00_initial"
+    execution_mode: UI_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace:
+      raw_segment: "초기 상태 스크린샷"
+      source_phase: procedure
+      position: 2
+      total_segments: 32
+
+  - action: shell
+    command: "su 0 content query --uri content://telephony/carriers --projection _id:name:apn:type:numeric:carrier_enabled --where \"numeric='45008'\" > /data/local/tmp/apn_before.txt"
+    description: "리부팅 전 KT APN 목록 스냅샷 저장"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN baseline 저장 (before)"
+      source_phase: procedure
+      position: 3
+      total_segments: 32
+
+  - action: verify_shell
+    command: "su 0 cat /data/local/tmp/apn_before.txt | wc -l"
+    expected: "5"
+    description: "KT APN 5개 확인 (KT, IMSFW, IMS, Emergency, IA)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN baseline 개수 검증"
+      source_phase: expected
+      position: 4
+      total_segments: 32
+
+  # ============================================================
+  # 시나리오 A: 비행기모드 + pref 변경 + 리부팅
+  # ============================================================
+
+  # --- A-1: 네트워크 모드를 WCDMA Only로 변경 ---
+  - action: shell
+    command: "settings put global preferred_network_mode1 2"
+    description: "Preferred network -> WCDMA Only (값=2)"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "Engineer Mode > WCDMA Only 설정"
+      source_phase: procedure
+      position: 5
+      total_segments: 32
+
+  - action: wait
+    duration: 10000
+    description: "WCDMA 망 접속 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "3G 접속 대기"
+      source_phase: procedure
+      position: 6
+      total_segments: 32
+
+  - action: verify_shell
+    command: "dumpsys telephony.registry | grep -o 'mDataNetworkType=[0-9]*' | head -1"
+    expected: "mDataNetworkType=3"
+    description: "WCDMA(3) 접속 확인 (3=UMTS/WCDMA)"
+    timeout: 15000
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    warnings:
+      - "네트워크 환경에 따라 접속까지 시간 소요 가능"
+    source_trace:
+      raw_segment: "WCDMA 접속 확인"
+      source_phase: expected
+      position: 7
+      total_segments: 32
+
+  - action: screenshot
+    name: "BUG5426_A01_wcdma_connected"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "WCDMA 접속 상태 스크린샷"
+      source_phase: procedure
+      position: 8
+      total_segments: 32
+
+  # --- A-2: Airplane Mode ON ---
+  - action: shell
+    command: "settings put global airplane_mode_on 1"
+    description: "비행기 모드 ON (settings DB)"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "Quick Settings > Airplane Mode ON"
+      source_phase: procedure
+      position: 9
+      total_segments: 32
+
+  - action: shell
+    command: "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true"
+    description: "비행기 모드 ON broadcast"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "Airplane Mode broadcast"
+      source_phase: procedure
+      position: 10
+      total_segments: 32
+
+  - action: wait
+    duration: 3000
+    description: "비행기 모드 적용 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "비행기 모드 적용 대기"
+      source_phase: procedure
+      position: 11
+      total_segments: 32
+
+  - action: verify_shell
+    command: "settings get global airplane_mode_on"
+    expected: "1"
+    description: "비행기 모드 ON 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "비행기 모드 상태 확인"
+      source_phase: expected
+      position: 12
+      total_segments: 32
+
+  # --- A-3: Preferred network 변경 (트리거 조건) ---
+  - action: shell
+    command: "settings put global preferred_network_mode1 9"
+    description: "비행기 모드 중 Preferred network -> LTE/WCDMA (값=9, 트리거 조건)"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "Engineer Mode > LTE/WCDMA 변경"
+      source_phase: procedure
+      position: 13
+      total_segments: 32
+
+  # --- A-4: QXDM 확인 후 리부팅 ---
+  - action: manual_pause
+    description: |
+      [QXDM 준비 확인 - 시나리오 A]
+      QXDM OTA 로그 캡처가 실행 중인지 확인하세요.
+      리부팅 후 QXDM이 재연결되면 OTA 메시지를 캡처합니다.
+      확인 후 [Continue]로 리부팅을 진행합니다.
+    manual_timeout: 60
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "QXDM 캡처 준비 확인"
+      source_phase: procedure
+      position: 14
+      total_segments: 32
+
+  - action: shell
+    command: "logcat -c && reboot"
+    description: "logcat 초기화 후 리부팅"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "Long Press Hold > Tap Restart"
+      source_phase: procedure
+      position: 15
+      total_segments: 32
+
+  # --- A-5: 리부팅 후 검증 ---
+  - action: wait
+    duration: 75000
+    description: "리부팅 완료 + ADB 재연결 + QXDM 재연결 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "리부팅 대기"
+      source_phase: procedure
+      position: 16
+      total_segments: 32
+
+  - action: screenshot
+    name: "BUG5426_A02_after_reboot"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "리부팅 후 상태 스크린샷"
+      source_phase: expected
+      position: 17
+      total_segments: 32
+
+  - action: verify_shell
+    command: "settings get global airplane_mode_on"
+    expected: "1"
+    description: "리부팅 후 비행기 모드 ON 유지 확인"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "Check Airplane mode is ON"
+      source_phase: expected
+      position: 18
+      total_segments: 32
+
+  # --- A-6: APN 비교 ---
+  - action: shell
+    command: "su 0 content query --uri content://telephony/carriers --projection _id:name:apn:type:numeric:carrier_enabled --where \"numeric='45008'\" > /data/local/tmp/apn_after_reboot.txt"
+    description: "리부팅 후 KT APN 목록 스냅샷 저장"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN snapshot (after reboot)"
+      source_phase: expected
+      position: 19
+      total_segments: 32
+
+  - action: verify_shell
+    command: "su 0 cat /data/local/tmp/apn_after_reboot.txt | wc -l"
+    expected: "5"
+    description: "리부팅 후 KT APN 개수 변화 없음 확인 (5개 유지)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN count 비교 (reboot)"
+      source_phase: expected
+      position: 20
+      total_segments: 32
+
+  - action: verify_shell
+    command: "su 0 diff /data/local/tmp/apn_before.txt /data/local/tmp/apn_after_reboot.txt && echo MATCH || echo DIFF_FOUND"
+    expected: "MATCH"
+    description: "APN 목록 diff 비교 - MATCH면 변화 없음"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN diff 비교 (reboot)"
+      source_phase: expected
+      position: 21
+      total_segments: 32
+
+  # --- A-7: RILJ 로그 보조 검증 ---
+  - action: shell
+    command: "logcat -d -s RILJ > /data/local/tmp/rilj_after_reboot.txt"
+    description: "리부팅 후 RILJ 로그 덤프"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "RILJ 로그 수집"
+      source_phase: expected
+      position: 22
+      total_segments: 32
+
+  - action: verify_shell
+    command: "grep -c 'RADIO_POWER on = true' /data/local/tmp/rilj_after_reboot.txt || echo 0"
+    expected: "0"
+    description: "비행기 모드 중 RADIO_POWER on=true 발생 횟수 (0이어야 정상)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "RADIO_POWER 검증"
+      source_phase: expected
+      position: 23
+      total_segments: 32
+
+  - action: verify_shell
+    command: "grep -c 'REG_HOME' /data/local/tmp/rilj_after_reboot.txt || echo 0"
+    expected: "0"
+    description: "비행기 모드 중 네트워크 등록(REG_HOME) 발생 횟수 (0이어야 정상)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "DATA_REGISTRATION_STATE 검증"
+      source_phase: expected
+      position: 24
+      total_segments: 32
+
+  # --- A-8: QXDM OTA 확인 (수동) ---
+  - action: manual_pause
+    description: |
+      [QXDM OTA 판정 - 시나리오 A: 리부팅]
+      === AT 명령 확인 (QXDM 터미널) ===
+      AT+CGDCONT? -> 반드시 4줄 유지 (CID 1~4)
+        CID1=(empty), CID2=IMS, CID3=sos, CID4=lte.ktfwing.com
+        5줄 이상이면 비정상 APN 추가 -> FAIL
+      AT+CGACT? -> 비행기 모드이므로 CID 1~4 모두 0이어야 정상
+        1이 하나라도 있으면 -> FAIL (모뎀 비정상 활성)
+      === OTA 메시지 확인 ===
+      1. 'LTE NAS EMM Plain OTA Outgoing Message' 존재 여부
+      2. 'WCDMA Signaling Messages' 존재 여부
+      3. 'GMM_ATTACH_ACCEPT' 존재 여부
+      [판정] 위 항목 중 하나라도 이상 -> FAIL / 모두 정상 -> PASS
+      [로그 저장] QXDM: File > Save As > .qmdl
+      판정 결과에 따라 [Continue] 또는 [Fail]
+    manual_timeout: 300
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "QXDM OTA 메시지 확인 (reboot)"
+      source_phase: expected
+      position: 25
+      total_segments: 32
+
+  # ============================================================
+  # 시나리오 B: 비행기모드 중 긴급호(118) 발신 후 APN 변화 확인
+  # ============================================================
+
+  # --- B-0: 비행기 모드 유지 상태에서 APN baseline 재취득 ---
+  - action: shell
+    command: "su 0 content query --uri content://telephony/carriers --projection _id:name:apn:type:numeric:carrier_enabled --where \"numeric='45008'\" > /data/local/tmp/apn_before_emcall.txt"
+    description: "긴급호 전 KT APN 스냅샷 저장 (비행기 모드 유지 중)"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN baseline (before emergency call)"
+      source_phase: procedure
+      position: 26
+      total_segments: 32
+
+  - action: shell
+    command: "logcat -c"
+    description: "긴급호 테스트 전 logcat 초기화"
+    execution_mode: SHELL_AUTO
+    step_role: SETUP
+    compile_status: OK
+    source_trace:
+      raw_segment: "logcat clear before emergency call"
+      source_phase: procedure
+      position: 27
+      total_segments: 32
+
+  # --- B-1: 긴급호 발신 (자동) ---
+  - action: shell
+    command: "su 0 am start -a android.intent.action.CALL_EMERGENCY -d tel:118"
+    description: "비행기 모드 중 긴급호 118 자동 발신"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "비행기 모드 중 긴급호 118 발신"
+      source_phase: procedure
+      position: 28
+      total_segments: 32
+
+  - action: wait
+    duration: 10000
+    description: "긴급호 통화 유지 (10초)"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "긴급호 통화 유지"
+      source_phase: procedure
+      position: 28
+      total_segments: 32
+
+  - action: verify_shell
+    command: "dumpsys telecom | grep -c 'isEmergency: true' || echo 0"
+    expected: "1"
+    description: "긴급호 통화 성립 확인 (isEmergency: true)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "긴급호 통화 상태 확인"
+      source_phase: expected
+      position: 28
+      total_segments: 32
+
+  - action: shell
+    command: "su 0 service call phone 5"
+    description: "긴급호 통화 종료 (endCall)"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "긴급호 통화 종료"
+      source_phase: procedure
+      position: 28
+      total_segments: 32
+
+  - action: wait
+    duration: 5000
+    description: "긴급호 종료 후 모뎀 상태 안정화 대기"
+    execution_mode: SHELL_AUTO
+    step_role: ACTION
+    compile_status: OK
+    source_trace:
+      raw_segment: "긴급호 후 대기"
+      source_phase: procedure
+      position: 29
+      total_segments: 32
+
+  # --- B-2: 긴급호 후 APN 비교 ---
+  - action: shell
+    command: "su 0 content query --uri content://telephony/carriers --projection _id:name:apn:type:numeric:carrier_enabled --where \"numeric='45008'\" > /data/local/tmp/apn_after_emcall.txt"
+    description: "긴급호 후 KT APN 목록 스냅샷 저장"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN snapshot (after emergency call)"
+      source_phase: expected
+      position: 30
+      total_segments: 32
+
+  - action: verify_shell
+    command: "su 0 diff /data/local/tmp/apn_before_emcall.txt /data/local/tmp/apn_after_emcall.txt && echo MATCH || echo DIFF_FOUND"
+    expected: "MATCH"
+    description: "긴급호 후 APN 변화 없음 확인 - DIFF_FOUND면 APN 증가 (버그)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN diff (emergency call)"
+      source_phase: expected
+      position: 31
+      total_segments: 32
+
+  - action: verify_shell
+    command: "su 0 cat /data/local/tmp/apn_after_emcall.txt | wc -l"
+    expected: "5"
+    description: "긴급호 후 KT APN 5개 유지 확인 (증가 시 버그)"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "APN count (after emergency call)"
+      source_phase: expected
+      position: 32
+      total_segments: 32
+
+  # --- B-3: RILJ 로그 검증 (긴급호) ---
+  - action: shell
+    command: "logcat -d -s RILJ > /data/local/tmp/rilj_after_emcall.txt"
+    description: "긴급호 후 RILJ 로그 덤프"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "RILJ 로그 수집 (emergency call)"
+      source_phase: expected
+      position: 32
+      total_segments: 32
+
+  - action: verify_shell
+    command: "grep -c 'REG_HOME' /data/local/tmp/rilj_after_emcall.txt || echo 0"
+    expected: "0"
+    description: "긴급호 종료 후 비행기 모드 복귀 확인 - REG_HOME 0이어야 정상"
+    execution_mode: SHELL_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "긴급호 후 네트워크 복귀 검증"
+      source_phase: expected
+      position: 32
+      total_segments: 32
+
+  - action: screenshot
+    name: "BUG5426_B01_after_emcall"
+    execution_mode: UI_AUTO
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "긴급호 후 상태 스크린샷"
+      source_phase: expected
+      position: 32
+      total_segments: 32
+
+  # --- B-4: QXDM OTA 확인 (긴급호) ---
+  - action: manual_pause
+    description: |
+      [QXDM OTA 판정 - 시나리오 B: 긴급호]
+      === AT 명령 확인 (QXDM 터미널) ===
+      AT+CGDCONT? -> 반드시 4줄 유지 (CID 1~4)
+        5줄 이상이면 긴급호로 인한 비정상 APN 추가 -> FAIL
+      AT+CGACT? -> 긴급호 종료 후 CID 1~4 모두 0이어야 정상
+        CID3(sos)=1 잔존 -> 긴급호 미해제 -> FAIL
+        CID1 또는 CID4=1 -> 비행기 모드 위반 -> FAIL
+      === OTA 메시지 확인 ===
+      1. 긴급호 종료 후 'LTE NAS EMM Plain OTA Outgoing Message' 존재 여부
+      2. 긴급호 종료 후에도 WCDMA/LTE 네트워크 접속 유지 여부
+      3. 비행기 모드로 정상 복귀(modem LOW_POWER) 여부
+      [판정]
+      - AT 이상 또는 긴급호 종료 후 네트워크 접속 유지 -> FAIL
+      - CGDCONT 4줄 유지 + CGACT 모두 0 + LOW_POWER 복귀 -> PASS
+      [로그 저장] QXDM: File > Save As > .qmdl
+    manual_timeout: 300
+    on_timeout: fail
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: OK
+    source_trace:
+      raw_segment: "QXDM OTA 메시지 확인 (emergency call)"
+      source_phase: expected
+      position: 32
+      total_segments: 32
+
+  # ============================================================
+  # Phase 7: Teardown (상태 복구)
+  # ============================================================
+  - action: shell
+    command: "settings put global airplane_mode_on 0"
+    description: "비행기 모드 OFF 복구"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace:
+      raw_segment: "비행기 모드 복구"
+      source_phase: procedure
+      position: 32
+      total_segments: 32
+
+  - action: shell
+    command: "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false"
+    description: "비행기 모드 OFF broadcast"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace:
+      raw_segment: "Airplane OFF broadcast"
+      source_phase: procedure
+      position: 32
+      total_segments: 32
+
+  - action: wait
+    duration: 10000
+    description: "네트워크 복구 대기"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace:
+      raw_segment: "네트워크 복구 대기"
+      source_phase: procedure
+      position: 32
+      total_segments: 32
+
+  - action: shell
+    command: "su 0 rm -f /data/local/tmp/apn_before.txt /data/local/tmp/apn_after_reboot.txt /data/local/tmp/apn_before_emcall.txt /data/local/tmp/apn_after_emcall.txt /data/local/tmp/rilj_after_reboot.txt /data/local/tmp/rilj_after_emcall.txt"
+    description: "임시 파일 정리"
+    execution_mode: SHELL_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace:
+      raw_segment: "임시 파일 정리"
+      source_phase: procedure
+      position: 32
+      total_segments: 32
+
+  - action: screenshot
+    name: "BUG5426_99_restored"
+    execution_mode: UI_AUTO
+    step_role: TEARDOWN
+    compile_status: OK
+    source_trace:
+      raw_segment: "복구 상태 스크린샷"
+      source_phase: procedure
+      position: 32
+      total_segments: 32

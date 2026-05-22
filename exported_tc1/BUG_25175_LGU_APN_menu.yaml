@@ -1,0 +1,388 @@
+tc_name: "BUG_25175_LGU_APN_menu"
+description: |
+  [BUG-25175] THOR2 LGU+ APN 메뉴 구성 MR 이슈 검증.
+  LGU+ USIM 삽입 시 APN 메뉴 제한(Internet만 표시, 추가/수정 불가),
+  엔지니어 모드에서 전체 APN 표시 및 수정 가능,
+  타사 USIM(SKT/KT) 시 기존 메뉴 유지 확인.
+
+metadata:
+  source: "BUG-25175 [THOR2][LGU+] apn menu configuration (MR issue)"
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: "PHYSICAL_ACTION"
+  has_manual_steps: true
+  has_shell_actions: true
+  has_unresolved_params: false
+  warnings:
+    - "LGU+ USIM, SKT USIM, KT USIM 3종 필요"
+    - "엔지니어 모드 코드: *#*#3646633#*#*"
+    - "Phase 3 타사 USIM 교체 시 수동 개입 필요"
+
+preconditions:
+  - "단말: AT-M140 (THOR2)"
+  - "수정 빌드 플래싱 완료"
+  - "LGU+ USIM (numeric=45006) 삽입 상태로 시작"
+  - "USB 케이블 연결, ADB 사용 가능"
+
+steps:
+  # ============================================================
+  # Phase 0: 사전 확인
+  # ============================================================
+  - action: verify_shell
+    command: "getprop ro.product.model"
+    expected: "AT-M140"
+    description: "단말 모델 확인"
+
+  - action: verify_shell
+    command: "getprop gsm.sim.state"
+    expected: "LOADED"
+    description: "SIM 로드 확인"
+
+  - action: verify_shell
+    command: "getprop gsm.sim.operator.numeric"
+    expected: "45006"
+    description: "LGU+ USIM (45006) 확인"
+
+  - action: screenshot
+    name: "BUG25175_00_precondition"
+
+  # ============================================================
+  # Phase 1: 기본 요구사항 검증 (LGU+ USIM)
+  # ============================================================
+
+  # --- T-01: Internet APN만 표시 ---
+  - action: shell
+    command: "am start -a android.settings.APN_SETTINGS"
+    description: "APN 설정 화면 열기"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "BUG25175_T01_apn_list"
+
+  # --- T-01/T-04: DB에는 4개 존재하지만 UI는 1개만 표시 ---
+  - action: verify_shell
+    command: "su 0 content query --uri content://telephony/carriers --where \"numeric='45006'\" --projection name:type | wc -l"
+    expected: "4"
+    description: "DB에 APN 4개 존재 확인 (LGU, LGU IA, LGU IMS, LGU Tethering)"
+
+  # --- T-05: APN 값 정확성 ---
+  - action: verify_shell
+    command: "su 0 content query --uri content://telephony/carriers --where \"numeric='45006' AND name='LGU'\" --projection apn"
+    expected: "internet.lguplus.co.kr"
+    description: "T-05: Internet APN 주소 정확성"
+
+  # --- T-01~04: UI 확인 ---
+  - action: manual_pause
+    description: |
+      [Phase 1 UI 확인] APN 설정 화면 스크린샷을 확인하세요:
+      T-01: LGU만 표시되는가? (IA/IMS/Tethering 숨김)
+      T-02: + (추가) 버튼이 없는가?
+      확인 후 [Continue]
+    manual_timeout: 60
+    on_timeout: fail
+
+  # --- T-03: Internet APN 수정 불가 ---
+  - action: tap_xy
+    x: 240
+    y: 158
+    description: "LGU APN 항목 탭"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "BUG25175_T03_tap_apn"
+  - action: manual_pause
+    description: |
+      [T-03 확인] LGU APN 탭 결과:
+      "변경할 수 없는 APN입니다." 토스트가 표시되었는가?
+      편집 화면으로 진입하지 않았는가?
+      확인 후 [Continue]
+    manual_timeout: 30
+    on_timeout: fail
+
+  - action: key
+    key: "KEYCODE_BACK"
+
+  # ============================================================
+  # Phase 2: 엔지니어 모드 검증
+  # ============================================================
+
+  # --- T-06: 엔지니어 모드 진입 ---
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 1000
+  - action: manual_pause
+    description: |
+      [T-06] 다이얼러에서 *#*#3646633#*#* 을 입력하세요.
+      EngineerMode 화면이 표시되면 [Continue]
+    manual_timeout: 60
+    on_timeout: fail
+
+  - action: screenshot
+    name: "BUG25175_T06_engineer_mode"
+
+  # --- T-07~T-10: APN Settings ---
+  - action: manual_pause
+    description: |
+      [T-07~T-10] EngineerMode > Telephony 탭에서 스크롤하여
+      "APN Settings" 메뉴를 찾고 탭하세요. 그리고 확인:
+      T-08: LGU, LGU IA, LGU IMS, LGU Tethering 4개 모두 표시?
+      T-09: + (추가) 버튼이 있는가?
+      T-10: LGU 항목 탭 시 편집 화면 진입 가능한가?
+      확인 후 [Continue]
+    manual_timeout: 90
+    on_timeout: fail
+
+  - action: screenshot
+    name: "BUG25175_T08_eng_apn_list"
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 500
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 500
+  - action: key
+    key: "KEYCODE_BACK"
+
+  # ============================================================
+  # Phase 3: 타사 USIM 교차 검증
+  # ============================================================
+
+  # --- T-11: SKT USIM ---
+  - action: manual_pause
+    description: |
+      [T-11] SKT USIM으로 교체하세요.
+      단말이 SKT 네트워크를 인식하면 [Continue]
+    manual_timeout: 120
+    on_timeout: fail
+
+  - action: verify_shell
+    command: "getprop gsm.sim.operator.numeric"
+    expected: "45005"
+    description: "SKT USIM (45005) 확인"
+
+  - action: shell
+    command: "am start -a android.settings.APN_SETTINGS"
+    description: "SKT APN 설정 화면 열기"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "BUG25175_T11_skt_apn"
+
+  - action: manual_pause
+    description: |
+      [T-11 확인] SKT APN 화면:
+      - SK Telecom (lte.sktelecom.com) 표시되는가?
+      - + (추가) 버튼이 있는가?
+      - APN 탭 시 편집 가능한가?
+      확인 후 [Continue]
+    manual_timeout: 60
+    on_timeout: fail
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 500
+  - action: key
+    key: "KEYCODE_BACK"
+
+  # --- T-13 (SKT): 엔지니어 모드 확인 ---
+  - action: manual_pause
+    description: |
+      [T-13 SKT] 다이얼러에서 *#*#3646633#*#* 입력 후
+      APN Settings 진입하여 SKT APN 메뉴가 정상인지 확인하세요.
+      LGU+ 제한이 적용되지 않았으면 [Continue]
+    manual_timeout: 90
+    on_timeout: fail
+
+  - action: screenshot
+    name: "BUG25175_T13_skt_eng_apn"
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 500
+  - action: key
+    key: "KEYCODE_BACK"
+
+  # --- T-12: KT USIM ---
+  - action: manual_pause
+    description: |
+      [T-12] KT USIM으로 교체하세요.
+      단말이 KT 네트워크를 인식하면 [Continue]
+    manual_timeout: 120
+    on_timeout: fail
+
+  - action: verify_shell
+    command: "getprop gsm.sim.operator.numeric"
+    expected: "45008"
+    description: "KT USIM (45008) 확인"
+
+  - action: shell
+    command: "am start -a android.settings.APN_SETTINGS"
+    description: "KT APN 설정 화면 열기"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "BUG25175_T12_kt_apn"
+
+  - action: manual_pause
+    description: |
+      [T-12 확인] KT APN 화면:
+      - KT, KT IMS, KT IMSFW 표시되는가?
+      - + (추가) 버튼이 있는가?
+      확인 후 [Continue]
+    manual_timeout: 60
+    on_timeout: fail
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 500
+  - action: key
+    key: "KEYCODE_BACK"
+
+  # --- T-13 (KT): 엔지니어 모드 확인 ---
+  - action: manual_pause
+    description: |
+      [T-13 KT] 다이얼러에서 *#*#3646633#*#* 입력 후
+      APN Settings 진입하여 KT APN 메뉴가 정상인지 확인하세요.
+      LGU+ 제한이 적용되지 않았으면 [Continue]
+    manual_timeout: 90
+    on_timeout: fail
+
+  - action: screenshot
+    name: "BUG25175_T13_kt_eng_apn"
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 500
+  - action: key
+    key: "KEYCODE_BACK"
+
+  # ============================================================
+  # Phase 4: 엣지 케이스 (LGU+ USIM 복원)
+  # ============================================================
+
+  # --- T-14/T-15: USIM 교체 (KT -> LGU+) ---
+  - action: manual_pause
+    description: |
+      [T-14/T-15] LGU+ USIM으로 다시 교체하세요.
+      단말이 LG U+ 네트워크를 인식하면 [Continue]
+    manual_timeout: 120
+    on_timeout: fail
+
+  - action: verify_shell
+    command: "getprop gsm.sim.operator.numeric"
+    expected: "45006"
+    description: "LGU+ USIM (45006) 복원 확인"
+
+  # --- T-19: 비행기 모드 ON/OFF 후 APN ---
+  - action: shell
+    command: "settings put global airplane_mode_on 1"
+  - action: shell
+    command: "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true"
+  - action: wait
+    duration: 3000
+
+  - action: shell
+    command: "am start -a android.settings.APN_SETTINGS"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "BUG25175_T19_airplane_apn"
+
+  - action: manual_pause
+    description: |
+      [T-19 확인] 비행기 모드 상태에서 APN 화면:
+      LGU만 표시되고 + 버튼 없는 상태 유지되는가?
+      확인 후 [Continue]
+    manual_timeout: 30
+    on_timeout: fail
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 1000
+
+  # 비행기 모드 OFF 복원
+  - action: shell
+    command: "settings put global airplane_mode_on 0"
+  - action: shell
+    command: "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false"
+  - action: wait
+    duration: 5000
+
+  # --- T-18: APN 기본값 초기화 ---
+  - action: shell
+    command: "am start -a android.settings.APN_SETTINGS"
+  - action: wait
+    duration: 2000
+
+  - action: manual_pause
+    description: |
+      [T-18] APN 화면 우측 상단 ⋮ > 초기화 를 탭하세요.
+      "기본 APN 설정을 초기화했습니다." 메시지 확인 후 [Continue]
+    manual_timeout: 60
+    on_timeout: fail
+
+  - action: screenshot
+    name: "BUG25175_T18_reset"
+
+  - action: key
+    key: "KEYCODE_BACK"
+  - action: wait
+    duration: 1000
+
+  # --- T-20: 재부팅 후 APN ---
+  - action: shell
+    command: "reboot"
+    description: "단말 재부팅"
+  - action: wait
+    duration: 60000
+
+  - action: verify_shell
+    command: "getprop sys.boot_completed"
+    expected: "1"
+    description: "부팅 완료 대기"
+
+  - action: wait
+    duration: 10000
+
+  - action: shell
+    command: "input keyevent KEYCODE_WAKEUP"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "input swipe 240 600 240 200"
+  - action: wait
+    duration: 2000
+
+  - action: verify_shell
+    command: "getprop gsm.sim.operator.numeric"
+    expected: "45006"
+    description: "재부팅 후 LGU+ USIM 인식 확인"
+
+  - action: shell
+    command: "am start -a android.settings.APN_SETTINGS"
+    description: "재부팅 후 APN 설정 열기"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "BUG25175_T20_reboot_apn"
+
+  - action: manual_pause
+    description: |
+      [T-20 확인] 재부팅 후 APN 화면:
+      LGU만 표시되고 + 버튼 없는 상태 유지되는가?
+      확인 후 [Continue]
+    manual_timeout: 30
+    on_timeout: fail
+
+  - action: key
+    key: "KEYCODE_HOME"
