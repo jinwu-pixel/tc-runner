@@ -1,0 +1,112 @@
+version: 1
+
+device_identity:
+  device_id: "B06201249E00030C"
+  adb_serial: "B06201249E00030C"
+  manufacturer: "ALT"
+  brand: "ALT"
+  model: "AT-M140"
+  product_name: "alt_thor2"
+  device_name: "thor2"
+  build_fingerprint: "ALT/alt_thor2/thor2:14/UP1A.231005.007/MY01250600:userdebug/release-keys"
+
+software_baseline:
+  android_version: "14"
+  sdk_int: 34
+  security_patch: "2026-03-05"
+  build_id: "UP1A.231005.007"
+  build_incremental: "MY01250600"
+  locale: "ko-KR"
+  language: "ko"
+  timezone: "Asia/Seoul"
+
+display_profile:
+  resolution_px:
+    width: 480
+    height: 800
+  density_dpi: 220
+  orientation_default: portrait
+  font_scale: 1.0
+  display_size: null
+
+input_profile:
+  primary_input_method: "com.alt.folderkeyboard/.service.KeyboardService"
+  navigation_mode: 3button   # navigation_mode=0 → 3-button
+  physical_keyboard: false
+
+ui_profile:
+  settings_language: "ko-KR"
+  settings_labels:
+    wifi: null                # 수동 확인 필요
+    bluetooth: null           # 수동 확인 필요
+    display: null             # 수동 확인 필요
+    sound: null               # 수동 확인 필요
+    battery: null             # 수동 확인 필요
+    apps: null                # 수동 확인 필요
+  known_ui_variants:
+    permission_dialog_style: null    # 수동 확인 필요
+    quick_settings_style: null       # 수동 확인 필요
+    lockscreen_style: null           # 수동 확인 필요
+
+package_registry:
+  settings: "com.android.settings"
+  phone: "com.skt.prod.dialer"
+  messages: "com.android.mms"
+  camera: "com.hnlens.camera"
+  seniorshield: "com.example.seniorshield"
+
+activity_hints:
+  settings_main: "com.android.settings/.homepage.SettingsHomepageActivity"
+  app_details_settings_intent: "android.settings.APPLICATION_DETAILS_SETTINGS"
+  phone_main: "com.skt.prod.dialer/.activities.main.MainActivity"
+  camera_main: "com.hnlens.camera/com.mediatek.camera.CameraLauncher"
+  messages_main: "com.android.mms/.ui.ConversationList"
+  seniorshield_main: "com.example.seniorshield/.MainActivity"
+
+permission_aliases:
+  camera: "android.permission.CAMERA"
+  location: "android.permission.ACCESS_FINE_LOCATION"
+  phone_state: "android.permission.READ_PHONE_STATE"
+  microphone: "android.permission.RECORD_AUDIO"
+  notifications: "android.permission.POST_NOTIFICATIONS"
+
+shell_capabilities:
+  adb_shell_available: true
+  am_start_available: true
+  am_force_stop_available: true
+  pm_grant_available: true
+  pm_revoke_available: true
+  logcat_clear_available: true
+  settings_intent_available: true
+
+environment_constraints:
+  multi_device_supported: false
+  external_call_generation_supported: false
+  physical_button_automation_supported: false
+  audio_quality_auto_judgement_supported: false
+  video_quality_auto_judgement_supported: false
+  fota_end_to_end_supported: false
+
+known_constraints:
+  - "userdebug 빌드, root 아님"
+  - "해상도 480x800 (저해상도) — tap_xy 좌표 단말별 차이 주의"
+  - "홈 런처: com.hnlens.simplemode (커스텀)"
+  - "전화 앱: com.skt.prod.dialer (SKT 커스텀, AOSP dialer 별도 존재)"
+  - "카메라 앱: com.hnlens.camera (MediaTek 기반 커스텀)"
+  - "외부 발신/수신 자동 생성 불가 — 보조폰 필요"
+
+compile_preferences:
+  prefer_shell_over_ui_for_settings: true
+  prefer_verify_shell_over_verify_text: true
+  allow_manual_pause_insertion: true
+  default_manual_timeout_sec: 300
+  fail_on_unresolved_params: true
+
+source_info:
+  created_by: "claude-code (ADB 자동 수집)"
+  created_at: "2026-04-06"
+  updated_at: "2026-04-06"
+  notes: |
+    AT-M140 (ALT thor2) 실기 기준.
+    ui_profile.settings_labels 및 known_ui_variants는 수동 확인 필요.
+    pm grant/revoke는 권한 종류 및 앱 targetSdkVersion에 따라 제한 가능.

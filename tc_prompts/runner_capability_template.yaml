@@ -1,0 +1,41 @@
+# ============================================================
+# runner_capability.yaml — tc-runner 실행 환경 프로필
+# ============================================================
+# 러너 버전이 바뀌거나 기능이 추가되면 이 파일을 갱신합니다.
+# ============================================================
+
+runner_version: "1.2.0"
+
+supported_actions:
+  - tap_text
+  - tap_id
+  - tap_xy
+  - key
+  - shell
+  - input_text
+  - swipe
+  - wait
+  - screenshot
+  - manual_pause
+  - verify_text
+  - verify_shell
+  - verify_gone
+
+multi_device: false
+max_manual_timeout: 600
+
+shell_action_map_version: "1.0"
+shell_actions_available:
+  - launch_app
+  - force_stop
+  - grant_permission
+  - revoke_permission
+  - clear_logcat
+  - open_settings
+
+# 향후 추가 예정 (현재 미지원)
+# shell_actions_planned:
+#   - input_text       # adb shell input text
+#   - broadcast        # adb shell am broadcast
+#   - toggle_wifi      # svc wifi enable/disable
+#   - toggle_airplane  # settings put global airplane_mode_on

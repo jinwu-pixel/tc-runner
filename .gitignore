@@ -24,3 +24,27 @@ screenshot_*.png
 logs/
 logs_apn/
 output/
+
+# A. STAGE pipeline / TC conversion outputs (regenerable from STAGE1/STAGE2)
+stage1_output/
+stage2_output/
+tc1_converted/
+exported_tc1/_autoconverted/
+
+# B. doc/ raw device evidence dumps (keep-carry locally, not tracked)
+doc/01/
+doc/01.zip
+doc/debuglogger/
+doc/devices_log/
+doc/case2/
+doc/BUG19587_logs/
+doc/BUG25796_Mobile_Data_sync_issue/ls_log/
+doc/**/*.qmdl
+doc/**/*.qdb
+doc/**/*.muxz
+doc/**/*.mp4
+doc/**/*.apk
+doc/**/*.7z
+doc/**/*.pcap
+doc/**/*.nma.gz
+doc/**/*.mbn

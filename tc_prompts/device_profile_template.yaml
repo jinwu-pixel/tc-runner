@@ -1,0 +1,93 @@
+# ============================================================
+# device_profile.yaml — 대상 단말 프로필 템플릿
+# ============================================================
+# 단말별로 하나씩 만들어 2단계 컴파일 시 입력으로 제공합니다.
+# 실제 단말에서 아래 명령으로 값을 채울 수 있습니다:
+#   adb shell getprop ro.product.model
+#   adb shell getprop ro.build.version.release
+#   adb shell pm list packages -3
+#   adb shell dumpsys package <pkg> | grep -A1 "android.intent.action.MAIN"
+# ============================================================
+
+device_model: "SM-S926N"
+android_version: "15"
+one_ui_version: "7.0"
+build_id: "AP3A.240905.003"
+carrier: "SKT"
+locale: "ko-KR"
+shell_root_available: false
+
+installed_packages:
+  # ── 기본 앱 ──
+  - package: "com.samsung.android.dialer"
+    label: "전화"
+    main_activity: ".DialtactsActivity"
+
+  - package: "com.samsung.android.messaging"
+    label: "메시지"
+    main_activity: ".ui.view.main.MainListActivity"
+
+  - package: "com.sec.android.app.camera"
+    label: "카메라"
+    main_activity: ".Camera"
+
+  - package: "com.android.settings"
+    label: "설정"
+    main_activity: ".Settings"
+
+  # ── 서드파티 앱 ──
+  - package: "com.kakao.talk"
+    label: "카카오톡"
+    main_activity: ".activity.main.MainActivity"
+
+  - package: "com.google.android.youtube"
+    label: "유튜브"
+    main_activity: ".HomeActivity"
+
+  - package: "com.nhn.android.nmap"
+    label: "네이버 지도"
+    main_activity: null
+
+  - package: "com.samsung.android.app.galaxyfinder"
+    label: "갤럭시 스토어"
+    main_activity: null
+
+  - package: "com.android.chrome"
+    label: "크롬"
+    main_activity: "com.google.android.apps.chrome.Main"
+
+available_settings_intents:
+  - label: "Wi-Fi"
+    action: "android.settings.WIFI_SETTINGS"
+  - label: "블루투스"
+    action: "android.settings.BLUETOOTH_SETTINGS"
+  - label: "디스플레이"
+    action: "android.settings.DISPLAY_SETTINGS"
+  - label: "소리"
+    action: "android.settings.SOUND_SETTINGS"
+  - label: "배터리"
+    action: "android.intent.action.POWER_USAGE_SUMMARY"
+  - label: "앱"
+    action: "android.settings.APPLICATION_SETTINGS"
+  - label: "휴대전화 정보"
+    action: "android.settings.DEVICE_INFO_SETTINGS"
+  - label: "네트워크"
+    action: "android.settings.WIRELESS_SETTINGS"
+  - label: "위치"
+    action: "android.settings.LOCATION_SOURCE_SETTINGS"
+
+known_permissions:
+  - label: "카메라 권한"
+    permission: "android.permission.CAMERA"
+  - label: "위치 권한"
+    permission: "android.permission.ACCESS_FINE_LOCATION"
+  - label: "마이크 권한"
+    permission: "android.permission.RECORD_AUDIO"
+  - label: "저장소 권한"
+    permission: "android.permission.READ_EXTERNAL_STORAGE"
+  - label: "연락처 권한"
+    permission: "android.permission.READ_CONTACTS"
+  - label: "전화 권한"
+    permission: "android.permission.CALL_PHONE"
+  - label: "SMS 권한"
+    permission: "android.permission.SEND_SMS"
