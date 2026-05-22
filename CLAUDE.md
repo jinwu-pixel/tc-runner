@@ -430,6 +430,7 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 |---|---|---|---|---|
 | 2026-05-21 | §1~§8 신설 | 보강 후보 10건 통합 | 전 섹션 | applied |
 | 2026-05-21 | 분량 가드 | 1차 작성 결과 447 lines · spec 가드 250~350 lines 대비 초과 | §8.4 archive 정책 가동 검토 | applied |
+| 2026-05-22 | §2.3/§7.2 drift | push-audit가 catalog(append-only 누적상태)를 generated류 재생성물로 오분류 → staging FAIL ↔ §2.4/§5.6 핵심가치 충돌. catalog 재분류(audit FORBIDDEN 제거 + PR6C drift baseline test 동기) + Music/gallery catalog track (commit `0b817db`) | tools/git_safe_push_audit.py · test baseline (CLAUDE.md 본문 무변경 — §5.6 이미 정합) | applied |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
