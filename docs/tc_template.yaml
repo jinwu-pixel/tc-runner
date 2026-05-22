@@ -1,0 +1,224 @@
+# ============================================================
+# TC 템플릿 — 이 파일을 복사하여 TC를 작성하세요
+# 용도에 맞는 패턴을 선택하고 나머지는 삭제하세요
+# ============================================================
+
+
+# ============================================================
+# 패턴 A: 체크리스트형 (Wi-Fi, MMI, 기본기능 OK/NG)
+# ============================================================
+# name: "CHK_XX_항목명"
+# description: "확인 항목 요약"
+# metadata:
+#   source: "ODIN Wi-Fi TC / 항목 N"
+#   priority: "중요"
+# steps:
+#   - action: shell
+#     command: "설정 변경 명령"
+#   - action: wait
+#     seconds: 3
+#   - action: verify_shell
+#     command: "상태 확인 명령 || echo NOT_FOUND"
+#     expected: "기대값"
+#   - action: screenshot
+#     name: "CHK_XX_01_결과"
+
+
+# ============================================================
+# 패턴 B: 절차형 (사전조건 → 절차 → 기대결과)
+# ============================================================
+# name: "FUNC_XX_기능명"
+# description: "사전조건에서 절차 수행 후 기대결과 확인"
+# metadata:
+#   source: "ODIN 스팸 차단 TC / 항목 N"
+#   priority: "필수"
+# steps:
+#   # --- Pre-condition ---
+#   - action: shell
+#     command: "am start -n 패키지/.Activity"
+#   - action: wait
+#     seconds: 3
+#   - action: screenshot
+#     name: "FUNC_XX_01_precondition"
+#
+#   # --- Test procedure ---
+#   - action: tap_text
+#     text: "메뉴 항목"
+#   - action: wait
+#     seconds: 2
+#   # 자동화 불가능한 절차는 manual_pause 사용
+#   # - action: manual_pause
+#   #   execution_mode: MANUAL_REQUIRED
+#   #   description: "수행할 절차를 구체적으로 작성"
+#   #   manual_timeout: 120
+#
+#   # --- Expected result ---
+#   - action: verify_text
+#     text: "기대 결과 텍스트"
+#   - action: screenshot
+#     name: "FUNC_XX_02_result"
+
+
+# ============================================================
+# 패턴 C: 수동 이벤트 (전화, SMS 등)
+# ============================================================
+# name: "TC-XX_테스트명"
+# description: "조건 → 기대결과"
+# metadata:
+#   source: "출처"
+#   priority: "필수"
+# steps:
+#   # --- Setup ---
+#   - action: shell
+#     command: "am force-stop 패키지"
+#   - action: wait
+#     seconds: 1
+#   - action: shell
+#     command: "pm grant 패키지 android.permission.권한"
+#   - action: shell
+#     command: "logcat -c"
+#   - action: shell
+#     command: "am start -n 패키지/.Activity"
+#   - action: wait
+#     seconds: 3
+#   - action: verify_text
+#     text: "메인 화면 제목"
+#   - action: screenshot
+#     name: "TCXX_01_before"
+#
+#   # --- 수동 작업 ---
+#   - action: manual_pause
+#     execution_mode: EXTERNAL_EVENT
+#     description: "수행할 작업. 예: 보조폰으로 전화를 걸어주세요."
+#     manual_timeout: 120
+#   - action: wait
+#     seconds: 5
+#
+#   # --- 검증 ---
+#   - action: shell
+#     command: "am start -n 패키지/.Activity"
+#   - action: wait
+#     seconds: 3
+#   - action: verify_text
+#     text: "기대 결과"
+#   - action: screenshot
+#     name: "TCXX_02_after"
+
+
+# ============================================================
+# 패턴 D: 메뉴트리 탐색
+# ============================================================
+# name: "MENU_기능명_하위메뉴"
+# description: "기능명 메뉴트리 전수 확인"
+# metadata:
+#   source: "ODIN MENU TREE (TC3) / 기능명"
+#   priority: "중요"
+# steps:
+#   # --- DEPTH 1 ---
+#   - action: shell
+#     command: "am start -a android.settings.SETTINGS"
+#   - action: wait
+#     seconds: 3
+#   - action: screenshot
+#     name: "MENU_01_depth1"
+#
+#   # --- DEPTH 2 ---
+#   - action: tap_text
+#     text: "하위 메뉴"
+#   - action: wait
+#     seconds: 2
+#   - action: screenshot
+#     name: "MENU_02_depth2"
+#
+#   # --- DEPTH 3 ---
+#   - action: tap_text
+#     text: "세부 항목"
+#   - action: wait
+#     seconds: 2
+#   - action: screenshot
+#     name: "MENU_03_depth3"
+#   - action: key
+#     keycode: BACK
+#   - action: wait
+#     seconds: 1
+#
+#   # --- 복귀 ---
+#   - action: key
+#     keycode: HOME
+
+
+# ============================================================
+# 패턴 E: 매트릭스/조합 (파일을 조건별로 분리)
+# ============================================================
+# name: "CALL_발신사업자_to_수신사업자"
+# description: "발신 → 수신 음성통화 N회 + long call"
+# metadata:
+#   source: "사업자간 Call Test / 행 N"
+#   priority: "필수"
+# steps:
+#   - action: screenshot
+#     name: "CALL_XX_01_before"
+#   - action: manual_pause
+#     execution_mode: EXTERNAL_EVENT
+#     description: |
+#       통화 테스트:
+#       1) N회 착/발신
+#       2) 1회 long call (1분 이상)
+#       통화 품질, 끊김, 천이 여부 확인
+#     manual_timeout: 600
+#   - action: screenshot
+#     name: "CALL_XX_02_after"
+
+
+# ============================================================
+# 패턴 F: 권한/상태 변경 (cleanup을 verify 앞에!)
+# ============================================================
+# name: "PERM_XX_테스트명"
+# description: "권한 상태 변경 후 동작 확인"
+# steps:
+#   # --- Setup: 상태 변경 ---
+#   - action: shell
+#     command: "am force-stop 패키지"
+#   - action: wait
+#     seconds: 1
+#   - action: shell
+#     command: "pm revoke 패키지 android.permission.권한"
+#   - action: shell
+#     command: "am start -n 패키지/.Activity"
+#   - action: wait
+#     seconds: 3
+#
+#   # --- Cleanup 먼저! ---
+#   - action: shell
+#     command: "pm grant 패키지 android.permission.권한"
+#
+#   # --- 검증 ---
+#   - action: verify_text
+#     text: "정상 화면 텍스트"
+#   - action: verify_shell
+#     command: "logcat -d | grep 'FATAL' || echo NO_CRASH"
+#     expected: "NO_CRASH"
+
+
+# ============================================================
+# 패턴 G: 증거 수집 + 수동 판정 (음질, UI 품질 등)
+# ============================================================
+# name: "MAN_XX_확인항목"
+# description: "자동 판정 불가 항목 — 스크린샷 수집 후 수동 판정"
+# metadata:
+#   source: "출처"
+#   priority: "중요"
+# steps:
+#   - action: screenshot
+#     name: "MAN_XX_01_before"
+#   - action: manual_pause
+#     execution_mode: MANUAL_REQUIRED
+#     description: |
+#       확인 항목:
+#       1) 첫 번째 확인사항
+#       2) 두 번째 확인사항
+#       3) 세 번째 확인사항
+#       모든 항목 확인 후 정상이면 [c], 이슈 있으면 [f]
+#     manual_timeout: 300
+#   - action: screenshot
+#     name: "MAN_XX_02_after"
