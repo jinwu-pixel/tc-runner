@@ -44,9 +44,11 @@ FORBIDDEN_DIRECTORY_PREFIXES: Tuple[str, ...] = (
     "reports/",
 )
 
-FORBIDDEN_DIRECTORY_NAMES: Tuple[str, ...] = (
-    "catalog",
-)
+# catalog/ intentionally NOT forbidden: it is append-only accumulation state
+# (src/catalog.py — observed_count / first_seen / visit log), tracked as
+# learning data per CLAUDE.md §2.4/§5.6. It is NOT a regenerable artifact like
+# generated/ or reports/, so staging it to master is allowed. (2026-05-22 drift fix)
+FORBIDDEN_DIRECTORY_NAMES: Tuple[str, ...] = ()
 
 NOTE_READ_ONLY = "READ-ONLY git audit only — does not validate TC content"
 

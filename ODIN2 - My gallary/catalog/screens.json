@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "tool_version": "pr3-catalog-v1",
+  "app_dir": "ODIN2 - My gallary",
+  "target_package": "com.example.mygalleryapp",
+  "generated_at": "2026-04-29T05:47:20Z",
+  "screens": {
+    "0fd344b3500d4e9b642f2dd01a918f408cfe9f6ec6ad79991c280ed2e70d11cd": {
+      "screen_id": "0fd344b3500d4e9b642f2dd01a918f408cfe9f6ec6ad79991c280ed2e70d11cd",
+      "screen_kind": "lockscreen_or_non_target",
+      "current_activity": null,
+      "xml_sha256": "2e75f9bdcd07e2fbb96b4a0716fc61ca12db668b313984432c5762ba79c8c80c",
+      "observed_count": 1,
+      "first_seen": "2026-04-29T05:32:22Z",
+      "last_seen": "2026-04-29T05:32:22Z",
+      "visible_texts": [
+        "12:04",
+        "4월 29일 (수)",
+        "충전됨",
+        "USIM 카드가 인식되지 않았습니다. 카드 장착 후 재부팅해 주세요. 긴급 통화는 가능합니다."
+      ]
+    },
+    "9318058385abe9d9c1fcc20ba81134d3c9abb99c918f4919ec1d54b93213dbb9": {
+      "screen_id": "9318058385abe9d9c1fcc20ba81134d3c9abb99c918f4919ec1d54b93213dbb9",
+      "screen_kind": "target_app",
+      "current_activity": "com.example.mygalleryapp/com.example.mygalleryapp.MainActivity",
+      "xml_sha256": "b9564404b40c1c813fe0cf59e83bba2ce23c14c38cea54c13e278f1e00076e6a",
+      "observed_count": 1,
+      "first_seen": "2026-04-29T05:47:20Z",
+      "last_seen": "2026-04-29T05:47:20Z",
+      "visible_texts": [
+        "마이 갤러리",
+        "2026년 04월 27일",
+        "01:42",
+        "00:10",
+        "00:01",
+        "2026년 04월 24일",
+        "2026년 04월 23일",
+        "사진",
+        "앨범",
+        "휴지통"
+      ]
+    }
+  }
+}

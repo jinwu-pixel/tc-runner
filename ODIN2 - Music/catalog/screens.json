@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "tool_version": "pr3-catalog-v1",
+  "app_dir": "ODIN2 - Music",
+  "target_package": "com.mive.music",
+  "generated_at": "2026-05-07T07:50:53Z",
+  "screens": {
+    "4d6ac23e275701c879fc5805f41519b7d720b355fe0f2a4aec1925dd2d6803bc": {
+      "screen_id": "4d6ac23e275701c879fc5805f41519b7d720b355fe0f2a4aec1925dd2d6803bc",
+      "screen_kind": "lockscreen_or_non_target",
+      "current_activity": null,
+      "xml_sha256": "f024229bbd74dafa883783c59022fa18b0f2c5f0a61c4c451633b9f426a0663b",
+      "observed_count": 1,
+      "first_seen": "2026-04-30T02:26:12Z",
+      "last_seen": "2026-04-30T02:26:12Z",
+      "visible_texts": [
+        "11:20",
+        "4월 30일 (목)",
+        "충전됨"
+      ]
+    },
+    "4d9cbbcad9533ffac270a12183eedeb28cec50bca30abb792573a99af3a5e16e": {
+      "screen_id": "4d9cbbcad9533ffac270a12183eedeb28cec50bca30abb792573a99af3a5e16e",
+      "screen_kind": "target_app",
+      "current_activity": "com.mive.music/com.mive.music.presentation.main.MainActivity",
+      "xml_sha256": "5bbec13c0f6d3750d1045ef1d6966527f425e851435d291fb5b65a363570fbcc",
+      "observed_count": 1,
+      "first_seen": "2026-04-30T02:26:23Z",
+      "last_seen": "2026-04-30T02:26:23Z",
+      "visible_texts": [
+        "After The Hurricane",
+        "Jazmine Sullivan",
+        "3:58",
+        "너 말이야",
+        "5dolls",
+        "3:37",
+        "Mive Music",
+        "전체",
+        "최근 재생",
+        "즐겨찾기",
+        "플레이리스트",
+        "곡, 아티스트 검색…"
+      ]
+    },
+    "16925695fea9fb4b4705c95d70129e9c24b9c67c5cff182e862fcece0077a8f5": {
+      "screen_id": "16925695fea9fb4b4705c95d70129e9c24b9c67c5cff182e862fcece0077a8f5",
+      "screen_kind": "target_app",
+      "current_activity": "com.mive.music/com.mive.music.presentation.main.MainActivity",
+      "xml_sha256": "33b419fc315964d1bf900330043d7952060af42ba1e17b787b21d242de127fd4",
+      "observed_count": 4,
+      "first_seen": "2026-04-30T02:38:13Z",
+      "last_seen": "2026-05-07T02:23:04Z",
+      "visible_texts": [
+        "After The Hurricane",
+        "Jazmine Sullivan",
+        "3:58",
+        "너 말이야",
+        "5dolls",
+        "3:37",
+        "Mive Music",
+        "전체",
+        "최근 재생",
+        "즐겨찾기",
+        "플레이리스트",
+        "곡, 아티스트 검색…"
+      ]
+    },
+    "fdde6102e9ae6ad135eda1f5465b4a29893e2bf528158782e787538711f53366": {
+      "screen_id": "fdde6102e9ae6ad135eda1f5465b4a29893e2bf528158782e787538711f53366",
+      "screen_kind": "target_app",
+      "current_activity": "com.mive.music/com.mive.music.presentation.main.MainActivity",
+      "xml_sha256": "5ef2a5e607e31eb487a91d80fab6d9de14c1f6c784fded1f96e465a45aea909d",
+      "observed_count": 1,
+      "first_seen": "2026-05-07T05:12:05Z",
+      "last_seen": "2026-05-07T05:12:05Z",
+      "visible_texts": [
+        "After The Hurricane",
+        "Jazmine Sullivan",
+        "3:58",
+        "너 말이야",
+        "5dolls",
+        "3:37",
+        "Mive Music",
+        "전체",
+        "최근 재생",
+        "즐겨찾기",
+        "플레이리스트",
+        "곡, 아티스트 검색…"
+      ]
+    },
+    "7d2425e0266c9e1a42b517263114232b9a30a33c79ce097693d4b8eec9e9913d": {
+      "screen_id": "7d2425e0266c9e1a42b517263114232b9a30a33c79ce097693d4b8eec9e9913d",
+      "screen_kind": "lockscreen_or_non_target",
+      "current_activity": null,
+      "xml_sha256": "b3bb112d6047ed0fb14b266e2b8716ca0f8b304900b6da9b8f78621b3c59f8ea",
+      "observed_count": 1,
+      "first_seen": "2026-05-07T07:50:53Z",
+      "last_seen": "2026-05-07T07:50:53Z",
+      "visible_texts": [
+        "4:46",
+        "5월 7일 (목)",
+        "충전됨"
+      ]
+    }
+  }
+}

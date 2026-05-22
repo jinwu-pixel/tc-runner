@@ -504,9 +504,10 @@ _BASELINE_FORBIDDEN_DIRECTORY_PREFIXES = (
     "reports/",
 )
 
-_BASELINE_FORBIDDEN_DIRECTORY_NAMES = (
-    "catalog",
-)
+# 2026-05-22: "catalog" removed — catalog/ is append-only accumulation state
+# (src/catalog.py), tracked as learning data per CLAUDE.md §2.4/§5.6, not a
+# regenerable artifact. Baseline updated as the conscious-step drift trigger.
+_BASELINE_FORBIDDEN_DIRECTORY_NAMES: tuple[str, ...] = ()
 
 
 def test_baseline_forbidden_basename_patterns():
