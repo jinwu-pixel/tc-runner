@@ -15,7 +15,7 @@
 1. 빌드/SIM 확인: `getprop ro.build.display_build_number_internal`, `getprop gsm.operator.alpha`(=LG U+)
 2. **mobile data ON** — 콜드부팅 직후 `settings get global mobile_data`=0 가능. 0이면 `svc data enable` 후 internet PDN(10.x) 올라올 때까지 대기(최대 ~2분). 데이터 OFF 상태 IP 미표시는 정상이므로 판정 금지
 3. 화면 잠금해제: `input keyevent KEYCODE_WAKEUP` + `wm dismiss-keyguard`
-4. **2단말 동시 연결 주의**: AT-M150(odin2)+AT-M140(thor2) 동시 시 bare adb 실패 → 항상 `adb -s <serial>`(예 f2bfcc3c)
+4. **2단말 동시 연결 주의**: AT-M150(odin2)+AT-M140(thor2) 동시 시 bare adb 실패 → 항상 `adb -s <serial>`(예 <device_serial>)
 5. DebugScreen 진입: `adb -s S shell am start -n com.android.phone/.settings.DebugScreen`
    - 값 갱신 위해 재확인 시 **재진입**(force-stop com.android.phone 후 재실행 권장). 화면 자동 새로고침 없음
 6. Windows: `/sdcard/...` 경로가 Git Bash에서 변환 깨짐 → **PowerShell 도구로 adb 실행** 또는 MSYS_NO_PATHCONV=1
@@ -23,7 +23,7 @@
 ## Ground-truth 모니터 (재사용, grep -P 금지)
 
 ```
-S=f2bfcc3c; prev=""; reach="init"; echo "$(date +%H:%M:%S) MON ARMED"; while true; do td=$(adb -s $S shell dumpsys tethering 2>/dev/null); if [ -z "$td" ]; then if [ "$reach" != "down" ]; then echo "$(date +%H:%M:%S) OFFLINE"; reach="down"; fi; sleep 5; continue; fi; if [ "$reach" != "up" ]; then echo "$(date +%H:%M:%S) ONLINE"; reach="up"; prev=""; fi; up=$(echo "$td" | grep -m1 'Current upstream:' | tr -d '\r' | sed 's/.*Current upstream:[[:space:]]*//'); [ -z "$up" ] && up="null"; ti=$(echo "$td" | grep -oE '(rndis[0-9]|wlan[0-9]|usb[0-9]|softap[0-9]) - TetheredState' | sed 's/ - TetheredState//' | tr '\n' ','); [ -z "$ti" ] && ti="none"; dun="none"; case "$up" in rmnet_data[0-9]*) ip=$(adb -s $S shell ifconfig "$up" 2>/dev/null | grep -oE 'inet addr:[0-9.]+' | head -1 | sed 's/inet addr://'); [ -n "$ip" ] && dun="CONNECTED ip=$ip ($up)" || dun="up=$up";; esac; sig="DUN=[$dun]|up=[$up]|teth=[$ti]"; if [ "$sig" != "$prev" ]; then echo "$(date +%H:%M:%S) | $sig"; prev="$sig"; fi; sleep 5; done
+S=<device_serial>; prev=""; reach="init"; echo "$(date +%H:%M:%S) MON ARMED"; while true; do td=$(adb -s $S shell dumpsys tethering 2>/dev/null); if [ -z "$td" ]; then if [ "$reach" != "down" ]; then echo "$(date +%H:%M:%S) OFFLINE"; reach="down"; fi; sleep 5; continue; fi; if [ "$reach" != "up" ]; then echo "$(date +%H:%M:%S) ONLINE"; reach="up"; prev=""; fi; up=$(echo "$td" | grep -m1 'Current upstream:' | tr -d '\r' | sed 's/.*Current upstream:[[:space:]]*//'); [ -z "$up" ] && up="null"; ti=$(echo "$td" | grep -oE '(rndis[0-9]|wlan[0-9]|usb[0-9]|softap[0-9]) - TetheredState' | sed 's/ - TetheredState//' | tr '\n' ','); [ -z "$ti" ] && ti="none"; dun="none"; case "$up" in rmnet_data[0-9]*) ip=$(adb -s $S shell ifconfig "$up" 2>/dev/null | grep -oE 'inet addr:[0-9.]+' | head -1 | sed 's/inet addr://'); [ -n "$ip" ] && dun="CONNECTED ip=$ip ($up)" || dun="up=$up";; esac; sig="DUN=[$dun]|up=[$up]|teth=[$ti]"; if [ "$sig" != "$prev" ]; then echo "$(date +%H:%M:%S) | $sig"; prev="$sig"; fi; sleep 5; done
 ```
 
 - DUN 판정 = tethering `Current upstream` 의 rmnet iface + 그 iface ifconfig IP. `grep -P` 사용 금지(로케일 오류로 오탐).

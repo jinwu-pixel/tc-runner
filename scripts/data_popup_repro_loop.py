@@ -11,10 +11,10 @@ USB composition 전환은 사용자 영역 (도구는 라벨만 기록).
 
 사용법:
     python scripts/data_popup_repro_loop.py -n 3 --variant V1
-    python scripts/data_popup_repro_loop.py -n 10 --variant V2 --serial f2bfcc3c
+    python scripts/data_popup_repro_loop.py -n 10 --variant V2 --serial <device_serial>
     python scripts/data_popup_repro_loop.py -n 3 --sample-times 0,15,60,180
-    python scripts/data_popup_repro_loop.py -n 10 --variant V2 --serial f2bfcc3c --early-tap
-    python scripts/data_popup_repro_loop.py -n 1 --variant V2-manual --serial f2bfcc3c --manual-tap
+    python scripts/data_popup_repro_loop.py -n 10 --variant V2 --serial <device_serial> --early-tap
+    python scripts/data_popup_repro_loop.py -n 1 --variant V2-manual --serial <device_serial> --manual-tap
 """
 
 import argparse

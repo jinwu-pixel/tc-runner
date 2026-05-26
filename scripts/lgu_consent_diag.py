@@ -14,8 +14,8 @@ wall-clock timestamps, dumps the dialog UI once, and lets the human tap
 manually so the pre/at/post-tap key transitions are recorded.
 
 Usage:
-    python scripts/lgu_consent_diag.py --serial f2bfcc3c
-    python scripts/lgu_consent_diag.py --serial f2bfcc3c --observe 240
+    python scripts/lgu_consent_diag.py --serial <device_serial>
+    python scripts/lgu_consent_diag.py --serial <device_serial> --observe 240
 """
 
 import argparse

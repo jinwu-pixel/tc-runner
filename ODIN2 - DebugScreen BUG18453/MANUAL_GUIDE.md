@@ -2,7 +2,7 @@
 
 - 단말: AT-M150 (ZEM 포켓몬3) / 빌드 Z0518U_GMS_817 / SIM LGU+
 - DebugScreen 열기: 단말 히든코드(아는 경우) 또는 PC에서 1회
-  `adb -s f2bfcc3c shell am start -n com.android.phone/.settings.DebugScreen`
+  `adb -s <device_serial> shell am start -n com.android.phone/.settings.DebugScreen`
   - 화면 잠겨 빈 화면이면 단말 깨우고 잠금해제 후 다시 실행
   - 화면 자동 갱신 안 됨 → 값 다시 보려면 DebugScreen 재진입(뒤로 → 다시 열기)
 - 보는 필드: **IP:** / **IMS IP:** / **DUN IP:**
