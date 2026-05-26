@@ -1,7 +1,7 @@
 # MiniFile · 버그/이슈 관찰 로그 (ODIN2)
 
 앱: `com.example.mnnr_files` v1.0.26042210
-기기: ODIN2 (AT-M150) ADB c4324122
+기기: ODIN2 (AT-M150) ADB <device_serial>
 보고 채널: 서정우 수석(jungwoo@altech.kr) 스레드
 
 | 상태 | 의미 |
@@ -32,12 +32,12 @@
 
 - 기능 영역: 권한 / 런치
 - 상태: CONFIRMED
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.example.mnnr_files v1.0.26042210
 - 요약: MANAGE_EXTERNAL_STORAGE=ignore + READ_MEDIA_IMAGES/VIDEO/AUDIO 전체 revoke 상태에서 앱 실행 시 PermissionController 다이얼로그가 표시되지 않고 MainActivity로 직행함.
 - 기대 결과: 권한 미허용 시 앱이 권한 요청 다이얼로그를 표시하거나 기능을 제한해야 함.
 - 실제 결과: `permissioncontroller count: 0`, `mCurrentFocus=MainActivity`. 권한 없이 정상 진입.
-- 재현 절차: `adb -s c4324122 shell appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE ignore` → READ_MEDIA 권한 revoke → 앱 재실행
+- 재현 절차: `adb -s <device_serial> shell appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE ignore` → READ_MEDIA 권한 revoke → 앱 재실행
 - 증거: evidence/SMOKE_1B_home.png; MNF_FUNC_01 verify_shell expected "0" PASS
 - 관련 TC: MNF_FUNC_01
 - 정정 이력: —
@@ -48,7 +48,7 @@
 
 - 기능 영역: 보안폴더
 - 상태: SPEC_GAP
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.example.mnnr_files v1.0.26042210
 - 요약: 배포 노트 "보안폴더 삭제"에 따라 홈 화면 및 파일 컨텍스트 메뉴에서 "보안" 관련 UI가 완전히 제거됨.
 - 기대 결과: (배포 노트 기준) 보안폴더 진입점 없어야 함. → 현재 동작은 배포 노트와 일치.
@@ -64,7 +64,7 @@
 
 - 기능 영역: 보안 / Manifest
 - 상태: SPEC_GAP
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.example.mnnr_files v1.0.26042210
 - 요약: USE_BIOMETRIC / USE_FINGERPRINT 권한이 Manifest에 선언되어 있으나 앱 사용 중 BiometricPrompt.authenticate 등 생체인증 API가 호출되지 않음. 보안폴더 기능 삭제 후 권한 정리가 미완료된 상태.
 - 기대 결과: 사용하지 않는 권한은 Manifest에서 제거되어야 함.
@@ -160,7 +160,7 @@
 ### 2026-04-24 | FAIL 9건 격리 항목 수리
 
 - 실행일: 2026-04-24
-- 단말: ODIN2 (AT-M150) c4324122 (portrait lock + stay-on USB)
+- 단말: ODIN2 (AT-M150) <device_serial> (portrait lock + stay-on USB)
 - 앱: com.example.mnnr_files v1.0.26042210
 - 범위: 2026-04-23 2nd 기준 FAIL 9건 중 8건 수리 (TC_30/31 viewer intent 는 외부 확인 대기로 보류)
 - 수리 대상 · 결과
@@ -178,7 +178,7 @@
 ### 2026-04-23 (2nd) | run3 재실행 + quick fix run4/5
 
 - 실행일: 2026-04-23
-- 단말: ODIN2 (AT-M150) c4324122 (stay-on USB + portrait lock + screen_off_timeout 30분)
+- 단말: ODIN2 (AT-M150) <device_serial> (stay-on USB + portrait lock + screen_off_timeout 30분)
 - 앱: com.example.mnnr_files v1.0.26042210
 - 범위: functional/ 28 FAIL TC 재실행 (run3) + quick fix 3건 재검증 (run4/5)
 - PASS (run3): 17/28 — 02, 03, 05, 07, 08, 09, 11, 16, 19~22, 25~27, 29, 32
@@ -205,7 +205,7 @@
 ### 2026-04-23 | Phase 2 TC 전수 실기 실행
 
 - 실행일: 2026-04-23
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.example.mnnr_files v1.0.26042210
 - 범위: functional/ 34 TC 순차 실기 실행 (11 bucket)
 - PASS: 6/34 (MNF_FUNC_01, 04, 06, 17, 18, 24)
@@ -225,7 +225,7 @@
 ### 2026-04-22 | Phase 1B + Phase 2 전체 실행
 
 - 실행일: 2026-04-22
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.example.mnnr_files v1.0.26042210
 - 범위: Phase 1B (SMOKE_MNNR 수동→자동 업그레이드) + Phase 2 (11 bucket, 33 TC 신규 작성)
 - PASS (validate_tc.py): 34건 전원 PASS (SMOKE 1 + Phase2 33)

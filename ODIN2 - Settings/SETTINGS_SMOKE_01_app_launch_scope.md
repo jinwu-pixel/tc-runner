@@ -1,7 +1,7 @@
 # SETTINGS_SMOKE_01 — app launch scope
 
 **Status:** SCOPE; not committed; YAML not written; runtime not executed.
-**단말:** ODIN2 (AT-M150) · serial `c4324122` · 720x1560 @ 320dpi
+**단말:** ODIN2 (AT-M150) · serial `<device_serial>` · 720x1560 @ 320dpi
 **앱:** `com.android.settings` v1.0.0.1101
 **probe 근거:** `ODIN2 - Settings/probe_settings_home.xml` (Phase 0, 2026-05-08)
 

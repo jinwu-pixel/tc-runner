@@ -1,7 +1,7 @@
 # MiniFile 45건 BUG 전수 검증 (2026-04-27)
 
 **대상**: com.example.mnnr_files v1.0.26042210
-**단말**: ODIN2 (AT-M150) 720x1560, ADB serial c4324122
+**단말**: ODIN2 (AT-M150) 720x1560, ADB serial <device_serial>
 **검증 방식**: 실기 ADB + uiautomator dump + logcat + screencap
 
 ---

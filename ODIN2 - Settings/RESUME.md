@@ -1,13 +1,13 @@
 # ODIN2 - Settings · RESUME
 
 ## 단말 / 앱
-- 단말: ODIN2 (AT-M150) · serial `c4324122` · 720x1560 @ 320dpi · ko_KR portrait
+- 단말: ODIN2 (AT-M150) · serial `<device_serial>` · 720x1560 @ 320dpi · ko_KR portrait
 - 대상 앱: `com.android.settings` v`1.0.0.1101` (versionCode 10000, minSdk 26, targetSdk 34)
 - launcher activity: `com.android.settings/.Settings`
 
 ## 진행 상태
 - Phase 0 (2026-05-08) — **preflight 완료**
-  - Step 1 device 연결 확인 (`adb devices` → `c4324122 device`)
+  - Step 1 device 연결 확인 (`adb devices` → `<device_serial> device`)
   - Step 2 package/activity 확정 (`pm list packages` + `cmd package resolve-activity --brief`)
   - Step 3 force-stop + `am start -n com.android.settings/.Settings` foreground 확인 (`dumpsys window mCurrentFocus` 일치)
   - Step 4 home XML dump 1회 (`uiautomator dump /sdcard/probe_settings_home.xml` → pull `ODIN2 - Settings/probe_settings_home.xml`, 29478 bytes)
@@ -30,6 +30,6 @@
   - `ODIN2 - Settings/SETTINGS_SMOKE_01_app_launch_scope.md`
 
 ## 사용 규칙
-- multi-device 환경 시 모든 adb 호출에 `-s c4324122` prefix 필수
+- multi-device 환경 시 모든 adb 호출에 `-s <device_serial>` prefix 필수
 - Git Bash에서 `/sdcard/...` 경로 사용 시 `MSYS_NO_PATHCONV=1` 필요
 - policy v2 / Tier 0 자동화 / PR 8 anchor recommender 미적용 (모두 deferred)

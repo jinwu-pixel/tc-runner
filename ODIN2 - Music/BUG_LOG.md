@@ -15,7 +15,7 @@
 
 ## 세션 결과
 - 실행일: 2026-04-30
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.mive.music v1.0.2604231952
 - 범위: Phase 0 preflight seed (Step 1~10)
 - PASS: —
@@ -25,7 +25,7 @@
 
 ## 세션 결과
 - 실행일: 2026-05-11
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.mive.music v1.0.2604231952
 - 범위: Phase 1C SMOKE_03 runtime (player surface 진입 검증, mutation 0)
 - PASS: MUSIC_SMOKE_03 runtime 12/12 (22.5s)
@@ -35,7 +35,7 @@
 
 ## 세션 결과
 - 실행일: 2026-05-11
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.mive.music v1.0.2604231952
 - 범위: Phase 1D SMOKE_04 runtime (IME focus 검증, mutation LOW)
 - PASS: MUSIC_SMOKE_04 runtime 13/13 (13.8s, 단말 wake + dismiss-keyguard 후 재실행)

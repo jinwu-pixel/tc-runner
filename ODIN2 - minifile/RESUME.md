@@ -2,7 +2,7 @@
 
 **마지막 업데이트**: 2026-04-24 (FAIL 9건 중 7건 수리 → 누적 **26/28 PASS**, 잔여 2건은 TC_30/31 viewer intent — 개발팀 확인 대기)
 **대상 앱**: `com.example.mnnr_files` v1.0.26042210 (2026-04-22 배포)
-**대상 단말**: ODIN2 (AT-M150) 720x1560 @ 320dpi, ADB serial `c4324122`
+**대상 단말**: ODIN2 (AT-M150) 720x1560 @ 320dpi, ADB serial `<device_serial>`
 **프로젝트 폴더**: `C:\Users\momen\Projects\tc-runner\ODIN2 - minifile\`
 **스펙**: `doc/minifile.pdf` (서정우 2026-04-21 메일, 6p)
 
@@ -23,7 +23,7 @@ Phase 0 → Phase 1A → gate → Phase 1B → gate → Phase 2
 
 ```bash
 # 단말 연결 확인
-adb devices   # c4324122 present 확인
+adb devices   # <device_serial> present 확인
 
 # preset 적용 (멱등)
 venv/Scripts/python.exe scripts/setup_preset.py --app minifile
@@ -237,14 +237,14 @@ toolbar_selection: [0,80][720,208]
 
 ## 단말 세션 함정 (Gallery 에서 이관, 중요)
 
-1. **멀티 디바이스** — `adb -s c4324122` 프리픽스 필수 (Thor2 `B06201249E00030C` 동시 연결)
+1. **멀티 디바이스** — `adb -s <device_serial>` 프리픽스 필수 (Thor2 `B06201249E00030C` 동시 연결)
 2. **`screencap -p //sdcard/foo.png`** — 저장 후 반드시 `rm` + MediaScanner 갱신, 안 그러면 이미지 카테고리 오염
 3. **uiautomator dump "could not get idle"** — 애니메이션 중 발생. 다이얼로그/플로팅은 wait 1.5s 후 dump
 4. **validate_tc.py placeholder 파서** — `{}` 리터럴은 미해결 변수로 오인. `find -exec ... {}` 대신 `sh -c 'for f in ...; do ... ; done'`
 5. **회전 세로 고정** — 매 세션 시작 시:
    ```
-   adb -s c4324122 shell settings put system accelerometer_rotation 0
-   adb -s c4324122 shell settings put system user_rotation 0
+   adb -s <device_serial> shell settings put system accelerometer_rotation 0
+   adb -s <device_serial> shell settings put system user_rotation 0
    ```
 
 ---
@@ -276,7 +276,7 @@ Phase 2 TC 28건 FAIL 의 근본 원인 3개 — 앱 버그 아님, TC 작성 �
 ## 다음 세션 시작 시 첫 동작 (Sonnet 인계 문구 최종본)
 
 1. 본 파일 + `MENU_TREE.md` + `BUG_LOG.md` 정독
-2. `adb devices` 로 c4324122 연결 확인 (멀티 디바이스 시 Thor2 `B06201249E00030C` 무시)
+2. `adb devices` 로 <device_serial> 연결 확인 (멀티 디바이스 시 Thor2 `B06201249E00030C` 무시)
 3. Phase 0 실행 (멱등 — 재실행 안전):
    ```
    venv/Scripts/python.exe scripts/setup_preset.py --app minifile

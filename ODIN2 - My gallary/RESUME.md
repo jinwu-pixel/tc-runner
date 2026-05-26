@@ -2,7 +2,7 @@
 
 **마지막 업데이트**: 2026-04-22
 **대상 앱**: `com.example.mygalleryapp` v1.0.26042114
-**대상 단말**: ODIN2 (AT-M150) 720x1560 @ 320dpi, ADB serial `c4324122`
+**대상 단말**: ODIN2 (AT-M150) 720x1560 @ 320dpi, ADB serial `<device_serial>`
 **프로젝트 폴더**: `C:\Users\momen\Projects\tc-runner\ODIN2 - My gallary\`
   (2026-04-21 이관: 이전 `exported_tc1/gallery_odin2/` 에서 단말×앱 루트 폴더 구조로 변경)
 **신규 단말×앱 작업 규칙**: 각 조합마다 루트에 `"<단말명> - <앱명>"` 형식 폴더 생성
@@ -13,17 +13,17 @@
 
 ```bash
 # 1. 디바이스 연결 확인
-adb devices          # c4324122 device 가 있어야 함
+adb devices          # <device_serial> device 가 있어야 함
 
-# 2. 다중 디바이스 주의 — 모든 adb 호출에 -s c4324122 prefix 필수
+# 2. 다중 디바이스 주의 — 모든 adb 호출에 -s <device_serial> prefix 필수
 #    (Thor2 B06201249E00030C 가 함께 연결되는 경우 있음)
 
 # 3. preset 무결성 체크
-adb -s c4324122 shell "ls /sdcard/DCIM/MyGallery_TC/ | wc -l"
+adb -s <device_serial> shell "ls /sdcard/DCIM/MyGallery_TC/ | wc -l"
 #    기대: 27 (사진 25 + 영상 2)
 
 # 4. 앱 상태 확인
-adb -s c4324122 shell "dumpsys package com.example.mygalleryapp | grep versionName"
+adb -s <device_serial> shell "dumpsys package com.example.mygalleryapp | grep versionName"
 #    기대: versionName=1.0.26042114
 ```
 
@@ -38,8 +38,8 @@ venv/Scripts/python.exe scripts/reset_gallery_media.py
 venv/Scripts/python.exe scripts/setup_gallery_media.py
 
 # 회전 세로 고정
-adb -s c4324122 shell "settings put system accelerometer_rotation 0"
-adb -s c4324122 shell "settings put system user_rotation 0"
+adb -s <device_serial> shell "settings put system accelerometer_rotation 0"
+adb -s <device_serial> shell "settings put system user_rotation 0"
 ```
 
 ---
@@ -135,7 +135,7 @@ MyGallery_TC 앨범(180,408)   Screenshots(540,408)   Movies(180,775)
 
 ## 자동화 함정 (기록해둔 것)
 
-1. **멀티 디바이스** — `adb -s c4324122` 프리픽스 필수
+1. **멀티 디바이스** — `adb -s <device_serial>` 프리픽스 필수
 2. **`screencap -p //sdcard/foo.png`** — 저장 후 반드시 `rm` + scan 갱신, 안 그러면 앨범에 오염됨
 3. **uiautomator dump "could not get idle"** — 비디오 플레이어는 Compose/custom → `screencap` + manual 검증
 4. **validate_tc.py placeholder 파서** — `{}` 를 미해결 변수로 오인 → `find -exec ... {}` 금지, `sh -c 'for f in ...; do ... ; done'` 사용

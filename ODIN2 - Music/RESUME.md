@@ -1,7 +1,7 @@
 # ODIN2 - Music · RESUME
 
 ## 단말 / 앱
-- 단말: ODIN2 (AT-M150) · serial `c4324122` · 720x1560 @ 320dpi · ko_KR portrait
+- 단말: ODIN2 (AT-M150) · serial `<device_serial>` · 720x1560 @ 320dpi · ko_KR portrait
 - 대상 앱: `com.mive.music` v`1.0.2604231952` (versionCode 26042319, minSdk 33, targetSdk 35)
 - launcher activity: `com.mive.music/.presentation.main.MainActivity`
 

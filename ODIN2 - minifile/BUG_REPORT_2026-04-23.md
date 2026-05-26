@@ -1,7 +1,7 @@
 # MiniFile 버그 리포트 (2026-04-23)
 
 **대상 앱**: `com.example.mnnr_files` v1.0.26042210 (2026-04-22 배포 `minifiles_1.0.26042210.apk`)
-**검증 단말**: ODIN2 (AT-M150) Android 14, 720x1560 @ 320dpi, ADB serial `c4324122`
+**검증 단말**: ODIN2 (AT-M150) Android 14, 720x1560 @ 320dpi, ADB serial `<device_serial>`
 **리포터**: jinwu@altech.kr
 **수신**: 서정우 수석 (jungwoo@altech.kr)
 **근거 테스트**: Phase 2 전수 TC 34건 실기 (run3 17/28 PASS + quick fix run4/5 → 19/28 PASS)
@@ -29,12 +29,12 @@
 - **실제 결과**: `dumpsys window | grep mCurrentFocus` = `MainActivity`, `permissioncontroller` 표시 0건
 - **재현 절차**:
   ```
-  adb -s c4324122 shell appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE ignore
-  adb -s c4324122 shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_IMAGES
-  adb -s c4324122 shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_VIDEO
-  adb -s c4324122 shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_AUDIO
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell appops set com.example.mnnr_files MANAGE_EXTERNAL_STORAGE ignore
+  adb -s <device_serial> shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_IMAGES
+  adb -s <device_serial> shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_VIDEO
+  adb -s <device_serial> shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_AUDIO
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # → 앱이 권한 요청 없이 MainActivity 표시
   ```
 - **증거**: `evidence/SMOKE_1B_home.png`
@@ -53,13 +53,13 @@
   - 앱 탐색 + 파일 조작 + 공유 + 이름 바꾸기 전 과정 실행 후 `logcat -d | grep -iE 'BiometricPrompt|FingerprintManager|authenticate|biometric'` → 0건
 - **재현 절차**:
   ```
-  adb -s c4324122 shell logcat -c
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell logcat -c
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # 홈 → 파일 브라우저 → 파일 열기 → 뒤로가기 등 기본 플로우 실행
-  adb -s c4324122 shell logcat -d | grep -iE "BiometricPrompt|FingerprintManager|biometric"
+  adb -s <device_serial> shell logcat -d | grep -iE "BiometricPrompt|FingerprintManager|biometric"
   # → 0건
-  adb -s c4324122 shell dumpsys package com.example.mnnr_files | grep -c BIOMETRIC
+  adb -s <device_serial> shell dumpsys package com.example.mnnr_files | grep -c BIOMETRIC
   # → 2
   ```
 - **증거**: —
@@ -76,8 +76,8 @@
 - **실제 결과**: 선택 모드 btn_more 메뉴 6개 항목 = `다음으로 이동 / 다음으로 복사 / 이름 바꾸기 / 휴지통으로 이동 / 파일 정보 / 다른 앱에서 열기` (비선택 context menu 와 동일)
 - **재현 절차**:
   ```
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # 홈 → 2회 스크롤 → 내부 저장소(360,1000) → DCIM(360,934) → MyGallery_TC(360,626) 진입
   # 첫 파일 long-press → 선택 모드 진입 확인
   # 파일 행 btn_more (x≈608, y=499) 탭 → 팝업 메뉴 확인
@@ -100,13 +100,13 @@
   - 오디오(.wav) 탭 → `com.hnlens.launcher3/.uioverrides.QuickstepLauncher` (런처 복귀)
 - **재현 절차**:
   ```
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # 내부 저장소 → Movies/ 폴더 진입 → .mp4 파일 탭
-  adb -s c4324122 shell dumpsys window | grep mCurrentFocus
+  adb -s <device_serial> shell dumpsys window | grep mCurrentFocus
   # → MainActivity (ViewerActivity 아님)
   # 뒤로가기 → Music/ 진입 → .wav 파일 탭
-  adb -s c4324122 shell dumpsys window | grep mCurrentFocus
+  adb -s <device_serial> shell dumpsys window | grep mCurrentFocus
   # → com.hnlens.launcher3/...QuickstepLauncher
   ```
 - **증거**: `evidence/run3_output.log` (MNF_FUNC_30, MNF_FUNC_31 단계별 결과)

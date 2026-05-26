@@ -1,7 +1,7 @@
 # MiniFile 버그 리포트 (2026-04-27 갱신본)
 
 **대상 앱**: `com.example.mnnr_files` v1.0.26042210 (2026-04-22 배포 `minifiles_1.0.26042210.apk`)
-**검증 단말**: ODIN2 (AT-M150) Android 14, 720x1560 @ 320dpi, ADB serial `c4324122`
+**검증 단말**: ODIN2 (AT-M150) Android 14, 720x1560 @ 320dpi, ADB serial `<device_serial>`
 **리포터**: jinwu@altech.kr
 **수신**: 서정우 수석 (jungwoo@altech.kr)
 **근거 테스트**: Phase 2 전수 TC 34건 (2026-04-23) + 4건 실기 재검증 (2026-04-24/27)
@@ -30,11 +30,11 @@
 - **재현 절차**:
   ```
   # READ_MEDIA_* revoke 만으로 재현됨 (MANAGE_EXTERNAL_STORAGE appops 조작은 필수 아님)
-  adb -s c4324122 shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_IMAGES
-  adb -s c4324122 shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_VIDEO
-  adb -s c4324122 shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_AUDIO
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_IMAGES
+  adb -s <device_serial> shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_VIDEO
+  adb -s <device_serial> shell pm revoke com.example.mnnr_files android.permission.READ_MEDIA_AUDIO
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # → 앱이 권한 요청 없이 MainActivity 표시
   ```
 - **증거**: `evidence/SMOKE_1B_home.png`
@@ -53,13 +53,13 @@
   - 폴더 진입 / 파일 정보 / 이름 변경 / 선택 모드 / 공유 / 삭제 / 검색 / 휴지통 / 카테고리 전 플로우 실행 후 `logcat -d | grep -iE 'BiometricPrompt|FingerprintManager|biometric|fingerprint|authenticate'` → **0건**
 - **재현 절차**:
   ```
-  adb -s c4324122 shell logcat -c
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell logcat -c
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # 홈 → 폴더 진입 → 파일 정보 → 이름 변경 → 선택 모드(공유/삭제) → 검색 → 휴지통 → 카테고리 진입 등 기본 플로우 실행
-  adb -s c4324122 shell logcat -d | grep -iE "BiometricPrompt|FingerprintManager|biometric|fingerprint|authenticate"
+  adb -s <device_serial> shell logcat -d | grep -iE "BiometricPrompt|FingerprintManager|biometric|fingerprint|authenticate"
   # → 0건
-  adb -s c4324122 shell dumpsys package com.example.mnnr_files | grep -c BIOMETRIC
+  adb -s <device_serial> shell dumpsys package com.example.mnnr_files | grep -c BIOMETRIC
   # → 2
   ```
 - **증거**: `evidence/gap03_review_logcat.log` (10,757 라인, 앱 활동 134건 라인 중 biometric 키워드 0건)
@@ -80,8 +80,8 @@
   - 위 3개 위치 모두에서 `전체 선택 / 전체선택 / select_all / SelectAll` 키워드 grep → **0건**
 - **재현 절차**:
   ```
-  adb -s c4324122 shell am force-stop com.example.mnnr_files
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell am force-stop com.example.mnnr_files
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # 홈 → 2회 스크롤 → 내부 저장소(360,1000) → DCIM(360,934) → MyGallery_TC(360,626) 진입
   # 첫 파일 long-press → 선택 모드 진입
   # toolbar 확인 (전체 선택 부재)
@@ -117,7 +117,7 @@
 - **재현 절차**:
   ```
   # 사례 1: DCIM 동영상 → 인앱 정상
-  adb -s c4324122 shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
+  adb -s <device_serial> shell monkey -p com.example.mnnr_files -c android.intent.category.LAUNCHER 1
   # DCIM/MyGallery_TC/VID_20s.mp4 탭 → ViewerActivity + videoView
 
   # 사례 2: Movies 스크린레코딩 → chooser

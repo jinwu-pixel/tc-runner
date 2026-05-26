@@ -18,7 +18,7 @@
 
 ### 2026-05-08 Phase 0
 - 실행일: 2026-05-08
-- 단말: ODIN2 (AT-M150) c4324122
+- 단말: ODIN2 (AT-M150) <device_serial>
 - 앱: com.android.settings v1.0.0.1101
 - 범위: home probe 1회
 - PASS: launch + foreground 확인 (manual evidence observed)
