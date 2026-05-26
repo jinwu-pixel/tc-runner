@@ -1,7 +1,7 @@
 # THOR2_J - Settings · RESUME
 
 ## 단말 / 앱
-- 단말: THOR2_J (AT-M140 thor2 alt_thor2, ALT brand) · serial `B2700125BW000083` · 480x800 @ 220dpi · **ja-JP** locale (persist.sys.locale=`ja`)
+- 단말: THOR2_J (AT-M140 thor2 alt_thor2, ALT brand) · serial `<thor2_device_serial>` · 480x800 @ 220dpi · **ja-JP** locale (persist.sys.locale=`ja`)
 - Android: 14 (UP1A.231005.007), build `SELJY072603MZ0507`
 - 대상 앱: `com.android.settings` v`14` (versionCode 34, minSdk 34, targetSdk 34)
 - launcher activity: `com.android.settings/.Settings`
@@ -9,7 +9,7 @@
 
 ## 진행 상태
 - Phase 0 (2026-05-08) — **preflight 완료**
-  - device 연결 확인 (`adb devices` → `B2700125BW000083 device`)
+  - device 연결 확인 (`adb devices` → `<thor2_device_serial> device`)
   - locale 확인: ja-JP / ja
   - package 확인: com.android.settings v14
   - launch 확인 (`am start -n com.android.settings/.Settings` → foreground)
@@ -44,7 +44,7 @@
   - `THOR2_J - Settings/SETTINGS_SMOKE_01_app_launch.yaml`
 
 ## 사용 규칙
-- multi-device 환경 시 `-s B2700125BW000083` prefix 필수 (ODIN2 c4324122와 혼선 주의)
+- multi-device 환경 시 `-s <thor2_device_serial>` prefix 필수 (ODIN2 <odin2_device_serial>와 혼선 주의)
 - Git Bash에서 `/sdcard/...` 경로 사용 시 `MSYS_NO_PATHCONV=1` 필요
 - ja-JP locale 유지 (테스트 중 언어 변경 금지)
 - policy v2 / Tier 0 / PR 8 미적용 (모두 deferred)
