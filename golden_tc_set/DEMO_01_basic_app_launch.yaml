@@ -1,0 +1,68 @@
+tc_name: "DEMO_01_basic_app_launch"
+description: "홈 화면의 핵심 앱(전화, 메시지, 카메라, 설정) 실행 및 정상 기동 확인"
+metadata:
+  source: "ODIN 기본기능TC / 항목 14 - 앱 실행 반복검증"
+  priority: 필수
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # ===== 1. 전화 앱 =====
+  - action: shell
+    command: "am force-stop com.skt.prod.dialer"
+  - action: shell
+    command: "am start -n com.skt.prod.dialer/.DialtactsActivity"
+  - action: wait
+    duration: 3000
+  - action: screenshot
+    name: "DEMO01_01_dialer"
+  - action: verify_text
+    target: "전화"
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+
+  # ===== 2. 메시지 앱 =====
+  - action: shell
+    command: "am force-stop com.android.mms"
+  - action: shell
+    command: "am start -n com.android.mms/.ui.ConversationList"
+  - action: wait
+    duration: 3000
+  - action: screenshot
+    name: "DEMO01_02_message"
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+
+  # ===== 3. 카메라 앱 =====
+  - action: shell
+    command: "am force-stop com.android.camera"
+  - action: shell
+    command: "am start -a android.media.action.IMAGE_CAPTURE"
+  - action: wait
+    duration: 3000
+  - action: screenshot
+    name: "DEMO01_03_camera"
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+
+  # ===== 4. 설정 앱 =====
+  - action: shell
+    command: "am start -a android.settings.SETTINGS"
+  - action: wait
+    duration: 3000
+  - action: verify_text
+    target: "설정"
+  - action: screenshot
+    name: "DEMO01_04_settings"
+  - action: key
+    key: KEYCODE_HOME

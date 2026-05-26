@@ -1,0 +1,73 @@
+tc_name: "DEMO_03_wifi_airplane_toggle"
+description: "Wi-Fi 끄기 → 상태 확인 → 켜기 → 상태 확인"
+metadata:
+  source: "ODIN Wi-Fi TC / 기본 연결 확인"
+  priority: 필수
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # ===== 현재 상태 확인 =====
+  - action: screenshot
+    name: "DEMO03_01_initial"
+
+  # ===== Wi-Fi OFF =====
+  - action: shell
+    command: "svc wifi disable"
+  - action: wait
+    duration: 3000
+  - action: verify_shell
+    command: "dumpsys wifi | grep 'Wi-Fi is' || echo UNKNOWN"
+    expected: "disabled"
+  - action: screenshot
+    name: "DEMO03_02_wifi_off"
+
+  # ===== Wi-Fi ON =====
+  - action: shell
+    command: "svc wifi enable"
+  - action: wait
+    duration: 5000
+  - action: verify_shell
+    command: "dumpsys wifi | grep 'Wi-Fi is' || echo UNKNOWN"
+    expected: "enabled"
+  - action: screenshot
+    name: "DEMO03_03_wifi_on"
+
+  # ===== 비행기모드 ON → OFF =====
+  - action: shell
+    command: "settings put global airplane_mode_on 1"
+  - action: shell
+    command: "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state true"
+  - action: wait
+    duration: 3000
+  - action: verify_shell
+    command: "settings get global airplane_mode_on"
+    expected: "1"
+  - action: screenshot
+    name: "DEMO03_04_airplane_on"
+
+  # ===== 비행기모드 OFF (복구) =====
+  - action: shell
+    command: "settings put global airplane_mode_on 0"
+  - action: shell
+    command: "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state false"
+  - action: wait
+    duration: 5000
+  - action: verify_shell
+    command: "settings get global airplane_mode_on"
+    expected: "0"
+
+  # ===== Wi-Fi 복구 확인 =====
+  - action: shell
+    command: "svc wifi enable"
+  - action: wait
+    duration: 3000
+  - action: verify_shell
+    command: "dumpsys wifi | grep 'Wi-Fi is' || echo UNKNOWN"
+    expected: "enabled"
+  - action: screenshot
+    name: "DEMO03_05_restored"

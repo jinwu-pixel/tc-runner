@@ -1,0 +1,48 @@
+tc_name: "DEMO_02_device_info"
+description: "설정 > 휴대전화 정보 진입 및 기기명, 빌드 정보 확인"
+metadata:
+  source: "ODIN MENU TREE (TC3) / Settings - 휴대전화 정보"
+  priority: 중요
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # ===== 설정 > 휴대전화 정보 =====
+  - action: shell
+    command: "am start -a android.settings.DEVICE_INFO_SETTINGS"
+  - action: wait
+    duration: 3000
+  - action: verify_text
+    target: "기본 정보"
+  - action: verify_text
+    target: "AT-M140S"
+  - action: screenshot
+    name: "DEMO02_01_device_info"
+
+  # ===== 빌드 번호 shell 검증 =====
+  - action: verify_shell
+    command: "getprop ro.build.display.id"
+    expected: "UP1A"
+  - action: verify_shell
+    command: "getprop ro.product.model"
+    expected: "AT-M140"
+
+  # ===== Android 버전 확인 =====
+  - action: verify_shell
+    command: "getprop ro.build.version.release"
+    expected: "14"
+
+  # ===== 보안 패치 수준 =====
+  - action: verify_shell
+    command: "getprop ro.build.version.security_patch"
+    expected: "2026"
+  - action: screenshot
+    name: "DEMO02_02_build_verified"
+
+  # ===== 복귀 =====
+  - action: key
+    key: KEYCODE_HOME
