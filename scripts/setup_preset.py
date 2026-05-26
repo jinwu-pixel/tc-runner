@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import os
 import struct
 import subprocess
 import sys
@@ -95,7 +96,6 @@ def make_zip(path: Path, members: dict) -> None:
 # ============================================================
 
 MINIFILE = {
-    "device_serial": "c4324122",
     "pkg": "com.example.mnnr_files",
     "preset_dirname": "minifile_preset",
     "device_map": {
@@ -203,9 +203,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Per-app Phase 0 preset setup.")
     parser.add_argument("--app", required=True, choices=sorted(APPS.keys()),
                         help="대상 앱 키 (내부 dict 에 등록된 값)")
+    parser.add_argument("--serial", default=None,
+                        help="adb device serial (또는 ANDROID_SERIAL env)")
     args = parser.parse_args()
 
-    app = APPS[args.app]
+    serial = args.serial or os.environ.get("ANDROID_SERIAL")
+    if not serial:
+        parser.error("--serial argument or ANDROID_SERIAL env variable required")
+
+    app = dict(APPS[args.app])
+    app["device_serial"] = serial
     pdir = preset_dir(app)
 
     ensure_device(app)
