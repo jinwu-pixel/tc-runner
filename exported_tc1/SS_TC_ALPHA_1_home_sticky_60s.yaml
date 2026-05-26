@@ -1,0 +1,130 @@
+tc_name: "SS_TC_ALPHA_1_home_sticky_60s"
+description: "α: telebanking 시뮬레이션 → confirm-safe → Home 초록 → 60초 유지 (HOME-STICKY residual 없음 검증)"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 cold restart
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 2000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 5000
+
+  # 2. Home 스크롤 (첫 swipe는 초기 애니메이션에 먹히므로 2회)
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 3000
+
+  # 3. 앱 설정 진입
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 4000
+
+  # 4. 앱 설정 내 스크롤 (텔레뱅킹 시뮬레이션 버튼까지, 2회)
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 3000
+
+  # 5. 텔레뱅킹 유도 사기 시뮬레이션 (세션 실제 생성)
+  - action: tap_text
+    target: "텔레뱅킹 유도 사기 시뮬레이션"
+  - action: wait
+    duration: 4000
+
+  # 6. CRITICAL popup 검증
+  - action: screenshot
+    name: "ALPHA1_01_critical_popup"
+  - action: verify_text
+    target: "매우 위험"
+
+  # 7. 앱 열어서 확인하기 → Home
+  - action: tap_text
+    target: "앱 열어서 확인하기"
+  - action: wait
+    duration: 4000
+
+  # 8. Home 위험 상태 baseline
+  - action: screenshot
+    name: "ALPHA1_02_risk_state_before"
+  - action: verify_text
+    target: "위험 감지"
+  - action: verify_text
+    target: "안전 확인했어요"
+
+  # 9. logcat 마커: α gate 진입
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA1 GATE_START confirm-safe tap imminent'"
+
+  # 10. 안전 확인 탭
+  - action: tap_text
+    target: "안전 확인했어요"
+  - action: wait
+    duration: 4000
+
+  # 11. 즉시 안전 상태 복귀
+  - action: screenshot
+    name: "ALPHA1_03_safe_immediate"
+  - action: verify_text
+    target: "현재 보호 상태"
+
+  # 12. logcat 마커: 60초 sustained 대기 시작
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA1 WAIT_60s start'"
+
+  # 13. 60초 대기 (α residual 핵심 검증)
+  - action: wait
+    duration: 60000
+
+  # 14. 60초 후 여전히 안전 상태 유지 확인
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA1 WAIT_60s end — verifying sustained safe UI'"
+  - action: screenshot
+    name: "ALPHA1_04_safe_after_60s"
+  - action: verify_text
+    target: "현재 보호 상태"
+
+  # 15. 정리
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA1 GATE_END PASS-level UI verified'"
+  - action: key
+    key: KEYCODE_HOME

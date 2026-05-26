@@ -1,0 +1,98 @@
+tc_name: "SS_TC08_confirm_safe"
+description: "시뮬레이션→CRITICAL→홈→안전확인했어요→안전 상태 즉시 복귀 (a2d761c 검증)"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 초기화
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+
+  # 2. 앱 설정 진입
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 2000
+
+  # 3. 시뮬레이션 실행
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "시뮬레이션"
+  - action: wait
+    duration: 3000
+
+  # 4. 팝업 확인
+  - action: screenshot
+    name: "SS_TC08_01_critical_popup"
+  - action: verify_text
+    target: "매우 위험"
+
+  # 5. 앱 열어서 확인하기 → 홈으로 이동
+  - action: tap_text
+    target: "앱 열어서 확인하기"
+  - action: wait
+    duration: 2000
+
+  # 6. 위험 상태 확인
+  - action: screenshot
+    name: "SS_TC08_02_risk_state"
+  - action: verify_text
+    target: "위험 감지"
+  - action: verify_text
+    target: "안전 확인했어요"
+
+  # 7. 안전 확인 탭
+  - action: tap_text
+    target: "안전 확인했어요"
+  - action: wait
+    duration: 2000
+
+  # 8. 안전 상태 복귀 확인
+  - action: screenshot
+    name: "SS_TC08_03_safe_restored"
+  - action: verify_text
+    target: "안전합니다"
+  - action: verify_text
+    target: "현재 보호 상태"
+
+  # 9. 정리
+  - action: key
+    key: KEYCODE_HOME

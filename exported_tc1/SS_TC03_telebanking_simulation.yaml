@@ -1,0 +1,100 @@
+tc_name: "SS_TC03_telebanking_simulation"
+description: "디버그 시뮬레이션→CRITICAL 팝업→신호 5개 누적→감지 기록 저장 확인"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 초기화
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+
+  # 2. 앱 설정 진입
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 2000
+
+  # 3. 시뮬레이션 실행
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "시뮬레이션"
+  - action: wait
+    duration: 3000
+
+  # 4. CRITICAL 팝업 확인
+  - action: screenshot
+    name: "SS_TC03_01_critical_popup"
+  - action: verify_text
+    target: "매우 위험"
+  - action: verify_text
+    target: "텔레뱅킹 유도 사기 감지"
+  - action: verify_text
+    target: "일단 닫기"
+  - action: verify_text
+    target: "앱 열어서 확인하기"
+
+  # 5. 일단 닫기 → 설정 복귀
+  - action: tap_text
+    target: "일단 닫기"
+  - action: wait
+    duration: 2000
+
+  # 6. 세션 상태 확인 (누적 신호 5개, CRITICAL)
+  - action: screenshot
+    name: "SS_TC03_02_session_state"
+  - action: verify_text
+    target: "CRITICAL"
+  - action: verify_text
+    target: "텔레뱅킹 유도"
+
+  # 7. 홈 복귀 → 감지 기록 확인
+  - action: key
+    key: KEYCODE_BACK
+  - action: wait
+    duration: 2000
+  - action: verify_text
+    target: "전체 감지 기록 보기"
+  - action: screenshot
+    name: "SS_TC03_03_home_with_record"
+
+  # 8. 정리 (세션 유지 — TC-10에서 초기화)
+  - action: key
+    key: KEYCODE_HOME

@@ -1,0 +1,90 @@
+tc_name: "SS_TC04_popup_cooldown_preview"
+description: "테스트 도구 미리보기 버튼으로 위험 팝업 + 뱅킹 쿨다운 표시 확인"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 초기화
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+
+  # 2. 앱 설정 진입
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 2000
+
+  # 3. 위험 팝업 미리보기
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "위험 팝업"
+  - action: wait
+    duration: 3000
+  - action: screenshot
+    name: "SS_TC04_01_risk_popup"
+  - action: verify_text
+    target: "일단 닫기"
+  - action: tap_text
+    target: "일단 닫기"
+  - action: wait
+    duration: 2000
+
+  # 4. 뱅킹 쿨다운 미리보기 (시스템 오버레이 — uiautomator 캡처 불가)
+  - action: tap_text
+    target: "뱅킹 쿨다운"
+  - action: wait
+    duration: 1000
+  - action: screenshot
+    name: "SS_TC04_02_cooldown"
+  - action: wait
+    duration: 7000
+
+  # 5. 쿨다운 자동 종료 (5초) 후 설정 화면 복귀 확인
+  - action: screenshot
+    name: "SS_TC04_03_after_cooldown"
+  - action: verify_text
+    target: "테스트 도구"
+
+  # 6. 정리
+  - action: key
+    key: KEYCODE_BACK
+  - action: key
+    key: KEYCODE_HOME

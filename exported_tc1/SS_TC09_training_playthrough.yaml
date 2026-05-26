@@ -1,0 +1,128 @@
+tc_name: "SS_TC09_training_playthrough"
+description: "보이스피싱 대응 연습 → 검찰 사칭 사기 시나리오 3단계 완주 → 결과 화면"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 초기화
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+
+  # 2. 보이스피싱 대응 연습 진입
+  - action: tap_text
+    target: "보이스피싱 대응 연습"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "SS_TC09_01_scenario_list"
+
+  # 3. 검찰 사칭 사기 선택
+  - action: tap_text
+    target: "검찰 사칭 사기"
+  - action: wait
+    duration: 2000
+
+  # 4. 1단계
+  - action: verify_text
+    target: "1 / 3 단계"
+  - action: screenshot
+    name: "SS_TC09_02_step1"
+  - action: tap_text
+    target: "검찰이 전화로 연락하지 않습니다"
+  - action: wait
+    duration: 1000
+  - action: verify_text
+    target: "정확합니다"
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "다음 단계"
+  - action: wait
+    duration: 2000
+
+  # 5. 2단계
+  - action: verify_text
+    target: "2 / 3 단계"
+  - action: screenshot
+    name: "SS_TC09_03_step2"
+  - action: tap_text
+    target: "개인정보를 전화로 알려줄 수 없습니다"
+  - action: wait
+    duration: 1000
+  - action: verify_text
+    target: "훌륭합니다"
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "다음 단계"
+  - action: wait
+    duration: 2000
+
+  # 6. 3단계
+  - action: verify_text
+    target: "3 / 3 단계"
+  - action: screenshot
+    name: "SS_TC09_04_step3"
+  - action: tap_text
+    target: "안전 계좌는 없습니다"
+  - action: wait
+    duration: 1000
+  - action: verify_text
+    target: "완벽합니다"
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "결과 보기"
+  - action: wait
+    duration: 2000
+
+  # 7. 결과 화면
+  - action: screenshot
+    name: "SS_TC09_05_result"
+  - action: verify_text
+    target: "정답"
+  - action: verify_text
+    target: "기억하세요"
+
+  # 8. 정리
+  - action: tap_text
+    target: "목록으로 돌아가기"
+  - action: wait
+    duration: 1000
+  - action: key
+    key: KEYCODE_BACK
+  - action: key
+    key: KEYCODE_HOME

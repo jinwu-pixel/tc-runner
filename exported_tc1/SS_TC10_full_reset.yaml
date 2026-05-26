@@ -1,0 +1,134 @@
+tc_name: "SS_TC10_full_reset"
+description: "시뮬레이션→기록 확인→전체 초기화→기록 삭제 확인→세션 없음"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 초기화
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+
+  # 2. 앱 설정 → 시뮬레이션으로 이벤트 생성
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "시뮬레이션"
+  - action: wait
+    duration: 3000
+
+  # 3. 팝업 닫기
+  - action: tap_text
+    target: "일단 닫기"
+  - action: wait
+    duration: 2000
+
+  # 4. 홈 → 감지 기록 확인
+  - action: key
+    key: KEYCODE_BACK
+  - action: wait
+    duration: 2000
+  - action: tap_text
+    target: "전체 감지 기록 보기"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "SS_TC10_01_has_records"
+  - action: verify_text
+    target: "텔레뱅킹 유도"
+  - action: key
+    key: KEYCODE_BACK
+  - action: wait
+    duration: 1000
+
+  # 5. 앱 설정 → 전체 상태 초기화 (세션 활성 시 내용이 길어져 추가 스크롤 필요)
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "전체 상태 초기화"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "SS_TC10_02_after_reset"
+  - action: verify_text
+    target: "세션 없음"
+
+  # 6. 홈 → 기록 삭제 확인
+  - action: key
+    key: KEYCODE_BACK
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "SS_TC10_03_home_safe"
+  - action: verify_text
+    target: "안전합니다"
+
+  # 7. 정리
+  - action: key
+    key: KEYCODE_HOME

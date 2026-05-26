@@ -1,0 +1,59 @@
+tc_name: "SS_B3_settings_version"
+description: "앱 설정 화면 하단에 시니어쉴드 버전 정보(v1.0)가 표시되는지 확인 (832d632 검증)"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 100
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: screenshot
+    name: "SS_B3_01_settings_bottom"
+  - action: verify_text
+    target: "시니어쉴드 v1.0"
+  - action: screenshot
+    name: "SS_B3_02_version_verified"
+  - action: key
+    key: KEYCODE_BACK

@@ -1,0 +1,223 @@
+tc_name: "SS_TC_ALPHA_2_nonCall_suppression"
+description: "α 본체 검증: UPGRADE sim(CRITICAL) arm → 단독 REMOTE 재주입 → α suppression으로 팝업 미발화 + UI sustained safe"
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
+  has_unresolved_params: false
+steps:
+  # 1. 앱 cold restart
+  - action: key
+    key: KEYCODE_HOME
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: wait
+    duration: 2000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 5000
+
+  # 2. Home → 앱 설정 진입
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 3000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 4000
+
+  # 3. 디버그 패널까지 스크롤 (세 버튼까지)
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 3000
+
+  # 4. SESSION_1: UPGRADE sim으로 CRITICAL 세션 생성 (arm용)
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 SESSION_1_upgrade_sim_tap'"
+  - action: tap_text
+    target: "원격제어 + 금융앱"
+  - action: wait
+    duration: 4000
+
+  # 5. CRITICAL 팝업 검증
+  - action: screenshot
+    name: "ALPHA2_01_critical_popup"
+  - action: verify_text
+    target: "매우 위험"
+
+  # 6. 앱 열어서 확인 → Home 위험 상태
+  - action: tap_text
+    target: "앱 열어서 확인하기"
+  - action: wait
+    duration: 4000
+  - action: screenshot
+    name: "ALPHA2_02_home_risk_baseline"
+  - action: verify_text
+    target: "위험 감지"
+  - action: verify_text
+    target: "안전 확인했어요"
+
+  # 7. α arm: confirm-safe 탭
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 GATE_START alpha_arm_imminent'"
+  - action: tap_text
+    target: "안전 확인했어요"
+  - action: wait
+    duration: 4000
+
+  # 8. α armed 후 Home safe 확인
+  - action: screenshot
+    name: "ALPHA2_03_home_safe_after_reset"
+  - action: verify_text
+    target: "현재 보호 상태"
+
+  # 9. Home 스크롤 후 앱 설정 재진입
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 RETURN_TO_SETTINGS'"
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: tap_text
+    target: "앱 설정"
+  - action: wait
+    duration: 4000
+
+  # 10. 디버그 패널까지 다시 스크롤
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 700
+    x2: 240
+    y2: 200
+    duration: 800
+  - action: wait
+    duration: 3000
+
+  # 11. ATTEMPT_SUPPRESSION: 단독 REMOTE 재주입
+  # armed = {REMOTE, BANKING_AFTER_REMOTE}, inject {REMOTE} → subset ⊆ armed, 신규 UPGRADE 없음 → α suppress
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 ATTEMPT_SUPPRESSION single_remote'"
+  - action: tap_text
+    target: "원격제어 앱 실행 시뮬레이션"
+  - action: wait
+    duration: 4000
+
+  # 12. α가 억제했다면 팝업 없음 → 설정 화면 그대로
+  - action: screenshot
+    name: "ALPHA2_04_suppressed_no_popup"
+  - action: verify_text
+    target: "텔레뱅킹 유도 사기 시뮬레이션"
+
+  # 13. Home으로 복귀 + 최상단 스크롤
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 BACK_TO_HOME'"
+  - action: key
+    key: KEYCODE_BACK
+  - action: wait
+    duration: 3000
+  - action: swipe
+    x: 240
+    y: 200
+    x2: 240
+    y2: 700
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: swipe
+    x: 240
+    y: 200
+    x2: 240
+    y2: 700
+    duration: 800
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "ALPHA2_05_home_sustained_safe"
+  - action: verify_text
+    target: "현재 보호 상태"
+
+  # 14. 30초 추가 sustained 관측
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 WAIT_30s start'"
+  - action: wait
+    duration: 30000
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 WAIT_30s end'"
+  - action: screenshot
+    name: "ALPHA2_06_home_sustained_30s"
+  - action: verify_text
+    target: "현재 보호 상태"
+
+  # 15. 정리
+  - action: shell
+    command: "log -t SeniorShield-Test 'ALPHA2 GATE_END PASS-level UI verified'"
+  - action: key
+    key: KEYCODE_HOME
