@@ -1,7 +1,7 @@
 # SETTINGS_SMOKE_01 — app launch scope (THOR2_J ja-JP)
 
 **Status:** SCOPE; not committed; YAML 작성 예정 / runtime 예정.
-**단말:** THOR2_J (AT-M140 thor2 alt_thor2) · serial `B2700125BW000083` · 480x800 @ 220dpi · ja-JP
+**단말:** THOR2_J (AT-M140 thor2 alt_thor2) · serial `<thor2_device_serial>` · 480x800 @ 220dpi · ja-JP
 **앱:** `com.android.settings` v14 (Android 14)
 **probe 근거:** `THOR2_J - Settings/probe_settings_home.xml` (Phase 0, 2026-05-08)
 **횡 비교:** ODIN2 ko-KR `SETTINGS_SMOKE_01_app_launch.yaml` (commit `5e4dc44`)

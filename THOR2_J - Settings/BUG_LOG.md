@@ -18,7 +18,7 @@
 
 ### 2026-05-08 Phase 0
 - 실행일: 2026-05-08
-- 단말: THOR2_J (AT-M140 ja-JP) B2700125BW000083
+- 단말: THOR2_J (AT-M140 ja-JP) <thor2_device_serial>
 - 앱: com.android.settings v14
 - 범위: home probe 1회 (ja-JP locale)
 - PASS: launch + foreground 확인 (manual evidence observed)
@@ -28,7 +28,7 @@
 
 ### 2026-05-08 SMOKE_01 + SMOKE_02
 - 실행일: 2026-05-08
-- 단말: THOR2_J (AT-M140 ja-JP) B2700125BW000083
+- 단말: THOR2_J (AT-M140 ja-JP) <thor2_device_serial>
 - 앱: com.android.settings v14
 - 범위: SMOKE_01 ROOT 6 anchor / SMOKE_02 scroll + post-scroll 2 anchor
 - PASS: SMOKE_01 runtime 11/11 (20.6s), SMOKE_02 runtime 13/13 (20.0s)

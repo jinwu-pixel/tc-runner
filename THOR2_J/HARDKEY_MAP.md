@@ -1,7 +1,7 @@
 # THOR2_J Hardkey Map (v0.6)
 
 **대상 단말**: THOR2_J (AT-M140 thor2 / ALT brand)
-**serial**: `B2700125BW000083`
+**serial**: `<thor2_device_serial>`
 **Android**: 14 (UP1A.231005.007), build `SELJY072603MZ0511`
 **디스플레이**: 480x800 @ 220dpi, ja-JP locale
 **작성 기준**: Figma `0_0_[THOR2-J] FocusRule v1.0.5` **전체 (45페이지)** — 0_1.x ~ 0_9.x 통합 + adb 실측 (2026-05-11). PDF 원본: `doc/0_0_[THOR2-J] FocusRule _v1.0.5.pdf` (16.8MB, working tree 보관)
@@ -29,7 +29,7 @@
 `getprop` 실측 — hall sensor가 단말 property로 노출됨:
 
 ```bash
-adb -s B2700125BW000083 shell "getprop sys.hls.hall.state"
+adb -s <thor2_device_serial> shell "getprop sys.hls.hall.state"
 # 현재 측정값: 0
 # 0 또는 1 (실제 폴더 OPEN/CLOSED 매핑은 실측 시 확인 필요)
 ```
