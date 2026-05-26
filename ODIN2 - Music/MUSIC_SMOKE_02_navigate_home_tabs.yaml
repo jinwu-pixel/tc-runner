@@ -47,7 +47,7 @@ metadata:
   target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
 
 preconditions:
-  - "ODIN2 ADB serial c4324122 연결"
+  - "ODIN2 ADB serial <odin2_device_serial> 연결"
   - "com.mive.music 설치, version_name=1.0.2604231952"
   - "keyguard 해제 상태"
   - "단말 즐겨찾기 0건 (preset-dependent empty state anchor 사용)"

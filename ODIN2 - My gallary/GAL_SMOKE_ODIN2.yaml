@@ -30,7 +30,7 @@ metadata:
 
 preconditions:
   - "GAL_FUNC_01 preset 환경 (사진 25장 + 영상 2개)"
-  - "ODIN2 ADB serial c4324122 연결"
+  - "ODIN2 ADB serial <odin2_device_serial> 연결"
   - "저장공간 권한 '모두 허용' 상태"
 
 steps:

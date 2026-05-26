@@ -27,7 +27,7 @@ metadata:
   target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
 
 preconditions:
-  - "ODIN2 ADB serial c4324122 연결"
+  - "ODIN2 ADB serial <odin2_device_serial> 연결"
   - "com.android.settings 설치, version_name=1.0.0.1101"
   - "keyguard 해제 상태"
 

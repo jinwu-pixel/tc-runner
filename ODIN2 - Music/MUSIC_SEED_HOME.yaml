@@ -28,7 +28,7 @@ metadata:
   target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
 
 preconditions:
-  - "ODIN2 ADB serial c4324122 연결"
+  - "ODIN2 ADB serial <odin2_device_serial> 연결"
   - "screen-on 처리는 preflight 실행 직전 외부 단계에서 수행 (KEYCODE_WAKEUP)"
   - "Music foreground 여부는 run_id 별로 외부에서 처리 (KEYCODE_HOME / monkey LAUNCHER)"
 

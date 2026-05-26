@@ -32,7 +32,7 @@ metadata:
   target_device: "THOR2_J (AT-M140 thor2 alt_thor2) 480x800 @ 220dpi, portrait, ja-JP"
 
 preconditions:
-  - "THOR2_J ADB serial B2700125BW000083 연결"
+  - "THOR2_J ADB serial <thor2_device_serial> 연결"
   - "com.android.settings 설치 (Android 14 stock)"
   - "persist.sys.locale=ja"
   - "keyguard 해제 상태"

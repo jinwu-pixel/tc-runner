@@ -22,7 +22,7 @@ metadata:
   target_device: "ODIN2 (AT-M150) 720x1560 @ 320dpi, portrait"
 
 preconditions:
-  - "ODIN2 ADB serial c4324122 연결"
+  - "ODIN2 ADB serial <odin2_device_serial> 연결"
   - "권한 전부 granted"
   - "DCIM/MyGallery_TC 파일 다수 존재"
 

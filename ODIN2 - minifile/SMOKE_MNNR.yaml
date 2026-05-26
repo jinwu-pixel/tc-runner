@@ -39,7 +39,7 @@ metadata:
 
 preconditions:
   - "Phase 0 완료: setup_minifile_preset.py 실행됨"
-  - "ODIN2 ADB serial c4324122 연결"
+  - "ODIN2 ADB serial <odin2_device_serial> 연결"
   - "preset: Music/Documents/Download 각 2개, DCIM/MyGallery_TC=27, Movies>=3"
 
 steps:
