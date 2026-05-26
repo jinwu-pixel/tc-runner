@@ -1,12 +1,17 @@
 import base64
+import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader
 
 from src.action_runner import StepResult
+from src.catalog_delta import validate_run_id_for_filename
+
+SUMMARY_SCHEMA_VERSION = 1
+SUMMARY_TOOL_VERSION = "runtime-report-v1"
 
 
 @dataclass
@@ -25,11 +30,22 @@ class TCResult:
 
 
 class Reporter:
-    def __init__(self, report_dir: Path):
-        self.report_dir = report_dir
+    def __init__(self, report_dir: Path, run_id: Optional[str] = None):
+        self.report_dir = Path(report_dir)
+        self.run_id = validate_run_id_for_filename(run_id) if run_id else None
         self.results: list[TCResult] = []
         self.device_info: dict = {}
         self.start_time: datetime = datetime.now()
+
+    @property
+    def bundle_dir(self) -> Path:
+        return self.report_dir / self.run_id if self.run_id else self.report_dir
+
+    @property
+    def screenshot_dir(self) -> Path:
+        if self.run_id:
+            return self.bundle_dir / "screenshots"
+        return self.report_dir / "screenshots"
 
     def print_step(self, tc_name: str, step_index: int, result: StepResult) -> None:
         manual_action = getattr(result, "manual_action", "")
@@ -80,7 +96,8 @@ class Reporter:
         return {"total": total, "passed": passed, "skipped": skipped, "failed": failed}
 
     def generate_html(self) -> Path:
-        self.report_dir.mkdir(parents=True, exist_ok=True)
+        target_dir = self.bundle_dir
+        target_dir.mkdir(parents=True, exist_ok=True)
 
         template_dir = Path(__file__).parent.parent / "templates"
         if template_dir.exists() and (template_dir / "report.html").exists():
@@ -98,7 +115,6 @@ class Reporter:
                     step._screenshot_b64 = None
 
         summary = self.get_summary()
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         html_content = template.render(
             device_info=self.device_info,
             summary=summary,
@@ -106,9 +122,69 @@ class Reporter:
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
 
-        report_path = self.report_dir / f"{timestamp}_report.html"
+        if self.run_id:
+            report_path = target_dir / "report.html"
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            report_path = target_dir / f"{timestamp}_report.html"
         report_path.write_text(html_content, encoding="utf-8")
         return report_path
+
+    def write_summary_json(self) -> Path:
+        """run_id 가 설정된 bundle 모드에서만 호출. summary.json 을 bundle_dir 에 기록."""
+        if not self.run_id:
+            raise RuntimeError("write_summary_json requires run_id (bundle mode only)")
+
+        target_dir = self.bundle_dir
+        target_dir.mkdir(parents=True, exist_ok=True)
+        summary_path = target_dir / "summary.json"
+
+        payload = {
+            "schema_version": SUMMARY_SCHEMA_VERSION,
+            "tool_version": SUMMARY_TOOL_VERSION,
+            "run_id": self.run_id,
+            "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "device": dict(self.device_info or {}),
+            "summary": self.get_summary(),
+            "results": [self._serialize_tc(tc) for tc in self.results],
+        }
+
+        with open(summary_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+        return summary_path
+
+    def _serialize_tc(self, tc: TCResult) -> dict:
+        return {
+            "name": tc.name,
+            "description": tc.description,
+            "passed": tc.is_pass,
+            "duration_s": round(tc.total_duration, 4),
+            "steps": [self._serialize_step(i, s) for i, s in enumerate(tc.steps)],
+        }
+
+    def _serialize_step(self, index: int, step: StepResult) -> dict:
+        return {
+            "index": index + 1,
+            "action": step.action,
+            "passed": step.passed,
+            "duration_s": round(step.duration, 4),
+            "message": step.message or "",
+            "execution_mode": getattr(step, "execution_mode", "") or "",
+            "manual_action": getattr(step, "manual_action", "") or "",
+            "skip_reason": getattr(step, "skip_reason", "") or "",
+            "paused": bool(getattr(step, "paused", False)),
+            "screenshot_path": self._bundle_relative(step.screenshot_path),
+        }
+
+    def _bundle_relative(self, path: Optional[Path]) -> Optional[str]:
+        if path is None:
+            return None
+        path = Path(path)
+        bundle = self.bundle_dir.resolve()
+        try:
+            return path.resolve().relative_to(bundle).as_posix()
+        except ValueError:
+            return path.as_posix()
 
 
 DEFAULT_TEMPLATE = """<!DOCTYPE html>

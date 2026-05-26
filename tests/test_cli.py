@@ -1,8 +1,9 @@
 from pathlib import Path
 
+import pytest
 from openpyxl import Workbook
 
-from src.cli import _resolve_tc_files
+from src.cli import _resolve_tc_files, main
 
 
 def create_test_excel(path: Path) -> None:
@@ -70,3 +71,33 @@ def test_resolve_invalid_xlsx_skips(tmp_path):
     import shutil
     for d in temp_dirs:
         shutil.rmtree(d, ignore_errors=True)
+
+
+def test_run_subparser_accepts_run_id(monkeypatch):
+    """`cli run` 이 --run-id override 를 파싱하여 cmd_run 에 전달한다."""
+    captured = {}
+
+    def fake_run(args):
+        captured["run_id"] = args.run_id
+        captured["tc_files"] = list(args.tc_files)
+
+    monkeypatch.setattr("src.cli.cmd_run", fake_run)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["cli", "run", "dummy.yaml", "--run-id", "20260526T120000Z"],
+    )
+    main()
+    assert captured == {"run_id": "20260526T120000Z", "tc_files": ["dummy.yaml"]}
+
+
+def test_run_subparser_run_id_default_none(monkeypatch):
+    """--run-id 미지정 시 args.run_id == None (cmd_run 안에서 _now_run_id() 적용)."""
+    captured = {}
+
+    def fake_run(args):
+        captured["run_id"] = args.run_id
+
+    monkeypatch.setattr("src.cli.cmd_run", fake_run)
+    monkeypatch.setattr("sys.argv", ["cli", "run", "dummy.yaml"])
+    main()
+    assert captured["run_id"] is None

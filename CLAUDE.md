@@ -297,22 +297,23 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 **구현됨**:
 | 경로 | 용도 |
 |---|---|
-| `reports/*_report.html` | runtime HTML 리포트 |
+| `reports/<run_id>/{report.html, screenshots/, summary.json}` | runtime bundle (lint·preflight 외 HTML / 스크린샷 / machine-readable 요약). `cli run` 1회 = 1 run_id = 1 bundle. run_id 포맷 `YYYYMMDDTHHMMSSZ` UTC (`preflight._now_run_id` 재사용), `--run-id` override 가능 |
+| `reports/*_report.html` | runtime HTML 리포트 (legacy — Reporter 미주입 run_id 호출 시) |
+| `reports/screenshots/` | runtime 스크린샷 (legacy flat) |
 | `reports/lint/<run_id>.json` | lint 결과 |
 | `reports/preflight/<run_id>/` | preflight 결과 (manual seed 포함) |
-| `reports/screenshots/` | runtime 스크린샷 |
 | `reports/catalog_delta/` | catalog delta 산출물 |
 | `<단말명> - <앱명>/catalog/` | 화면·selector·실패원인 카탈로그 (앱별 진행) |
 | `output/` | bat 도구 1회성 산출물 |
 | `output/QC_AP log/` | AP 로그 |
 | `logs/`, `logs_apn/` | 도구별 누적 로그 |
 
-**Planned (구현 시 본 항목 갱신)**:
-| 경로 | 용도 |
-|---|---|
-| `reports/<run_id>/` | runtime 전체 묶음 구조화 (lint·preflight 외) |
+**Planned (구현 시 본 항목 갱신)**: (현재 없음)
 
 planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
+
+**runtime bundle 구현 메모 (2026-05-26)**:
+구현 파일 = `src/reporter.py` (`Reporter(run_id=...)` + `bundle_dir` / `screenshot_dir` property + `write_summary_json`), `src/cli.py` (`cli run --run-id` override, `cmd_run` 에서 run_id 주입), `tests/test_reporter.py`, `tests/test_cli.py`. `summary.json` 스키마 = `schema_version=1` / `tool_version="runtime-report-v1"` / `device` / `summary` / `results[].steps[]` (필드: `index, action, passed, duration_s, message, execution_mode, manual_action, skip_reason, paused, screenshot_path` — bundle 상대경로). pytest reporter/cli 16 passed. 단말 runtime smoke 미수행 (다음 단말 작업 사이클에서 실 cli run 으로 sanity 예정).
 
 ### 5.7 개선 훅
 신규 도구·기존 경로 status 변경·환경 함정 신규 발견 시 §8 기록.

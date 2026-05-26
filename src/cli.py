@@ -26,6 +26,7 @@ from src.app_explorer import AppExplorer
 from src import preflight as preflight_mod
 from src import catalog as catalog_mod
 from src import catalog_delta as catalog_delta_mod
+from src.catalog_delta import validate_run_id_for_filename
 
 
 def _timed_input(prompt: str, timeout: int) -> str | None:
@@ -145,9 +146,16 @@ def cmd_run(args):
         sys.exit(1)
 
     report_dir = Path("reports")
-    screenshot_dir = report_dir / "screenshots"
-    reporter = Reporter(report_dir=report_dir)
+    run_id_raw = getattr(args, "run_id", None) or preflight_mod._now_run_id()
+    try:
+        run_id = validate_run_id_for_filename(run_id_raw)
+    except ValueError as e:
+        print(f"ERROR: --run-id 부적합: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    reporter = Reporter(report_dir=report_dir, run_id=run_id)
     reporter.device_info = adb.get_device_info()
+    screenshot_dir = reporter.screenshot_dir
     runner = ActionRunner(adb=adb, screenshot_dir=screenshot_dir,
                          on_manual_step=_terminal_manual_handler)
 
@@ -194,11 +202,17 @@ def cmd_run(args):
             sys.exit(1)
 
         reporter.print_summary()
+        print(f"\nRun bundle: {reporter.bundle_dir}")
         try:
             html_path = reporter.generate_html()
-            print(f"\nHTML report: {html_path}")
+            print(f"  HTML report: {html_path}")
         except Exception as e:
-            print(f"\nWARNING: HTML 리포트 생성 실패 — {e}")
+            print(f"  WARNING: HTML 리포트 생성 실패 — {e}")
+        try:
+            summary_path = reporter.write_summary_json()
+            print(f"  Summary JSON: {summary_path}")
+        except Exception as e:
+            print(f"  WARNING: summary.json 생성 실패 — {e}")
     finally:
         for d in temp_dirs:
             shutil.rmtree(d, ignore_errors=True)
@@ -647,6 +661,12 @@ def main():
     # run
     run_parser = subparsers.add_parser("run", help="YAML/엑셀 T/C 실행")
     run_parser.add_argument("tc_files", nargs="+", help="YAML 또는 엑셀(.xlsx) T/C 파일 경로")
+    run_parser.add_argument(
+        "--run-id",
+        dest="run_id",
+        default=None,
+        help="run_id override (기본: 현재 UTC 타임스탬프 %%Y%%m%%dT%%H%%M%%SZ)",
+    )
     run_parser.set_defaults(func=cmd_run)
 
     # preflight
