@@ -10,6 +10,7 @@ from src.ui_parser import (
     find_clickable_target_by_content_desc,
     find_element_by_id,
     find_element_by_text,
+    find_focused_node,
 )
 
 
@@ -185,6 +186,8 @@ class ActionRunner:
             "input_text": self._input_text,
             "tap_content_desc": self._tap_content_desc,
             "verify_content_desc": self._verify_content_desc,
+            "key_sequence": self._key_sequence,
+            "verify_focus_moved": self._verify_focus_moved,
             "manual_pause": lambda step: (False, "manual_pause requires handler"),
         }
         handler = handlers.get(action)
@@ -242,6 +245,14 @@ class ActionRunner:
         self.adb.key(keycode)
         return True, f"Key: {keycode}"
 
+    def _key_sequence(self, step: dict) -> tuple[bool, str]:
+        keys = step.get("keys", [])
+        delay = step.get("delay", 0.5)
+        for keycode in keys:
+            self.adb.key(str(keycode))
+            time.sleep(delay)
+        return True, f"Key sequence executed: {keys}"
+
     def _shell(self, step: dict) -> tuple[bool, str]:
         command = step["command"]
         output = self.adb.shell(command)
@@ -278,6 +289,37 @@ class ActionRunner:
             if attempt < self.max_retries - 1:
                 time.sleep(self.retry_interval)
         return False, f"Text '{text}' not found on screen"
+
+    def _verify_focus_moved(self, step: dict) -> tuple[bool, str]:
+        trigger_action = step.get("trigger_action")
+        trigger_step = step.get("trigger_step", {})
+
+        if not trigger_action:
+            return False, "trigger_action is required"
+
+        xml_pre = self.adb.dump_ui()
+        node_pre = find_focused_node(xml_pre)
+        bounds_pre = node_pre.get("bounds") if node_pre else None
+
+        dispatch_step = {**trigger_step, "action": trigger_action}
+        passed, msg = self._dispatch(trigger_action, dispatch_step)
+        if not passed:
+            return False, f"Trigger action failed: {msg}"
+
+        time.sleep(self.retry_interval)
+
+        xml_post = self.adb.dump_ui()
+        node_post = find_focused_node(xml_post)
+        bounds_post = node_post.get("bounds") if node_post else None
+
+        if bounds_pre is None:
+            return False, "Focus not found before trigger"
+        if bounds_post is None:
+            return False, "Focus not found after trigger"
+        if bounds_pre == bounds_post:
+            return False, f"Focus did not move. Bounds: {bounds_pre}"
+
+        return True, f"Focus moved from {bounds_pre} to {bounds_post}"
 
     def _verify_gone(self, step: dict) -> tuple[bool, str]:
         # "Gone" = target substring NOT found in the *currently dumped* uiautomator

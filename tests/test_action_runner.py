@@ -399,3 +399,152 @@ class TestHybridPause:
         result = runner.run_step(step)
         assert not result.passed
         assert "error" in result.message.lower() or "disconnect" in result.message.lower()
+
+
+# ─── key_sequence ───
+
+def test_key_sequence_iterates_keys_and_sleeps_between():
+    adb = MagicMock()
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep") as mock_sleep:
+        result = runner.run_step({
+            "action": "key_sequence",
+            "keys": ["KEYCODE_TAB", "KEYCODE_TAB", "KEYCODE_ENTER"],
+            "delay": 0.25,
+        })
+    assert result.passed is True
+    assert adb.key.call_count == 3
+    adb.key.assert_any_call("KEYCODE_TAB")
+    adb.key.assert_any_call("KEYCODE_ENTER")
+    # delay sleep is called per key (3 times with 0.25)
+    assert sum(1 for c in mock_sleep.call_args_list if c.args == (0.25,)) == 3
+
+
+def test_key_sequence_default_delay_when_omitted():
+    adb = MagicMock()
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep") as mock_sleep:
+        result = runner.run_step({"action": "key_sequence", "keys": ["KEYCODE_TAB"]})
+    assert result.passed is True
+    # default delay = 0.5
+    assert any(c.args == (0.5,) for c in mock_sleep.call_args_list)
+
+
+def test_key_sequence_casts_integer_keycodes_to_string():
+    adb = MagicMock()
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({"action": "key_sequence", "keys": [61, 66]})
+    assert result.passed is True
+    adb.key.assert_any_call("61")
+    adb.key.assert_any_call("66")
+
+
+# ─── verify_focus_moved (strict moved) ───
+
+FOCUS_PRE_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node text="A" focused="true" bounds="[100,100][200,200]" />
+  <node text="B" focused="false" bounds="[300,100][400,200]" />
+</hierarchy>"""
+
+FOCUS_POST_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node text="A" focused="false" bounds="[100,100][200,200]" />
+  <node text="B" focused="true" bounds="[300,100][400,200]" />
+</hierarchy>"""
+
+FOCUS_NONE_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node text="A" focused="false" bounds="[100,100][200,200]" />
+  <node text="B" focused="false" bounds="[300,100][400,200]" />
+</hierarchy>"""
+
+
+def test_verify_focus_moved_passes_when_pre_and_post_bounds_differ():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [FOCUS_PRE_XML, FOCUS_POST_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_TAB"},
+        })
+    assert result.passed is True
+    assert "[100,100][200,200]" in result.message
+    assert "[300,100][400,200]" in result.message
+    adb.key.assert_called_once_with("KEYCODE_TAB")
+
+
+def test_verify_focus_moved_fails_when_bounds_same():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [FOCUS_PRE_XML, FOCUS_PRE_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_TAB"},
+        })
+    assert result.passed is False
+    assert "did not move" in result.message
+
+
+def test_verify_focus_moved_fails_when_pre_focus_missing():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [FOCUS_NONE_XML, FOCUS_POST_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_TAB"},
+        })
+    assert result.passed is False
+    assert "before trigger" in result.message
+
+
+def test_verify_focus_moved_fails_when_post_focus_missing():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [FOCUS_PRE_XML, FOCUS_NONE_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_TAB"},
+        })
+    assert result.passed is False
+    assert "after trigger" in result.message
+
+
+def test_verify_focus_moved_fails_when_trigger_action_fails():
+    adb = MagicMock()
+    # FOCUS_PRE_XML 무한 공급 — tap_text가 '없는텍스트' 못 찾고 실패
+    adb.dump_ui.return_value = FOCUS_PRE_XML
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), max_retries=1, retry_interval=0)
+    result = runner.run_step({
+        "action": "verify_focus_moved",
+        "trigger_action": "tap_text",
+        "trigger_step": {"target": "없는텍스트"},
+    })
+    assert result.passed is False
+    assert "Trigger action failed" in result.message
+    # post-dump should not run when trigger fails — only pre-dump + tap_text retries
+    adb.tap.assert_not_called()
+
+
+def test_verify_focus_moved_does_not_mutate_trigger_step():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [FOCUS_PRE_XML, FOCUS_POST_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    trigger_step = {"key": "KEYCODE_TAB"}
+    with patch.object(time, "sleep"):
+        runner.run_step({
+            "action": "verify_focus_moved",
+            "trigger_action": "key",
+            "trigger_step": trigger_step,
+        })
+    # caller's trigger_step dict must not be mutated with 'action' key
+    assert "action" not in trigger_step

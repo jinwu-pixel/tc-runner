@@ -3,6 +3,7 @@ from src.ui_parser import (
     find_clickable_target_by_content_desc,
     find_element_by_id,
     find_element_by_text,
+    find_focused_node,
 )
 
 SAMPLE_XML = """<?xml version="1.0" encoding="UTF-8"?>
@@ -137,3 +138,38 @@ def test_text_and_content_desc_are_separate_attributes():
     assert status == "not_found"
     # 반대: text=비어있어도 content-desc 매칭은 그 자체 attribute만 본다
     assert count_content_desc_matches(text_only_xml, "즐겨찾기") == 0
+
+
+# ─── find_focused_node ───
+
+FOCUSED_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node text="A" focused="false" bounds="[0,0][100,100]" />
+  <node text="B" focused="true" bounds="[100,0][200,100]" />
+  <node text="C" focused="false" bounds="[200,0][300,100]" />
+</hierarchy>"""
+
+NO_FOCUS_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node text="A" focused="false" bounds="[0,0][100,100]" />
+  <node text="B" focused="false" bounds="[100,0][200,100]" />
+</hierarchy>"""
+
+
+def test_find_focused_node_returns_focused_attrib():
+    node = find_focused_node(FOCUSED_XML)
+    assert node is not None
+    assert node.get("focused") == "true"
+    assert node.get("text") == "B"
+    assert node.get("bounds") == "[100,0][200,100]"
+
+
+def test_find_focused_node_returns_none_when_no_focus():
+    assert find_focused_node(NO_FOCUS_XML) is None
+
+
+def test_find_focused_node_returns_none_on_parse_error():
+    # invalid XML — not a parse error from ET's perspective if completely malformed
+    # use clearly broken structure
+    assert find_focused_node("<hierarchy><node unclosed") is None
+    assert find_focused_node("") is None

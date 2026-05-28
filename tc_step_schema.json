@@ -76,11 +76,11 @@
           "enum": [
             "tap_text", "tap_id", "tap_xy",
             "tap_content_desc",
-            "key", "shell", "input_text",
+            "key", "key_sequence", "shell", "input_text",
             "swipe", "wait", "screenshot",
             "manual_pause",
             "verify_text", "verify_shell", "verify_gone",
-            "verify_content_desc"
+            "verify_content_desc", "verify_focus_moved"
           ],
           "description": "실행할 액션 타입"
         },
@@ -111,8 +111,25 @@
           "description": "input_text 액션에서 입력할 문자열"
         },
         "key": {
+          "type": ["string", "integer"],
+          "description": "key 액션에서 보낼 키코드 (예: KEYCODE_HOME 또는 3)"
+        },
+        "keys": {
+          "type": "array",
+          "items": { "type": ["string", "integer"] },
+          "description": "key_sequence 액션에서 보낼 키코드 배열"
+        },
+        "delay": {
+          "type": "number",
+          "description": "key_sequence 키 입력 사이의 대기 시간 (초)"
+        },
+        "trigger_action": {
           "type": "string",
-          "description": "key 액션에서 보낼 키코드 (예: KEYCODE_HOME)"
+          "description": "verify_focus_moved 수행 전 실행할 액션"
+        },
+        "trigger_step": {
+          "type": "object",
+          "description": "verify_focus_moved 수행 전 실행할 스텝 인자"
         },
         "x": { "type": "integer", "description": "tap_xy/swipe 좌표" },
         "y": { "type": "integer", "description": "tap_xy/swipe 좌표" },
@@ -221,6 +238,14 @@
         {
           "if": { "properties": { "action": { "const": "swipe" } } },
           "then": { "required": ["action", "x", "y", "x2", "y2"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "key_sequence" } } },
+          "then": { "required": ["action", "keys"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "verify_focus_moved" } } },
+          "then": { "required": ["action", "trigger_action", "trigger_step"] }
         }
       ]
     }

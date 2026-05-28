@@ -38,6 +38,17 @@ def find_element_by_id(xml_str: str, resource_id: str) -> Optional[dict]:
     return None
 
 
+def find_focused_node(xml_str: str) -> Optional[dict]:
+    try:
+        root = ET.fromstring(xml_str)
+    except ET.ParseError:
+        return None
+    for node in root.iter("node"):
+        if node.get("focused") == "true":
+            return node.attrib
+    return None
+
+
 def _bounds_center(bounds_str: str) -> Optional[tuple[int, int]]:
     match = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds_str or "")
     if not match:
