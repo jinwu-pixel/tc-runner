@@ -1,106 +1,116 @@
-name: "SS_05_전체화면순회_E2E"
-description: "앱 실행 → 메인 확인 → 서브화면 순회 → 각 화면 검증 → 홈 (2026-04-16 리디자인 반영)"
+tc_name: SS_05_full_navigation
+description: |
+  SS_05_전체화면순회_E2E
+
+  앱 실행 → 메인 확인 → 서브화면 순회 → 각 화면 검증 → 홈 (2026-04-16 리디자인 반영)
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
 steps:
   # 1. 앱 강제종료 후 재실행
   - action: key
-    keycode: HOME
+    key: KEYCODE_HOME
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: shell
     command: "am force-stop com.example.seniorshield"
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: shell
     command: "am start -n com.example.seniorshield/.MainActivity"
   - action: wait
-    seconds: 3
+    duration: 3000
   - action: screenshot
     name: "SS05_01_main"
   - action: verify_text
-    text: "시니어쉴드"
+    target: "시니어쉴드"
   - action: verify_text
-    text: "현재 보호 상태"
+    target: "현재 보호 상태"
 
   # 2. 보이스피싱 대응 연습
   - action: tap_text
-    text: "보이스피싱 대응 연습"
+    target: "보이스피싱 대응 연습"
   - action: wait
-    seconds: 2
+    duration: 2000
   - action: screenshot
     name: "SS05_02_training"
   - action: verify_text
-    text: "검찰 사칭 사기"
+    target: "검찰 사칭 사기"
   - action: verify_text
-    text: "대출 사기"
+    target: "대출 사기"
   - action: verify_text
-    text: "자녀 사칭 사기"
+    target: "자녀 사칭 사기"
   - action: key
-    keycode: BACK
+    key: KEYCODE_BACK
   - action: wait
-    seconds: 1
+    duration: 1000
 
   # 3. 앱 설정 (하단이므로 스크롤 2회)
   - action: swipe
-    x1: 240
-    y1: 600
+    x: 240
+    y: 600
     x2: 240
     y2: 200
     duration: 500
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: swipe
-    x1: 240
-    y1: 700
+    x: 240
+    y: 700
     x2: 240
     y2: 100
     duration: 500
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: tap_text
-    text: "앱 설정"
+    target: "앱 설정"
   - action: wait
-    seconds: 2
+    duration: 2000
   - action: screenshot
     name: "SS05_03_settings"
   - action: verify_text
-    text: "앱 설정"
+    target: "앱 설정"
   - action: key
-    keycode: BACK
+    key: KEYCODE_BACK
   - action: wait
-    seconds: 1
+    duration: 1000
 
   # 4. 서비스 원칙 및 정책 (하단이므로 스크롤 2회)
   - action: swipe
-    x1: 240
-    y1: 600
+    x: 240
+    y: 600
     x2: 240
     y2: 200
     duration: 500
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: swipe
-    x1: 240
-    y1: 700
+    x: 240
+    y: 700
     x2: 240
     y2: 100
     duration: 500
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: tap_text
-    text: "서비스 원칙 및 정책"
+    target: "서비스 원칙 및 정책"
   - action: wait
-    seconds: 2
+    duration: 2000
   - action: screenshot
     name: "SS05_04_policy"
   - action: verify_text
-    text: "서비스 원칙"
+    target: "서비스 원칙"
   - action: key
-    keycode: BACK
+    key: KEYCODE_BACK
   - action: wait
-    seconds: 1
+    duration: 1000
 
   # 5. 종료
   - action: screenshot
     name: "SS05_05_final"
   - action: key
-    keycode: HOME
+    key: KEYCODE_HOME

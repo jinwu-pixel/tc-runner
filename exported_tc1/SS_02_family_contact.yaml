@@ -1,45 +1,55 @@
-name: "SS_02_앱설정_진입확인"
-description: "메인 → 앱 설정 진입 → 설정 항목 확인 → 뒤로 (2026-04-16 리디자인 반영)"
+tc_name: SS_02_family_contact
+description: |
+  SS_02_앱설정_진입확인
+
+  메인 → 앱 설정 진입 → 설정 항목 확인 → 뒤로 (2026-04-16 리디자인 반영)
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
 steps:
   - action: key
-    keycode: HOME
+    key: KEYCODE_HOME
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: shell
     command: "am force-stop com.example.seniorshield"
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: shell
     command: "am start -n com.example.seniorshield/.MainActivity"
   - action: wait
-    seconds: 3
+    duration: 3000
   - action: swipe
-    x1: 240
-    y1: 600
+    x: 240
+    y: 600
     x2: 240
     y2: 200
     duration: 500
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: swipe
-    x1: 240
-    y1: 700
+    x: 240
+    y: 700
     x2: 240
     y2: 100
     duration: 500
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: tap_text
-    text: "앱 설정"
+    target: "앱 설정"
   - action: wait
-    seconds: 2
+    duration: 2000
   - action: screenshot
     name: "SS02_01_settings"
   - action: verify_text
-    text: "앱 설정"
+    target: "앱 설정"
   - action: verify_text
-    text: "보호자 연락처 관리"
+    target: "보호자 연락처 관리"
   - action: screenshot
     name: "SS02_02_verified"
   - action: key
-    keycode: BACK
+    key: KEYCODE_BACK

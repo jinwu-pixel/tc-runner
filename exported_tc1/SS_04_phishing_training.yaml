@@ -1,37 +1,47 @@
-name: "SS_04_보이스피싱대응연습_진입확인"
-description: "메인 → 보이스피싱 대응 연습 → 시나리오 목록 확인 → 뒤로"
+tc_name: SS_04_phishing_training
+description: |
+  SS_04_보이스피싱대응연습_진입확인
+
+  메인 → 보이스피싱 대응 연습 → 시나리오 목록 확인 → 뒤로
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: "NONE"
+  has_manual_steps: false
+  has_shell_actions: true
 steps:
   - action: key
-    keycode: HOME
+    key: KEYCODE_HOME
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: shell
     command: "am force-stop com.example.seniorshield"
   - action: wait
-    seconds: 1
+    duration: 1000
   - action: shell
     command: "am start -n com.example.seniorshield/.MainActivity"
   - action: wait
-    seconds: 3
+    duration: 3000
   - action: tap_text
-    text: "보이스피싱 대응 연습"
+    target: "보이스피싱 대응 연습"
   - action: wait
-    seconds: 2
+    duration: 2000
   - action: screenshot
     name: "SS04_01_training_screen"
   - action: verify_text
-    text: "보이스피싱 대응 연습"
+    target: "보이스피싱 대응 연습"
   - action: verify_text
-    text: "검찰 사칭 사기"
+    target: "검찰 사칭 사기"
   - action: verify_text
-    text: "3단계"
+    target: "3단계"
   - action: verify_text
-    text: "대출 사기"
+    target: "대출 사기"
   - action: verify_text
-    text: "2단계"
+    target: "2단계"
   - action: verify_text
-    text: "자녀 사칭 사기"
+    target: "자녀 사칭 사기"
   - action: screenshot
     name: "SS04_02_verified"
   - action: key
-    keycode: BACK
+    key: KEYCODE_BACK
