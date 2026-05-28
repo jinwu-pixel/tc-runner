@@ -61,6 +61,14 @@ tc-runner는 단순 자동화 실행기가 아닌 **누적 학습 루프**다.
 
 `validate PASS`는 `runtime PASS`를 의미하지 않는다.
 
+**Scope 분리 어휘**:
+
+| 어휘 | 의미 |
+|---|---|
+| `NOTE` | 본 검증 scope 밖 관찰 (carrier 정책 / 외부 환경 / hardware 한계 / 별도 BUG). PASS/FAIL 판정 영향 없음. |
+
+FAIL과 NOTE 분리 — 외부 정책·환경 요인은 NOTE 처리하고 본 BUG 판정과 격리. 적용 원칙 상세: `feedback_scope_note_and_pass_blockers.md`.
+
 **FAIL 컨텍스트 부착**: `step verify_text FAIL`, `load_tc rejection`, `runtime precondition FAIL` 식.
 
 **모호 어휘 금지**:
@@ -197,6 +205,12 @@ venv/Scripts/python.exe gen_excel.py
 - 단일 carrier·단일 조건 PASS = 일반화 금지
 - 정/역 재현 예: WWAN on → trigger / off → no trigger (양방향)
 
+**3-way ground truth 정합 원칙**:
+단말 표시값 검증은 **단말 UI / 시스템 dump / 인터페이스 상태** 3 출처 동시 일치를 `runtime PASS` 요건으로 한다. 단일 출처는 layout 누락·stale 표시 등 위양성 가능. 적용 패턴 상세: `feedback_diagnostic_3way_ground_truth.md`.
+
+**핵심 axes vs 보강 axes 분리**:
+multi-phase 검증 TC는 **핵심 axes 충족 시 `runtime PASS`**, 보강 axes 미수집은 명시하되 PASS blocker 아님. 보조 분석 자료(예: QXDM hdf)도 PASS 근거 아님 / 후속 분석용 보존. 적용 패턴 상세: `feedback_scope_note_and_pass_blockers.md`.
+
 ### 4.3 정량 측정
 - 발생률 분자/분모 명시 (`20/21 = 95%` 식)
 - 결정론 timer는 σ까지 (`130.66s σ=0.13s, n=10`)
@@ -229,6 +243,7 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 ### 4.6 대표 사례 (1줄)
 - **BUG-25796 ODIN2 DataPopup race** — 단말 vs 호스트 가설 분리 → 34 사이클·6조건 매트릭스 → WWAN on/off 정/역 재현 → 130.66s σ=0.13s 정량 → root cause = 호스트 Windows WWAN AutoConfig (`CONFIRMED` + `SPEC_GAP`)
 - **BTS18697 IMS IP DebugScreen** — LTE PASS / WCDMA layout 자체 누락. WCDMA에서도 IMS PDN·P-CSCF·MMTEL은 별도 명령으로 활성 확인 → 단말 결함 아님 입증 후 layout 추가 요청 (`BUG-GAP observed`)
+- **BTS18697 IMS IP DebugScreen (2차)** — WCDMA layout 보강 빌드. DebugScreen / dumpsys connectivity / ip -o addr 3-way 일치, RAT 전환 시 IMS IP 새로 할당. KT 미인증 USIM IMS 미할당은 carrier 정책 `NOTE` (단말 fix scope 밖). `BUG-GAP observed` → `runtime PASS` 전환 (2026-05-28)
 - **BUG-25175 LGU+ APN MR** — 회귀 매트릭스 17/18 (T-16/17/18 skip), 이전 빌드 18/18과 라인 일치 (`runtime PASS`)
 
 ### 4.7 개선 훅
@@ -334,6 +349,7 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 | `BUG_LOG.md` | 이슈 누적 |
 | `MENU_TREE.md` | 메뉴·화면 구조 |
 | `RESUME.md` | 세션 재개용 상태 |
+| `RESULT_YYYY-MM-DD.md` | 검증 결과 보고서. 재검증 시 신규 RESULT 추가 (날짜 시리즈), 정정 이력으로 cross-link. 절차 상세: `reference_result_series_revalidation_cycle.md` |
 
 ### 6.3 이슈 lifecycle 어휘
 
@@ -367,6 +383,7 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 - 취소선·장문 주석·중복 서술 금지
 - 없는 정보 = `—`
 - 단순 포맷 통일은 정정 이력 기록 X
+- 다회 검증 사이클(1차 BUG-GAP → 개발자 fix → 2차 runtime PASS 등)은 RESULT 시리즈로 운영 — 본문 갱신 X / 신규 RESULT 추가 + 정정 이력 cross-link
 
 ### 6.5 세션 결과 블록
 `실행일 / 단말 / 앱 / 범위 / PASS / 신규 발견 / 변경·정정 / 다음 확인 항목`
@@ -432,6 +449,7 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 | 2026-05-21 | §1~§8 신설 | 보강 후보 10건 통합 | 전 섹션 | applied |
 | 2026-05-21 | 분량 가드 | 1차 작성 결과 447 lines · spec 가드 250~350 lines 대비 초과 | §8.4 archive 정책 가동 검토 | applied |
 | 2026-05-22 | §2.3/§7.2 drift | push-audit가 catalog(append-only 누적상태)를 generated류 재생성물로 오분류 → staging FAIL ↔ §2.4/§5.6 핵심가치 충돌. catalog 재분류(audit FORBIDDEN 제거 + PR6C drift baseline test 동기) + Music/gallery catalog track (commit `0b817db`) | tools/git_safe_push_audit.py · test baseline (CLAUDE.md 본문 무변경 — §5.6 이미 정합) | applied |
+| 2026-05-28 | diagnostic verification | BTS18697 2차 검증에서 DebugScreen/dumpsys/ip 3-way 정합, scope NOTE, RESULT 시리즈 운영을 일반 패턴으로 승격 | §2.2/§4/§6 + memory | applied |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
