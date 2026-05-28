@@ -1,0 +1,75 @@
+tc_name: SS_TC0_P0_endcall_crash
+description: |
+  T/C-01 (P0): 종료 버튼 크래시 회귀 검증
+
+  경고 팝업의 "지금 전화 끊기" 버튼 경로에서
+  dismiss→suppression→endCall→IDLE→suppression release 순서 검증.
+  크래시 없음 + suppression 해제 후 UI 정상 복귀.
+
+  우선순위: P0 (최우선)
+metadata:
+  source: TC_1.xlsx / SS-TC 0
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant) (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행
+- action: wait
+  duration: 2000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: 설정 > 디버그 > 테스트 모드 ON + 전체 상태 초기화
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 미등록 번호에서 수신 전화 → 수신 → 10초 이상 유지 (끊지 마세요!)
+  manual_timeout: 120
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Overlay:D
+  expected: 전체화면 팝업 표시
+  description: 위험 팝업 표시 로그 확인
+- action: screenshot
+  name: P0_popup_shown
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: ACTION
+  description: 경고 팝업에서 '전화 앱으로 이동' 버튼을 탭하세요 → 전화 앱에서 통화 종료
+  manual_timeout: 30
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Overlay:D
+  expected: end-call suppression started
+  description: suppression 시작 로그 확인
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Overlay:D
+  expected: suppression released
+  description: suppression 해제 로그 확인 (stabilization 또는 safety timeout)
+- action: shell
+  command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+  description: FATAL 크래시 없음 확인 (0이어야 정상)
+- action: screenshot
+  name: P0_after_endcall
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Coordinator:D
+  expected: no active session
+  description: 세션 종료 후 정상 복귀 확인

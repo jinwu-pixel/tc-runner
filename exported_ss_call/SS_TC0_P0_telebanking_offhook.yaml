@@ -1,0 +1,136 @@
+tc_name: SS_TC0_P0_telebanking_offhook
+description: |
+  TC-신규: OFFHOOK 텔레뱅킹 즉시 감지 (발신 중 팝업)
+
+  의심 통화 종료 후, 은행 ARS 번호로 발신 시
+  OFFHOOK 진입 시점에 CallLog 재시도 조회(최대 3회) →
+  TELEBANKING_AFTER_SUSPICIOUS 즉시 방출 → 발신/통화 중 팝업 표시 검증.
+  RealCallRiskMonitor.kt OFFHOOK 텔레뱅킹 감지 변경사항 검증.
+  기존 IDLE 폴백도 동작하는지 확인.
+
+  우선순위: P0
+metadata:
+  source: manual
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_PLACE
+steps:
+  # ── Phase 0: Setup ──
+  - action: shell
+    command: >-
+      setprop log.tag.SeniorShield-CallMonitor DEBUG &&
+      setprop log.tag.SeniorShield-Coordinator DEBUG &&
+      setprop log.tag.SeniorShield-Overlay DEBUG &&
+      setprop log.tag.SeniorShield-Cooldown DEBUG &&
+      setprop log.tag.SeniorShield-Session DEBUG &&
+      setprop log.tag.SeniorShield-AppUsage DEBUG
+    description: "Debug 로그 레벨 활성화"
+  - action: shell
+    command: "pm grant com.example.seniorshield android.permission.READ_PHONE_STATE"
+    description: "READ_PHONE_STATE 권한 허용"
+  - action: shell
+    command: "pm grant com.example.seniorshield android.permission.READ_CALL_LOG"
+    description: "READ_CALL_LOG 권한 허용"
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+    description: "앱 실행"
+  - action: wait
+    duration: 3000
+  - action: verify_text
+    target: "시니어쉴드"
+
+  # ── Phase 1: 테스트 모드 ON + 상태 초기화 ──
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: SETUP
+    description: "앱 설정 > 테스트 모드 ON + 전체 상태 초기화 후 [c]"
+    manual_timeout: 30
+  - action: shell
+    command: "logcat -c"
+    description: "logcat 초기화"
+
+  # ── Phase 2: 의심 통화 생성 (수신) ──
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "미등록 번호에서 수신 전화 → 수신 → 10초 이상 유지 → 종료"
+    manual_timeout: 120
+  - action: wait
+    duration: 3000
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D"
+    expected: "LONG_CALL_DURATION"
+    description: "Phase2 확인: 의심 통화(LONG_CALL_DURATION) 기록 생성됨"
+  - action: screenshot
+    name: "P0_01_suspicious_call_done"
+
+  # ── Phase 3: 은행 ARS 번호로 발신 (OFFHOOK 즉시 감지 테스트) ──
+  - action: shell
+    command: "logcat -c"
+    description: "logcat 초기화 (Phase 3 시작)"
+  - action: manual_pause
+    execution_mode: EXTERNAL_EVENT
+    step_role: ACTION
+    description: "은행 ARS 번호(예: 1588-9999)로 발신 → 통화 연결 대기 중 팝업이 뜨는지 확인. 끊지 마세요!"
+    manual_timeout: 60
+
+  # ── Phase 4: OFFHOOK 중 즉시 감지 확인 ──
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D"
+    expected: "TELEBANKING_AFTER_SUSPICIOUS"
+    description: "OFFHOOK 중 TELEBANKING_AFTER_SUSPICIOUS 즉시 방출 확인"
+  - action: screenshot
+    name: "P0_02_offhook_telebanking_detected"
+
+  # ── Phase 5: 팝업 표시 확인 (통화 중) ──
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    description: "발신/통화 중 경고 팝업이 표시되었는지 확인. [c] 팝업 표시됨 / [f] 미표시. 확인 후 통화 종료."
+    manual_timeout: 60
+
+  # ── Phase 6: 통화 종료 후 IDLE 폴백 확인 ──
+  - action: wait
+    duration: 5000
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D"
+    expected: "TELEBANKING"
+    description: "IDLE 시점 폴백 체크도 동작 확인 (distinctUntilChanged로 중복 방출 안 됨)"
+  - action: screenshot
+    name: "P0_03_idle_fallback"
+
+  # ── Phase 7: 중복 방출 방지 확인 ──
+  - action: verify_shell
+    command: "logcat -d -s SeniorShield-Coordinator:D | grep -c TELEBANKING_AFTER_SUSPICIOUS"
+    expected: "1"
+    description: "distinctUntilChanged: TELEBANKING_AFTER_SUSPICIOUS가 1회만 방출되었는지 확인"
+  - action: screenshot
+    name: "P0_04_no_duplicate"
+
+  # ── Phase 8: 크래시 없음 확인 ──
+  - action: verify_shell
+    command: "logcat -d -s AndroidRuntime:E | grep -c FATAL"
+    expected: "0"
+    description: "FATAL 크래시 없음 확인"
+
+  # ── Phase 9: 앱 복귀 후 감지 기록 확인 ──
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+  - action: wait
+    duration: 3000
+  - action: screenshot
+    name: "P0_05_main_after"
+  - action: tap_text
+    target: "전체 감지 기록 보기"
+  - action: wait
+    duration: 2000
+  - action: verify_text
+    target: "금융사기 의심 흐름 감지"
+    description: "텔레뱅킹 감지 기록이 이력에 반영됨"
+  - action: screenshot
+    name: "P0_06_history_telebanking"
+  - action: key
+    key: KEYCODE_BACK

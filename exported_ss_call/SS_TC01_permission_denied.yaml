@@ -1,0 +1,56 @@
+tc_name: SS_TC01_permission_denied
+description: |
+  TC-01: 권한 미부여 기본 동작 확인
+
+  READ_PHONE_STATE 거부 상태에서 수신 전화 시
+  NoPermission 유지, call signal 없음, 크래시 없음 확인.
+
+  우선순위: 필수 | 반복: 2회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 거부 (pm revoke)
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: SeniorShield 앱 실행
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 재시작 (pm revoke 후 프로세스 재생성)
+- action: wait
+  duration: 3000
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 보조폰에서 테스트 단말로 전화를 걸고 5초 후 끊어주세요
+  manual_timeout: 60
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D | tail -20
+  expected: not granted
+  description: NoPermission 상태 유지 확인
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'callSignals=\[\]'
+  expected: '0'
+  description: call signal 비어있음 (또는 coordinator에 도달 안 함)
+- action: shell
+  command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+  description: FATAL 크래시 없음 확인 (0이어야 정상)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 복구

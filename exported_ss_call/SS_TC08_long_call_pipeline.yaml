@@ -1,0 +1,65 @@
+tc_name: SS_TC08_long_call_pipeline
+description: |
+  TC-08: 긴 통화 기본 파이프라인 확인
+
+  임계값 이상 통화 후 LONG_CALL_DURATION 발생,
+  event push, Home/History 반영 확인.
+
+  우선순위: 필수 | 반복: 3회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant) (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행
+- action: wait
+  duration: 2000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: 설정 > 디버그 > '전체 상태 초기화' 탭 + 테스트 모드 ON 확인
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 보조폰에서 전화 → 수신 → 12초 이상 유지 → 종료
+  manual_timeout: 120
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: LONG_CALL_DURATION 신호 발생 확인
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Coordinator:D
+  expected: notification escalation
+  description: notification 에스컬레이션 확인
+- action: screenshot
+  name: TC08_long_call_home
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 홈 화면으로 복귀
+- action: wait
+  duration: 2000
+- action: screenshot
+  name: TC08_home_risk_status
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Coordinator:D
+  expected: event
+  description: risk event 기록 확인

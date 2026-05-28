@@ -1,0 +1,94 @@
+tc_name: SS_TC10_permission_toggle
+description: |
+  TC-10: 권한 흔들기 true→false→true
+
+  권한 허용 상태에서 정상 통화 1회 → 권한 철회 → 재허용 → 다시 통화.
+  NoPermission 전이, unregister/register 쌍, 두 번째 통화도 정상 감지 확인.
+
+  우선순위: 필수 | 반복: 3회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행
+- action: wait
+  duration: 2000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: 설정 > 디버그 > 테스트 모드 ON + 전체 상태 초기화
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: '[1차 통화] 보조폰에서 전화 → 수신 → 12초 이상 유지 → 종료'
+  manual_timeout: 120
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: '[1차] LONG_CALL_DURATION 발생 확인'
+- action: shell
+  command: pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: 권한 철회 (NoPermission 전이 유도)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 재시작 (pm revoke 후 프로세스 재생성)
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: not granted
+  description: NoPermission 상태 전이 확인
+- action: screenshot
+  name: TC10_phase2_no_permission
+- action: shell
+  command: logcat -c
+  description: logcat 초기화 (2차 통화 감지용)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: 권한 재허용
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: registered
+  description: 재등록 확인 (register)
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: '[2차 통화] 보조폰에서 전화 → 수신 → 12초 이상 유지 → 종료'
+  manual_timeout: 120
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: '[2차] LONG_CALL_DURATION 정상 발생 확인'
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: IDLE
+  description: 최종 Idle 복귀 확인
+- action: screenshot
+  name: TC10_permission_toggle_complete
+- action: shell
+  command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
+  description: register 횟수 확인 (1이어야 정상 — 2차에서 1회만)

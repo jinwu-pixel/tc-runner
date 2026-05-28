@@ -1,0 +1,54 @@
+tc_name: SS_TC07_short_call_no_false_positive
+description: |
+  TC-07: 짧은 정상 통화 오탐 방지
+
+  임계값 미만(테스트 모드 10초 기준, 5~7초) 통화 시
+  LONG_CALL_DURATION이 발생하지 않는지 확인.
+
+  우선순위: 중요 | 반복: 2회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant) (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행
+- action: wait
+  duration: 2000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: '설정 > 디버그 > 테스트 모드 ON 확인 (장시간 통화 기준: 10초)'
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 보조폰에서 전화 → 수신 → 5~7초 후 종료 (10초 미만!)
+  manual_timeout: 60
+- action: wait
+  duration: 5000
+- action: shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep
+    -c LONG_CALL_DURATION
+  description: LONG_CALL_DURATION 미발생 확인 (0이어야 PASS)
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: IDLE
+  description: Idle 복귀 확인
+- action: screenshot
+  name: TC07_short_call_no_false_positive

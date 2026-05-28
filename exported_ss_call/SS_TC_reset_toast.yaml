@@ -1,0 +1,115 @@
+tc_name: SS_TC_reset_toast
+description: |
+  TC-신규: 초기화 토스트 표시 검증
+
+  앱 설정 > 전체 상태 초기화 버튼 탭 → 토스트 '세션과 이력이 초기화되었습니다' 표시 확인.
+  SettingsScreen.kt onResetAll 콜백 변경사항 검증.
+
+  우선순위: P1
+metadata:
+  source: manual
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: BUTTON_TOUCH
+steps:
+  # 1. Setup: 앱 강제종료 후 재시작
+  - action: shell
+    command: "am force-stop com.example.seniorshield"
+    description: "앱 강제종료"
+  - action: wait
+    duration: 1000
+  - action: shell
+    command: "am start -n com.example.seniorshield/.MainActivity"
+    description: "앱 실행"
+  - action: wait
+    duration: 3000
+  - action: verify_text
+    target: "시니어쉴드"
+    description: "메인 화면 진입 확인"
+
+  # 2. 메인 스크롤 다운 → 앱 설정 진입
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 300
+    description: "메인 화면 스크롤 다운"
+  - action: wait
+    duration: 1000
+  - action: tap_text
+    target: "앱 설정"
+    description: "앱 설정 메뉴 진입"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "reset_toast_01_settings"
+  - action: verify_text
+    target: "앱 설정"
+    description: "앱 설정 화면 진입 확인"
+
+  # 3. 스크롤하여 초기화 버튼 노출
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 300
+    description: "설정 화면 스크롤 다운 1차"
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 300
+    description: "설정 화면 스크롤 다운 2차 (초기화 버튼 완전 노출)"
+  - action: wait
+    duration: 1000
+  - action: screenshot
+    name: "reset_toast_02_before_reset"
+
+  # 4. 전체 상태 초기화 탭
+  - action: tap_text
+    target: "전체 상태 초기화 (세션 + 이력)"
+    description: "전체 상태 초기화 버튼 탭"
+  - action: wait
+    duration: 1000
+  - action: screenshot
+    name: "reset_toast_03_after_reset"
+
+  # 5. 토스트 메시지 검증 (logcat으로 session reset 확인)
+  - action: verify_shell
+    command: "logcat -d | grep -i 'session reset' | tail -5"
+    expected: "session reset"
+    description: "로그에서 session reset 실행 확인"
+
+  # 6. 수동 토스트 확인 (UI에서 토스트는 빠르게 사라지므로)
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    description: "토스트 '세션과 이력이 초기화되었습니다' 가 화면에 표시되었는지 확인해주세요. [c] 확인됨 / [f] 미표시"
+    manual_timeout: 30
+
+  # 7. 초기화 후 상태 확인 — 메인 복귀
+  - action: key
+    key: KEYCODE_BACK
+  - action: wait
+    duration: 2000
+  - action: verify_text
+    target: "시니어쉴드"
+    description: "메인 화면 복귀 확인"
+  - action: screenshot
+    name: "reset_toast_04_main_after_reset"
+
+  # 8. 감지 기록이 비워졌는지 확인
+  - action: tap_text
+    target: "전체 감지 기록 보기"
+  - action: wait
+    duration: 2000
+  - action: screenshot
+    name: "reset_toast_05_history_empty"
+  - action: key
+    key: KEYCODE_BACK

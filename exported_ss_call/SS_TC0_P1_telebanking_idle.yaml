@@ -1,0 +1,70 @@
+tc_name: SS_TC0_P1_telebanking_idle
+description: |
+  T/C-02 (P1): 텔레뱅킹 IDLE 감지 검증
+
+  의심 통화 종료 후 발신 통화가 IDLE 시점
+  CallLog 검증으로 TELEBANKING_AFTER_SUSPICIOUS 정상 반영 확인.
+
+  우선순위: P1
+metadata:
+  source: TC_1.xlsx / SS-TC 0
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant) (pm grant)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_CALL_LOG
+  description: READ_CALL_LOG 권한 허용 (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행
+- action: wait
+  duration: 2000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: 설정 > 디버그 > 테스트 모드 ON + 전체 상태 초기화
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 미등록 번호에서 수신 전화 → 수신 → 10초 이상 유지 → 종료
+  manual_timeout: 120
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: 의심 통화 기록 확인
+- action: screenshot
+  name: P1_phase1_suspicious_call
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: '30초 이내에 은행 ARS 번호(예: 1588-9999)로 발신 → 짧게 통화 후 종료'
+  manual_timeout: 60
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: TELEBANKING_AFTER_SUSPICIOUS
+  description: TELEBANKING_AFTER_SUSPICIOUS 신호 반영 확인
+- action: screenshot
+  name: P1_phase2_telebanking_detected
+- action: verify_shell
+  command: logcat -d -s SeniorShield-Coordinator:D
+  expected: CRITICAL
+  description: CRITICAL 에스컬레이션 확인

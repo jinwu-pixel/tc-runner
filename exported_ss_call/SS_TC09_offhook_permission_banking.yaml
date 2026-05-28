@@ -1,0 +1,82 @@
+tc_name: SS_TC09_offhook_permission_banking
+description: |
+  TC-09: OFFHOOK 중 권한 허용 후 금융 앱 개입 확인
+
+  OFFHOOK 상태에서 권한 허용 → seed 복구 → 임계값 이상 통화 →
+  종료 후 금융 앱 실행 시 cooldown 또는 popup 발동 확인.
+
+  우선순위: 최중요 | 반복: 5회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 거부 (pm revoke)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_CALL_LOG
+  description: READ_CALL_LOG 권한 허용 (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행 (NoPermission 상태)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 재시작 (pm revoke 후 프로세스 재생성)
+- action: wait
+  duration: 3000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: 설정 > 디버그 > 테스트 모드 ON + 전체 상태 초기화
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 보조폰에서 전화 → 수신(통화 연결) → [계속] 누르세요 (끊지 마세요!)
+  manual_timeout: 60
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: OFFHOOK 중 권한 허용 (pm grant)
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: Active
+  description: seed 복구 → Active 감지 확인
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 통화를 12초 이상 유지 → 종료
+  manual_timeout: 120
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: LONG_CALL_DURATION 발생 확인
+- action: shell
+  command: am start -n com.ibk.android.ionebank/.activity.intro.IntroActivity
+  description: IBK 뱅킹 앱 실행
+- action: wait
+  duration: 8000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-AppUsage:D SeniorShield-Coordinator:D SeniorShield-Cooldown:D
+  expected: BANKING_APP
+  description: 금융 앱 감지 확인 (BANKING_APP 관련 로그)
+- action: screenshot
+  name: TC09_offhook_banking
+- action: shell
+  command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+  description: FATAL 크래시 없음 확인 (0이어야 정상)

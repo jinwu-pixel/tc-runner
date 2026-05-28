@@ -1,0 +1,83 @@
+tc_name: SS_TC05_boundary_values
+description: |
+  TC-05A/B/C: 장시간 통화 경계값 검증 (9/10/11초)
+
+  테스트 모드(임계값 10초)에서 9초/10초/11초 통화 시
+  LONG_CALL_DURATION 발생 여부 확인.
+  TC-05A: 9초 → 미발생, TC-05B: 10초 → 발생, TC-05C: 11초 → 발생.
+
+  우선순위: 필수 | 반복: 각 3회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant) (pm grant)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행
+- action: wait
+  duration: 2000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: '설정 > 디버그 > ''테스트 모드'' 토글 ON 확인 (장시간 통화 기준: 10초)'
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: '[TC-05A] logcat 초기화'
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: '[TC-05A] 보조폰에서 전화 → 수신 → 정확히 9초 후 종료'
+  manual_timeout: 60
+- action: wait
+  duration: 5000
+- action: shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep
+    -c LONG_CALL_DURATION
+  description: '[TC-05A] LONG_CALL_DURATION 미발생 확인 (0이어야 PASS)'
+- action: screenshot
+  name: TC05A_9sec_result
+- action: shell
+  command: logcat -c
+  description: '[TC-05B] logcat 초기화'
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: '[TC-05B] 보조폰에서 전화 → 수신 → 정확히 10초 후 종료'
+  manual_timeout: 60
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: '[TC-05B] LONG_CALL_DURATION 발생 확인'
+- action: screenshot
+  name: TC05B_10sec_result
+- action: shell
+  command: logcat -c
+  description: '[TC-05C] logcat 초기화'
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: '[TC-05C] 보조폰에서 전화 → 수신 → 11초 후 종료'
+  manual_timeout: 60
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: '[TC-05C] LONG_CALL_DURATION 발생 확인'
+- action: screenshot
+  name: TC05C_11sec_result

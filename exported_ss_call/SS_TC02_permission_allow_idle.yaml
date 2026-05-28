@@ -1,0 +1,51 @@
+tc_name: SS_TC02_permission_allow_idle
+description: |
+  TC-02: 권한 허용 후 Idle 진입 확인
+
+  권한 허용 직후 NoPermission→Idle 전이,
+  TelephonyCallback registered, 중복 등록 없음 확인.
+
+  우선순위: 필수 | 반복: 3회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 일시 거부
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행 (NoPermission 상태)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 재시작 (pm revoke 후 프로세스 재생성)
+- action: wait
+  duration: 3000
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 허용 (pm grant)
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: registered
+  description: TelephonyCallback registered 로그 확인
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: IDLE
+  description: Idle 상태 emit 확인
+- action: shell
+  command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
+  description: register 횟수 확인 (1이어야 정상)

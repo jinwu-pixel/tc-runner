@@ -1,0 +1,65 @@
+tc_name: SS_TC03_ringing_permission
+description: |
+  TC-03: RINGING 중 권한 허용 시 현재 통화 감지
+
+  권한 미부여 상태에서 RINGING 중 권한을 허용하면
+  현재 통화 문맥을 감지하고 이후 OFFHOOK/IDLE 전이가 정상 동작하는지 확인.
+
+  우선순위: 중요 | 반복: 3회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 거부 (pm revoke)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행 (NoPermission 상태)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 재시작 (pm revoke 후 프로세스 재생성)
+- action: wait
+  duration: 3000
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 보조폰에서 전화 걸기 → 벨이 울리면(받지 마세요!) [계속] 누르세요
+  manual_timeout: 60
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: RINGING 중 권한 허용 (pm grant)
+- action: wait
+  duration: 2000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: registered
+  description: TelephonyCallback registered 확인
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: ACTION
+  description: 전화를 수신하세요 → 5초 후 종료 (또는 거절해도 됩니다)
+  manual_timeout: 30
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: IDLE
+  description: 최종 Idle 상태 복귀 확인
+- action: screenshot
+  name: TC03_ringing_permission
+- action: shell
+  command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+  description: FATAL 크래시 없음 확인 (0이어야 정상)

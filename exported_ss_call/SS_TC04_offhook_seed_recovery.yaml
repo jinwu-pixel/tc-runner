@@ -1,0 +1,78 @@
+tc_name: SS_TC04_offhook_seed_recovery
+description: |
+  TC-04: OFFHOOK 중 권한 허용 시 seed 복구 확인
+
+  통화 연결(OFFHOOK) 상태에서 권한을 허용하면
+  최대 3초 내 Active 감지 및 현재 통화 복구가 성공하는지 확인.
+
+  우선순위: 최중요 | 반복: 5회
+metadata:
+  source: TC_1.xlsx / SS-TC 1
+  runnable: true
+  tc_class: SEMI_AUTO
+  execution_type: EXTERNAL_EVENT
+  manual_detail: CALL_RECEIVE
+steps:
+- action: shell
+  command: setprop log.tag.SeniorShield-CallMonitor DEBUG && setprop log.tag.SeniorShield-Coordinator
+    DEBUG && setprop log.tag.SeniorShield-Overlay DEBUG && setprop log.tag.SeniorShield-Cooldown
+    DEBUG && setprop log.tag.SeniorShield-Session DEBUG && setprop log.tag.SeniorShield-AppUsage
+    DEBUG
+  description: Debug 로그 레벨 활성화 (MTK 기기 대응)
+- action: shell
+  command: pm revoke com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: READ_PHONE_STATE 권한 거부 (pm revoke)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 실행 (NoPermission 상태)
+- action: shell
+  command: am start -n com.example.seniorshield/.MainActivity
+  description: 앱 재시작 (pm revoke 후 프로세스 재생성)
+- action: wait
+  duration: 3000
+- action: manual_pause
+  execution_mode: MANUAL_REQUIRED
+  step_role: SETUP
+  description: 설정 > 디버그 > 테스트 모드 ON + 전체 상태 초기화
+  manual_timeout: 30
+- action: shell
+  command: logcat -c
+  description: logcat 초기화
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 보조폰에서 전화 → 수신(통화 연결) → [계속] 누르세요 (끊지 마세요!)
+  manual_timeout: 60
+- action: shell
+  command: pm grant com.example.seniorshield android.permission.READ_PHONE_STATE
+  description: OFFHOOK 중 권한 허용 (pm grant) (seed 복구 트리거)
+- action: wait
+  duration: 3000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: registered
+  description: TelephonyCallback registered 확인
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: Active
+  description: Active 상태 감지 확인 (seed 복구 성공)
+- action: manual_pause
+  execution_mode: EXTERNAL_EVENT
+  step_role: ACTION
+  description: 통화를 12초 이상 유지 → 종료
+  manual_timeout: 120
+- action: wait
+  duration: 5000
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D
+  expected: LONG_CALL_DURATION
+  description: seed 복구 후 LONG_CALL_DURATION 정상 발생 확인
+- action: verify_shell
+  command: logcat -d -s SeniorShield-CallMonitor:D
+  expected: IDLE
+  description: 최종 Idle 복귀 확인
+- action: screenshot
+  name: TC04_offhook_seed_recovery
+- action: shell
+  command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+  description: FATAL 크래시 없음 확인 (0이어야 정상)
