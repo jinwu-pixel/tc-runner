@@ -24,6 +24,7 @@ screenshot_*.png
 logs/
 logs_apn/
 output/
+outputs/
 
 # A. STAGE pipeline / TC conversion outputs (regenerable from STAGE1/STAGE2)
 stage1_output/
