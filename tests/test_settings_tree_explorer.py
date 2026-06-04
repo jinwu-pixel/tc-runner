@@ -1,0 +1,329 @@
+"""Tests for scripts/settings_tree_explorer.py (stub-ADB, OFFLINE).
+
+Task 6: GuardedADB read-only / navigation-safe command allowlist.
+The real `adb` is NEVER invoked — only the in-memory StubADB below.
+"""
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+
+import pytest
+
+_ROOT = Path(__file__).resolve().parent.parent
+_PATH = _ROOT / "scripts" / "settings_tree_explorer.py"
+_spec = importlib.util.spec_from_file_location("settings_tree_explorer", _PATH)
+ste = importlib.util.module_from_spec(_spec)
+sys.modules["settings_tree_explorer"] = ste
+_spec.loader.exec_module(ste)
+
+
+class StubADB:
+    """Records every shell/op; returns scripted focus + dump per call. NEVER real adb."""
+
+    def __init__(self, focus_seq=None, dump_seq=None, props=None):
+        self.calls: list[str] = []
+        self._focus_seq = list(focus_seq or [])
+        self._dump_seq = list(dump_seq or [])
+        self._props = props or {}
+
+    def shell(self, command: str, timeout: int = 10) -> str:
+        self.calls.append(command)
+        if command.startswith("dumpsys window"):
+            return self._focus_seq.pop(0) if self._focus_seq else ""
+        if command.startswith("cat "):
+            return self._dump_seq.pop(0) if self._dump_seq else ""
+        if command.startswith("getprop"):
+            key = command.split(" ", 1)[1].strip()
+            return self._props.get(key, "")
+        return ""
+
+    def swipe(self, x1, y1, x2, y2, duration=300):
+        self.calls.append(f"input swipe {x1} {y1} {x2} {y2} {duration}")
+
+    def key(self, keycode: str):
+        self.calls.append(f"input keyevent {keycode}")
+
+    def device_serial(self):
+        return self._props.get("__serial__")
+
+
+def test_guarded_adb_blocks_tap_and_forbidden_keys():
+    g = ste.GuardedADB(StubADB())
+    with pytest.raises(ste.CommandNotAllowed):
+        g.raw_shell("input tap 100 200")
+    # Only HOME/BACK navigation keys allowed; everything else (incl. numeric) denied.
+    for badkey in ["KEYCODE_POWER", "KEYCODE_ENTER", "KEYCODE_DPAD_CENTER", "66", "23", "26"]:
+        with pytest.raises(ste.CommandNotAllowed):
+            g.key(badkey)
+
+
+def test_guarded_adb_blocks_device_mutations_and_passthrough():
+    g = ste.GuardedADB(StubADB())
+    forbidden = [
+        "input text hello",
+        "settings put system x 1",
+        "pm clear com.android.settings",
+        "pm uninstall com.foo",
+        "pm install /sdcard/x.apk",
+        "am force-stop com.android.settings",
+        "rm -f /sdcard/ui_dump.xml",
+        "mv /sdcard/a /sdcard/b",
+        "cp /sdcard/a /sdcard/b",
+        "monkey -p com.android.settings 1",
+        "reboot",
+    ]
+    for cmd in forbidden:
+        with pytest.raises(ste.CommandNotAllowed):
+            g.raw_shell(cmd)
+    assert g.violations == len(forbidden)
+
+
+def test_guarded_adb_allows_readonly_ops_and_logs_them():
+    stub = StubADB(focus_seq=["mCurrentFocus=Window{x u0 com.android.settings/com.android.settings.Settings}"])
+    g = ste.GuardedADB(stub)
+    g.launch_action("android.settings.WIFI_SETTINGS")
+    g.launch_component("com.android.settings/.Settings$MyDeviceInfoActivity")
+    g.scroll_up(240, 600, 240, 200)
+    g.home()
+    g.back()
+    g.getprop("ro.serialno")
+    g.current_focus()
+    # Every recorded command must match the read-only allowlist.
+    assert all(ste.is_allowed_command(c) for c in g.command_log)
+    assert g.violations == 0
+
+
+def test_force_stop_blocked_by_default_but_gated_when_enabled():
+    g = ste.GuardedADB(StubADB())
+    with pytest.raises(ste.CommandNotAllowed):
+        g.force_stop_settings()                 # default off
+    # raw_shell can never reach force-stop either:
+    with pytest.raises(ste.CommandNotAllowed):
+        g.raw_shell("am force-stop com.android.settings")
+    g2 = ste.GuardedADB(StubADB(), allow_force_stop=True)
+    g2.force_stop_settings()                    # opt-in gate, no raise
+    assert "am force-stop com.android.settings" in g2.command_log
+
+
+def test_blocked_exception_message_has_command_and_reason():
+    g = ste.GuardedADB(StubADB())
+    with pytest.raises(ste.CommandNotAllowed) as ei:
+        g.raw_shell("input tap 5 5")
+    msg = str(ei.value)
+    assert "input tap 5 5" in msg and "reason" in msg.lower()
+
+
+def test_home_and_back_are_the_only_allowed_keys():
+    assert ste.is_allowed_command("input keyevent KEYCODE_HOME")
+    assert ste.is_allowed_command("input keyevent KEYCODE_BACK")
+    assert not ste.is_allowed_command("input keyevent KEYCODE_ENTER")
+    assert not ste.is_allowed_command("input keyevent 66")
+    assert not ste.is_allowed_command("input keyevent KEYCODE_DPAD_CENTER")
+
+
+# --- Task 7: per-screen reach classification + dump/parse -----------------
+_WIFI_FOCUS = "mCurrentFocus=Window{a u0 com.android.settings/com.android.settings.Settings$WifiSettingsActivity}"
+_EXT_FOCUS = "mCurrentFocus=Window{a u0 com.google.android.apps.wellbeing/.settings.SettingsActivity}"
+_HOME_FOCUS = "mCurrentFocus=Window{a u0 com.hnlens.simplemode/.ui.home.MainActivity}"
+_DUMP = """<?xml version='1.0'?><hierarchy><node class="android.widget.TextView" text="Wi-Fi"
+ resource-id="android:id/title" clickable="true" focusable="true" checkable="false" bounds="[0,0][480,80]"/></hierarchy>"""
+
+
+def _seed_screen(**over):
+    base = {"id": "settings_d1_wifi", "label_ko": "Wi-Fi", "nav_path": ["설정", "Wi-Fi"],
+            "entry": {"action": "android.settings.WIFI_SETTINGS"},
+            "expect_activity_regex": "WifiSettingsActivity"}
+    base.update(over)
+    return base
+
+
+def test_explore_screen_reached_internal():
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP]))
+    sc = ste.explore_screen(g, _seed_screen(), run_id="R", max_passes=1, settle=0)
+    assert sc.reach_status == "REACHED" and sc.reach_kind == "internal"
+    assert sc.activity_match is True and sc.fingerprint
+    assert "Wi-Fi" in sc.observed_texts["en"]
+    assert g.violations == 0
+
+
+def test_explore_screen_external_package_is_not_failure():
+    g = ste.GuardedADB(StubADB(focus_seq=[_EXT_FOCUS], dump_seq=[_DUMP]))
+    sc = ste.explore_screen(g, _seed_screen(id="settings_d1_wellbeing",
+        entry={"component": "com.google.android.apps.wellbeing/.settings.SettingsActivity"},
+        expect_activity_regex="wellbeing"), run_id="R", max_passes=1, settle=0)
+    assert sc.reach_status == "REACHED_EXTERNAL_PACKAGE" and sc.reach_kind == "external"
+
+
+def test_explore_screen_focus_mismatch():
+    # simplemode IS in ALLOWLIST_PACKAGES, but we expected WifiSettingsActivity ->
+    # unexpected landing must be FOCUS_MISMATCH, NOT external routing.
+    g = ste.GuardedADB(StubADB(focus_seq=[_HOME_FOCUS], dump_seq=[_DUMP]))
+    sc = ste.explore_screen(g, _seed_screen(), run_id="R", max_passes=1, settle=0)
+    assert sc.reach_status == "FOCUS_MISMATCH" and sc.reach_kind is None
+
+
+def test_explore_screen_unreachable_no_action():
+    g = ste.GuardedADB(StubADB())
+    sc = ste.explore_screen(g, _seed_screen(entry={}), run_id="R", max_passes=1, settle=0)
+    assert sc.reach_status == "UNREACHABLE_NO_ACTION"
+
+
+def test_explore_screen_dump_rejected_nullable():
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[""]))  # empty dump
+    sc = ste.explore_screen(g, _seed_screen(), run_id="R", max_passes=1, settle=0)
+    assert sc.reach_status == "DUMP_REJECTED" and sc.reach_kind == "internal"
+    assert sc.fingerprint is None and sc.elements == [] and sc.raw_dump_ref is None
+    assert sc.dump_info.raw_present is False
+
+
+# --- Task 8: read-only scroll sweep ---------------------------------------
+def _dump_with(texts):
+    nodes = "".join(
+        f'<node class="android.widget.TextView" text="{t}" resource-id="android:id/title"'
+        f' clickable="true" focusable="true" checkable="false" bounds="[0,0][480,80]"/>' for t in texts)
+    return f"<?xml version='1.0'?><hierarchy>{nodes}</hierarchy>"
+
+
+def test_scroll_terminates_on_no_new():
+    # pass1 reveals A,B; nothing new -> terminate no_new at 1 sweep
+    stub = StubADB(dump_seq=[_dump_with(["A", "B"])])
+    g = ste.GuardedADB(stub)
+    seed_els = ste._elements_from_xml(_dump_with(["A", "B"]))
+    scroll, merged = ste._scroll_sweep(g, list(seed_els), max_passes=8)
+    assert scroll.terminated == "no_new"
+    assert scroll.passes >= 1
+    assert {e.label for e in merged} == {"A", "B"}
+
+
+def test_scroll_merges_new_then_stops():
+    stub = StubADB(dump_seq=[_dump_with(["A", "B", "C"]), _dump_with(["A", "B", "C"])])
+    g = ste.GuardedADB(stub)
+    seed_els = ste._elements_from_xml(_dump_with(["A", "B"]))
+    scroll, merged = ste._scroll_sweep(g, list(seed_els), max_passes=8)
+    assert "C" in {e.label for e in merged}
+    assert scroll.new_texts_per_pass[0] == 1  # added C on first sweep
+    assert any(s["dir"] == "up" for s in scroll.swipes)
+    # merged keeps full MenuElement (kind/risk/source_class preserved, not just text)
+    c = next(e for e in merged if e.label == "C")
+    assert c.kind == "menu_row" and c.risk == "none" and c.source_class == "android.widget.TextView"
+
+
+def test_scroll_respects_max_passes():
+    # every sweep yields a brand-new label -> never converges -> stop at max_passes
+    seq = [_dump_with([f"L{i}"]) for i in range(20)]
+    g = ste.GuardedADB(StubADB(dump_seq=seq))
+    scroll, merged = ste._scroll_sweep(g, [], max_passes=3)
+    assert scroll.terminated == "max_passes" and scroll.passes == 3
+
+
+def test_scroll_uses_only_readonly_commands():
+    stub = StubADB(dump_seq=[_dump_with(["A", "B", "C"]), _dump_with(["A", "B", "C"])])
+    g = ste.GuardedADB(stub)
+    seed_els = ste._elements_from_xml(_dump_with(["A", "B"]))
+    ste._scroll_sweep(g, list(seed_els), max_passes=8)
+    assert g.violations == 0
+    assert all(ste.is_allowed_command(c) for c in g.command_log)
+    assert not any(c.startswith("input tap") for c in g.command_log)
+    assert not any("keyevent" in c for c in g.command_log)   # scroll never uses keys
+
+
+# --- Task 9: orchestration + device baseline + emit + CLI ------------------
+_PROPS = {
+    "ro.product.model": "AT-M140", "ro.product.name": "alt_thor2", "ro.product.device": "thor2",
+    "ro.build.fingerprint": "ALT/alt_thor2/thor2:14/UP1A.231005.007/RY07260302M:user/release-keys",
+    "ro.build.id": "RY07260302M", "ro.build.version.release": "14",
+    "persist.sys.locale": "ko-KR", "ro.product.locale": "en-US",
+    "__serial__": "B06201249E0002B8",
+}
+
+
+def _full_seed(screens=None):
+    return {"seed_version": 1, "locale": "ko-KR", "target_serial": "B06201249E0002B8",
+            "source_menu_tree": "x", "package": "com.android.settings",
+            "screens": screens if screens is not None else [_seed_screen()]}
+
+
+def test_capture_device_baseline():
+    g = ste.GuardedADB(StubADB(props=_PROPS))
+    dev = ste.capture_device_baseline(g, serial="B06201249E0002B8")
+    assert dev.model == "AT-M140" and dev.build_id == "RY07260302M"
+    assert dev.locale_persist == "ko-KR" and dev.serial == "B06201249E0002B8"
+
+
+def test_target_mismatch_aborts_without_flag():
+    stub = StubADB(props={"__serial__": "WRONGSERIAL"})
+    with pytest.raises(ste.TargetMismatch):
+        ste.preflight_serial(stub, target="B06201249E0002B8", allow_mismatch=False)
+
+
+def test_target_mismatch_acknowledged_with_flag():
+    stub = StubADB(props={"__serial__": "WRONGSERIAL"})
+    ack = ste.preflight_serial(stub, target="B06201249E0002B8", allow_mismatch=True)
+    assert ack is True
+
+
+def test_run_explore_builds_baseline_and_allowlist_clean(tmp_path):
+    stub = StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS)
+    g = ste.GuardedADB(stub)
+    baseline = ste.run_explore(g, _full_seed(), run_id="20260602T000000Z",
+                               out_dir=str(tmp_path), settle=0, max_passes=1,
+                               target_mismatch_ack=False)
+    assert baseline.summary["screen_count"] == 1
+    assert baseline.summary["reached"] == 1
+    assert g.violations == 0                        # read-only invariant
+    assert all(ste.is_allowed_command(c) for c in g.command_log)
+    out_json = tmp_path / "menu_tree_baseline_20260602T000000Z.json"
+    out_md = tmp_path / "menu_tree_baseline_20260602T000000Z.md"
+    assert out_json.exists() and out_md.exists()
+    import json
+    d = json.loads(out_json.read_text(encoding="utf-8"))
+    assert d["device"]["serial"] == "B06201249E0002B8"
+    assert d["schema_version"] == 1
+
+
+def test_run_explore_refuses_overwrite(tmp_path):
+    seed = _full_seed()
+    g1 = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    ste.run_explore(g1, seed, run_id="20260602T000000Z", out_dir=str(tmp_path),
+                    settle=0, max_passes=1, target_mismatch_ack=False)
+    g2 = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    with pytest.raises(FileExistsError):
+        ste.run_explore(g2, seed, run_id="20260602T000000Z", out_dir=str(tmp_path),
+                        settle=0, max_passes=1, target_mismatch_ack=False)
+    assert g2.command_log == []   # fail-fast: no device interaction before overwrite check
+
+
+def test_target_mismatch_ack_recorded_in_json(tmp_path):
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    ste.run_explore(g, _full_seed(), run_id="20260602T000009Z", out_dir=str(tmp_path),
+                    settle=0, max_passes=1, target_mismatch_ack=True)
+    import json
+    d = json.loads((tmp_path / "menu_tree_baseline_20260602T000009Z.json").read_text(encoding="utf-8"))
+    assert d["target_mismatch_ack"] is True
+
+
+def test_one_screen_failure_does_not_abort_run(tmp_path):
+    bad = _seed_screen(id="settings_bad", entry={})       # -> UNREACHABLE_NO_ACTION
+    good = _seed_screen(id="settings_d1_wifi")            # -> REACHED
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    baseline = ste.run_explore(g, _full_seed([bad, good]), run_id="20260602T000010Z",
+                               out_dir=str(tmp_path), settle=0, max_passes=1,
+                               target_mismatch_ack=False)
+    statuses = {s.screen_id: s.reach_status for s in baseline.screens}
+    assert statuses["settings_bad"] == "UNREACHABLE_NO_ACTION"
+    assert statuses["settings_d1_wifi"] == "REACHED"
+    assert baseline.summary["screen_count"] == 2
+
+
+def test_dry_run_makes_no_device_calls():
+    seed = {"screens": [_seed_screen()], "target_serial": "B06201249E0002B8"}
+    plan = ste.dry_run_plan(seed)
+    assert "settings_d1_wifi" in plan and "am start -a android.settings.WIFI_SETTINGS" in plan
+
+
+def test_run_id_format_matches_pattern():
+    import re as _re
+    rid = ste._now_run_id()
+    assert _re.match(r"^\d{8}T\d{6}Z$", rid), rid

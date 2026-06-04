@@ -34,6 +34,18 @@
 
 **사용 예**: `THOR2_K - Settings/COMPARISON_KR_JP.md`
 
+### Tier D — device-sourced machine baseline
+
+Tier A/B/C는 hand-written catalog 정본이다. Tier D는 device-sourced machine
+baseline으로, tool-generated append-only artifact이며 hand-written catalog와
+구분한다. Tier D는 TC 합성·drift 분석의 입력 source로 사용할 수 있지만, 사람이
+해석한 catalog 정본을 대체하지 않는다.
+
+- 생성: `scripts/settings_tree_explorer.py` (read-only deep-link enumeration)
+- 산출: `catalog/menu_tree_baseline_<run_id>.json` + `.md`, raw = `catalog/raw/<run_id>/<screen_id>.xml`
+- schema: `src/menu_tree.py` (schema_version=1, tool_version="menu-tree-baseline-v1")
+- seed: `THOR2_K - Settings/menu_tree_seed.yaml` (사람 큐레이션 입력)
+
 ---
 
 ## 2. screen_id 명명

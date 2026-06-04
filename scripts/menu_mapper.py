@@ -63,6 +63,71 @@ ALLOWLIST_PACKAGES = [
     "com.mediatek.duraspeed",  # OEM
 ]
 
+
+def parse_bounds(bounds_str: str):
+    match = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds_str or "")
+    if not match:
+        return None
+    x1, y1, x2, y2 = map(int, match.groups())
+    return ((x1 + x2) // 2, (y1 + y2) // 2)
+
+
+def extract_nodes(xml_str: str):
+    try:
+        start_idx = xml_str.find("<?xml")
+        if start_idx != -1:
+            xml_str = xml_str[start_idx:]
+        root = ET.fromstring(xml_str)
+    except ET.ParseError as e:
+        print(f"Failed to parse XML: {e}")
+        return []
+    nodes = []
+    parent_map = {c: p for p in root.iter() for c in p}
+    for elem in root.iter("node"):
+        attrib = dict(elem.attrib)
+        curr = elem
+        is_clickable = False
+        is_focusable = False
+        while curr is not None:
+            if curr.attrib.get("clickable") == "true":
+                is_clickable = True
+            if curr.attrib.get("focusable") == "true":
+                is_focusable = True
+            if is_clickable and is_focusable:
+                break
+            curr = parent_map.get(curr)
+        attrib["inherited_clickable"] = "true" if is_clickable else "false"
+        attrib["inherited_focusable"] = "true" if is_focusable else "false"
+        nodes.append(attrib)
+    return nodes
+
+
+def generate_fingerprint(current_focus: str, nodes: list) -> str:
+    texts = [n.get("text", "") for n in nodes if n.get("text")]
+    rids = [n.get("resource-id", "") for n in nodes if n.get("resource-id")]
+    raw_str = current_focus + "|" + "|".join(sorted(texts)) + "|" + "|".join(sorted(rids))
+    return hashlib.md5(raw_str.encode("utf-8")).hexdigest()[:8]
+
+
+def is_node_safe(node: dict) -> tuple[bool, str]:
+    if node.get("checkable") == "true":
+        return False, "checkable=true"
+    if node.get("class") in ["android.widget.Switch", "android.widget.CheckBox", "android.widget.RadioButton"]:
+        return False, "switch/checkbox/radio"
+    text = node.get("text", "")
+    content_desc = node.get("content-desc", "")
+    label = text if text else content_desc
+    if not label:
+        return False, "no_label"
+    for deny in DENYLIST:
+        if deny.lower() in label.lower():
+            return False, f"denylist_match_{deny}"
+    if node.get("clickable") == "true" or node.get("focusable") == "true" or \
+       node.get("inherited_clickable") == "true" or node.get("inherited_focusable") == "true":
+        return True, "ok"
+    return False, "not_clickable_or_focusable"
+
+
 class MenuMapper:
     def __init__(self, adb: ADB, args):
         self.adb = adb
@@ -100,72 +165,16 @@ class MenuMapper:
         return "unknown/unknown"
 
     def parse_bounds(self, bounds_str: str):
-        match = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds_str)
-        if not match:
-            return None
-        x1, y1, x2, y2 = map(int, match.groups())
-        return ((x1 + x2) // 2, (y1 + y2) // 2)
+        return parse_bounds(bounds_str)
 
     def extract_nodes(self, xml_str: str):
-        try:
-            start_idx = xml_str.find("<?xml")
-            if start_idx != -1:
-                xml_str = xml_str[start_idx:]
-            root = ET.fromstring(xml_str)
-        except ET.ParseError as e:
-            print(f"Failed to parse XML: {e}")
-            return []
-        
-        nodes = []
-        parent_map = {c: p for p in root.iter() for c in p}
-        
-        for elem in root.iter("node"):
-            attrib = dict(elem.attrib)
-            curr = elem
-            is_clickable = False
-            is_focusable = False
-            while curr is not None:
-                if curr.attrib.get("clickable") == "true":
-                    is_clickable = True
-                if curr.attrib.get("focusable") == "true":
-                    is_focusable = True
-                if is_clickable and is_focusable:
-                    break
-                curr = parent_map.get(curr)
-                
-            attrib["inherited_clickable"] = "true" if is_clickable else "false"
-            attrib["inherited_focusable"] = "true" if is_focusable else "false"
-            nodes.append(attrib)
-            
-        return nodes
+        return extract_nodes(xml_str)
 
     def generate_fingerprint(self, current_focus: str, nodes: list) -> str:
-        texts = [n.get("text", "") for n in nodes if n.get("text")]
-        rids = [n.get("resource-id", "") for n in nodes if n.get("resource-id")]
-        raw_str = current_focus + "|" + "|".join(sorted(texts)) + "|" + "|".join(sorted(rids))
-        return hashlib.md5(raw_str.encode('utf-8')).hexdigest()[:8]
+        return generate_fingerprint(current_focus, nodes)
 
     def is_node_safe(self, node: dict) -> tuple[bool, str]:
-        if node.get("checkable") == "true":
-            return False, "checkable=true"
-        if node.get("class") in ["android.widget.Switch", "android.widget.CheckBox", "android.widget.RadioButton"]:
-            return False, "switch/checkbox/radio"
-        
-        text = node.get("text", "")
-        content_desc = node.get("content-desc", "")
-        label = text if text else content_desc
-        if not label:
-            return False, "no_label"
-            
-        for deny in DENYLIST:
-            if deny.lower() in label.lower():
-                return False, f"denylist_match_{deny}"
-                
-        if node.get("clickable") == "true" or node.get("focusable") == "true" or \
-           node.get("inherited_clickable") == "true" or node.get("inherited_focusable") == "true":
-            return True, "ok"
-            
-        return False, "not_clickable_or_focusable"
+        return is_node_safe(node)
 
     def print_summary(self):
         print("\n=== Menu Mapper Summary ===")

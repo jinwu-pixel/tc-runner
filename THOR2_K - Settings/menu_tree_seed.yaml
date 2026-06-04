@@ -1,0 +1,98 @@
+# Curated Settings menu-tree seed — THOR2_K (AT-M140, ko-KR)
+# 사람이 편집하는 큐레이션 파일. source = MENU_TREE.md / Deep Link batch #2 / catalog.
+# scripts/settings_tree_explorer.py 가 read-only deep-link enumeration 입력으로 사용.
+# JP seed / DFS·tap auto-discovery 는 v1.1+ (본 파일 범위 밖).
+# action_missing(STORAGE/NOTIFICATION_LISTENER) · dump_refused(NETWORK_OPERATOR) ·
+# exception(DuraSpeed) 화면은 의도적 제외 → v1.1 coverage-gap 후보.
+seed_version: 1
+locale: ko-KR
+target_serial: "B06201249E0002F0"
+target_serial_label: "THOR2_K (AT-M140)"
+source_menu_tree: "THOR2_K - Settings/MENU_TREE.md"
+package: com.android.settings
+screens:
+  - id: settings_home
+    label_ko: "설정 home"
+    nav_path: ["설정"]
+    entry: { action: "android.settings.SETTINGS" }
+    expect_activity_regex: "(Settings|SettingsHomepageActivity)$"
+  - id: settings_d1_privacy
+    label_ko: "개인 정보 보호"
+    nav_path: ["설정", "개인 정보 보호"]
+    entry: { action: "android.settings.PRIVACY_SETTINGS" }
+    expect_activity_regex: "PrivacyDashboardActivity"
+  - id: settings_d1_location
+    label_ko: "위치"
+    nav_path: ["설정", "위치"]
+    entry: { action: "android.settings.LOCATION_SOURCE_SETTINGS" }
+    expect_activity_regex: "LocationSettingsActivity"
+  - id: settings_d1_google
+    label_ko: "Google"
+    nav_path: ["설정", "Google"]
+    entry: { component: "com.android.settings/.Settings$AccountDashboardActivity" }
+    expect_activity_regex: "AccountDashboardActivity"
+  - id: settings_d1_device_info
+    label_ko: "휴대전화 정보"
+    nav_path: ["설정", "휴대전화 정보"]
+    entry: { component: "com.android.settings/.Settings$MyDeviceInfoActivity" }
+    expect_activity_regex: "MyDeviceInfoActivity"
+  - id: settings_d1_wifi
+    label_ko: "Wi-Fi / 네트워크"
+    nav_path: ["설정", "Wi-Fi"]
+    entry: { action: "android.settings.WIFI_SETTINGS" }
+    expect_activity_regex: "WifiSettingsActivity"
+  - id: settings_d1_bluetooth
+    label_ko: "연결된 기기"
+    nav_path: ["설정", "연결된 기기"]
+    entry: { action: "android.settings.BLUETOOTH_SETTINGS" }
+    expect_activity_regex: "ConnectedDeviceDashboardActivity"
+  - id: settings_d1_data_usage
+    label_ko: "데이터 사용"
+    nav_path: ["설정", "데이터 사용"]
+    entry: { action: "android.settings.DATA_USAGE_SETTINGS" }
+    expect_activity_regex: "DataUsageSummaryActivity"
+  - id: settings_d1_sound
+    label_ko: "소리·진동"
+    nav_path: ["설정", "소리 및 진동"]
+    entry: { action: "android.settings.SOUND_SETTINGS" }
+    expect_activity_regex: "SoundSettingsActivity"
+  - id: settings_d1_display
+    label_ko: "디스플레이"
+    nav_path: ["설정", "디스플레이"]
+    entry: { action: "android.settings.DISPLAY_SETTINGS" }
+    expect_activity_regex: "DisplaySettingsActivity"
+  - id: settings_d1_accessibility
+    label_ko: "접근성"
+    nav_path: ["설정", "접근성"]
+    entry: { action: "android.settings.ACCESSIBILITY_SETTINGS" }
+    expect_activity_regex: "AccessibilitySettings"
+  - id: settings_d1_date
+    label_ko: "날짜·시간"
+    nav_path: ["설정", "날짜 및 시간"]
+    entry: { action: "android.settings.DATE_SETTINGS" }
+    expect_activity_regex: "DateTimeSettingsActivity"
+  - id: settings_d1_apps
+    label_ko: "앱"
+    nav_path: ["설정", "앱"]
+    entry: { action: "android.settings.APPLICATION_SETTINGS" }
+    expect_activity_regex: "ManageApplicationsActivity"
+  - id: settings_d1_usage_access
+    label_ko: "사용 정보 접근"
+    nav_path: ["설정", "사용 정보 접근"]
+    entry: { action: "android.settings.USAGE_ACCESS_SETTINGS" }
+    expect_activity_regex: "UsageAccessSettingsActivity"
+  - id: settings_d1_dream
+    label_ko: "화면 보호기"
+    nav_path: ["설정", "화면 보호기"]
+    entry: { action: "android.settings.DREAM_SETTINGS" }
+    expect_activity_regex: "DreamSettingsActivity"
+  - id: settings_d1_home_launcher
+    label_ko: "기본 앱 / 런처"
+    nav_path: ["설정", "기본 앱"]
+    entry: { action: "android.settings.HOME_SETTINGS" }
+    expect_activity_regex: "DefaultAppActivity"
+  - id: settings_d1_wellbeing
+    label_ko: "디지털 웰빙 및 자녀 보호 기능"
+    nav_path: ["설정", "디지털 웰빙"]
+    entry: { component: "com.google.android.apps.wellbeing/.settings.SettingsActivity" }
+    expect_activity_regex: "wellbeing"
