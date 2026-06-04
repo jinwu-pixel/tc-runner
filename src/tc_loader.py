@@ -5,9 +5,9 @@ import yaml
 
 VALID_ACTIONS = {
     "tap_text", "tap_id", "tap_xy", "tap_content_desc",
-    "swipe", "key",
+    "swipe", "key", "key_sequence",
     "shell", "wait", "screenshot", "verify_text",
-    "verify_shell", "verify_gone", "verify_content_desc",
+    "verify_shell", "verify_gone", "verify_content_desc", "verify_focus_moved",
     "input_text", "manual_pause",
 }
 
