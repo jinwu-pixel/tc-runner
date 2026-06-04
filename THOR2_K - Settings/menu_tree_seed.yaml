@@ -4,6 +4,17 @@
 # JP seed / DFS·tap auto-discovery 는 v1.1+ (본 파일 범위 밖).
 # action_missing(STORAGE/NOTIFICATION_LISTENER) · dump_refused(NETWORK_OPERATOR) ·
 # exception(DuraSpeed) 화면은 의도적 제외 → v1.1 coverage-gap 후보.
+#
+# coverage-gap (deep-link 진입 불가, 도구 결함 아님) — settings_d1_wellbeing:
+#   com.google.android.apps.wellbeing 는 설치돼 있으나 shell 에서 launch 가능한
+#   exported activity / 공개 action (WELLBEING_SETTINGS · DIGITAL_WELLBEING_SETTINGS
+#   둘 다 No activity found) / Settings 쪽 $-alias 가 전혀 없음 → am start 가 런처로
+#   fallback (FOCUS_MISMATCH). v1 deep-link enumeration 범위 밖 — 진입하려면 Settings
+#   UI tap 네비게이션 필요 → v1.1+ tap-discovery / guarded DFS 후보. (probe: F0 2026-06-04)
+#   ↔ google/device_info 의 FOCUS_MISMATCH 는 도구 `$` launch fidelity 결함이었고
+#   (device sh 가 `$Xxx` alias 를 빈 문자열로 확장 → base Settings collapse),
+#   launch_component single-quote fix 후 REACHED 전환됨. seed entry 는 원본이 정상이라
+#   수정하지 않음.
 seed_version: 1
 locale: ko-KR
 target_serial: "B06201249E0002F0"

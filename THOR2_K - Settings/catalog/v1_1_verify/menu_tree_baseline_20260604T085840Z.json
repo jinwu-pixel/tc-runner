@@ -1,0 +1,826 @@
+{
+  "device": {
+    "android": "14",
+    "build_fingerprint": "ALT/alt_thor2/thor2:14/UP1A.231005.007/RY07260600S:user/release-keys",
+    "build_id": "UP1A.231005.007",
+    "device": "thor2",
+    "dpi": "220",
+    "locale_persist": "ko-KR",
+    "locale_product": "en-US",
+    "model": "AT-M140",
+    "product": "alt_thor2",
+    "serial": "B06201249E0002F0",
+    "sim": "LG U+",
+    "viewport": "480x800"
+  },
+  "generated_at_utc": "2026-06-04T08:59:10Z",
+  "package": "com.android.settings",
+  "run_id": "20260604T085840Z",
+  "schema_version": 1,
+  "screens": [
+    {
+      "activity_match": true,
+      "dump_info": {
+        "dump_error": null,
+        "dump_size": 17488,
+        "raw_present": true
+      },
+      "elements": [
+        {
+          "bounds": "[0,0][480,110]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "title",
+          "label": "비밀번호 및 계정",
+          "resource_id": "com.android.settings:id/collapsing_toolbar",
+          "risk": "denylist",
+          "source_class": "android.widget.FrameLayout",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[0,33][77,110]",
+          "checkable": false,
+          "clickable": true,
+          "focusable": true,
+          "kind": "menu_row",
+          "label": "위로 탐색",
+          "resource_id": null,
+          "risk": "none",
+          "source_class": "android.widget.ImageButton",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[33,121][458,162]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "비밀번호",
+          "resource_id": "android:id/title",
+          "risk": "denylist",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[99,195][225,249]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "Google",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[99,249][458,293]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "—",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,326][458,367]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "자동완성 서비스",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[99,400][225,454]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "Google",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[359,378][458,476]",
+          "checkable": false,
+          "clickable": true,
+          "focusable": true,
+          "kind": "menu_row",
+          "label": "설정",
+          "resource_id": "com.android.settings:id/settings_button",
+          "risk": "none",
+          "source_class": "android.widget.ImageView",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[0,476][480,539]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "소유자님의 계정",
+          "resource_id": null,
+          "risk": "none",
+          "source_class": "android.widget.LinearLayout",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[33,487][458,528]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "소유자님의 계정",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[99,561][245,615]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "계정 추가",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,659][360,759]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "자동으로 앱 데이터 동기화",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,759][360,800]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "앱에서 데이터를 자동으로 새로고침하도록 허용",
+          "resource_id": "android:id/summary",
+          "risk": "denylist",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        }
+      ],
+      "entry": {
+        "action": null,
+        "component": "com.android.settings/.Settings$AccountDashboardActivity",
+        "launched_cmd": "am start -n 'com.android.settings/.Settings$AccountDashboardActivity'",
+        "method": "deeplink"
+      },
+      "expect_activity_regex": "AccountDashboardActivity",
+      "fingerprint": "39c93c15",
+      "label_ko": "Google",
+      "nav_path": [
+        "설정",
+        "Google"
+      ],
+      "observed_focus": "com.android.settings/com.android.settings.Settings$AccountDashboardActivity",
+      "observed_texts": {
+        "en": [
+          "Google"
+        ],
+        "ko": [
+          "계정 추가",
+          "비밀번호",
+          "비밀번호 및 계정",
+          "설정",
+          "소유자님의 계정",
+          "앱에서 데이터를 자동으로 새로고침하도록 허용",
+          "위로 탐색",
+          "자동완성 서비스",
+          "자동으로 앱 데이터 동기화"
+        ],
+        "other": [
+          "—"
+        ]
+      },
+      "raw_dump_ref": "catalog/raw/20260604T085840Z/settings_d1_google.xml",
+      "reach_kind": "internal",
+      "reach_status": "REACHED",
+      "risk_flags": [
+        "비밀번호",
+        "비밀번호 및 계정",
+        "앱에서 데이터를 자동으로 새로고침하도록 허용"
+      ],
+      "screen_id": "settings_d1_google",
+      "scroll": {
+        "new_texts_per_pass": [
+          0
+        ],
+        "passes": 1,
+        "swipes": [
+          {
+            "dir": "up",
+            "x1": 240,
+            "x2": 240,
+            "y1": 600,
+            "y2": 200
+          }
+        ],
+        "terminated": "no_new"
+      }
+    },
+    {
+      "activity_match": true,
+      "dump_info": {
+        "dump_error": null,
+        "dump_size": 13311,
+        "raw_present": true
+      },
+      "elements": [
+        {
+          "bounds": "[0,0][480,110]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "title",
+          "label": "휴대전화 정보",
+          "resource_id": "com.android.settings:id/collapsing_toolbar",
+          "risk": "denylist",
+          "source_class": "android.widget.FrameLayout",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[0,33][77,110]",
+          "checkable": false,
+          "clickable": true,
+          "focusable": true,
+          "kind": "menu_row",
+          "label": "위로 탐색",
+          "resource_id": null,
+          "risk": "none",
+          "source_class": "android.widget.ImageButton",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[33,121][458,162]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "기본 정보",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,195][179,249]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "기기 이름",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,249][181,293]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "AT-M140L",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,337][169,391]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "전화번호",
+          "resource_id": "android:id/title",
+          "risk": "denylist",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,391][245,435]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "탭하여 정보 표시",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,479][349,533]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "소프트웨어 업데이트",
+          "resource_id": "android:id/title",
+          "risk": "denylist",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,533][293,577]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "소프트웨어 업데이트",
+          "resource_id": "android:id/summary",
+          "risk": "denylist",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[204,709][276,748]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "소유자",
+          "resource_id": "com.android.settings:id/entity_header_title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "unknown"
+        },
+        {
+          "bounds": "[33,781][458,800]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "법률 및 규제",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,232][179,286]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "법률 정보",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,330][179,384]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "규제 정보",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,417][458,458]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "기기 세부정보",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,491][178,545]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "SIM 상태",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,545][124,589]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "LG U+",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,633][101,687]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "모델",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,687][164,731]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "AT-M140",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,775][108,800]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "IMEI",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,301][249,355]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "Android 버전",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,355][67,399]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "14",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,432][458,473]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "기기 식별자",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,506][145,560]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "IP 주소",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,560][458,680]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "2001:4430:41c7:b900::29e:4be2\n192.0.0.4",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,724][298,778]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "Wi-Fi MAC 주소",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,778][458,800]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "확인하려면 저장된 네트워크를 선택하세요.",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,288][372,342]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "기기 Wi‑Fi MAC 주소",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,342][290,386]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "9c:1e:ce:0c:36:e0",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,430][247,484]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "블루투스 주소",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,484][217,528]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "사용할 수 없음",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,572][257,626]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "첫 통화 개시일",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,626][204,670]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "2024-10-10",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        },
+        {
+          "bounds": "[33,714][179,768]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "빌드 번호",
+          "resource_id": "android:id/title",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "primary"
+        },
+        {
+          "bounds": "[33,768][301,800]",
+          "checkable": false,
+          "clickable": false,
+          "focusable": false,
+          "kind": "menu_row",
+          "label": "AT-M140LZ0604U",
+          "resource_id": "android:id/summary",
+          "risk": "none",
+          "source_class": "android.widget.TextView",
+          "text_role_hint": "summary"
+        }
+      ],
+      "entry": {
+        "action": null,
+        "component": "com.android.settings/.Settings$MyDeviceInfoActivity",
+        "launched_cmd": "am start -n 'com.android.settings/.Settings$MyDeviceInfoActivity'",
+        "method": "deeplink"
+      },
+      "expect_activity_regex": "MyDeviceInfoActivity",
+      "fingerprint": "623a4576",
+      "label_ko": "휴대전화 정보",
+      "nav_path": [
+        "설정",
+        "휴대전화 정보"
+      ],
+      "observed_focus": "com.android.settings/com.android.settings.Settings$MyDeviceInfoActivity",
+      "observed_texts": {
+        "en": [
+          "2001:4430:41c7:b900::29e:4be2\n192.0.0.4",
+          "9c:1e:ce:0c:36:e0",
+          "AT-M140",
+          "AT-M140L",
+          "AT-M140LZ0604U",
+          "IMEI",
+          "LG U+"
+        ],
+        "ko": [
+          "Android 버전",
+          "IP 주소",
+          "SIM 상태",
+          "Wi-Fi MAC 주소",
+          "규제 정보",
+          "기기 Wi‑Fi MAC 주소",
+          "기기 세부정보",
+          "기기 식별자",
+          "기기 이름",
+          "기본 정보",
+          "모델",
+          "법률 및 규제",
+          "법률 정보",
+          "블루투스 주소",
+          "빌드 번호",
+          "사용할 수 없음",
+          "소유자",
+          "소프트웨어 업데이트",
+          "위로 탐색",
+          "전화번호",
+          "첫 통화 개시일",
+          "탭하여 정보 표시",
+          "확인하려면 저장된 네트워크를 선택하세요.",
+          "휴대전화 정보"
+        ],
+        "other": [
+          "14",
+          "2024-10-10"
+        ]
+      },
+      "raw_dump_ref": "catalog/raw/20260604T085840Z/settings_d1_device_info.xml",
+      "reach_kind": "internal",
+      "reach_status": "REACHED",
+      "risk_flags": [
+        "소프트웨어 업데이트",
+        "전화번호",
+        "휴대전화 정보"
+      ],
+      "screen_id": "settings_d1_device_info",
+      "scroll": {
+        "new_texts_per_pass": [
+          8,
+          7,
+          8,
+          0
+        ],
+        "passes": 4,
+        "swipes": [
+          {
+            "dir": "up",
+            "x1": 240,
+            "x2": 240,
+            "y1": 600,
+            "y2": 200
+          },
+          {
+            "dir": "up",
+            "x1": 240,
+            "x2": 240,
+            "y1": 600,
+            "y2": 200
+          },
+          {
+            "dir": "up",
+            "x1": 240,
+            "x2": 240,
+            "y1": 600,
+            "y2": 200
+          },
+          {
+            "dir": "up",
+            "x1": 240,
+            "x2": 240,
+            "y1": 600,
+            "y2": 200
+          }
+        ],
+        "terminated": "no_new"
+      }
+    },
+    {
+      "activity_match": false,
+      "dump_info": {
+        "dump_error": null,
+        "dump_size": 0,
+        "raw_present": false
+      },
+      "elements": [],
+      "entry": {
+        "action": null,
+        "component": "com.google.android.apps.wellbeing/.settings.SettingsActivity",
+        "launched_cmd": "am start -n 'com.google.android.apps.wellbeing/.settings.SettingsActivity'",
+        "method": "deeplink"
+      },
+      "expect_activity_regex": "wellbeing",
+      "fingerprint": null,
+      "label_ko": "디지털 웰빙 및 자녀 보호 기능",
+      "nav_path": [
+        "설정",
+        "디지털 웰빙"
+      ],
+      "observed_focus": "com.hnlens.simplemode/com.hnlens.simplemode.ui.home.MainActivity",
+      "observed_texts": {
+        "en": [],
+        "ko": [],
+        "other": []
+      },
+      "raw_dump_ref": null,
+      "reach_kind": null,
+      "reach_status": "FOCUS_MISMATCH",
+      "risk_flags": [],
+      "screen_id": "settings_d1_wellbeing",
+      "scroll": {
+        "new_texts_per_pass": [],
+        "passes": 0,
+        "swipes": [],
+        "terminated": "no_new"
+      }
+    }
+  ],
+  "seed_ref": {
+    "seed_path": "THOR2_K - Settings/_subset_class_a_verify_seed.yaml",
+    "seed_version": 1,
+    "source_menu_tree": "THOR2_K - Settings/MENU_TREE.md"
+  },
+  "summary": {
+    "denylist_recorded": 6,
+    "dump_rejected": 0,
+    "focus_mismatch": 1,
+    "launch_failed": 0,
+    "observed_texts_total": 44,
+    "reached": 2,
+    "reached_external": 0,
+    "screen_count": 3,
+    "scroll_passes_total": 5,
+    "unreachable": 0
+  },
+  "target_mismatch_ack": false,
+  "tool_version": "menu-tree-baseline-v1"
+}

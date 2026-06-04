@@ -327,3 +327,57 @@ def test_run_id_format_matches_pattern():
     import re as _re
     rid = ste._now_run_id()
     assert _re.match(r"^\d{8}T\d{6}Z$", rid), rid
+
+
+# --- v1.1: component `$` preservation (launch fidelity) -------------------
+# Class A FOCUS_MISMATCH root cause: `am start -n .../Settings$MyDeviceInfoActivity`
+# had `$MyDeviceInfoActivity` expanded to empty by the *device* shell, so the
+# launch collapsed to base `.../Settings` (google + device_info landed on the
+# identical base focus). Fix = single-quote the component so the device sh
+# treats `$` literally; the component is pattern-validated first so the quoting
+# cannot be broken out of (quote / `;` / space / substitution injection).
+
+def test_build_component_command_quotes_dollar_alias():
+    cmd = ste.build_component_command("com.android.settings/.Settings$MyDeviceInfoActivity")
+    assert cmd == "am start -n 'com.android.settings/.Settings$MyDeviceInfoActivity'"
+    assert ste.is_allowed_command(cmd)
+
+
+def test_build_component_command_rejects_injection():
+    for bad in [
+        "com.x/.Y'; reboot #",     # break out of single quotes
+        "com.x/.Y;reboot",         # command separator
+        "com.x/.Y rm -rf /",       # whitespace -> extra args
+        "com.x/.Y$(reboot)",       # command substitution
+        "com.x/.Y`id`",            # backtick substitution
+        "com.x",                   # missing '/activity' form
+    ]:
+        with pytest.raises(ste.CommandNotAllowed):
+            ste.build_component_command(bad)
+
+
+def test_launch_component_preserves_dollar_and_stays_allowlisted():
+    g = ste.GuardedADB(StubADB())
+    g.launch_component("com.android.settings/.Settings$AccountDashboardActivity")
+    sent = g.command_log[-1]
+    assert sent == "am start -n 'com.android.settings/.Settings$AccountDashboardActivity'"
+    assert "$AccountDashboardActivity" in sent          # alias NOT stripped by device sh
+    assert ste.is_allowed_command(sent)
+    assert g.violations == 0
+
+
+def test_launch_component_injection_never_reaches_device():
+    g = ste.GuardedADB(StubADB())
+    with pytest.raises(ste.CommandNotAllowed):
+        g.launch_component("com.android.settings/.X'; reboot #")
+    # the dangerous string must never appear in the command log (rejected pre-shell)
+    assert not any("reboot" in c for c in g.command_log)
+
+
+def test_allowlist_rejects_unquoted_dollar_component():
+    # the buggy unquoted form (device-shell expands `$Xxx`) is no longer accepted
+    assert not ste.is_allowed_command(
+        "am start -n com.android.settings/.Settings$MyDeviceInfoActivity")
+    # the safe single-quoted form is accepted
+    assert ste.is_allowed_command(
+        "am start -n 'com.android.settings/.Settings$MyDeviceInfoActivity'")

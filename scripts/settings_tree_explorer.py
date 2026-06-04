@@ -32,7 +32,10 @@ from src.adb import ADB                  # noqa: E402,F401  (instantiated in CLI
 # HOME/BACK keyevents are allowed; every other keyevent — numeric ENTER (66),
 # DPAD_CENTER (23), POWER (26), or any KEYCODE_* — is denied by construction.
 _ALLOWED_PATTERNS = [
-    re.compile(r"^am start (-a [\w.]+|-n [\w./$]+)$"),
+    # Component is single-quoted so the device shell treats a `$Xxx` activity-alias
+    # literally (unquoted, the device sh expands `$Xxx` to empty -> launch collapses
+    # to base `.../Settings`). The `$`-anchored quote pair blocks injection.
+    re.compile(r"^am start (-a [\w.]+|-n '[\w./$]+')$"),
     re.compile(r"^input swipe \d+ \d+ \d+ \d+( \d+)?$"),
     re.compile(r"^input keyevent (KEYCODE_HOME|KEYCODE_BACK)$"),
     re.compile(r"^uiautomator dump /sdcard/[\w.]+$"),
@@ -48,12 +51,34 @@ _ALLOWED_PATTERNS = [
 # is overwritten in place on each dump rather than removed.
 
 
+# Component validated BEFORE single-quoting so the quoting can't be broken out of:
+# no quote / `;` / whitespace / `$()` / backtick reaches the device shell. Only
+# pkg/activity chars (incl. `$` for the activity-alias and `.` for relative names).
+_COMPONENT_RE = re.compile(r"^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$")
+
+
 def is_allowed_command(command: str) -> bool:
     return any(p.match(command.strip()) for p in _ALLOWED_PATTERNS)
 
 
 class CommandNotAllowed(RuntimeError):
     pass
+
+
+def build_component_command(comp: str) -> str:
+    """Build `am start -n '<component>'` with the component single-quoted.
+
+    Validates the component against `_COMPONENT_RE` first, then single-quotes it so
+    the device shell receives a `$Xxx` activity-alias literally (instead of expanding
+    it to empty and collapsing the launch to base `.../Settings`). Raises
+    CommandNotAllowed on a component that fails the safe pattern (quote/`;`/space/
+    substitution injection).
+    """
+    if not _COMPONENT_RE.match(comp):
+        raise CommandNotAllowed(
+            f"blocked: component {comp!r} "
+            f"(reason: fails safe component pattern {_COMPONENT_RE.pattern})")
+    return f"am start -n '{comp}'"
 
 
 class GuardedADB:
@@ -80,7 +105,7 @@ class GuardedADB:
         return self.raw_shell(f"am start -a {action}")
 
     def launch_component(self, comp: str) -> str:
-        return self.raw_shell(f"am start -n {comp}")
+        return self.raw_shell(build_component_command(comp))
 
     def scroll_up(self, x1, y1, x2, y2, duration=300):
         self._guard(f"input swipe {x1} {y1} {x2} {y2} {duration}")
@@ -139,7 +164,7 @@ def _launch(g: GuardedADB, entry: dict) -> tuple[str | None, str | None]:
         g.launch_action(entry["action"])
         return cmd, None
     if entry.get("component"):
-        cmd = f"am start -n {entry['component']}"
+        cmd = build_component_command(entry["component"])  # quoted form actually sent
         g.launch_component(entry["component"])
         return cmd, None
     return None, "NO_ACTION"
@@ -339,7 +364,8 @@ def dry_run_plan(seed: dict) -> str:
     for s in seed.get("screens", []):
         e = s.get("entry") or {}
         cmd = (f"am start -a {e['action']}" if e.get("action")
-               else f"am start -n {e['component']}" if e.get("component") else "(no action)")
+               else build_component_command(e['component']) if e.get("component")
+               else "(no action)")
         lines.append(f"  - {s['id']}: {cmd}")
     return "\n".join(lines)
 
