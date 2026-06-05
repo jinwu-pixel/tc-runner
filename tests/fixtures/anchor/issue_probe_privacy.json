@@ -1,0 +1,23 @@
+{
+  "issue_id": "menu_tree_privacy_anomaly",
+  "probe_id": "privacy_settle_probe_20260604",
+  "source_runs": ["20260604T102316Z"],
+  "screen_id": "settings_d1_privacy",
+  "domain": "settings",
+  "entry_action": "android.settings.PRIVACY_SETTINGS",
+  "entry_component": null,
+  "observed_condition": "102316Z full run: privacy REACHED->FOCUS_MISMATCH (focus=device_info)",
+  "hypothesis": "settle race / residual device_info window after warm-up",
+  "trials_summary": {
+    "total": 20,
+    "valid": 20,
+    "mismatch_count": 0,
+    "mismatch_rate": 0.0
+  },
+  "verdict": "not_regression",
+  "evidence_refs": {
+    "ledger_path": "THOR2_K - Settings/catalog/MENU_TREE_RUNS.md",
+    "artifact_paths": []
+  },
+  "notes": "A(HOME-clean) 0/5, B(device_info warm) 0/5; post total 0/20 mismatch. B pre_focus device_info 5/5 confirmed. Phase 2 not needed."
+}

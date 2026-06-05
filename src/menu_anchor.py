@@ -15,7 +15,9 @@ Layering (must hold):
 from __future__ import annotations
 
 import enum
+import json
 from dataclasses import dataclass
+from pathlib import Path
 
 
 class ActionSafety(enum.Enum):
@@ -342,3 +344,140 @@ def classify_element(element) -> SafetyVerdict:
             or getattr(element, "kind", "") == "toggle":
         return SafetyVerdict(ActionSafety.SELECTION_GATED, f"element:{element.risk}")
     return SafetyVerdict(ActionSafety.READ_ONLY, f"element:{getattr(element, 'kind', '')}")
+
+
+# --- IssueProbePoint: issue-reproduction coordinate sidecar (Task 5) --------
+# Append-only reproduction coordinate (screen_id + condition + trials + verdict).
+# Built from ledger-summary values, NOT the raw probe bundles (local carry).
+# Distinct from anchor text mapping: no source_expected/device_observed fields.
+
+ISSUE_PROBE_VERDICTS = (
+    "observed_one_off", "not_regression", "regression_candidate", "inconclusive",
+)
+
+
+def make_trials_summary(total: int, valid: int, mismatch_count: int) -> dict:
+    rate = round(mismatch_count / valid, 6) if valid else 0.0
+    return {"total": total, "valid": valid,
+            "mismatch_count": mismatch_count, "mismatch_rate": rate}
+
+
+def suggest_verdict(mismatch_rate: float) -> str:
+    """Mechanical hint only; the authoritative verdict is analyst-set."""
+    if mismatch_rate == 0.0:
+        return "not_regression"
+    if mismatch_rate >= 0.5:
+        return "regression_candidate"
+    return "inconclusive"
+
+
+@dataclass(frozen=True)
+class IssueProbePoint:
+    issue_id: str
+    probe_id: str
+    source_runs: list
+    screen_id: str
+    domain: str
+    entry_action: object        # str | None
+    entry_component: object     # str | None
+    observed_condition: str
+    hypothesis: str
+    trials_summary: dict        # make_trials_summary(...)
+    verdict: str                # one of ISSUE_PROBE_VERDICTS
+    evidence_refs: dict         # {"ledger_path": ..., "artifact_paths": [...]}
+    notes: str = ""
+
+    def to_dict(self) -> dict:
+        return {
+            "issue_id": self.issue_id,
+            "probe_id": self.probe_id,
+            "source_runs": self.source_runs,
+            "screen_id": self.screen_id,
+            "domain": self.domain,
+            "entry_action": self.entry_action,
+            "entry_component": self.entry_component,
+            "observed_condition": self.observed_condition,
+            "hypothesis": self.hypothesis,
+            "trials_summary": self.trials_summary,
+            "verdict": self.verdict,
+            "evidence_refs": self.evidence_refs,
+            "notes": self.notes,
+        }
+
+    @staticmethod
+    def from_dict(d: dict) -> "IssueProbePoint":
+        return IssueProbePoint(
+            issue_id=d["issue_id"],
+            probe_id=d["probe_id"],
+            source_runs=d["source_runs"],
+            screen_id=d["screen_id"],
+            domain=d["domain"],
+            entry_action=d.get("entry_action"),
+            entry_component=d.get("entry_component"),
+            observed_condition=d["observed_condition"],
+            hypothesis=d["hypothesis"],
+            trials_summary=d["trials_summary"],
+            verdict=d["verdict"],
+            evidence_refs=d["evidence_refs"],
+            notes=d.get("notes", ""),
+        )
+
+
+def write_probe_json(probe: IssueProbePoint, path) -> None:
+    Path(path).write_text(
+        json.dumps(probe.to_dict(), ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8")
+
+
+def load_probe_json(path) -> IssueProbePoint:
+    return IssueProbePoint.from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
+
+
+# --- failure_reason classification (Task 6, design only) -------------------
+# Pure mapping; NO runner/reporter integration, NO summary schema bump.
+# Priority: reach_status > input > risky > text(no_device|missing) > document.
+
+FAILURE_REASONS = (
+    "unreachable", "focus_mismatch", "text_missing", "no_device_observation",
+    "risky_action", "input_required", "document_drift",
+)
+
+_RISKY_SAFETY = {
+    ActionSafety.SELECTION_GATED, ActionSafety.PRIVILEGED_SHELL,
+    ActionSafety.DESTRUCTIVE, ActionSafety.UNKNOWN_UNSAFE,
+}
+
+
+def classify_failure_reason(reach_status=None, action_safety=None,
+                            expected_texts=None, observed_texts=None,
+                            document_mismatch=False):
+    """Map failure signals to a failure_reason, or None if nothing failed.
+
+    `no_device_observation` (expected exists but no device/baseline observation
+    at all) is kept distinct from `text_missing` (observation exists but lacks
+    an expected text) so issue-probe verdicts stay decisive.
+    """
+    if reach_status in {"UNREACHABLE_NO_ACTION", "LAUNCH_FAILED"}:
+        return "unreachable"
+    if reach_status == "FOCUS_MISMATCH":
+        return "focus_mismatch"
+    if action_safety == ActionSafety.INPUT_REQUIRED:
+        return "input_required"
+    if action_safety in _RISKY_SAFETY:
+        return "risky_action"
+    if expected_texts:
+        if not observed_texts:
+            return "no_device_observation"
+        if any(t not in observed_texts for t in expected_texts):
+            return "text_missing"
+    if document_mismatch:
+        return "document_drift"
+    return None
+
+
+def closest_menu_node(failed_screen=None, baseline=None):
+    """TODO(I3): nearest baseline node by fingerprint/text distance.
+
+    Deferred in v1.2 (Task 6) — interface stub only, always returns None.
+    """
+    return None
