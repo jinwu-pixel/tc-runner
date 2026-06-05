@@ -1,0 +1,58 @@
+{
+  "action_safety": {
+    "DESTRUCTIVE": 1,
+    "NAVIGATION_ONLY": 202,
+    "PRIVILEGED_SHELL": 54,
+    "READ_ONLY": 541,
+    "READ_ONLY_SHELL": 128,
+    "SELECTION_GATED": 171,
+    "UNKNOWN_UNSAFE": 91
+  },
+  "baseline": {
+    "mapped_actions": [
+      "android.settings.SETTINGS"
+    ],
+    "mapped_candidates": 2,
+    "mapped_screen_ids": [
+      "settings_home"
+    ],
+    "screens": 17
+  },
+  "candidates": {
+    "app_packages": {
+      "com.android.mms": 1,
+      "com.example.seniorshield": 39,
+      "com.ibk.android.ionebank": 1,
+      "com.skt.prod.dialer": 1
+    },
+    "by_domain": {
+      "app": 42,
+      "external": 1,
+      "settings": 4
+    },
+    "by_method": {
+      "component": 42,
+      "deeplink": 5
+    },
+    "total": 47
+  },
+  "corpus": {
+    "exported_ss_call": {
+      "files": 16
+    },
+    "exported_tc1": {
+      "autoconverted": 19,
+      "files": 44,
+      "top_level": 25
+    },
+    "golden_tc_set": {
+      "files": 3
+    },
+    "total_files": 63
+  },
+  "settings_deeplinks": {
+    "android.settings.APN_SETTINGS": 1,
+    "android.settings.DEVICE_INFO_SETTINGS": 1,
+    "android.settings.SETTINGS": 2
+  }
+}
