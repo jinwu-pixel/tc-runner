@@ -6,6 +6,7 @@ The real `adb` is NEVER invoked — only the in-memory StubADB below.
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -17,6 +18,8 @@ _spec = importlib.util.spec_from_file_location("settings_tree_explorer", _PATH)
 ste = importlib.util.module_from_spec(_spec)
 sys.modules["settings_tree_explorer"] = ste
 _spec.loader.exec_module(ste)
+
+from src import menu_anchor as ma  # noqa: E402  (repo root on sys.path after ste load)
 
 
 class StubADB:
@@ -381,3 +384,214 @@ def test_allowlist_rejects_unquoted_dollar_component():
     # the safe single-quoted form is accepted
     assert ste.is_allowed_command(
         "am start -n 'com.android.settings/.Settings$MyDeviceInfoActivity'")
+
+
+# --- Task 4.2 wiring: orchestration-seam redaction (JSON + MD) -------------
+# menu_tree.to_md() bypasses to_dict() and reads dataclass fields directly
+# (element labels), so redacting only the JSON dict would leave PII plaintext in
+# the MD. The seam must redact BOTH outputs with one shared per-run KeyMap.
+# menu_tree stays pure (no redaction import); redaction is orchestration-owned.
+
+_FULL_FP = "ALT/alt_thor2/thor2:14/UP1A.231005.007/RY07260302M:user/release-keys"
+
+
+def _pii_baseline(run_id="20260608T000000Z"):
+    mt = ste.mt  # menu_tree, bound by the explorer (`from src import menu_tree as mt`)
+    el = mt.MenuElement(
+        label="IP 주소 192.0.0.4", resource_id=None, kind="title",
+        source_class="android.widget.TextView", text_role_hint="unknown",
+        clickable=False, focusable=False, checkable=False, risk="none", bounds=None)
+    screen = mt.MenuScreen(
+        screen_id="settings_d1_device_info", label_ko="휴대전화 정보",
+        nav_path=["설정", "휴대전화 정보"],
+        entry={"action": "android.settings.DEVICE_INFO_SETTINGS"},
+        reach_status="REACHED", reach_kind="internal",
+        observed_focus="com.android.settings/.Settings$MyDeviceInfoActivity",
+        expect_activity_regex=".*", activity_match=True, fingerprint="fp",
+        observed_texts={"ko": ["IP 주소 192.0.0.4"], "en": [], "other": []},
+        elements=[el], scroll=mt.ScrollInfo(),
+        dump_info=mt.DumpInfo(raw_present=True), risk_flags=[], raw_dump_ref=None)
+    device = mt.DeviceBaseline(
+        serial="B06201249E0002F0", model="AT-M140", product="alt_thor2", device="thor2",
+        build_fingerprint=_FULL_FP, build_id="Z0604U", android="14",
+        locale_persist="ko-KR", locale_product="en-US",
+        viewport="480x800", dpi="220", sim="45005")
+    return mt.MenuTreeBaseline(
+        schema_version=mt.SCHEMA_VERSION, tool_version=mt.TOOL_VERSION,
+        generated_at_utc="2026-06-08T00:00:00Z", run_id=run_id, device=device,
+        package="com.android.settings", seed_ref={}, target_mismatch_ack=False,
+        summary=mt.compute_summary([screen]), screens=[screen])
+
+
+def test_emit_redacted_baseline_redacts_json_and_md_with_shared_tokens(tmp_path):
+    base = str(tmp_path / "menu_tree_baseline_20260608T000000Z")
+    json_str, md_str, km = ste.emit_redacted_baseline(_pii_baseline(), base)
+    # JSON: no plaintext PII; full build fingerprint tokenized; short build id kept.
+    assert "192.0.0.4" not in json_str
+    assert "RY07260302M:user/release-keys" not in json_str
+    assert "Z0604U" in json_str
+    # MD: the to_md() bypass must ALSO be redacted (the critical leak guard).
+    assert "192.0.0.4" not in md_str
+    # token consistency: the same IP value -> the same token in BOTH artifacts.
+    assert "<IPV4_1>" in json_str and "<IPV4_1>" in md_str
+    # both files written
+    assert (tmp_path / "menu_tree_baseline_20260608T000000Z.json").exists()
+    assert (tmp_path / "menu_tree_baseline_20260608T000000Z.md").exists()
+
+
+def test_run_explore_emits_redacted_fingerprint(tmp_path):
+    # run_explore must route its emit through the redaction seam: the full build
+    # fingerprint (from _PROPS) is tokenized, the short build id kept.
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    ste.run_explore(g, _full_seed(), run_id="20260608T010101Z",
+                    out_dir=str(tmp_path), settle=0, max_passes=1,
+                    target_mismatch_ack=False)
+    out_json = (tmp_path / "menu_tree_baseline_20260608T010101Z.json").read_text(encoding="utf-8")
+    assert "RY07260302M:user/release-keys" not in out_json   # full fingerprint tokenized
+    assert "<BUILD_FP_1>" in out_json
+    assert '"serial": "B06201249E0002B8"' in out_json         # serial kept (not in policy)
+
+
+# --- Task 4.2 T2: per-run KeyMap dump = local carry only, commit-forbidden ---
+# The run's KeyMap (original -> token map) is dumped beside the raw XML at
+# raw/<run_id>/_redaction_keymap.json. It holds plaintext PII so it is local
+# carry only: path_policy_findings flags it as commit-forbidden. The redacted
+# baseline JSON/MD (commit candidates) must carry no residual PII.
+
+def test_run_explore_dumps_keymap_as_local_carry(tmp_path):
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    ste.run_explore(g, _full_seed(), run_id="20260608T020202Z",
+                    out_dir=str(tmp_path), settle=0, max_passes=1)
+    km_path = tmp_path / "raw" / "20260608T020202Z" / "_redaction_keymap.json"
+    assert km_path.exists()                                   # dumped beside raw XML
+    data = json.loads(km_path.read_text(encoding="utf-8"))
+    fp = _PROPS["ro.build.fingerprint"]
+    # original -> token mapping present (the full fingerprint was tokenized)
+    assert data["by_kind"]["BUILD_FP"][fp] == "<BUILD_FP_1>"
+    # roundtrip: same original -> same token after from_dict
+    km2 = ste.rd.KeyMap.from_dict(data)
+    assert km2.token_for("BUILD_FP", fp) == "<BUILD_FP_1>"
+
+
+def test_dumped_keymap_path_is_commit_forbidden(tmp_path):
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    ste.run_explore(g, _full_seed(), run_id="20260608T030303Z",
+                    out_dir=str(tmp_path), settle=0, max_passes=1)
+    km_path = tmp_path / "raw" / "20260608T030303Z" / "_redaction_keymap.json"
+    findings = ste.rd.path_policy_findings([str(km_path)])
+    assert findings and any(f.kind == "PATH_POLICY" for f in findings)
+
+
+def test_run_explore_output_passes_residual_scan(tmp_path):
+    g = ste.GuardedADB(StubADB(focus_seq=[_WIFI_FOCUS], dump_seq=[_DUMP, _DUMP], props=_PROPS))
+    ste.run_explore(g, _full_seed(), run_id="20260608T040404Z",
+                    out_dir=str(tmp_path), settle=0, max_passes=1)
+    out_json = tmp_path / "menu_tree_baseline_20260608T040404Z.json"
+    out_md = tmp_path / "menu_tree_baseline_20260608T040404Z.md"
+    assert ste.rd.residual_scan(json.loads(out_json.read_text(encoding="utf-8"))) == []
+    assert ste.rd.residual_scan(out_md.read_text(encoding="utf-8")) == []
+
+
+# --- Task 4.2 T3: probe sidecar redaction (scan-before-write) --------------
+# emit_redacted_probe is a thin orchestration wrapper over an issue-probe sidecar:
+# redact(probe.to_dict(), run_keymap) -> residual_scan -> write JSON only if clean.
+# Scan-before-write: a residual finding raises BEFORE any file is written, so no
+# plaintext PII ever lands on disk. write_probe_json's contract is left intact.
+
+def _pii_probe(observed="IP 주소 192.0.0.4 / MAC 9c:1e:ce:0c:36:e0"):
+    return ma.IssueProbePoint(
+        issue_id="BTS-X", probe_id="p1", source_runs=["20260608T020202Z"],
+        screen_id="settings_d1_device_info", domain="settings",
+        entry_action="android.settings.DEVICE_INFO_SETTINGS", entry_component=None,
+        observed_condition=observed,
+        hypothesis="IMEI: 350000000000001 leaks into the sidecar",
+        trials_summary=ma.make_trials_summary(20, 20, 0),
+        verdict="not_regression",
+        evidence_refs={"ledger_path": "x", "artifact_paths": []},
+        notes="APN password=secret123 개통일 2024-10-10")
+
+
+def test_emit_redacted_probe_tokenizes_network_and_identity(tmp_path):
+    path = str(tmp_path / "probes" / "bts_x.json")
+    redacted = ste.emit_redacted_probe(_pii_probe(), path, ste.rd.KeyMap())
+    text = Path(path).read_text(encoding="utf-8")
+    for plain in ("192.0.0.4", "9c:1e:ce:0c:36:e0", "350000000000001"):
+        assert plain not in text, plain
+    assert "<IPV4_1>" in text and "<MAC_1>" in text and "<IMEI_1>" in text
+    assert ste.rd.residual_scan(redacted) == []
+
+
+def test_emit_redacted_probe_drops_dclass_and_keeps_it_out_of_keymap(tmp_path):
+    path = str(tmp_path / "probes" / "bts_d.json")
+    km = ste.rd.KeyMap()
+    ste.emit_redacted_probe(_pii_probe(), path, km)
+    text = Path(path).read_text(encoding="utf-8")
+    assert "secret123" not in text and "2024-10-10" not in text
+    assert "<REDACTED:apn_password>" in text and "<REDACTED:first_call_date>" in text
+    # D-class never enters the KeyMap (drop = no correlation token)
+    assert "APN_CRED" not in km.to_dict()["by_kind"]
+    assert "secret123" not in json.dumps(km.to_dict())
+
+
+def test_emit_redacted_probe_scans_before_write(tmp_path, monkeypatch):
+    # If residual_scan reports a finding, the writer must raise BEFORE writing —
+    # no plaintext file may be left on disk.
+    path = str(tmp_path / "probes" / "bts_block.json")
+    fake = [ste.rd.Finding("IPV4", "residual", "$", "leak")]
+    monkeypatch.setattr(ste.rd, "residual_scan", lambda obj: fake)
+    with pytest.raises(ste.ResidualPIIError):
+        ste.emit_redacted_probe(_pii_probe(), path, ste.rd.KeyMap())
+    assert not Path(path).exists()
+
+
+def test_probe_and_baseline_share_tokens_via_one_keymap(tmp_path):
+    km = ste.rd.KeyMap()
+    ste.emit_redacted_baseline(_pii_baseline(), str(tmp_path / "b"), keymap=km)  # IP -> <IPV4_1>
+    path = str(tmp_path / "probes" / "p.json")
+    ste.emit_redacted_probe(_pii_probe(), path, km)        # same IP reuses the token
+    text = Path(path).read_text(encoding="utf-8")
+    assert "192.0.0.4" not in text and "<IPV4_1>" in text
+
+
+def test_emit_redacted_probe_fresh_keymap_restarts_numbering(tmp_path):
+    path = str(tmp_path / "probes" / "p2.json")
+    ste.emit_redacted_probe(_pii_probe(), path, ste.rd.KeyMap())   # fresh namespace
+    text = Path(path).read_text(encoding="utf-8")
+    assert "<IPV4_1>" in text
+
+
+def test_probe_paths_are_commit_candidates_not_forbidden():
+    for p in ["THOR2_K - Settings/catalog/probes/bts_x.json",
+              "THOR2_K - Settings/catalog/anchors/debugscreen.json"]:
+        assert ste.rd.path_policy_findings([p]) == []
+
+
+def test_emit_redacted_probe_does_not_write_raw_or_keymap(tmp_path):
+    path = str(tmp_path / "probes" / "p3.json")
+    ste.emit_redacted_probe(_pii_probe(), path, ste.rd.KeyMap())
+    assert Path(path).exists()
+    assert not (tmp_path / "raw").exists()                      # probe writer touches no raw dir
+    assert not list(tmp_path.rglob("_redaction_keymap.json"))   # and dumps no keymap
+
+
+def test_emit_redacted_probe_rejects_raw_dir_output(tmp_path):
+    # A forbidden output path (a raw/ capture dir) is refused BEFORE any write —
+    # not merely "the writer doesn't choose it", but it rejects the argument.
+    bad = str(tmp_path / "catalog" / "raw" / "20260608T020202Z" / "x.json")
+    with pytest.raises(ste.ForbiddenProbePathError):
+        ste.emit_redacted_probe(_pii_probe(), bad, ste.rd.KeyMap())
+    assert not Path(bad).exists()
+
+
+def test_emit_redacted_probe_rejects_keymap_output(tmp_path):
+    bad = str(tmp_path / "anchors" / "_redaction_keymap.json")
+    with pytest.raises(ste.ForbiddenProbePathError):
+        ste.emit_redacted_probe(_pii_probe(), bad, ste.rd.KeyMap())
+    assert not Path(bad).exists()
+
+
+@pytest.mark.parametrize("good", ["anchors/debugscreen.json", "probes/bts_x.json"])
+def test_emit_redacted_probe_allows_anchors_and_probes_output(tmp_path, good):
+    p = str(tmp_path / good)
+    ste.emit_redacted_probe(_pii_probe(), p, ste.rd.KeyMap())
+    assert Path(p).exists()

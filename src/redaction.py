@@ -260,15 +260,37 @@ def _excerpt(text: str, start: int, end: int, pad: int = 12) -> str:
     return text[max(0, start - pad):min(len(text), end + pad)]
 
 
+# A detected span whose value is EXACTLY an allowed redaction placeholder is
+# already-redacted output, not residual PII. This matters for D-class: it keeps
+# the key label and drops only the value, so "password=<REDACTED:apn_password>"
+# survives and the credential detector re-captures the placeholder as a "value"
+# — a false positive. The allow-set is closed and matched with fullmatch, so a
+# malformed label (<REDACTED:apn_password_bogus>) or a glued plaintext prefix
+# (prefix<IPV4_1>) is NOT treated as clean and stays flagged.
+_REDACTION_DROP_LABELS = ("apn_user", "apn_password", "apn_auth", "first_call_date")
+_REDACTION_TOKEN_KINDS = (
+    "IMSI", "IMEI", "ICCID", "MSISDN", "OPERATOR_NUMERIC",
+    "IPV4", "IPV6", "MAC", "BUILD_FP",
+)
+_ALLOWED_PLACEHOLDER_RE = re.compile(
+    r"<(?:REDACTED:(?:%s)|(?:%s)_\d+)>"
+    % ("|".join(_REDACTION_DROP_LABELS), "|".join(_REDACTION_TOKEN_KINDS))
+)
+
+
 def residual_scan(obj, _loc: str = "$") -> list[Finding]:
     # Applies to commit-candidate REDACTED artifacts only (JSON/MD/log excerpt),
-    # never to raw XML ground truth. Reuses detect(); redaction placeholders
-    # (<KIND_n>, <REDACTED:label>) match no detector, so a clean output is empty.
-    # Recurses dict/list values (dict keys are not scanned — conservative, in line
-    # with redact() which never rewrites keys). severity is high-only (binary gate).
+    # never to raw XML ground truth. Reuses detect(); a standalone token (<KIND_n>,
+    # <REDACTED:label>) matches no detector, and a span whose captured value is
+    # EXACTLY an allowed placeholder (D-class kept label) is skipped — so a clean
+    # output is empty. Recurses dict/list values (dict keys are not scanned —
+    # conservative, in line with redact() which never rewrites keys). severity is
+    # high-only (binary gate).
     findings: list[Finding] = []
     if isinstance(obj, str):
         for s in detect(obj):
+            if _ALLOWED_PLACEHOLDER_RE.fullmatch(s.value):
+                continue  # already-redacted placeholder, not residual PII
             findings.append(Finding(
                 s.kind,
                 f"residual {s.kind} ({s.klass}-class) in redacted output",

@@ -433,6 +433,44 @@ def test_residual_scan_ignores_placeholders(placeholder):
     assert rd.residual_scan(placeholder) == []
 
 
+def test_residual_scan_ignores_dclass_placeholder_with_kept_label():
+    # D-class keeps the key label and drops only the value -> "password=<REDACTED:..>".
+    # The kept "password=" must NOT be re-flagged: the secret is already gone, the
+    # captured "value" is a placeholder, not residual PII.
+    text = "APN password=<REDACTED:apn_password> 개통일 <REDACTED:first_call_date>"
+    assert rd.residual_scan(text) == []
+
+
+def test_residual_scan_still_flags_real_credential_value():
+    # guard: a genuine plaintext credential value is still residual PII.
+    assert any(f.kind == "APN_CRED" for f in rd.residual_scan("password=secret123"))
+
+
+@pytest.mark.parametrize("text", [
+    "password=<REDACTED:apn_password_bogus>",   # malformed / non-allowed drop label
+    "password=prefix<REDACTED:apn_password>",   # plaintext glued before the placeholder
+])
+def test_residual_scan_flags_malformed_or_prefixed_placeholder(text):
+    # The placeholder skip must be exact (fullmatch against the allowed set); a
+    # malformed label or a glued plaintext prefix is NOT a clean placeholder.
+    assert any(f.kind == "APN_CRED" for f in rd.residual_scan(text)), text
+
+
+@pytest.mark.parametrize("placeholder", [
+    "<REDACTED:apn_password>", "<IPV4_12>", "<BUILD_FP_1>", "<MAC_3>",
+])
+def test_allowed_placeholder_is_exact_fullmatch(placeholder):
+    # exact allowed placeholders fullmatch (and so are skipped by residual_scan)
+    assert rd._ALLOWED_PLACEHOLDER_RE.fullmatch(placeholder)
+
+
+@pytest.mark.parametrize("notplaceholder", [
+    "<REDACTED:apn_password_bogus>", "prefix<IPV4_1>", "<IPV4_1>x", "<UNKNOWN_1>",
+])
+def test_non_allowed_placeholder_is_not_fullmatch(notplaceholder):
+    assert not rd._ALLOWED_PLACEHOLDER_RE.fullmatch(notplaceholder)
+
+
 @pytest.mark.parametrize("text", _FP_NEGATIVE_CORPUS)
 def test_residual_scan_no_finding_on_fp_corpus(text):
     assert rd.residual_scan(text) == []

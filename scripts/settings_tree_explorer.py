@@ -14,6 +14,7 @@ later tasks. The real `adb` is injected (src.adb.ADB) so tests use a stub.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -24,6 +25,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(_HERE, ".."))   # repo root -> enables `from src...`
 sys.path.append(_HERE)                        # scripts/ -> enables `import menu_mapper`
 from src import menu_tree as mt          # noqa: E402,F401  (used by later tasks)
+from src import redaction as rd          # noqa: E402  (orchestration-owned PII redaction)
 import menu_mapper as mm                 # noqa: E402,F401  (used by later tasks)
 from src.adb import ADB                  # noqa: E402,F401  (instantiated in CLI, later task)
 
@@ -370,6 +372,94 @@ def dry_run_plan(seed: dict) -> str:
     return "\n".join(lines)
 
 
+def emit_redacted_baseline(baseline, base_path: str, keymap=None):
+    """Redact a built MenuTreeBaseline and write redacted JSON + MD to base_path.
+
+    Orchestration-owned redaction seam (src.menu_tree stays pure, no redaction
+    import). The JSON is redacted at the dict layer (`redact(to_dict())`); the MD
+    is redacted at the text layer (`redact_text(to_md())`) because `to_md()`
+    bypasses `to_dict()` and reads dataclass fields (element labels) directly — a
+    JSON-only redaction would leak PII into the MD. One per-run `KeyMap` is shared
+    so the same value maps to the same token across both artifacts (and, in 4.2,
+    across the run's sidecars). Returns (json_str, md_str, keymap).
+    """
+    km = keymap if keymap is not None else rd.KeyMap()
+    redacted_obj, _ = rd.redact(baseline.to_dict(), km)
+    json_str = json.dumps(redacted_obj, ensure_ascii=False, indent=2, sort_keys=True)
+    md_str = rd.redact_text(baseline.to_md(), km)
+    with open(base_path + ".json", "w", encoding="utf-8") as fh:
+        fh.write(json_str)
+    with open(base_path + ".md", "w", encoding="utf-8") as fh:
+        fh.write(md_str)
+    return json_str, md_str, km
+
+
+def dump_keymap(keymap, raw_dir: str) -> str:
+    """Write the per-run KeyMap to <raw_dir>/_redaction_keymap.json (local carry).
+
+    The file holds the original->token map (plaintext PII), so it is local carry
+    only — `redaction.path_policy_findings` flags this path as commit-forbidden.
+    Returns the written path.
+    """
+    os.makedirs(raw_dir, exist_ok=True)
+    path = os.path.join(raw_dir, "_redaction_keymap.json")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(keymap.to_dict(), fh, ensure_ascii=False, indent=2, sort_keys=True)
+    return path
+
+
+class ResidualPIIError(RuntimeError):
+    """Raised when residual_scan finds PII in a redacted artifact before writing.
+
+    Carries the list of `redaction.Finding`s. The writer raises this *before*
+    touching disk (scan-before-write), so no plaintext file is ever left behind.
+    """
+
+    def __init__(self, findings):
+        self.findings = findings
+        super().__init__(f"residual PII gate failed: {len(findings)} finding(s)")
+
+
+class ForbiddenProbePathError(RuntimeError):
+    """Raised when a probe sidecar is asked to write to a commit-forbidden path.
+
+    A commit-candidate sidecar must never be written into a local-carry-only
+    location (a raw/ capture dir or a `_redaction_keymap.json`). The path is
+    rejected via `redaction.path_policy_findings` BEFORE any write.
+    """
+
+    def __init__(self, path, findings):
+        self.path = path
+        self.findings = findings
+        super().__init__(f"forbidden probe output path: {path!r}")
+
+
+def emit_redacted_probe(probe, path: str, keymap) -> dict:
+    """Redact an issue-probe sidecar, scan it, and write JSON only if clean.
+
+    Thin orchestration wrapper (src.menu_anchor stays pure; its write_probe_json
+    contract is untouched). Pipeline: reject forbidden output path ->
+    redact(probe.to_dict(), keymap) -> residual_scan -> write. The run KeyMap is
+    shared so the same value maps to the same token as the baseline (a fresh
+    KeyMap restarts numbering at <KIND_1>). Scan-before-write: if the path is
+    forbidden or residual_scan finds anything, raise and write NOTHING (no
+    plaintext file ever touches disk). The probe path must be a commit candidate
+    (anchors/probes); raw/ and the keymap are run_explore's job. Returns the
+    redacted dict.
+    """
+    path_findings = rd.path_policy_findings([path])
+    if path_findings:
+        raise ForbiddenProbePathError(path, path_findings)
+    redacted, _ = rd.redact(probe.to_dict(), keymap)
+    findings = rd.residual_scan(redacted)
+    if findings:
+        raise ResidualPIIError(findings)
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(redacted, fh, ensure_ascii=False, indent=2, sort_keys=True)
+    return redacted
+
+
 def run_explore(g: GuardedADB, seed: dict, run_id: str, out_dir: str,
                 settle: float = 1.2, max_passes: int = 8,
                 target_mismatch_ack: bool = False) -> mt.MenuTreeBaseline:
@@ -403,10 +493,14 @@ def run_explore(g: GuardedADB, seed: dict, run_id: str, out_dir: str,
         summary=mt.compute_summary(screens), screens=screens)
 
     os.makedirs(out_dir, exist_ok=True)
-    with open(base + ".json", "w", encoding="utf-8") as fh:
-        fh.write(baseline.to_json())
-    with open(base + ".md", "w", encoding="utf-8") as fh:
-        fh.write(baseline.to_md())
+    # Emit through the redaction seam: JSON (dict layer) + MD (text layer, since
+    # to_md() bypasses to_dict()) share one per-run KeyMap. Raw XML is never
+    # passed here — it stays original local-carry, kept out of commits by policy.
+    run_keymap = rd.KeyMap()
+    emit_redacted_baseline(baseline, base, keymap=run_keymap)
+    # The KeyMap holds plaintext PII -> dump it beside the raw XML as local carry
+    # only (path_policy_findings flags this path as commit-forbidden).
+    dump_keymap(run_keymap, raw_root)
     return baseline
 
 
