@@ -29,8 +29,6 @@ expected_texts_candidate:
   - "지금 사용 설정"
   - "사람"
   - "앱"
-  - "알람 및 기타 방해 요소   일반"
-  - "예약"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1
