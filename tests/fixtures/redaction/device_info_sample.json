@@ -1,0 +1,12 @@
+{
+  "screen_id": "settings_d1_device_info",
+  "device": {
+    "build_id": "Z0604U",
+    "build_fingerprint": "ALT/alt_thor2/thor2:14/UP1A.231005.007/RY07260600S:user/release-keys"
+  },
+  "observed_texts": {
+    "en": ["AT-M140LZ0604U", "9c:1e:ce:0c:36:e0"],
+    "ko": ["IP 주소", "192.0.0.4"],
+    "other": []
+  }
+}
