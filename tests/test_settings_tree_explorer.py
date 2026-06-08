@@ -21,6 +21,12 @@ _spec.loader.exec_module(ste)
 
 from src import menu_anchor as ma  # noqa: E402  (repo root on sys.path after ste load)
 
+_GATE_PATH = _ROOT / "tools" / "redaction_gate.py"
+_gspec = importlib.util.spec_from_file_location("redaction_gate", _GATE_PATH)
+rg = importlib.util.module_from_spec(_gspec)
+sys.modules["redaction_gate"] = rg
+_gspec.loader.exec_module(rg)
+
 
 class StubADB:
     """Records every shell/op; returns scripted focus + dump per call. NEVER real adb."""
@@ -595,3 +601,166 @@ def test_emit_redacted_probe_allows_anchors_and_probes_output(tmp_path, good):
     p = str(tmp_path / good)
     ste.emit_redacted_probe(_pii_probe(), p, ste.rd.KeyMap())
     assert Path(p).exists()
+
+
+# --- Task 4.2 T4: RunRedactionContext (shared KeyMap lifecycle + finalize) --
+# One context per run_id holds the shared KeyMap, commit_candidates, and
+# local_only_paths. baseline + probes share context.keymap. A probe that fails
+# the residual gate must NOT pollute the shared keymap (trial isolation). The
+# keymap is written ONCE at finalize (after all outputs), never mid-run.
+
+def _ctx(tmp_path):
+    return ste.RunRedactionContext(run_id="20260608T090000Z",
+                                   raw_dir=str(tmp_path / "raw" / "20260608T090000Z"))
+
+
+def test_context_baseline_and_probe_share_ip_token(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))       # IP -> <IPV4_1>
+    ppath = str(tmp_path / "probes" / "p.json")
+    ctx.emit_probe(_pii_probe(), ppath)                          # same IP reuses token
+    text = Path(ppath).read_text(encoding="utf-8")
+    assert "192.0.0.4" not in text and "<IPV4_1>" in text
+
+
+def test_context_new_probe_token_lands_in_final_keymap(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    ctx.emit_probe(_pii_probe(), str(tmp_path / "probes" / "p.json"))   # adds a MAC
+    kpath = ctx.finalize()
+    data = json.loads(Path(kpath).read_text(encoding="utf-8"))
+    assert "9c:1e:ce:0c:36:e0" in data["by_kind"]["MAC"]
+
+
+def test_context_keymap_written_only_at_finalize(tmp_path):
+    raw = tmp_path / "raw" / "20260608T090000Z"
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    ctx.emit_probe(_pii_probe(), str(tmp_path / "probes" / "p.json"))
+    assert not (raw / "_redaction_keymap.json").exists()         # not written mid-run
+    ctx.finalize()
+    assert (raw / "_redaction_keymap.json").exists()             # written at finalize
+
+
+def test_context_final_keymap_roundtrip_restores_all_tokens(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    ctx.emit_probe(_pii_probe(), str(tmp_path / "probes" / "p.json"))
+    kpath = ctx.finalize()
+    km = ste.rd.KeyMap.from_dict(json.loads(Path(kpath).read_text(encoding="utf-8")))
+    assert km.token_for("BUILD_FP", _FULL_FP) == "<BUILD_FP_1>"       # baseline token
+    assert km.token_for("IPV4", "192.0.0.4") == "<IPV4_1>"           # shared token
+    assert km.token_for("MAC", "9c:1e:ce:0c:36:e0") == "<MAC_1>"     # probe token
+
+
+def test_context_commit_candidates_pass_gate(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    ctx.emit_probe(_pii_probe(), str(tmp_path / "probes" / "p.json"))
+    ctx.finalize()
+    result = rg.run_gate(ctx.commit_candidates)
+    assert result["verdict"] == "PASS", result
+
+
+def test_context_mixing_local_only_into_candidates_fails_gate(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    kpath = ctx.finalize()
+    assert kpath in ctx.local_only_paths and kpath not in ctx.commit_candidates
+    result = rg.run_gate(ctx.commit_candidates + [kpath])        # keymap wrongly mixed in
+    assert result["verdict"] == "FAIL"
+    assert any(f["kind"] == "PATH_POLICY" for f in result["findings"])
+
+
+def test_context_probe_residual_failure_no_file_and_no_pollution(tmp_path, monkeypatch):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    before = ctx.keymap.to_dict()
+    ppath = str(tmp_path / "probes" / "fail.json")
+    monkeypatch.setattr(ste.rd, "residual_scan",
+                        lambda obj: [ste.rd.Finding("IPV4", "residual", "$", "leak")])
+    with pytest.raises(ste.ResidualPIIError):
+        ctx.emit_probe(_pii_probe(), ppath)
+    assert not Path(ppath).exists()                  # scan-before-write: no file
+    assert ctx.keymap.to_dict() == before            # failed probe did not pollute keymap
+    assert ppath not in ctx.commit_candidates
+
+
+def test_context_finalize_twice_is_rejected(tmp_path):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    ctx.finalize()
+    with pytest.raises(RuntimeError):
+        ctx.finalize()
+
+
+# --- T4 guards: baseline transaction + finalize atomic keymap write ---------
+
+def test_context_baseline_residual_failure_is_transactional(tmp_path, monkeypatch):
+    # If either the JSON or MD redaction leaves residual PII, emit_baseline must
+    # write no file, register no candidate, and leave the shared keymap untouched.
+    ctx = _ctx(tmp_path)
+    before = ctx.keymap.to_dict()
+    base = str(tmp_path / "b")
+    monkeypatch.setattr(ste.rd, "residual_scan",
+                        lambda obj: [ste.rd.Finding("IPV4", "residual", "$", "leak")])
+    with pytest.raises(ste.ResidualPIIError):
+        ctx.emit_baseline(_pii_baseline(), base)
+    assert not Path(base + ".json").exists()
+    assert not Path(base + ".md").exists()
+    assert ctx.commit_candidates == []
+    assert ctx.keymap.to_dict() == before
+
+
+def test_finalize_atomic_preserves_prior_keymap_on_write_failure(tmp_path, monkeypatch):
+    # A failed keymap write must not corrupt/truncate an existing keymap (atomic
+    # temp + replace, never an in-place truncating "w" on the final path).
+    ctx = _ctx(tmp_path)
+    prior = Path(ctx.raw_dir) / "_redaction_keymap.json"
+    prior.parent.mkdir(parents=True, exist_ok=True)
+    original = '{"by_kind": {"IPV4": {"1.2.3.4": "<IPV4_1>"}}}'
+    prior.write_text(original, encoding="utf-8")
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+
+    def boom(*a, **k):
+        raise OSError("disk full mid-write")
+    monkeypatch.setattr(ste.json, "dump", boom)
+    with pytest.raises(OSError):
+        ctx.finalize()
+    assert prior.read_text(encoding="utf-8") == original   # prior keymap intact
+    assert ctx.finalized is False
+    assert not (Path(ctx.raw_dir) / "_redaction_keymap.json.tmp").exists()
+
+
+def test_finalize_write_failure_leaves_context_unfinalized(tmp_path, monkeypatch):
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+
+    def boom(keymap, raw_dir):
+        raise OSError("disk full")
+    monkeypatch.setattr(ste, "dump_keymap", boom)
+    with pytest.raises(OSError):
+        ctx.finalize()
+    assert ctx.finalized is False
+    assert ctx.local_only_paths == []                      # keymap not registered
+
+
+def test_finalize_can_retry_after_transient_failure(tmp_path, monkeypatch):
+    # retry policy: a failed finalize leaves the context retryable; a later
+    # finalize succeeds (a *successful* finalize then locks against re-finalize).
+    ctx = _ctx(tmp_path)
+    ctx.emit_baseline(_pii_baseline(), str(tmp_path / "b"))
+    real = ste.dump_keymap
+    calls = {"n": 0}
+
+    def flaky(keymap, raw_dir):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise OSError("transient")
+        return real(keymap, raw_dir)
+    monkeypatch.setattr(ste, "dump_keymap", flaky)
+    with pytest.raises(OSError):
+        ctx.finalize()
+    assert ctx.finalized is False
+    kpath = ctx.finalize()                                  # retry succeeds
+    assert ctx.finalized is True and Path(kpath).exists()

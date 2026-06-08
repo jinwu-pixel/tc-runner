@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -387,6 +388,11 @@ def emit_redacted_baseline(baseline, base_path: str, keymap=None):
     redacted_obj, _ = rd.redact(baseline.to_dict(), km)
     json_str = json.dumps(redacted_obj, ensure_ascii=False, indent=2, sort_keys=True)
     md_str = rd.redact_text(baseline.to_md(), km)
+    # scan-before-write: a residual finding in EITHER artifact aborts before any
+    # file is written, so a partially-redacted baseline never lands on disk.
+    findings = rd.residual_scan(redacted_obj) + rd.residual_scan(md_str)
+    if findings:
+        raise ResidualPIIError(findings)
     with open(base_path + ".json", "w", encoding="utf-8") as fh:
         fh.write(json_str)
     with open(base_path + ".md", "w", encoding="utf-8") as fh:
@@ -399,12 +405,22 @@ def dump_keymap(keymap, raw_dir: str) -> str:
 
     The file holds the original->token map (plaintext PII), so it is local carry
     only — `redaction.path_policy_findings` flags this path as commit-forbidden.
-    Returns the written path.
+
+    Atomic: serialized to a sibling temp file, then `os.replace`d into place, so a
+    failed/interrupted write never leaves a partial JSON and never truncates an
+    existing keymap (the temp is removed on failure). Returns the written path.
     """
     os.makedirs(raw_dir, exist_ok=True)
     path = os.path.join(raw_dir, "_redaction_keymap.json")
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(keymap.to_dict(), fh, ensure_ascii=False, indent=2, sort_keys=True)
+    tmp = path + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(keymap.to_dict(), fh, ensure_ascii=False, indent=2, sort_keys=True)
+        os.replace(tmp, path)   # atomic on the same filesystem
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
     return path
 
 
@@ -460,6 +476,67 @@ def emit_redacted_probe(probe, path: str, keymap) -> dict:
     return redacted
 
 
+@dataclass
+class RunRedactionContext:
+    """Per-run redaction lifecycle: one shared KeyMap across baseline + probes.
+
+    - commit_candidates = redacted baseline JSON/MD + redacted anchors/probes JSON.
+    - local_only_paths  = raw XML + the _redaction_keymap.json (commit-forbidden).
+
+    The KeyMap is written ONCE at finalize() — after every output is produced — so
+    a probe that adds tokens after the baseline can never leave a stale partial
+    keymap on disk. A probe is redacted against a trial copy of the keymap and the
+    new tokens are committed to the shared map only if it passes the path +
+    residual gates; a failing probe therefore leaves the shared keymap untouched
+    (no pollution). This module never imports tools.redaction_gate — the gate runs
+    independently over `commit_candidates` after finalize.
+    """
+
+    run_id: str
+    raw_dir: str
+    keymap: rd.KeyMap = field(default_factory=rd.KeyMap)
+    commit_candidates: list = field(default_factory=list)
+    local_only_paths: list = field(default_factory=list)
+    finalized: bool = False
+
+    def _check_open(self) -> None:
+        if self.finalized:
+            raise RuntimeError("RunRedactionContext already finalized")
+
+    def register_local_only(self, path: str) -> None:
+        self.local_only_paths.append(path)
+
+    def emit_baseline(self, baseline, base_path: str) -> None:
+        self._check_open()
+        # Transactional like emit_probe: redact + residual-scan JSON and MD on a
+        # trial copy; emit_redacted_baseline is scan-before-write, so a residual in
+        # either artifact raises before any file is written. Only on success do we
+        # commit the trial's tokens and register the candidates.
+        trial = rd.KeyMap.from_dict(self.keymap.to_dict())
+        emit_redacted_baseline(baseline, base_path, keymap=trial)
+        self.keymap = trial
+        self.commit_candidates.append(base_path + ".json")
+        self.commit_candidates.append(base_path + ".md")
+
+    def emit_probe(self, probe, path: str) -> dict:
+        self._check_open()
+        # Redact against a trial copy so a failing probe never mutates the shared
+        # keymap. emit_redacted_probe raises (forbidden path / residual) before any
+        # write; only on success do we commit the trial's new tokens.
+        trial = rd.KeyMap.from_dict(self.keymap.to_dict())
+        redacted = emit_redacted_probe(probe, path, trial)
+        self.keymap = trial
+        self.commit_candidates.append(path)
+        return redacted
+
+    def finalize(self) -> str:
+        self._check_open()
+        keymap_path = dump_keymap(self.keymap, self.raw_dir)
+        self.register_local_only(keymap_path)
+        self.finalized = True
+        return keymap_path
+
+
 def run_explore(g: GuardedADB, seed: dict, run_id: str, out_dir: str,
                 settle: float = 1.2, max_passes: int = 8,
                 target_mismatch_ack: bool = False) -> mt.MenuTreeBaseline:
@@ -472,11 +549,14 @@ def run_explore(g: GuardedADB, seed: dict, run_id: str, out_dir: str,
     serial = seed.get("target_serial", "")
     device = capture_device_baseline(g, serial)
     raw_root = os.path.join(out_dir, "raw", run_id)
+    ctx = RunRedactionContext(run_id=run_id, raw_dir=raw_root)
 
     def raw_writer(screen_id: str, xml: str):
         os.makedirs(raw_root, exist_ok=True)
-        with open(os.path.join(raw_root, f"{screen_id}.xml"), "w", encoding="utf-8") as fh:
+        raw_path = os.path.join(raw_root, f"{screen_id}.xml")
+        with open(raw_path, "w", encoding="utf-8") as fh:
             fh.write(xml)
+        ctx.register_local_only(raw_path)   # raw XML = local carry, never a candidate
 
     # one failed screen never aborts the run — explore_screen returns a status row.
     screens = [explore_screen(g, s, run_id=run_id, max_passes=max_passes,
@@ -493,14 +573,12 @@ def run_explore(g: GuardedADB, seed: dict, run_id: str, out_dir: str,
         summary=mt.compute_summary(screens), screens=screens)
 
     os.makedirs(out_dir, exist_ok=True)
-    # Emit through the redaction seam: JSON (dict layer) + MD (text layer, since
-    # to_md() bypasses to_dict()) share one per-run KeyMap. Raw XML is never
-    # passed here — it stays original local-carry, kept out of commits by policy.
-    run_keymap = rd.KeyMap()
-    emit_redacted_baseline(baseline, base, keymap=run_keymap)
-    # The KeyMap holds plaintext PII -> dump it beside the raw XML as local carry
-    # only (path_policy_findings flags this path as commit-forbidden).
-    dump_keymap(run_keymap, raw_root)
+    # Run-level redaction lifecycle: baseline (and, in the probe flow, probes)
+    # share ctx.keymap; the KeyMap is written ONCE at finalize() after all outputs
+    # — never mid-run. Raw XML is registered as local-carry above; finalize adds
+    # the keymap. Both stay out of commits by path policy.
+    ctx.emit_baseline(baseline, base)
+    ctx.finalize()
     return baseline
 
 
