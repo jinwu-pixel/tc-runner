@@ -1,0 +1,53 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# vocabulary lock: tc_class=SEMI_AUTO; entry intent + verify strings unconfirmed.
+tc_id: ALTBASIC_SET_149
+title: "알림 > 방해금지 모드 진입 및 항목 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "149.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 설정 >알림 > 방해금지 모드"
+    normalized_intent:
+      type: shell_candidate
+      target: "설정 > 알림 > 방해금지 모드"
+      shell_hint: "launch_app:settings_root then navigate '알림 > 방해금지 모드' (deeplink UNRESOLVED)"
+    expected:
+      - { type: verify_text, target: "방해금지 모드", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "settings deeplink intent unconfirmed; verify strings are paraphrase, not on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 >알림 > 방해금지 모드", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 하기 메뉴 노출됨 - 지금 사용 설정 (버튼)   방해 금지 모드 예외 항목    - 사람   - 앱   - 알람 및 기타 방해 요소   일반   - 예약   - 빠른 설정 지속 시간   - 숨겨진 알림의 표시 옵션"
+expected_texts_candidate:
+  - "방해금지 모드"
+  - "지금 사용 설정"
+  - "사람"
+  - "앱"
+  - "알람 및 기타 방해 요소   일반"
+  - "예약"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: FULL_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: settings_deeplink_candidate
+  verifier_type: verify_text
+  menu_tree_anchor: matched_screen_id
+  matched_screen_id: "알림"
+  risk_note: none
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
