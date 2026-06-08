@@ -1,0 +1,27 @@
+{
+  "domain": "app:com.android.phone",
+  "entry_action": null,
+  "entry_component": "com.android.phone/.settings.DebugScreen",
+  "evidence_refs": {
+    "artifact_paths": [
+      "catalog/raw/20260608T073843Z/debugscreen.xml"
+    ],
+    "ledger_path": "catalog/raw/20260608T073843Z/debugscreen.xml (local carry)"
+  },
+  "hypothesis": "DebugScreen shell-launchable + dumpable on F0 -> Tier A read-only probe anchor",
+  "issue_id": "I1-DEBUGSCREEN-ACCESS",
+  "notes": "First F0 accessibility probe; reach_status=REACHED, am start Status=ok, 87 dump nodes. raw + keymap local carry only.",
+  "observed_condition": "<MSISDN_1>",
+  "probe_id": "debugscreen_access_20260608T073843Z",
+  "screen_id": "phone_debugscreen",
+  "source_runs": [
+    "20260608T073843Z"
+  ],
+  "trials_summary": {
+    "mismatch_count": 0,
+    "mismatch_rate": 0.0,
+    "total": 1,
+    "valid": 1
+  },
+  "verdict": "not_regression"
+}
