@@ -49,3 +49,14 @@ doc/**/*.7z
 doc/**/*.pcap
 doc/**/*.nma.gz
 doc/**/*.mbn
+
+# B-2. doc/ derived QXDM/diag text + raw capture dumps (regenerable / large, not tracked) — 2026-06-02
+doc/**/qcat*.txt
+doc/**/*.hdf
+doc/**/ls_log/
+doc/**/*.log
+doc/**/probe_samples*.csv
+
+# C. redaction local-only artifacts (defense-in-depth; path policy + redaction_gate already block commit) — 2026-06-08
+**/_redaction_keymap.json
+THOR2_K - Settings/catalog/**/raw/
