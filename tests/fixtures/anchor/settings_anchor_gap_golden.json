@@ -1,0 +1,35 @@
+{
+  "anchor_state": {
+    "LEAF_LABEL_OBSERVED": 176,
+    "MISSING": 202,
+    "PARTIAL": 121,
+    "TARGET_REACHED": 29
+  },
+  "baseline_run_id": "20260604T102316Z",
+  "depth": {
+    "1": 125,
+    "2": 345,
+    "3": 37,
+    "4": 15,
+    "5": 6
+  },
+  "entry_method": {
+    "DEEPLINK_CANDIDATE": 326,
+    "MENU_NAVIGATION": 198,
+    "SEARCH_CANDIDATE": 4
+  },
+  "join_matched": 528,
+  "population": 528,
+  "recommended_probe": {
+    "NO_ANCHOR_DEEPEN_NEEDED": 205,
+    "PROBE_DEFER_INPUT": 36,
+    "PROBE_DEFER_MUTATION": 173,
+    "PROBE_PRIORITY_HIGH": 56,
+    "PROBE_PRIORITY_MEDIUM": 58
+  },
+  "traits": {
+    "focus_nav_required": 0,
+    "mutation_suspected": 253,
+    "text_input_required": 150
+  }
+}
