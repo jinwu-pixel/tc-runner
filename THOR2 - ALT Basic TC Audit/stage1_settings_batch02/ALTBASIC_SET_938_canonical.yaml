@@ -1,0 +1,60 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# anchor_state=PARTIAL (settings_d1_wellbeing): 디지털 웰빙 d1 is a CONFIRMED
+# coverage-gap — WELLBEING_SETTINGS / DIGITAL_WELLBEING_SETTINGS resolve to
+# 'No activity found' on F0. Reachable ONLY by tap-navigation; NO deep-link,
+# NO shell_candidate. Needs device tap-discovery + 2-run green.
+tc_id: ALTBASIC_SET_938
+title: "디지털 웰빙 > 방해 금지 모드 > 사람 진입 및 항목 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "938.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: |
+      1. 설정 > 디지털 웰빙 및 자녀 보호 기능 Tap
+       2. 방해 금지 모드 Tap
+       3. 사람 Tap
+    normalized_intent:
+      type: navigate
+      target: "설정 > 디지털 웰빙 및 자녀 보호 기능 > 방해 금지 모드 > 사람"
+      value: null
+    expected:
+      - { type: verify_text, target: "사람", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "디지털 웰빙 d1 confirmed coverage-gap (no launchable activity); tap_navigation_required, device tap-discovery + 2-run validation needed; verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > 디지털 웰빙 및 자녀 보호 기능 Tap /  2. 방해 금지 모드 Tap /  3. 사람 Tap", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: |
+  1. 사람 메뉴 화면으로 전환된다
+   2. 메시지 / 전화에 대한 예외 대상 설정한다
+expected_texts_candidate:
+  - "사람"
+  - "메시지"
+  - "전화"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: tap_navigation_required
+  verifier_type: verify_text
+  anchor_state: PARTIAL
+  menu_tree_anchor: baseline_partial
+  matched_screen_id: "settings_d1_wellbeing"
+  deepen_anchor_link: none
+  risk_note: "none"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

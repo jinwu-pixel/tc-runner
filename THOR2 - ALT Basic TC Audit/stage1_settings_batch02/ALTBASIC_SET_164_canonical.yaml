@@ -1,0 +1,60 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# anchor_state=MISSING: no baseline screen and NO confirmed public Settings
+# deep-link for this leaf. Entry is an UNRESOLVED tap-navigation candidate;
+# device probe + 2-run green required before any runnable claim.
+tc_id: ALTBASIC_SET_164
+title: "알림 > 방해 금지 모드 > 예약 진입 및 항목 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "164.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: |
+      1. 설정 > 알림 >  방해 금지 모드 > 예약
+    normalized_intent:
+      type: shell_candidate
+      target: "설정 > 알림 > 방해 금지 모드 > 예약"
+      shell_hint: "UNRESOLVED — no confirmed public Settings deep-link for '예약'; reach by tap-navigation from '방해 금지 모드'; device probe required"
+    expected:
+      - { type: verify_text, target: "예약", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "no confirmed public deep-link for '예약'; tap-navigation entry unresolved, device probe required; verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > 알림 >  방해 금지 모드 > 예약", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: |
+  1. 하기 메뉴 노출
+  - 수면 시간 ON/OFF(default)
+  - 캘린더 일정 ON/OFF(default)
+  - 추가
+expected_texts_candidate:
+  - "예약"
+  - "수면 시간"
+  - "캘린더 일정"
+  - "추가"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: tap_navigation_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — On/Off controls verified for existence only, current state NOT asserted"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

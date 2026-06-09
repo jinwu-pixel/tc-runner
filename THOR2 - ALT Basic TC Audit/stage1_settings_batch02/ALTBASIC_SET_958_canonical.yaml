@@ -1,0 +1,57 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# anchor_state=TARGET_REACHED (settings_d1_google): the Google d1 parent is
+# baseline-reached. The leaf may route into an external Google services package;
+# package/action are NOT asserted before device measurement.
+tc_id: ALTBASIC_SET_958
+title: "Google > 내 기기 찾기 진입 및 항목 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "958.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: |
+      1. 설정 > Google Tap
+       2. 내 기기 찾기 Tap
+    normalized_intent:
+      type: navigate
+      target: "설정 > Google > 내 기기 찾기"
+      value: null
+    expected:
+      - { type: verify_text, target: "내 기기 찾기", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "Google d1 reached but leaf '내 기기 찾기' may route to an external Google package; package/action unconfirmed until device measurement; verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > Google Tap /  2. 내 기기 찾기 Tap", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: |
+  1. 내 기기 찾기 화면으로 전환된다
+   2. 내기기 찾기 사용 On(default) / Off 할 수 있다
+   3. 내기기 찾기 앱 / 내기기 찾기 웹사이트에 따른 기기 찾기 가능하다
+expected_texts_candidate:
+  - "내 기기 찾기"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: baseline_reached_parent_then_tap
+  verifier_type: verify_text
+  anchor_state: TARGET_REACHED
+  menu_tree_anchor: matched_screen_id
+  matched_screen_id: "settings_d1_google"
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — On/Off controls verified for existence only, current state NOT asserted"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

@@ -1,0 +1,55 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# anchor_state=MISSING: no baseline screen and NO confirmed public Settings
+# deep-link for this leaf. Entry is an UNRESOLVED tap-navigation candidate;
+# device probe + 2-run green required before any runnable claim.
+tc_id: ALTBASIC_SET_144
+title: "알림 > 대화창 진입 및 항목 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "144.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: |
+      설정 > 알림 > 대화창
+    normalized_intent:
+      type: shell_candidate
+      target: "설정 > 알림 > 대화창"
+      shell_hint: "UNRESOLVED — no confirmed public Settings deep-link for '대화창'; reach by tap-navigation from '알림'; device probe required"
+    expected:
+      - { type: verify_text, target: "대화창", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "no confirmed public deep-link for '대화창'; tap-navigation entry unresolved, device probe required; verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "설정 > 알림 > 대화창", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: |
+  앱에서 대화창을 표시하도록 허용 on/off
+expected_texts_candidate:
+  - "대화창"
+  - "앱에서 대화창을 표시하도록 허용"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: tap_navigation_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — On/Off controls verified for existence only, current state NOT asserted"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
