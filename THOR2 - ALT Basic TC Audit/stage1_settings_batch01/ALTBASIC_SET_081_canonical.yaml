@@ -1,5 +1,8 @@
 # STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
-# vocabulary lock: tc_class=SEMI_AUTO; entry intent + verify strings unconfirmed.
+# F0 2026-06-09 (Phase1): android.settings.APPLICATION_SETTINGS = WRONG_TARGET
+# (resolves to ManageApplicationsActivity = 모든앱 list, NOT the 앱 dashboard).
+# leaf '최근 실행한 앱' confirmed PRESENT on 앱 dashboard via 설정 home → '앱' tap.
+# static anchor_state=PARTIAL (settings_d1_apps) retained per enriched CSV.
 tc_id: ALTBASIC_SET_081
 title: "앱 > 최근 실행한 앱 진입 및 항목 노출 확인"
 source_type: excel
@@ -13,9 +16,9 @@ procedure_steps:
   - step_no: 1
     raw_text: "1. 설정 > 앱 > 최근 실행한 앱"
     normalized_intent:
-      type: shell_candidate
+      type: navigate
       target: "설정 > 앱 > 최근 실행한 앱"
-      shell_hint: "launch_app:android.settings.APPLICATION_SETTINGS then navigate '최근 실행한 앱' (deeplink CANDIDATE, unverified)"
+      value: null
     expected:
       - { type: verify_text, target: "최근 실행한 앱", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
@@ -33,14 +36,16 @@ automation_summary:
   manual_steps: 0
   ambiguous_steps: 1
 audit_meta:
-  automation_class: FULL_AUTO_CANDIDATE
+  automation_class: SEMI_AUTO_CANDIDATE
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
-  entry_type: settings_deeplink_candidate
+  entry_type: tap_navigation_required
   verifier_type: verify_text
-  menu_tree_anchor: matched_screen_id
-  matched_screen_id: "앱"
-  risk_note: none
+  anchor_state: PARTIAL
+  menu_tree_anchor: baseline_partial
+  matched_screen_id: "settings_d1_apps"
+  deepen_anchor_link: none
+  risk_note: "none"
   export_status: STAGE1_DRAFT
   evidence_level: STATIC_ONLY
   validation_required: device_2run_green

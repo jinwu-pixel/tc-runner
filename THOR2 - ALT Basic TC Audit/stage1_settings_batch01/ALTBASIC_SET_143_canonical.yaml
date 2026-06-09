@@ -1,5 +1,8 @@
 # STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
-# vocabulary lock: tc_class=SEMI_AUTO; entry intent + verify strings unconfirmed.
+# F0 2026-06-09 (Phase1): android.settings.NOTIFICATION_SETTINGS = CONFIRMED
+# → ConfigureNotificationSettingsActivity; leaf '대화' present (control_presence).
+# NOTE: '알림' absent from 17-screen menu-tree baseline → baseline-add candidate
+# (separate menu_tree_seed track). static anchor_state=MISSING retained.
 tc_id: ALTBASIC_SET_143
 title: "알림 > 대화 진입 및 항목 노출 확인"
 source_type: excel
@@ -15,7 +18,7 @@ procedure_steps:
     normalized_intent:
       type: shell_candidate
       target: "설정 > 알림 > 대화"
-      shell_hint: "launch_app:settings_root then navigate '알림 > 대화' (deeplink UNRESOLVED)"
+      shell_hint: "CONFIRMED — android.settings.NOTIFICATION_SETTINGS reaches ConfigureNotificationSettingsActivity; leaf '대화' present (F0 2026-06-09)"
     expected:
       - { type: verify_text, target: "대화", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
@@ -33,14 +36,16 @@ automation_summary:
   manual_steps: 0
   ambiguous_steps: 1
 audit_meta:
-  automation_class: FULL_AUTO_CANDIDATE
+  automation_class: SEMI_AUTO_CANDIDATE
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
-  entry_type: settings_deeplink_candidate
+  entry_type: settings_deeplink_confirmed
   verifier_type: verify_text
-  menu_tree_anchor: matched_screen_id
-  matched_screen_id: "알림"
-  risk_note: none
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — On/Off controls verified for existence only, current state NOT asserted"
   export_status: STAGE1_DRAFT
   evidence_level: STATIC_ONLY
   validation_required: device_2run_green

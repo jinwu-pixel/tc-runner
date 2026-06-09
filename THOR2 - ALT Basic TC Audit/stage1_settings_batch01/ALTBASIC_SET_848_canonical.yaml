@@ -1,5 +1,7 @@
 # STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
-# vocabulary lock: tc_class=SEMI_AUTO; entry intent + verify strings unconfirmed.
+# F0 2026-06-09 (Phase1): NO_RESOLVER — EMERGENCY/MEDICAL_INFORMATION_SETTINGS =
+# 'No activity found'. Entry UNRESOLVED → tap-nav from 설정 home; device probe (Phase2).
+# PII: 의료 정보(이름/생년월일/혈액형 등) → redaction gate required before any sidecar.
 tc_id: ALTBASIC_SET_848
 title: "안전 및 긴급 상황 > 의료 정보 진입 및 항목 노출 확인"
 source_type: excel
@@ -15,7 +17,7 @@ procedure_steps:
     normalized_intent:
       type: shell_candidate
       target: "설정 > 안전 및 긴급 상황 > 의료 정보"
-      shell_hint: "launch_app:settings_root then navigate '안전 및 긴급 상황 > 의료 정보' (deeplink UNRESOLVED)"
+      shell_hint: "UNRESOLVED — EMERGENCY/MEDICAL_INFORMATION_SETTINGS = No activity found on F0; reach by tap-nav from 설정 home; device probe required (F0 2026-06-09)"
     expected:
       - { type: verify_text, target: "의료 정보", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
@@ -38,14 +40,16 @@ automation_summary:
   manual_steps: 0
   ambiguous_steps: 1
 audit_meta:
-  automation_class: FULL_AUTO_CANDIDATE
+  automation_class: SEMI_AUTO_CANDIDATE
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
-  entry_type: settings_deeplink_candidate
+  entry_type: tap_navigation_unresolved
   verifier_type: verify_text
-  menu_tree_anchor: matched_screen_id
-  matched_screen_id: "안전 및 긴급 상황"
-  risk_note: none
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "none"
   export_status: STAGE1_DRAFT
   evidence_level: STATIC_ONLY
   validation_required: device_2run_green

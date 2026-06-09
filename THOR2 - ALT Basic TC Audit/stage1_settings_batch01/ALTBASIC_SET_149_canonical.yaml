@@ -1,5 +1,7 @@
 # STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
-# vocabulary lock: tc_class=SEMI_AUTO; entry intent + verify strings unconfirmed.
+# F0 2026-06-09 (Phase1): NOTIFICATION_SETTINGS CONFIRMED reaches the 알림 parent,
+# but leaf '방해금지 모드' is below-fold UNVERIFIED (Phase1 no-scroll) → Phase2 scroll.
+# NOTE: '알림' absent from 17-screen baseline → baseline-add candidate. anchor=MISSING.
 tc_id: ALTBASIC_SET_149
 title: "알림 > 방해금지 모드 진입 및 항목 노출 확인"
 source_type: excel
@@ -15,7 +17,7 @@ procedure_steps:
     normalized_intent:
       type: shell_candidate
       target: "설정 > 알림 > 방해금지 모드"
-      shell_hint: "launch_app:settings_root then navigate '알림 > 방해금지 모드' (deeplink UNRESOLVED)"
+      shell_hint: "CONFIRMED parent — android.settings.NOTIFICATION_SETTINGS reaches ConfigureNotificationSettingsActivity; leaf '방해금지 모드' below-fold UNVERIFIED, Phase2 scroll (F0 2026-06-09)"
     expected:
       - { type: verify_text, target: "방해금지 모드", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
@@ -36,14 +38,16 @@ automation_summary:
   manual_steps: 0
   ambiguous_steps: 1
 audit_meta:
-  automation_class: FULL_AUTO_CANDIDATE
+  automation_class: SEMI_AUTO_CANDIDATE
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
-  entry_type: settings_deeplink_candidate
+  entry_type: settings_deeplink_confirmed
   verifier_type: verify_text
-  menu_tree_anchor: matched_screen_id
-  matched_screen_id: "알림"
-  risk_note: none
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — On/Off controls verified for existence only, current state NOT asserted"
   export_status: STAGE1_DRAFT
   evidence_level: STATIC_ONLY
   validation_required: device_2run_green

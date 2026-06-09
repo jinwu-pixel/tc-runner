@@ -1,5 +1,7 @@
 # STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
-# vocabulary lock: tc_class=SEMI_AUTO; entry intent + verify strings unconfirmed.
+# F0 2026-06-09 (Phase1): android.settings.LOCATION_SOURCE_SETTINGS = CONFIRMED
+# → LocationSettingsActivity (위치); leaf '모두 보기' control present. leaf sub-list
+# (per-app location access) reached by tap = Phase2. anchor_state=TARGET_REACHED.
 tc_id: ALTBASIC_SET_827
 title: "위치 > 모두 보기 진입 및 항목 노출 확인"
 source_type: excel
@@ -13,9 +15,9 @@ procedure_steps:
   - step_no: 1
     raw_text: "1. 설정 > 위치 Tap  2. 모두 보기 Tap"
     normalized_intent:
-      type: shell_candidate
+      type: navigate
       target: "설정 > 위치 > 모두 보기"
-      shell_hint: "launch_app:android.settings.LOCATION_SOURCE_SETTINGS then navigate '모두 보기' (deeplink CANDIDATE, unverified)"
+      value: null
     expected:
       - { type: verify_text, target: "모두 보기", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
@@ -33,14 +35,16 @@ automation_summary:
   manual_steps: 0
   ambiguous_steps: 1
 audit_meta:
-  automation_class: FULL_AUTO_CANDIDATE
+  automation_class: SEMI_AUTO_CANDIDATE
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
-  entry_type: settings_deeplink_candidate
+  entry_type: baseline_reached_parent_then_tap
   verifier_type: verify_text
+  anchor_state: TARGET_REACHED
   menu_tree_anchor: matched_screen_id
-  matched_screen_id: "위치"
-  risk_note: none
+  matched_screen_id: "settings_d1_location"
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — On/Off controls verified for existence only, current state NOT asserted"
   export_status: STAGE1_DRAFT
   evidence_level: STATIC_ONLY
   validation_required: device_2run_green
