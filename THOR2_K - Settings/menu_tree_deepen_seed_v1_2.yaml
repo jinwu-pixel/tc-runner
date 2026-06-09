@@ -1,0 +1,46 @@
+# v1.2 deepen seed — F0-CONFIRMED deep-link deepen anchors.
+#
+# SEPARATE from the canonical 17-screen v1 baseline (`menu_tree_seed.yaml`) on
+# purpose: the baseline = the d1 dashboard cross-section; this file = device-verified
+# d2/d3 deepen anchors discovered from the 23.Settings anchor-gap decomposition. Keep
+# them apart so the baseline's meaning is preserved. Canonical is NOT modified.
+#
+# Inclusion rule: ONLY verdict == CONFIRMED on F0 (resolver + am start ok + observed
+# focus = expected activity + dump ok + target-leaf text). DOCUMENT_DRIFT_CANDIDATE /
+# WRONG_TARGET / TAP_ONLY / NO_RESOLVER entries are intentionally excluded.
+# observe_only — entry + read-only observation; NO mutation / input / toggle.
+#
+# Evidence: SETTINGS_DEEPEN_PROBE_RESULTS_2026-06-09.md (probe verdicts + text).
+seed_version: "1.2-deepen"
+locale: ko-KR
+target_serial: "B06201249E0002F0"
+target_serial_label: "THOR2_K (AT-M140)"
+package: com.android.settings
+observe_only: true
+probe_run: "deepen-probe-2026-06-09 (F0, read-only; process reset via -S, persistent mutation 0)"
+evidence: "THOR2_K - Settings/SETTINGS_DEEPEN_PROBE_RESULTS_2026-06-09.md"
+source_decomposition: "THOR2 - ALT Basic TC Audit/settings_anchor_gap_enriched_2026-06-09.csv"
+screens:
+  - id: settings_d2_print
+    label_ko: "인쇄"
+    nav_path: ["설정", "연결된 기기", "연결 환경설정", "인쇄"]
+    parent_screen: settings_d1_bluetooth
+    entry: { action: "android.settings.ACTION_PRINT_SETTINGS" }
+    expect_activity_regex: "PrintSettingsActivity"
+    observed_focus: "com.android.settings/.Settings$PrintSettingsActivity"
+    observed_text_sample: ["인쇄 서비스", "기본 인쇄 서비스", "서비스 추가"]
+    source_tcs: ["23.Settings#78.0"]
+    verdict: CONFIRMED
+    launch_note: "Settings single-task — use `am start -S` for a fresh launch (process reset; persistent mutation 0)"
+
+  - id: settings_d2_manage_apps
+    label_ko: "모든 앱"
+    source_leaf_raw: "앱N개 모두보기"   # normalized to canonical on-screen label "모든 앱"
+    nav_path: ["설정", "앱", "모든 앱"]
+    parent_screen: settings_d1_apps
+    entry: { action: "android.settings.MANAGE_APPLICATIONS_SETTINGS" }
+    expect_activity_regex: "ManageApplicationsActivity"
+    observed_focus: "com.android.settings/.Settings$ManageApplicationsActivity"
+    observed_text_sample: ["(all-apps list)"]
+    source_tcs: ["23.Settings#82.0"]
+    verdict: CONFIRMED
