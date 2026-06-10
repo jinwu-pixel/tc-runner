@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: 공학 함수 — 외부 비교 → 결정적 기대값. 각도 단위(deg/rad) 의존 회피 위해 단위 무관 항 우선.
+tc_id: ALTBASIC_CALC_017
+title: "계산기 공학용 모드 — 공학 함수 결정적 기대값 확인 (sin(0)=0, cos(0)=1)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "17.0"
+preconditions:
+  - { text: "계산기 공학용 모드 진입 가능 (사전: 현재 모드 기록)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "계산기> 공학용 모드 > sin 시행 — sin(0)="
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드 (공학용 모드)"
+      value: "sin(0)="
+    expected:
+      - { type: verify_text, target: "결과 0 (result resource-id 한정 판독)", value: "0" }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "함수 키 입력 동선(sin 키 → 0 → ) → =) 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "공학용 모드 > sin, cos, tan, e 등 시행", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "cos 시행 — cos(0)="
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드 (공학용 모드)"
+      value: "cos(0)="
+    expected:
+      - { type: verify_text, target: "결과 1 (result resource-id 한정 판독)", value: "1" }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "sin(0)/cos(0) = 각도 단위(deg/rad) 무관 결정값 — 단위 의존 함수(sin(30) 등)는 의도적 회피"
+    confidence: 0.5
+    source_trace: { raw_segment: "공학용 모드 > sin, cos, tan, e 등 시행", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "타사폰과 비교하여 공학용 모드에서 공학 연산이 정상적으로 동작하는지 확인한다"
+expected_texts_candidate:
+  - "0"
+  - "1"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "각도 단위 모드(deg/rad) 토글 금지 — 단위 무관 항(sin(0)/cos(0))만 사용; 결과 '0'/'1' 판독은 result 필드 정확 일치 (전역 substring 금지)"
+  cleanup_candidate: "AC clear + 기본 모드 복귀 + BACK"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: transient_input
+  redesign_removed: "'타사폰과 비교' → 단위 무관 결정값; tan/e 항은 보강 axis (1차 sin/cos 한정)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

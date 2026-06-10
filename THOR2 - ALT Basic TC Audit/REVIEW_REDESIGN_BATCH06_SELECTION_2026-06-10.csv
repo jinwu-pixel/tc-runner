@@ -1,0 +1,58 @@
+new_id,wave,sheet,source_tc_id,redesign_pattern,redesign_note
+ALTBASIC_BSC_101,wave3,1.Basic principle,101.0,transient_input,연락처 검색 영역 Tap → 키패드 노출 observe (입력 없음)
+ALTBASIC_BSC_102,wave3,1.Basic principle,102.0,transient_input,"""ㅇㅇ"" 입력 → 연락처 없음 observe; pre=매칭 연락처 없음(미충족 skip); cleanup=검색어 clear"
+ALTBASIC_BSC_103,wave3,1.Basic principle,103.0,transient_input,"""ㅇㅇ"" 입력 후 X 아이콘 → 검색어 삭제+초기화면 (cleanup 내장; '삭제'=검색어 한정 무해)"
+ALTBASIC_WTH_007,wave3,10.Weather widget,7.0,observe_split,홈 날씨 위젯 구성요소 observe; pre=데이터+위치 동의(미충족 skip)
+ALTBASIC_NMD_005,wave3,33.Near Medi,5.0,observe_split,병원찾기 더보기 배치 observe; conditional pre=11곳 이상
+ALTBASIC_NMD_006,wave3,33.Near Medi,6.0,observe_split,더보기 반복 → 10개씩 추가/버튼 미표시 observe; conditional
+ALTBASIC_NMD_008,wave3,33.Near Medi,8.0,observe_split,약국찾기 리스트 필드 observe
+ALTBASIC_NMD_014,wave3,33.Near Medi,14.0,observe_split,약국 지도 → 구글맵 전환 observe + back (외부 pkg 비단정)
+ALTBASIC_NMD_015,wave3,33.Near Medi,15.0,observe_split,약국 전화 → 다이얼러 자동입력 observe + back; 발신 절대 금지(SEND/통화키 미접촉)
+ALTBASIC_NMD_020,wave3,33.Near Medi,20.0,popup_cancel,위치 고지 팝업 observe + 취소; pre=고지 미동의 1회성(미충족 skip)
+ALTBASIC_NMD_030,wave3,33.Near Medi,30.0,popup_cancel,위치 설정 팝업 앱종료 버튼 → 종료 observe; pre=위치 OFF(토글 금지·미충족 skip)
+ALTBASIC_NMD_031,wave3,33.Near Medi,31.0,observe_split,위치 설정 팝업 설정 버튼 → 위치 설정화면 전환 + back; pre 동일
+ALTBASIC_TTS_003,wave3,4.Voice notification (TTS),3.0,popup_cancel,시작 시간 팝업 observe + 취소; pre=기능 ON(토글 금지·미충족 skip)
+ALTBASIC_TTS_005,wave3,4.Voice notification (TTS),5.0,popup_cancel,종료 시간 팝업 observe + 취소; pre 동일
+ALTBASIC_TTS_009,wave3,4.Voice notification (TTS),9.0,popup_cancel,요일 팝업 임의 선택 후 취소 → 이전 값 유지 (원문 자체가 취소 검증)
+ALTBASIC_MGN_039,wave3,5.Magnifying glasses,39.0,observe_split,돋보기 좌하단 앨범 → 썸네일 앨범 진입 observe + back
+ALTBASIC_MSW_005,wave3,7. Mode Switch app,5.0,popup_cancel,간편 모드 선택 후 취소 분기만 (확인 분기 제거 — 모드 불일치 시 전환 위험)
+ALTBASIC_MSW_007,wave3,7. Mode Switch app,7.0,popup_cancel,일반 모드 선택 후 취소 분기만 (확인 분기 제거)
+ALTBASIC_PDM_002,wave3,6.Pedometer app,2.0,popup_cancel,키 입력 팝업+Default 170cm+키패드 observe → 취소 (Default값=미변경 단말 conditional)
+ALTBASIC_PDM_006,wave3,6.Pedometer app,6.0,popup_cancel,몸무게 팝업+Default 60kg observe → 취소
+ALTBASIC_PDM_010,wave3,6.Pedometer app,10.0,popup_cancel,성별 라디오 팝업 observe → 취소
+ALTBASIC_PDM_011,wave3,6.Pedometer app,11.0,popup_cancel,성별 팝업 취소 → 기존값 유지 (원문 취소 검증)
+ALTBASIC_PDM_013,wave3,6.Pedometer app,13.0,popup_cancel,목표 걸음수 팝업 observe (10000보 Default) → 취소
+ALTBASIC_PDM_014,wave3,6.Pedometer app,14.0,popup_cancel,목표 팝업 취소 → 유지 (원문 취소 검증)
+ALTBASIC_CLK_038,wave1,29.Clock,38.0,popup_cancel,알람 추가 → 설정 화면 구성 observe → 취소 이탈 필수 (editor no-save; 알람 list 원상 확인)
+ALTBASIC_CLK_075,wave1,29.Clock,75.0,transient_input,타이머 분/초 60 이상 입력 차단 verify; cleanup=clear+back (Play 미접촉)
+ALTBASIC_CLK_082,wave1,29.Clock,82.0,popup_cancel,타이머 라벨 팝업 노출 observe → 취소
+ALTBASIC_CLK_092,wave1,29.Clock,92.0,transient_input,타이머 라벨 최대문자+1 → 안내문+확인 비활성 (구조적 저장 불가) → 취소
+ALTBASIC_CLK_106,wave1,29.Clock,106.0,observe_split,자동 기본 시간대 Default On observe (dump checked 속성; 토글 가능 검증 제거)
+ALTBASIC_CLK_112,wave1,29.Clock,112.0,popup_cancel,시계 종류 팝업+디지털 Default observe → 취소 (선택 변경+반영 검증 제거)
+ALTBASIC_CLK_113,wave1,29.Clock,113.0,observe_split,타이머 소리 → 벨소리 리스트 observe → back (선택 변경+알람 검증 제거)
+ALTBASIC_CALC_013,wave1,32.Calculator,13.0,transient_input,타사폰 비교 → 결정적 수학 기대값 재작성; 기록 잔존 NOTE+AC clear
+ALTBASIC_CALC_015,wave1,32.Calculator,15.0,transient_input,공학용 사칙연산 결정적 기대값; 공학 모드 복귀 cleanup
+ALTBASIC_CALC_017,wave1,32.Calculator,17.0,transient_input,공학 함수 결정적 기대값 (각도 단위 모드 risk — 단위 무관 항 우선)
+ALTBASIC_CALC_042,wave1,32.Calculator,42.0,transient_input,사칙연산 → 기록 화면 표시 observe; 기록 잔존 NOTE (43.0=near-dup 미합성)
+ALTBASIC_CALC_048,wave1,32.Calculator,48.0,observe_split,오픈소스 라이선스 표시 observe (사칙연산 부수 step 제거)
+ALTBASIC_CALC_052,wave1,32.Calculator,52.0,transient_input,.3+3 / tan(60 기록 표기 형식 observe; 기록 잔존 NOTE
+ALTBASIC_LCH_069,wave2,24.Launcher,69.0,observe_split,단축다이얼 '편집' → 설정 화면 노출만 (등록/삭제 동작 검증 제거); entry ambiguity
+ALTBASIC_LCH_085,wave2,24.Launcher,85.0,observe_split,"빈 공간 ""+"" → 앱서랍+안내 문구 observe → back (앱 배치 제거); pre=빈 슬롯 존재"
+ALTBASIC_LCH_091,wave2,24.Launcher,91.0,observe_split,간편 설정 나의 휴대폰 3항목 노출 observe (동기화 확인 제거)
+ALTBASIC_LCH_099,wave2,24.Launcher,99.0,popup_cancel,간편 설정 모드 전환 팝업 observe
+ALTBASIC_LCH_100,wave2,24.Launcher,100.0,popup_cancel,모드 전환 팝업 취소 → 이전 화면 (원문 취소 검증)
+ALTBASIC_LCH_103,wave2,24.Launcher,103.0,popup_cancel,앱서랍 모드 전환 팝업 observe
+ALTBASIC_LCH_104,wave2,24.Launcher,104.0,popup_cancel,앱서랍 모드 전환 팝업 취소 → 앱서랍 복귀 (원문 취소 검증)
+ALTBASIC_LCH_114,wave2,24.Launcher,114.0,popup_cancel,포토 슬라이드쇼 안내 팝업 취소 → 화면 복귀; pre=다시보기 미체크 Default
+ALTBASIC_LCH_188,wave2,24.Launcher,188.0,observe_split,배경화면 및 스타일 항목 노출 observe (적용 제거); carrier_fit=UNCONFIRMED
+ALTBASIC_LCH_212,wave2,24.Launcher,212.0,selection_gated,폴더 내 앱 Long Tap → 메뉴 observe → 이탈 (batch3 literal 재사용); pre=홈 폴더 존재
+ALTBASIC_LCH_222,wave2,24.Launcher,222.0,transient_input,"위젯 검색 ""시계"" → 키보드+결과 observe → back (추가 금지)"
+ALTBASIC_CAM_026,wave2,28.Camera,26.0,roundtrip_restore,전면→후면 왕복 전환 (원상복귀 내장; batch3 CAM_006 전환 실증)
+ALTBASIC_CAM_098,wave2,28.Camera,98.0,roundtrip_restore,후면+동영상 → Home → 재실행 모드 유지 observe → 사진 복귀 cleanup
+ALTBASIC_MSG_119,wave2,26.Message,119.0,transient_input,차단 문구 32바이트 초과 → 경고+확인 비활성 (구조적 저장 불가) → 취소
+ALTBASIC_MSG_144,wave2,26.Message,144.0,observe_split,개인정보 수집 동의 화면 전환 observe (동의/철회 tap 금지; 스팸신고 팝업 검증 제거)
+ALTBASIC_MSG_187,wave2,26.Message,187.0,popup_cancel,글꼴 크기 팝업 observe → 취소 (설정값 변경 검증 제거)
+ALTBASIC_MSG_201,wave2,26.Message,201.0,observe_split,"compose-entry 대표 probe: ""+"" 첨부 리스트 observe → back; 무입력; draft 잔존 관찰 필수; redaction gate"
+ALTBASIC_MSG_336,wave2,26.Message,336.0,transient_input,차단 번호 숫자 1~2개 → 차단 버튼 비활성 observe → clear+back
+ALTBASIC_CNT_132,wave2,27.Contacts,132.0,observe_split,새 연락처 이름 확장(▽) → 필드 노출 observe → 저장 0 이탈 (이탈 팝업 처리 명시)
+ALTBASIC_CNT_137,wave2,27.Contacts,137.0,popup_cancel,연락처 사진 카메라 버튼 → 사진 변경 팝업 observe → 취소; 저장 0 이탈

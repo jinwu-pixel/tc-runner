@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue 무해). 재설계: '앱 종료' 버튼 = 무변이 이탈 분기 — 위치 토글 조작 없이 pre 충족 시에만.
+tc_id: ALTBASIC_NMD_030
+title: "니어메디 위치 설정 팝업 — '앱 종료' 선택 시 앱 종료 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "33.Near Medi"
+  row: "30.0"
+preconditions:
+  - { text: "단말 위치 기능 OFF 상태 (위치 설정 팝업 발생 조건 — 위치 ON 단말은 skip, 토글 조작 금지)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 니어메디 실행"
+    normalized_intent:
+      type: navigate
+      target: "니어메디 앱 실행 (launcher)"
+      value: null
+    expected:
+      - { type: verify_text, target: "위치 설정 팝업", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "팝업 문구 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 니어메디 실행", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 위치 설정 팝업에서 앱 종료 버튼 선택"
+    normalized_intent:
+      type: tap
+      target: "앱 종료 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "니어메디 앱 종료 (foreground 이탈)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "앱 종료 판정 = foreground pkg 판독 — 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 위치 설정 팝업에서 앱 종료 버튼 선택", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 앱 종료 됨"
+expected_texts_candidate:
+  - "앱 종료"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "pre 충족용 위치 OFF 토글을 본 TC가 수행하지 않음 (시스템 토글 금지) — 자연 충족 시에만 실행; '앱 종료' = 무변이 이탈"
+  cleanup_candidate: "없음 — 앱 종료 자체가 종료 상태"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: popup_cancel
+  redesign_removed: "없음 — pre 토글 조작 금지 가드 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

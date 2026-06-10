@@ -1,0 +1,70 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: long-press 메뉴 observe → 이탈 (메뉴 항목 tap 금지). batch3 카탈로그 literal 재사용.
+tc_id: ALTBASIC_LCH_212
+title: "홈 폴더 — 폴더 내 앱 Long Tap 시 메뉴 노출 확인 (홈 앱 Long Tap 동일)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "212.0"
+preconditions:
+  - { text: "홈 화면에 폴더 존재 (기본 폴더 무 시 skip — 폴더 생성 금지)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈 화면 > 폴더 진입 > 폴더 내 임의의 앱 Long Tap"
+    normalized_intent:
+      type: tap
+      target: "홈 폴더 진입 > 폴더 내 첫 번째 앱 long-press"
+      value: null
+    expected:
+      - { type: verify_text, target: "즐겨찾기 버튼에 등록", value: null }
+      - { type: verify_text, target: "홈 화면에서 삭제", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "메뉴 literal = batch3 카탈로그 수확값 (홈 앱 long-press) — 폴더 내 동일 여부가 본 TC 검증 대상"
+    confidence: 0.6
+    source_trace: { raw_segment: "홈 화면 > 폴더 진입 > 폴더 내 임의의 앱 Long Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 빈 영역 Tap/BACK — 메뉴 항목 미선택 이탈"
+    normalized_intent:
+      type: navigate
+      target: "메뉴 외 영역 tap 또는 BACK — 메뉴 닫기"
+      value: null
+    expected:
+      - { type: verify_text, target: "메뉴 닫힘 + 폴더/홈 구성 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 동선 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "홈 화면에 있는 앱 Long Tap시와 동일하게 노출된다."
+expected_texts_candidate:
+  - "즐겨찾기 버튼에 등록"
+  - "홈 화면에서 삭제"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: SELECTION_GATED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "메뉴 항목('홈 화면에서 삭제' 등) tap 절대 금지 — 정확 literal 매칭 (partial 매칭 금지: batch3 패턴 ②); long-press drag 전이 주의 (이동 mutation)"
+  cleanup_candidate: "빈 영역 tap/BACK — 홈 구성 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: selection_gated
+  redesign_removed: "없음 — 미선택 이탈 가드 명시 추가"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

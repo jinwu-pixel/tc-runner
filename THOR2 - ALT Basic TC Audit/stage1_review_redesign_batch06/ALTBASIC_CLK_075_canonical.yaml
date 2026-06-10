@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: transient input — 60 이상 입력 차단 verify, Play 미접촉, clear 이탈.
+tc_id: ALTBASIC_CLK_075
+title: "시계 타이머 — 분/초 60 이상 입력 차단 확인 (시작 미실행)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "75.0"
+preconditions:
+  - { text: "시계 앱 타이머 탭 진입 가능 상태", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 시계 앱 실행 2. 화면 하단 타이머 Tap"
+    normalized_intent:
+      type: navigate
+      target: "시계 앱 실행 (launcher) > 하단 타이머 탭"
+      value: null
+    expected:
+      - { type: verify_text, target: "타이머", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "타이머 탭 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 시계 앱 실행 2. 화면 하단 타이머 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "3. 설정할 타이머 시간 입력 — 분/초에 60 이상 (예: 99) 입력 시도"
+    normalized_intent:
+      type: input_text
+      target: "타이머 분 또는 초 입력 영역"
+      value: "99"
+    expected:
+      - { type: verify_text, target: "60 이상 값 입력 차단 — 필드 값이 60 미만으로 제한됨", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "차단 방식(입력 무시/자동 보정/안내문)은 단말 관찰 후 verifier 고정 — 필드 값 resource-id 한정 판독"
+    confidence: 0.5
+    source_trace: { raw_segment: "3. 설정할 타이머 시간 입력", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "초와 분을 입력시엔 60 이상의 숫자를 입력할 수 없다."
+expected_texts_candidate:
+  - "타이머"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "타이머 시작(Play) 절대 금지; 입력값은 transient — 미시작 상태에서 잔존 여부 단말 관찰 후 cleanup 보강"
+  cleanup_candidate: "입력 clear (삭제키/AC) + BACK — 재진입 시 입력 잔존 무 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — Play 미접촉/clear 가드 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

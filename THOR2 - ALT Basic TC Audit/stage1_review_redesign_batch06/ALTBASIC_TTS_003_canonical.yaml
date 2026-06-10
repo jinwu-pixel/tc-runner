@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue 무해). 재설계: 시간 설정 팝업 observe + 취소 (시간 변경/확인 금지). pre=기능 ON (토글 금지).
+tc_id: ALTBASIC_TTS_003
+title: "정각 알림 읽어주기 — 시작 시간 Tap 시 설정 팝업 노출 확인 (취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "4.Voice notification (TTS)"
+  row: "3.0"
+preconditions:
+  - { text: "설정 > 알림 읽어주기 > 정각 알림 읽어주기 ON 상태 (OFF면 skip — 토글 조작 금지)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "설정 > 알림 읽어주기 > 알람 시작 시간 Tap"
+    normalized_intent:
+      type: tap
+      target: "알림 시작 시간 항목"
+      value: null
+    expected:
+      - { type: verify_text, target: "시작 시간 설정 팝업창 + 시간 설정 박스 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "팝업 title/박스 구조 단말 literal 미확정; '시계 설정 페이지와 동일' 항은 비교 불가 — 보강 axis"
+    confidence: 0.5
+    source_trace: { raw_segment: "알람 시작 시간 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 취소 Tap — 시간 미변경 이탈"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "팝업 닫힘 + 시작 시간 기존 값 유지", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "취소 literal 정확 매칭 필수 (mutation 인접 — batch3 패턴 ②)"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가 — 원문 expected 1-1 비교 항 제외)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 시작 시간 설정 팝업창이 노출되며 ,시간을 설정할 수 있는 박스가 노출된다. 1-1 . 해당 박스는 설정 > 시계 설정 페이지의 박스와 동일하다."
+expected_texts_candidate:
+  - "취소"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: tap_navigation_required
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "시간 값 변경/확인 tap 금지; '시계 설정 페이지와 동일' = cross-screen 비교 보강 axis (1차 미수집 PASS blocker 아님); 기능 OFF 시 항목 비활성 가능 — skip"
+  cleanup_candidate: "취소 Tap + BACK — 시간 값 무변경 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: popup_cancel
+  redesign_removed: "확인/시간 변경 분기 + cross-screen 동일성 비교 (보강 axis 강등)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

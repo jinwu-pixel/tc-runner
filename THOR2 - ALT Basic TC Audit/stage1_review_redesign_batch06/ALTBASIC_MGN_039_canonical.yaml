@@ -1,0 +1,55 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue 무해). 재설계 변경 없음 — 앨범 진입 observe + back.
+tc_id: ALTBASIC_MGN_039
+title: "돋보기 — 좌측 하단 앨범 Tap 시 썸네일 앨범 진입 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "5.Magnifying glasses"
+  row: "39.0"
+preconditions:
+  - { text: "돋보기 앱 프리뷰 화면 진입 가능 (카메라 권한 동의 완료)", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "좌측 하단 앨범 확인 (Tap)"
+    normalized_intent:
+      type: tap
+      target: "돋보기 프리뷰 좌측 하단 앨범 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "썸네일 앨범 화면 진입", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "앨범 버튼/썸네일 화면 노드 구조 단말 관찰 후 고정 (빈 앨범 시 empty 화면도 진입 성립)"
+    confidence: 0.5
+    source_trace: { raw_segment: "좌측 하단 앨범 확인", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "썸네일 앨범 진입 된다."
+expected_texts_candidate:
+  - "앨범"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "촬영/저장/삭제 미접촉 — 앨범 진입 observe만; 저장 사진 0건이어도 진입 자체는 verify 가능"
+  cleanup_candidate: "BACK ×2 — 앨범 이탈 + 앱 종료, 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: observe_split
+  redesign_removed: "없음"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

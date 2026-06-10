@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 팝업 구성 observe + 취소 — 설정값 변경/크기 변화 검증(4항) 제거.
+tc_id: ALTBASIC_MSG_187
+title: "메시지 설정 — 글꼴 크기 팝업 구성 확인 (취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "187.0"
+preconditions:
+  - { text: "메시지 > 더보기 > 설정 진입 가능 (사전: 현재 글꼴 크기 값 기록)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 메시지 > 더보기 > 설정 > 메시지 글꼴 크기 Tap"
+    normalized_intent:
+      type: tap
+      target: "메시지 설정 > 메시지 글꼴 크기"
+      value: null
+    expected:
+      - { type: verify_text, target: "글꼴 크기 팝업 — 시스템 글꼴 크기/작게/보통/크게/가장 크게 + 취소/확인", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "항목 literal 단말 확인; 설정 메뉴 below-fold 가능 (batch3 카탈로그: 메시지 설정 알림=below-fold)"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 메시지 > 더보기 > 설정 > 메시지 글꼴 크기 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 취소 Tap — 설정값 미변경 이탈"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "팝업 닫힘 + 글꼴 크기 값 무변경 (전후 비교)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "취소 literal 정확 매칭 필수"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가 — 원문 step 2 '설정값 변경' 제거)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 메시지 글꼴 크기 설정 팝업창 노출된다. 2. 시스템 글꼴 크기, 작게, 보통, 크게, 가장 크게 3. 취소/ 확인 버튼 노출된다. 4. 글꼴 크기 설정값에 따라 크기 변화된다."
+expected_texts_candidate:
+  - "시스템 글꼴 크기"
+  - "취소"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "라디오 선택/확인 tap 금지 (글꼴 크기 변경 mutation)"
+  cleanup_candidate: "취소 Tap — 글꼴 크기 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: popup_cancel
+  redesign_removed: "원문 step 2 '설정값 변경' + expected 4항 '크기 변화 검증'"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

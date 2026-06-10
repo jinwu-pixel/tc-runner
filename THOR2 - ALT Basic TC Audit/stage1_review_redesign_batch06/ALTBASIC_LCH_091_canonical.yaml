@@ -1,0 +1,59 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 3개 항목 노출 observe — '설정 모드 동기화 확인'(모호+조작 전제) 제거.
+tc_id: ALTBASIC_LCH_091
+title: "간편 설정 화면 — 나의 휴대폰: 소리모드/글자크기/화면 밝기 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "91.0"
+preconditions:
+  - { text: "홈 간편 설정 화면 진입 가능 (페이지 동선 단말 관찰로 확정)", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈 화면 > 간편 설정 화면 > 나의 휴대폰 확인"
+    normalized_intent:
+      type: navigate
+      target: "홈 간편 설정 화면 > 나의 휴대폰 영역"
+      value: null
+    expected:
+      - { type: verify_text, target: "소리모드", value: null }
+      - { type: verify_text, target: "글자크기", value: null }
+      - { type: verify_text, target: "화면 밝기", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "항목 literal 단말 확인 필요 (붙여쓰기/띄어쓰기 변형 가능)"
+    confidence: 0.5
+    source_trace: { raw_segment: "홈 화면 > 간편 설정 화면 > 나의 휴대폰 확인", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 소리모드, 글자크기, 화면 밝기가 노출된다. 2, 설정한 모드가 동기화 되는지 확인"
+expected_texts_candidate:
+  - "소리모드"
+  - "글자크기"
+  - "화면 밝기"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "항목 tap 금지 (소리모드 등 즉시 변경형 가능) — presence-only"
+  cleanup_candidate: "BACK/홈 복귀 — 무변경"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: observe_split
+  redesign_removed: "expected 2항 '설정 모드 동기화 확인' (설정 변경 전제 + 비결정 assert)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

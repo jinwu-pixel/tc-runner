@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: 라벨 팝업 노출 observe + 취소 (입력 0).
+tc_id: ALTBASIC_CLK_082
+title: "시계 타이머 — 라벨 영역 Tap 시 입력 팝업 노출 확인 (취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "82.0"
+preconditions:
+  - { text: "타이머 탭 기본(추가) 화면에서 라벨 영역 노출 상태 (위치 모호 시 단말 관찰로 확정)", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 시계 앱 실행 2. 화면 하단 타이머 Tap 3. 타이머 좌측 상단 라벨 영역 Tap"
+    normalized_intent:
+      type: tap
+      target: "타이머 좌측 상단 라벨 영역"
+      value: null
+    expected:
+      - { type: verify_text, target: "라벨 입력 팝업창 + 취소/확인 버튼 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "라벨 영역 위치 = 원문 컨텍스트 모호 (타이머 추가 화면 기준 가정) — 단말 관찰 후 확정"
+    confidence: 0.4
+    source_trace: { raw_segment: "3. 타이머 좌측 상단 라벨 영역 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 취소 Tap — 입력 없이 이탈"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "팝업 닫힘 + 라벨 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "취소 literal 정확 매칭 필수"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 라벨 입력 할 수 있는 팝업창 발생된다 2. 취소/확인 버튼 노출된다"
+expected_texts_candidate:
+  - "취소"
+  - "확인"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "입력 0 + 확인 tap 금지; 라벨 영역 미노출 시 entry FAIL 아닌 skip (컨텍스트 모호 — 1차 관찰에서 확정)"
+  cleanup_candidate: "취소 Tap + BACK — 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: popup_cancel
+  redesign_removed: "없음 — 취소 이탈 명시 추가"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

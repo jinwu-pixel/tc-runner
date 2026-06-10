@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: transient input — 32바이트 초과 시 확인 비활성 = 구조적 저장 불가.
+tc_id: ALTBASIC_MSG_119
+title: "메시지 차단 문구 — 32바이트 초과 입력 시 경고 + 확인 비활성 (취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "119.0"
+preconditions:
+  - { text: "메시지 > 더보기 > 차단 및 스팸 > 차단된 문구 진입 가능 (사전: 차단 문구 list 상태 기록)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 메시지 > 더보기 > 차단 및 스팸 2. 차단된 문구 > 추가"
+    normalized_intent:
+      type: navigate
+      target: "메시지 (launcher) > 더보기 > 차단 및 스팸 > 차단된 문구 > 추가"
+      value: null
+    expected:
+      - { type: verify_text, target: "문구 입력 화면/팝업 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "추가 입력 UI 구조 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 메시지 > 더보기 > 차단 및 스팸 2. 차단된 문구 > 추가", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "문구 입력(32바이트 초과)"
+    normalized_intent:
+      type: input_text
+      target: "차단 문구 입력 필드"
+      value: "가나다라마바사아자차카타파하가나"
+    expected:
+      - { type: verify_text, target: "더이상 입력할 수 없습니다", value: null }
+      - { type: verify_text, target: "확인 버튼 비활성 (enabled=false)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "한글 1자=2~3바이트 — 32바이트 초과 입력량/경고 literal 단말 확인 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "문구 입력(32바이트 초과)", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 더이상 입력할 수 없습니다,경고 문구 표시된다. 2. 확인 버튼 비활성화된다."
+expected_texts_candidate:
+  - "더이상 입력할 수 없습니다"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "확인 비활성 = 구조적 등록 불가 (mutation 0); 입력량이 32바이트 이하로 잘려 비활성 미발생 시 = 관찰 결과로 기록 (강제 등록 금지)"
+  cleanup_candidate: "입력 clear + 취소/BACK — 차단 문구 list 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — 취소 이탈/list 대조 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: 기록 표기 형식 — 결정적 expected (0.3+3 / tan(60)). 기록 잔존 NOTE.
+tc_id: ALTBASIC_CALC_052
+title: "계산기 — '.3' 자동 0.3 표기 + 기록 수식 표기 형식 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "52.0"
+preconditions:
+  - { text: "계산기 기본 모드 (공학 함수 항은 공학용 모드 전환 포함)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 계산기 > .3+3입력 후 '='tab > 우측 상단 더보기 > 기록"
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드 → 더보기 > 기록"
+      value: ".3+3="
+    expected:
+      - { type: verify_text, target: "디스플레이 0.3 자동 표기 + 기록에 0.3+3 표시", value: "0.3+3" }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "기록 화면 수식 노드 resource-id 한정 판독"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 계산기 > .3+3입력 후 '='tab > 우측 상단 더보기 > 기록", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 계산기 > tan(60 입력 후 '='tab > 우측 상단 더보기 > 기록"
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드 (공학용 모드) → 더보기 > 기록"
+      value: "tan(60="
+    expected:
+      - { type: verify_text, target: "기록에 tan(60) — 닫는 괄호 자동 보완 표기", value: "tan(60)" }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "tan 키는 공학용 모드 필요 — 모드 전환 동선 단말 관찰 후 고정"
+    confidence: 0.4
+    source_trace: { raw_segment: "2. 계산기 > tan(60 입력 후 '='tab > 우측 상단 더보기 > 기록", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. .3을 누르면 자동적으로 0.3이 디스플레이되어야 하며 기록 확인시 0.3+3으로 표시되어야 함 2. tan(60 입력 후 '='를 누르고 기록 확인 시 tan(60)으로 표시되어 있어야 함"
+expected_texts_candidate:
+  - "0.3+3"
+  - "tan(60)"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "기록 생성 잔존 NOTE (CALC_042 동일); tan(60 결과값 자체는 비검증 (각도 단위 의존) — 표기 형식만 핵심 axis"
+  cleanup_candidate: "AC clear + 기본 모드 복귀 + BACK; 기록 잔존 NOTE"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — 표기 형식 한정 (결과값 단정 제거)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

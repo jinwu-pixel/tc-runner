@@ -1,0 +1,70 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue=input). 재설계: transient input — "ㅇㅇ" 입력 → negative 결과 observe → 검색어 clear.
+tc_id: ALTBASIC_BSC_102
+title: "연락처 검색 — 'ㅇㅇ' 입력 시 연락처 없음 표시"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "1.Basic principle"
+  row: "102.0"
+preconditions:
+  - { text: "'ㅇㅇ' 매칭 연락처 없음 (미충족 시 skip — FAIL 아님)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap"
+    normalized_intent:
+      type: navigate
+      target: "연락처 앱 (launcher) > 검색 영역 focus"
+      value: null
+    expected:
+      - { type: verify_text, target: "검색", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "검색 진입 동선 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "3. \"ㅇㅇ\" 입력"
+    normalized_intent:
+      type: input_text
+      target: "연락처 검색 입력 필드"
+      value: "ㅇㅇ"
+    expected:
+      - { type: verify_text, target: "ㅇㅇ", value: null }
+      - { type: verify_text, target: "연락처 없음", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "'연락처 없음' 문구는 source paraphrase — 단말 literal 확정 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "3. \"ㅇㅇ\" 입력", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 검색 영역에 \"ㅇㅇ\" 노출된다 2. 화면 중간에 \"연락처 없음\" 노출된다"
+expected_texts_candidate:
+  - "ㅇㅇ"
+  - "연락처 없음"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "검색 입력 = transient (저장/생성 없음); 매칭 연락처 존재 시 pre 미충족 skip; 검색 필드 한정 판독"
+  cleanup_candidate: "검색어 clear (X 아이콘 또는 BACK) + 검색 이탈 — 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — cleanup(검색어 clear) 명시 추가"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

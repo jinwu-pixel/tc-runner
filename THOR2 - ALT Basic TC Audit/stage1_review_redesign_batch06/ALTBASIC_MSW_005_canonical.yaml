@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue 무해). 재설계: 확인 분기 제거 — 현재 모드 불일치 시 '확인' tap = 실제 모드 전환 (mutation). 취소 분기만 합성.
+tc_id: ALTBASIC_MSW_005
+title: "모드 전환 — 간편 모드 선택 후 취소 시 현재 모드 유지"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "7. Mode Switch app"
+  row: "5.0"
+preconditions:
+  - { text: "현재 단말 모드 기록 (간편/일반 무관 — 전후 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈화면 or 앱서랍 > 모드 전환 > 팝업에서 간편 모드 선택"
+    normalized_intent:
+      type: tap
+      target: "모드 전환 앱 실행 (launcher) > 팝업 내 간편 모드 라디오 선택"
+      value: null
+    expected:
+      - { type: verify_text, target: "모드 전환 팝업 + 간편 모드 선택 상태", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "팝업/라디오 구조 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "팝업에서 간편 모드 선택", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "취소 (— 원문 case 2 분기)"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "팝업 닫힘 + 현재 모드 유지 (전후 비교)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "모드 유지 판정 = 홈 화면 구성 dump 전후 비교 — 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "팝업에서 간편 모드 선택 > 취소", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 간편 모드 유지됨 2. 간편 모드 유지됨"
+expected_texts_candidate:
+  - "취소"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "'확인' tap 절대 금지 — 현재 모드와 선택 불일치 시 실제 전환 발생 (런처 전면 변경); 취소 literal 정확 매칭 필수"
+  cleanup_candidate: "취소 Tap 자체가 무변이 — 전후 모드 동일 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: popup_cancel
+  redesign_removed: "원문 case 1 '확인' 분기 (모드 전환 mutation 위험) — 취소 분기만 합성"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

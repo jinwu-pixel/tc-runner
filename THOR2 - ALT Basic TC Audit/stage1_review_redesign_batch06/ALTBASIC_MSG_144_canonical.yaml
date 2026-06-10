@@ -1,0 +1,55 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 화면 전환 observe — 동의/철회 tap 금지, 스팸신고 팝업(2항) 별도 시나리오 제거.
+tc_id: ALTBASIC_MSG_144
+title: "메시지 차단 및 스팸 — 개인정보 수집 동의 화면 전환 확인 (동의 미접촉)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "144.0"
+preconditions:
+  - { text: "메시지 > 더보기 > 차단 및 스팸 진입 가능 상태", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 메시지 > 더보기 > 차단 및 스팸 2. 개인정보 수집 동의 Tap"
+    normalized_intent:
+      type: tap
+      target: "차단 및 스팸 > 개인정보 수집 동의"
+      value: null
+    expected:
+      - { type: verify_text, target: "개인정보 수집 동의 화면 전환 — 동의/동의철회 요소 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "동의/철회 요소 literal 단말 확인 (현재 동의 상태 비단정 — presence-only)"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 개인정보 수집 동의 Tap", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 개인정보 수집 동의 화면으로 전환된다.(동의 / 동의철회) 2. 스팸신고시 개인정보 수집 동의철회 상태면 팝업이 발생해야합니다."
+expected_texts_candidate:
+  - "동의"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "동의/철회 버튼 tap 절대 금지 (동의 상태 변경 = 기능 동작 영향 mutation); 화면 전환 + 요소 노출만"
+  cleanup_candidate: "BACK — 동의 상태 무변경"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: observe_split
+  redesign_removed: "expected 2항 '스팸신고 시 철회 상태 팝업' (스팸신고 실행 + 철회 상태 전제 — 별도 시나리오)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

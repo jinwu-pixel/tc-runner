@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue=삭제). 재설계: '삭제' = 검색어 텍스트 clear 한정 (데이터 mutation 아님 — cue 위양성). cleanup 내장형.
+tc_id: ALTBASIC_BSC_103
+title: "연락처 검색 — X 아이콘 Tap 시 검색어 삭제 및 초기 화면 복귀"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "1.Basic principle"
+  row: "103.0"
+preconditions:
+  - { text: "연락처 앱 검색 화면 진입 가능 상태", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap 3. \"ㅇㅇ\" 입력"
+    normalized_intent:
+      type: input_text
+      target: "연락처 검색 입력 필드"
+      value: "ㅇㅇ"
+    expected:
+      - { type: verify_text, target: "ㅇㅇ", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "검색 진입 동선 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap 3. \"ㅇㅇ\" 입력", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "우측 닫기(X) 아이콘 Tap"
+    normalized_intent:
+      type: tap
+      target: "검색 필드 우측 닫기(X) 아이콘"
+      value: null
+    expected:
+      - { type: verify_text, target: "검색어 삭제 — 검색 필드 빈 상태 + 초기 화면 복귀", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "빈 필드/초기 화면 판정은 dump 필드 text 속성 한정 판독 — 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "3. \"ㅇㅇ\" 입력 후 우측 닫기(X) 아이콘 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 입력한 검색어 삭제되고 연락처 검색 초기 화면으로 전환된다"
+expected_texts_candidate:
+  - "ㅇㅇ"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "'삭제'는 검색어 clear 한정 — 연락처 데이터 미접촉; X 아이콘 = cleanup 내장"
+  cleanup_candidate: "X Tap 자체가 원상복귀 — 추가 BACK으로 검색 이탈"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — cue '삭제' 위양성 판정 (검색어 clear)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

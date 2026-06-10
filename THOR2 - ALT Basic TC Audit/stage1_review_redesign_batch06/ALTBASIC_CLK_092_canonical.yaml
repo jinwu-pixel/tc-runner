@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: transient input — 최대문자+1 시 확인 비활성 = 구조적 저장 불가 (CALC GREEN 동형).
+tc_id: ALTBASIC_CLK_092
+title: "시계 타이머 라벨 — 최대문자+1 입력 시 안내문 노출 + 확인 비활성"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "92.0"
+preconditions:
+  - { text: "타이머 라벨 입력 팝업 진입 가능 상태 (CLK_082 선행 검증 연계)", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 시계 앱 실행 2. 화면 하단 타이머 Tap 3. 타이머 좌측 상단 라벨 영역 Tap"
+    normalized_intent:
+      type: tap
+      target: "타이머 라벨 영역 → 라벨 입력 팝업"
+      value: null
+    expected:
+      - { type: verify_text, target: "라벨 입력 팝업창 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "라벨 영역 위치 단말 관찰 후 확정"
+    confidence: 0.4
+    source_trace: { raw_segment: "3. 타이머 좌측 상단 라벨 영역 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "4. 라벨에 작성할 수 있는 최대 문자보다 더 많은 양의 문자를 기입한다 (40자 + 1)"
+    normalized_intent:
+      type: input_text
+      target: "라벨 입력 필드"
+      value: "가나다라마바사아자차카타파하가나다라마바사아자차카타파하가나다라마바사아자차카타파하"
+    expected:
+      - { type: verify_text, target: "더 이상 입력할 수 없습니다.", value: null }
+      - { type: verify_text, target: "확인 버튼 비활성 (enabled=false)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "안내문 literal/붉은색 항은 screenshot 보조 — 비활성 판정은 dump enabled 속성"
+    confidence: 0.5
+    source_trace: { raw_segment: "4. 라벨에 작성할 수 있는 최대 문자보다 더 많은 양의 문자를 기입한다.", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 입력 불가능 안내문이 하단에 노출된다. 1-1. 붉은색 텍스트로 \"더 이상 입력할 수 없습니다.\" 2. 확인 버튼이 비활성화된다. 3. 문자를 최대 허용치만큼 지우거나 변경시키면 다시 확인 버튼이 활성화되며 안내문 또한 사라진다."
+expected_texts_candidate:
+  - "더 이상 입력할 수 없습니다."
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "확인 비활성 = 구조적 저장 불가 (전 구간 mutation 0); expected 3항(재활성)은 보강 axis — 1차는 1/2항 핵심; 붉은색 = screenshot 보조 (PASS 근거 아님)"
+  cleanup_candidate: "입력 clear + 취소 Tap + BACK — 라벨 무변경 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: transient_input
+  redesign_removed: "expected 3항 재활성 검증 (보강 axis 강등)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

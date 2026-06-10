@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 안내 팝업 취소 분기 — 갤러리 사진 선택(fixture+mutation) 미진입.
+tc_id: ALTBASIC_LCH_114
+title: "포토 슬라이드 쇼 — 사진 추가하기 안내 팝업 취소 시 화면 복귀"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "114.0"
+preconditions:
+  - { text: "포토 슬라이드 쇼 안내 팝업 발생 상태 (다시보기 미체크 Default — 기체크 단말은 skip)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈 화면 > 포토 슬라이드 쇼 페이지 > 사진 추가하기 Tap"
+    normalized_intent:
+      type: tap
+      target: "포토 슬라이드 쇼 페이지 > 사진 추가하기"
+      value: null
+    expected:
+      - { type: verify_text, target: "포토 슬라이드 쇼 안내 팝업 + 다시보기 체크박스 + 취소/확인 버튼", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "팝업 문구/체크박스 literal 단말 확인; 다시보기 체크박스 tap 금지 (상태 소비)"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈 화면 > 포토 슬라이드 쇼 페이지 > 사진 추가하기 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 팝업창에서 취소 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "팝업 사라지고 포토 슬라이드 쇼 화면 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "복귀 화면 판정 = 슬라이드 쇼 페이지 구성요소 재확인"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 팝업창에서 취소 버튼 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 팝업 사라지고 포토 슬라이드 쇼 화면 노출된다"
+expected_texts_candidate:
+  - "취소"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "확인 tap 시 갤러리 선택 화면 진입 (사진 선택 = 슬라이드쇼 구성 mutation) — 취소 분기만; 다시보기 체크 금지 (1회성 안내 상태 소비)"
+  cleanup_candidate: "취소 Tap 자체가 원상복귀 — 안내 팝업 상태 보존"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: popup_cancel
+  redesign_removed: "확인 분기 (갤러리 진입 — source 113/120 별도 defer)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

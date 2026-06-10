@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 왕복 전환 = 원상복귀 내장 (batch3 CAM_006 전환 패턴 실증). 촬영 0.
+tc_id: ALTBASIC_CAM_026
+title: "카메라 — 전면/후면 전환 왕복 확인 (촬영 0, 후면 복귀 종료)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "28.Camera"
+  row: "26.0"
+preconditions:
+  - { text: "카메라 권한 동의 완료 + 후면 카메라 기본 상태", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 후면 카메라 상태에서(기본값) 카메라 전환버튼 선택"
+    normalized_intent:
+      type: tap
+      target: "카메라 (launcher) > 카메라 전환 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "전면 카메라 전환 (프리뷰/UI 변화 관찰 — dump 모호 시 screenshot 보조)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "전면/후면 판별 dump 단서(셀피 UI 요소) 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 후면 카메라 상태에서(기본값) 카메라 전환버튼 선택", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 전면 카메라 상태에서 카메라 전환버튼 선택"
+    normalized_intent:
+      type: tap
+      target: "카메라 전환 버튼 (재탭)"
+      value: null
+    expected:
+      - { type: verify_text, target: "후면 카메라 복귀", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "복귀 판별 동일 — 왕복 완료가 원상복귀"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 전면 카메라 상태에서 카메라 전환버튼 선택", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 전면 카메라로 전환됨 2. 후면 카메라로 전환됨"
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "셔터 버튼 절대 미접촉 (촬영 = 미디어 생성 mutation); 왕복 후 후면 상태 = 원상; batch3 CAM_006에서 모드 전환 tap 성공 관찰 실증"
+  cleanup_candidate: "왕복 자체가 원상복귀 + BACK 앱 종료"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: roundtrip_restore
+  redesign_removed: "없음 — 촬영 미접촉 가드 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

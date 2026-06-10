@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 후면+동영상 변형만 (전면 조합 95/96 defer) — Home 후 모드 유지 observe + 사진 복귀 cleanup.
+tc_id: ALTBASIC_CAM_098
+title: "카메라 — 후면 동영상 모드에서 Home 후 재실행 시 모드 유지 확인 (사진 복귀 종료)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "28.Camera"
+  row: "98.0"
+preconditions:
+  - { text: "카메라 권한 동의 완료 + 후면/사진 기본 상태", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "후면 카메라 > 동영상 (모드 전환) > Home으로 나가기"
+    normalized_intent:
+      type: tap
+      target: "카메라 > 동영상 모드 전환 → HOME 키"
+      value: null
+    expected:
+      - { type: verify_text, target: "동영상 모드 전환 후 홈 화면 이동", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "사진↔동영상 전환 동선 = batch3 CAM_006 성공 관찰 — literal 동일 여부 확인"
+    confidence: 0.5
+    source_trace: { raw_segment: "후면 카메라 > 동영상 > Home으로 나가기", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "카메라 실행 (재실행)"
+    normalized_intent:
+      type: navigate
+      target: "카메라 재실행 (launcher)"
+      value: null
+    expected:
+      - { type: verify_text, target: "후면 카메라 동영상 프리뷰 화면 (모드 유지)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "모드 유지 스펙 = 단말 구현 의존 — 미유지 관찰 시 BUG-GAP 후보 아닌 스펙 확인 선행"
+    confidence: 0.4
+    source_trace: { raw_segment: "카메라 실행", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "후면 카메라 동영상 프리뷰 화면"
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: MEDIUM
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "녹화 버튼 절대 미접촉; 종료 시 동영상 모드 잔존 → cleanup에서 사진 모드 복귀 필수 (CAM_006 실증 전환 재사용); 전면 조합(95/96)은 defer"
+  cleanup_candidate: "사진 모드 복귀 전환 + BACK — 전후 모드 일치 확인 (복귀 실패 시 중단 보고)"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: roundtrip_restore
+  redesign_removed: "없음 — cleanup 모드 복귀 명시 (원문은 잔존 무처리)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

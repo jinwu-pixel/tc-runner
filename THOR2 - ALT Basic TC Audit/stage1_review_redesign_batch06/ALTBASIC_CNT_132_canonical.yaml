@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: editor-entry observe — 필드 노출만, 입력/저장 0, 이탈 팝업 처리 명시.
+tc_id: ALTBASIC_CNT_132
+title: "연락처 — 새 연락처 이름 확장(▽) Tap 시 성/중간이름/이름 필드 노출 (저장 0)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "27.Contacts"
+  row: "132.0"
+preconditions:
+  - { text: "사전: 연락처 총 개수 기록 (이탈 후 무변경 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 > 새 연락처 만들기 > 이름 > 확장 버튼(▽)"
+    normalized_intent:
+      type: tap
+      target: "연락처 (launcher) > 새 연락처 만들기 > 이름 확장 버튼(▽)"
+      value: null
+    expected:
+      - { type: verify_text, target: "성 / 중간이름 / 이름 입력 필드 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "확장 버튼 노드/필드 literal 단말 확인"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 연락처 > 새 연락처 만들기 > 이름 > 확장 버튼(▽)", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) BACK — 무입력 이탈 (저장 0)"
+    normalized_intent:
+      type: navigate
+      target: "BACK — 편집 화면 이탈"
+      value: null
+    expected:
+      - { type: verify_text, target: "연락처 목록 복귀 + 연락처 개수 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 시 '변경사항 저장/삭제' 팝업 발생 가능 — 발생 시 '저장 안 함/버리기' 계열 선택 (무입력이라 무변이; 문구 1차 관찰에서 확정)"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 성 / 중간이름 / 이름 입력 필드 노출된다."
+expected_texts_candidate:
+  - "성"
+  - "이름"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: MEDIUM
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "저장 버튼 절대 미접촉; 입력 0; '성'/'이름' verify는 필드 hint 한정 판독 (전역 substring 위양성); 캡처에 기존 연락처 노출 가능 — redaction gate"
+  cleanup_candidate: "BACK + 연락처 개수 전후 일치 확인 — 증가 시 중단 보고 (임의 삭제 금지)"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — editor-entry 이탈 가드 명시 추가"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

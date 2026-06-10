@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: 기록 화면 표시 observe — 기록 생성(= 시행) 잔존은 NOTE 정직 기재. source row 43.0 = near-dup 미합성.
+tc_id: ALTBASIC_CALC_042
+title: "계산기 — 사칙연산 후 계산 기록 화면에 기록/날짜/수식 표시 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "42.0"
+preconditions:
+  - { text: "계산기 기본 모드", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "계산기 > 사칙연산 시행 — 21+4="
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드"
+      value: "21+4="
+    expected:
+      - { type: verify_text, target: "결과 25", value: "25" }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "result resource-id 한정 판독"
+    confidence: 0.6
+    source_trace: { raw_segment: "계산기 > 사칙연산 시행", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "더보기 > 계산 기록"
+    normalized_intent:
+      type: tap
+      target: "더보기 메뉴 > 계산 기록"
+      value: null
+    expected:
+      - { type: verify_text, target: "기록 화면 — 날짜(오늘) + 수식 21+4 표시", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "기록 화면 진입 동선 = batch3 카탈로그 literal(기록=display 드래그) 대조 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "더보기 > 계산 기록", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "계산기록한 내용 표시됨 (기록 / 날짜(오늘) / 현재수식)"
+expected_texts_candidate:
+  - "21+4"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "기록 생성 잔존 = 본 TC 검증 대상 자체 (NOTE: 기록 삭제 미실행 — 삭제는 별도 mutation); 날짜 verify는 실행일 동적 생성"
+  cleanup_candidate: "AC clear + BACK; 기록 잔존 NOTE 명기"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — 잔존 NOTE 정직 기재 (source 43.0 near-dup 미합성)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

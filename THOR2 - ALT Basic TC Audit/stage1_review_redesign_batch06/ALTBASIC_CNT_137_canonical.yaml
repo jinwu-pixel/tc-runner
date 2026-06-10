@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 사진 변경 팝업 observe + 취소 — '사진 찍기'(카메라 chain, source 138) 미진입.
+tc_id: ALTBASIC_CNT_137
+title: "연락처 추가 — 연락처 사진 카메라 버튼 Tap 시 사진 변경 팝업 노출 (취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "27.Contacts"
+  row: "137.0"
+preconditions:
+  - { text: "사전: 연락처 총 개수 기록 (이탈 후 무변경 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 > 연락처 추가 > 연락처 사진 > 카메라 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "연락처 추가 화면 > 연락처 사진 카메라 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "사진 변경 팝업 — 사진 찍기 / 사진 선택 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "팝업 항목 literal 단말 확인"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 연락처 > 연락처 추가 > 연락처 사진 > 카메라 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 취소/BACK — 팝업 이탈 + 편집 무저장 이탈"
+    normalized_intent:
+      type: navigate
+      target: "팝업 닫기 + BACK — 편집 화면 이탈 (저장 0)"
+      value: null
+    expected:
+      - { type: verify_text, target: "연락처 목록 복귀 + 연락처 개수 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 팝업 처리 = CNT_132 동일 (1차 관찰에서 문구 확정)"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 사진 변경 팝업창 노출된다.(사진 찍기, 사진 선택)"
+expected_texts_candidate:
+  - "사진 찍기"
+  - "사진 선택"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: MEDIUM
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "'사진 찍기'/'사진 선택' tap 금지 (카메라/갤러리 chain = source 138 defer); 저장 0; redaction gate (CNT_132 동일)"
+  cleanup_candidate: "팝업 취소 + BACK + 연락처 개수 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: popup_cancel
+  redesign_removed: "사진 찍기 chain (source 138 — 본 TC 검증 후 연쇄 승격 후보)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

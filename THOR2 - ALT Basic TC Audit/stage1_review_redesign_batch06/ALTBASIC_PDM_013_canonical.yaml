@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue=input). 재설계: 목표 걸음수 라디오 팝업 observe → 취소 (선택 tap 금지).
+tc_id: ALTBASIC_PDM_013
+title: "만보기 — 목표 걸음수 입력영역 Tap 시 라디오 팝업 노출 (취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "6.Pedometer app"
+  row: "13.0"
+preconditions:
+  - { text: "만보기 앱 진입 가능 상태", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Pedometer app 실행 2. 목표 걸음수 입력영역 Tap"
+    normalized_intent:
+      type: tap
+      target: "만보기 앱 실행 (launcher) > 목표 걸음수 입력영역"
+      value: null
+    expected:
+      - { type: verify_text, target: "목표 걸음 수 라디오 팝업 — 2000/4000/6000/8000/10000(Default)/20000보 + 취소 버튼", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "라디오 항목 literal/Default 체크는 dump 판독 — 기변경 단말은 Default 항 비단정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Pedometer app 실행 2. 목표 걸음수 입력영역 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 취소 Tap — 선택 미변경 이탈"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "팝업 닫힘 + 목표 걸음수 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "취소 literal 정확 매칭 필수"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 목표 걸음 수 라디오 버튼 팝업 노출된다.(2000보/4000보/6000보/8000보/10000보(Default)/20000보) 2. 취소 버튼 노출된다."
+expected_texts_candidate:
+  - "취소"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "라디오 선택 tap 금지 (즉시 적용형 — PDM 원문 15: 선택 시 설정됨)"
+  cleanup_candidate: "취소 Tap — 목표 걸음수 무변경 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: popup_cancel
+  redesign_removed: "없음 — 라디오 미접촉 가드 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

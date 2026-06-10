@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 항목 노출 observe — '적용 시 아이콘 변경'(mutation) 제거. carrier별 항목 상이.
+tc_id: ALTBASIC_LCH_188
+title: "배경화면 및 스타일 — 테마 항목 노출 확인 (적용 금지, carrier별 상이)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "188.0"
+preconditions:
+  - { text: "단말 SIM carrier 확인 (SKT=기본/ZEM(default), KT=기본/시나모롤(default) — 불일치 carrier는 skip)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈화면 길게 누르기 > 배경화면 및 스타일"
+    normalized_intent:
+      type: navigate
+      target: "홈 화면 long-press > 배경화면 및 스타일"
+      value: null
+    expected:
+      - { type: verify_text, target: "배경화면 및 스타일", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "long-press 메뉴 literal 단말 확인"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈화면 길게 누르기 > 배경화면 및 스타일", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 테마 항목 노출 확인 — 적용 안 함"
+    normalized_intent:
+      type: navigate
+      target: "테마 항목 리스트 관찰 (tap 안 함)"
+      value: null
+    expected:
+      - { type: verify_text, target: "carrier별 항목 노출 — SKT: 기본/ZEM(default), KT: 기본/시나모롤(default)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "default 표기/체크 상태 = dump 판독; 항목 명칭 단말 literal 확인"
+    confidence: 0.4
+    source_trace: { raw_segment: "SKT 1. 기본, ZEM(default) ... KT 1. 기본, 시나모롤(default)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "SKT 1. 기본, ZEM(default) 노출되며 각 적용시 기본 앱 아이콘이 변경됨 KT 1. 기본, 시나모롤(default) 노출되며 각 적용시 기본 앱 아이콘이 변경됨"
+expected_texts_candidate:
+  - "기본"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "테마 항목 tap 절대 금지 (적용 = 홈 전면 변경 mutation); F0 SIM carrier 확인 후 해당 subset만 verify"
+  cleanup_candidate: "BACK — 테마 무변경 확인"
+  carrier_fit: UNCONFIRMED_ON_TARGET_DEVICE
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: observe_split
+  redesign_removed: "'각 적용시 기본 앱 아이콘 변경' 검증 (적용 mutation)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave1 REVIEW_QUEUE. 재설계: 알람 편집 화면 진입 no-save — 취소 이탈 필수 (알람 생성 0).
+tc_id: ALTBASIC_CLK_038
+title: "시계 알람 — 알람 추가 Tap 시 설정 화면 구성 확인 (취소 이탈, 생성 0)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "38.0"
+preconditions:
+  - { text: "사전: 현재 알람 list 상태 기록 (전후 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 시계 앱 실행 2. 알람 추가 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "시계 앱 실행 (launcher) > 알람 추가 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "알람 설정 화면 — 오전/오후, 현재시간, 취소/확인 버튼, 키보드 Icon 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "설정 화면 구성요소 literal 단말 관찰 후 고정; '키보드 Icon Tap 시 직접 입력 화면' 항은 보강 axis (tap 미실행)"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 시계 앱 실행 2. 알람 추가 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 취소 Tap — 알람 미생성 이탈"
+    normalized_intent:
+      type: tap
+      target: "취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "알람 list 복귀 + 알람 개수 무변경 (전후 비교)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "취소 literal 정확 매칭 필수 — 확인 오탭 시 알람 생성 (미승인 mutation)"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 알람 설정 화면으로 전환 된다 2. 알람 설정 화면 구성 - 오전/오후, 현재시간 노출 - 시계 화면에서 알람 시간 설정가능 - 취소/확인 버튼 - 키보드 Icon Tap 할 경우 시간 직접 입력 화면으로 변경됨"
+expected_texts_candidate:
+  - "취소"
+  - "확인"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "확인 tap 절대 금지 — 알람 생성 = 미승인 mutation (알람 fixture 미승인 상태); 취소 실패 시 즉시 중단 + 알람 list 수동 확인"
+  cleanup_candidate: "취소 Tap + 알람 list 전후 개수 일치 확인 — 불일치 시 FAIL 아닌 중단 보고"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave1
+  redesign_pattern: popup_cancel
+  redesign_removed: "키보드 Icon tap 분기 (보강 axis 강등) — editor no-save 취소 이탈 추가"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

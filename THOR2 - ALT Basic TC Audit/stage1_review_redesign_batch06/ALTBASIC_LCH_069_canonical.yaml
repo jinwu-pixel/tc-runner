@@ -1,0 +1,55 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 화면 노출 observe만 — '등록/삭제 동작 가능' 검증 제거.
+tc_id: ALTBASIC_LCH_069
+title: "런처 단축다이얼 — '편집' Tap 시 단축 다이얼 설정 화면 노출 (동작 미실행)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "69.0"
+preconditions:
+  - { text: "홈 단축다이얼 페이지 진입 가능 (페이지 스와이프 동선 — 단말 관찰로 확정)", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 화면 상단 '편집' 메뉴 Tap"
+    normalized_intent:
+      type: tap
+      target: "단축다이얼 페이지 상단 '편집'"
+      value: null
+    expected:
+      - { type: verify_text, target: "전화 > 설정 > 단축 다이얼과 동일한 설정 화면 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "'동일 화면' 판정 = 화면 title/구성요소 노출 한정 (cross-screen 비교는 보강 axis)"
+    confidence: 0.4
+    source_trace: { raw_segment: "1. 화면 상단 '편집' 메뉴 Tap", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 전화 > 설정 > 단축 다이얼과 동일한 화면 노출된다. 2. 해당 페이지에서 단축다이얼 등록, 등록된 단축다이얼 삭제 동작 가능하다."
+expected_texts_candidate:
+  - "단축 다이얼"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "등록/삭제 항목 tap 절대 금지 — 화면 노출 + 요소 존재만; 단축다이얼 페이지 부재 시 entry skip"
+  cleanup_candidate: "BACK — 등록/삭제 0, 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: observe_split
+  redesign_removed: "'등록/삭제 동작 가능' 검증 (mutation) — 요소 존재 확인으로 대체"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

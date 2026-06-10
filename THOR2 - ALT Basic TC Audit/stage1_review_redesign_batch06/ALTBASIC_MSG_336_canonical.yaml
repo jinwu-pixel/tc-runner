@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: transient input — 1~2자리 입력 시 차단 버튼 비활성 = 구조적 등록 불가 (wave2 표본검사 실증 계열).
+tc_id: ALTBASIC_MSG_336
+title: "메시지 차단 번호 — 숫자 1~2개 입력 시 차단 버튼 비활성 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "336.0"
+preconditions:
+  - { text: "메시지 > 더보기 > 차단 및 스팸관리 > 차단된 번호 진입 가능 (사전: 차단 번호 list 기록)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 차단된 번호 > 숫자 하나 입력"
+    normalized_intent:
+      type: input_text
+      target: "차단 번호 입력 필드"
+      value: "1"
+    expected:
+      - { type: verify_text, target: "차단 버튼 비활성 (enabled=false)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "차단 버튼 노드/enabled 속성 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 차단된 번호 > 숫자 하 나 입력", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 숫자 두 개 입력"
+    normalized_intent:
+      type: input_text
+      target: "차단 번호 입력 필드"
+      value: "12"
+    expected:
+      - { type: verify_text, target: "차단 버튼 비활성 유지", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "최소 자릿수 임계 = 단말 관찰로 확정 (3자리 이상 활성 여부는 본 TC scope 밖)"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 차단된 번호 > 숫자 두 개 입력", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "차단 버튼이 비활성화 상태"
+expected_texts_candidate:
+  - "차단"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "비활성 = 구조적 등록 불가 (mutation 0); 3자리 이상 입력 금지 (활성 시 오탭 위험)"
+  cleanup_candidate: "입력 clear + BACK — 차단 번호 list 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — clear/list 대조 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

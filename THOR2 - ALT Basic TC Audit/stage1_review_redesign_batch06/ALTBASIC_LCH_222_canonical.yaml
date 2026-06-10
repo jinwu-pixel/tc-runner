@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: transient input — 위젯 검색 observe, 위젯 추가 금지.
+tc_id: ALTBASIC_LCH_222
+title: "위젯 추가 화면 — 검색 키보드 노출 + 검색 결과 표시 확인 (추가 금지)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "222.0"
+preconditions:
+  - { text: "홈 long-press > 위젯 진입 가능 상태", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈화면 > 홈화면 길게 누름 > 위젯 > 위젯 추가화면에서 검색"
+    normalized_intent:
+      type: tap
+      target: "홈 long-press > 위젯 > 검색 영역"
+      value: null
+    expected:
+      - { type: verify_text, target: "검색 키보드 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "검색 영역 위치/키보드 노출 판독 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈화면 > 홈화면 길게 누름 > 위젯 > 위젯 추가화면에서 검색", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "검색어 입력 — \"시계\""
+    normalized_intent:
+      type: input_text
+      target: "위젯 검색 입력 필드"
+      value: "시계"
+    expected:
+      - { type: verify_text, target: "시계 위젯 검색 결과 표시", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "결과 표시 노드 구조 단말 관찰 후 고정"
+    confidence: 0.5
+    source_trace: { raw_segment: "검색시 해당 위젯이 표시되어야 함", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "검색이 가능하도록 키보드 화면이 생성되어야하며 검색시 해당 위젯이 표시되어야 함"
+expected_texts_candidate:
+  - "시계"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "위젯 항목 tap/long-press 절대 금지 (홈 추가 mutation); 검색어 = transient"
+  cleanup_candidate: "검색어 clear + BACK ×2 — 홈 복귀, 배치 무변경 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave2
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — 위젯 미접촉 가드 명시"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

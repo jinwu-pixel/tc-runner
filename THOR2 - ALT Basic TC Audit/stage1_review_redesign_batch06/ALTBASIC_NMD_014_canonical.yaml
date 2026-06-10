@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — REVIEW_QUEUE 재설계 batch06 (2026-06-10). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave3 REVIEW_QUEUE (cue 무해). 재설계 변경 없음 — 외부 앱(구글맵) 전환 observe + back. 외부 pkg 가능 비단정 (b04 Google tier 방식).
+tc_id: ALTBASIC_NMD_014
+title: "니어메디 약국찾기 — 지도 버튼 시 구글맵 전환 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "33.Near Medi"
+  row: "14.0"
+preconditions:
+  - { text: "위치 동의 + 네트워크 정상, 약국 결과 1건 이상 (미충족 시 skip)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 니어메디 > 약국 찾기"
+    normalized_intent:
+      type: navigate
+      target: "니어메디 앱 실행 (launcher) > 약국 찾기 탭"
+      value: null
+    expected:
+      - { type: verify_text, target: "약국", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "탭 명칭 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 니어메디 > 약국 찾기", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 표시된 약국 지도에 포커싱 후 확인버튼"
+    normalized_intent:
+      type: tap
+      target: "첫 번째 약국 항목의 지도 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "구글맵 전환 + 해당 약국 이름/위치 표시", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "외부 앱(구글맵) 설치/동작 = 단말 환경 비단정 — foreground pkg 판독으로 전환만 verify"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 표시된 약국 지도에 포커싱 후 확인버튼", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "2. 구글맵으로 연결되며 해당 약국의 이름과 위치가 표시됨"
+expected_texts_candidate:
+  - "약국"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "외부 pkg(구글맵) 가능 비단정 — 미설치/초기 동의 화면 발생 시 NOTE 처리; 구글맵 내 조작 0 (전환 확인 즉시 back)"
+  cleanup_candidate: "BACK ×2 — 구글맵 이탈 + 니어메디 이탈, 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_QUEUE_wave3
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — 외부 앱 내 검증 범위를 전환 확인으로 한정"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
