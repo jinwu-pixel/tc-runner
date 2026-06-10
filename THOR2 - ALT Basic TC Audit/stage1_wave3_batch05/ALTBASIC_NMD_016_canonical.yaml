@@ -1,0 +1,57 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave3 KEEP (human_confirmed 2026-06-10). app-domain: menu-tree baseline 비적용,
+# 패키지/component 미확정 — 발명 0 (launcher 경유 진입 후보).
+tc_id: ALTBASIC_NMD_016
+title: "니어메디 앱 정보 — 항목 4종 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "33.Near Medi"
+  row: "16.0"
+preconditions:
+  - { text: "위치 ON + 데이터 ON + 국내 위치 + 최초실행 고지 팝업 기통과", normalized: "env_precondition", blocking: true }  # 니어메디 앱 게이트(위치/데이터/해외차단/고지팝업) 충족 전제
+procedure_steps:
+  - step_no: 1
+    raw_text: "니어메디 > 앱 정보"
+    normalized_intent:
+      type: navigate
+      target: "니어메디 > 앱 정보"
+      value: null
+    expected:
+      - { type: verify_text, target: "앱 버전", value: null }
+      - { type: verify_text, target: "위치기반서비스 이용약관", value: null }
+      - { type: verify_text, target: "오픈소스 라이선스", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "니어메디 > 앱 정보", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 앱 버전 / 위치기반서비스 이용약관 / 오픈소스 라이선스 / 병원/약국 정보 출처 항목이 표시됨"
+expected_texts_candidate:
+  - "앱 버전"
+  - "위치기반서비스 이용약관"
+  - "오픈소스 라이선스"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정; 전화연결/지도 버튼 접촉 금지"
+  cleanup_candidate: "BACK 반복 또는 HOME 복귀; 팝업/픽커는 취소 이탈, 확인/선택/저장 금지"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

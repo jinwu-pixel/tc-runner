@@ -1,0 +1,54 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave2 KEEP (human_confirmed 2026-06-10). app/launcher-domain: Settings menu-tree
+# baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+# carrier_fit=UNCONFIRMED: LGU+ SIM 전제 — 대상 단말 SIM 적합성 미확인, 불일치 시 skip(NOT FAIL).
+tc_id: ALTBASIC_STB_024
+title: "Status bar 잠금화면 통신사 표기 (LGU+)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "13.Status bar"
+  row: "24.0"
+preconditions:
+  - { text: "통신사 LG U+ SIM 장착", normalized: "carrier_precondition", blocking: true }  # func 컬럼 유래
+procedure_steps:
+  - step_no: 1
+    raw_text: "Status bar 잠금화면 통신사 아이콘 확인"
+    normalized_intent:
+      type: navigate
+      target: "Status bar 잠금화면 통신사 아이콘 확인"
+      value: null
+    expected:
+      - { type: verify_text, target: "LG U+", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Status bar 잠금화면 통신사 아이콘 확인", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "Status bar 좌측 LG U+ 아이콘이 표시된다."
+expected_texts_candidate:
+  - "LG U+"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "잠금화면 진입 방법 단말 확정"
+  cleanup_candidate: "잠금 해제 후 HOME"
+  carrier_fit: UNCONFIRMED_ON_TARGET_DEVICE
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

@@ -1,0 +1,75 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave2 KEEP (human_confirmed 2026-06-10). app/launcher-domain: Settings menu-tree
+# baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+# carrier_fit=UNCONFIRMED: LGU+ SIM 전제 — 대상 단말 SIM 적합성 미확인, 불일치 시 skip(NOT FAIL).
+tc_id: ALTBASIC_LCH_185
+title: "홈 1st/2nd page 구성 확인 (LGU+)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "185.0"
+preconditions:
+  - { text: "통신사 LG U+", normalized: "carrier_precondition", blocking: true }  # func 컬럼 유래; source pre 원문 사용, 판정 메타 적용
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈화면 1st page 확인"
+    normalized_intent:
+      type: navigate
+      target: "홈화면 1st page 확인"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "홈화면 1st page 확인", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "홈화면 2nd page 확인"
+    normalized_intent:
+      type: tap
+      target: "홈화면 2nd page 확인"
+      value: null
+    expected:
+      - { type: verify_text, target: "Gmail", value: null }
+      - { type: verify_text, target: "갤러리", value: null }
+      - { type: verify_text, target: "Play 스토어", value: null }
+      - { type: verify_text, target: "모드 전환", value: null }
+      - { type: verify_text, target: "당신의 U+", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "홈화면 2nd page 확인", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 1st page - Google Search widget (4x1) , Gmail , 갤러리 , Play 스토어 , 모드 전환 , 홈화면 최하단 : 전화 , 메시지 , Chrome , 카메라 위치 확인 2. 2nd page - Google folder 및 당신의 U+ (고객센터) 앱 확인"
+expected_texts_candidate:
+  - "Gmail"
+  - "갤러리"
+  - "Play 스토어"
+  - "모드 전환"
+  - "당신의 U+"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정; Google folder 구성 단말 확정"
+  cleanup_candidate: "HOME 복귀"
+  carrier_fit: UNCONFIRMED_ON_TARGET_DEVICE
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

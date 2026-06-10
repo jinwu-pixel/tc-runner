@@ -1,0 +1,79 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# app-domain (Clock/Calculator): Settings menu-tree baseline 비적용 (anchor_state=MISSING).
+# 앱 패키지/activity 미확정 — 발명 금지, launcher 경유 진입 후보 (entry_type=app_launch_unresolved).
+
+tc_id: ALTBASIC_CALC_051
+title: "계산기 무의미 콤마 입력 보정 및 결과 확인 (123+0,123)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "51.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 계산기 앱 실행"
+    normalized_intent:
+      type: navigate
+      target: "계산기 앱 실행 (launcher)"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "app entry/verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 계산기 앱 실행", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "2. 123+0,123 입력"
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드"
+      value: "123+0,123"
+    expected:
+      - { type: verify_text, target: "123", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "콤마 입력 키 존재 여부 단말 확인 필요"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 123+0,123 입력", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "3. = Tap"
+    normalized_intent:
+      type: tap
+      target: "="
+      value: null
+    expected:
+      - { type: verify_text, target: "246", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: "—"
+    confidence: 0.7
+    source_trace: { raw_segment: "3. = Tap", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "0,123 입력시 123으로 변경되어야 하며 결과값은 246을 표시해야 함"
+expected_texts_candidate:
+  - "123"
+  - "246"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "INPUT_REQUIRED + '=' 시행 — 계산 기록 1건 생성됨(잔존): cleanup(기록 삭제) 여부 검증 트랙에서 결정; 결과 246은 결정적 assert"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

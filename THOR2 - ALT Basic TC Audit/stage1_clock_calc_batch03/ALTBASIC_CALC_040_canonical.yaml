@@ -1,0 +1,78 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# app-domain (Clock/Calculator): Settings menu-tree baseline 비적용 (anchor_state=MISSING).
+# 앱 패키지/activity 미확정 — 발명 금지, launcher 경유 진입 후보 (entry_type=app_launch_unresolved).
+
+tc_id: ALTBASIC_CALC_040
+title: "계산기 기록 화면 — 기록 없음 문구 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "40.0"
+preconditions:
+  - { text: "계산 기록이 없는 상태", normalized: "state_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 계산기 앱 실행"
+    normalized_intent:
+      type: navigate
+      target: "계산기 앱 실행 (launcher)"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "app entry/verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 계산기 앱 실행", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "2. 더보기 Tap"
+    normalized_intent:
+      type: tap
+      target: "더보기"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "app entry/verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 더보기 Tap", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "3. 기록 Tap"
+    normalized_intent:
+      type: tap
+      target: "기록"
+      value: null
+    expected:
+      - { type: verify_text, target: "기록이 없습니다", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: "—"
+    confidence: 0.7
+    source_trace: { raw_segment: "3. 기록 Tap", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "기록이 없습니다 표시"
+expected_texts_candidate:
+  - "기록이 없습니다"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 현재 상태/색상 비단정; '기록이 없습니다'는 source 명시 문구 — 단말 literal 일치 확인 후 verifier 고정"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

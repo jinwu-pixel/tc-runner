@@ -1,0 +1,281 @@
+﻿sheet,tc_id,functionality,procedure,expected,classification,cue,judge_method
+1.Basic principle,80.0,Multi Selection,1. 리스트 화면에서 임의 항목 Long Tap,"1. Long Tap 대상 항목이 체크 표시되고 Highlight 된다 2. 선택하지 않은 항목들은 체크 안된 상태로 표시된다 3. 타이틀 영역에 닫기 아이콘, 1개 선택됨, Dropdown 아이콘, 삭제아이콘, 공유 아이콘 노출된다",REVIEW_QUEUE,삭제; 공유,human_confirmed
+1.Basic principle,81.0,Multi Selection,1. 리스트 화면에서 임의 항목 Long Tap 2. Long Tap 했던 항목을 다시 Tap 한다,"1. 체크 항목이 해제된다 2. 타이틀 영역에 닫기아이콘, 0개 선택됨, Dropdown 아이콘 노출된다",REVIEW_QUEUE,토글,human_confirmed
+1.Basic principle,82.0,Multi Selection,1. 리스트 화면에서 임의 항목 Long Tap 2. Long Tap 했던 항목을 다시 Tap 한다 3. 닫기 아이콘 Tap 한다,1. 이전 리스트 화면으로 전환된다,REVIEW_QUEUE,fixture pre,cue_auto
+1.Basic principle,83.0,Multi Selection,1. 리스트 화면에서 임의 항목 Long Tap 2. 다른 임의 항목 Tap 한다,"1. Long Tap 대상 항목이 체크 표시되고 Highlight 된다 2. Tap한 항목이 체크 되고 Highlight 된다 3. 선택하지 않은 항목들은 체크 안된 상태로 표시된다 4. 타이틀 영역에 닫기아이콘, 2개 선택됨, Dropdown 아이콘, 삭제아이콘, 공유 아이콘 노출된다",REVIEW_QUEUE,삭제; 공유,human_confirmed
+1.Basic principle,84.0,Multi Selection,1. 화면 상단 Dropdown 아이콘 Tap 한다,"1. 미선택한 리스트가 있는 경우 ""전체 선택"" Dropdown 메뉴 노출된다",REVIEW_QUEUE,fixture pre,cue_auto
+1.Basic principle,85.0,Multi Selection,1. 화면 상단 'N개 선택됨' 텍스트 영역 터치로 Tap 한다,"1. 미선택한 리스트가 있는 경우 ""전체 선택"" Dropdown 메뉴 노출된다",REVIEW_QUEUE,fixture pre,cue_auto
+1.Basic principle,86.0,Multi Selection,1. 화면 상단 'N개 선택됨' 텍스트 영역 터치로 Tap 한다,"1. ""전체 선택 해제 "" Dropdown 메뉴 노출된다",REVIEW_QUEUE,토글,human_confirmed
+1.Basic principle,87.0,Multi Selection,1. 화면 상단화면 상단 Dropdown 아이콘 터치로 Tap 한다,"1. 미선택한 리스트가 있는 경우 ""전체 선택"" Dropdown 메뉴 노출된다",REVIEW_QUEUE,fixture pre,cue_auto
+1.Basic principle,88.0,Multi Selection,1. 화면 상단화면 상단 Dropdown 아이콘 터치로 Tap 한다,"1. ""전체 선택 해제 "" Dropdown 메뉴 노출된다",REVIEW_QUEUE,토글,human_confirmed
+1.Basic principle,89.0,Multi Selection,1. 화면 상단 'N개 선택됨' 텍스트 영역 터치로 Tap 한다,"1.텍스트 영역 터치시 Dropdown 메뉴 노출된다 2. 미선택한 리스트가 있는 경우 ""전체 선택"" Dropdown 메뉴 노출된다 3. 선택한 리스트는 체크박스가 표시되며 선택한 리스트의 배경 UI가 하늘색으로 표시된다.",REVIEW_QUEUE,fixture pre,cue_auto
+1.Basic principle,90.0,Multi Selection,1. 화면 상단화면 상단 Dropdown 아이콘 터치로 Tap 한다,"1. 미선택한 리스트가 있는 경우 ""전체 선택"" Dropdown 메뉴 노출된다 2. 선택한 리스트는 체크박스가 표시되며 선택한 리스트의 배경 UI가 하늘색으로 표시된다.",REVIEW_QUEUE,fixture pre,cue_auto
+1.Basic principle,95.0,Multi Selection,"1. 화면 상단 Dropdown 아이콘 Tap 한다 2. ""전체 선택"" Tap 한다","1. 리스트 전체 체크 표시되고 Highlight 된다 2. 타이틀 영역에 닫기아이콘, 4개 선택됨, Dropdown 아이콘, 삭제아이콘, 더보기 아이콘 노출된다",REVIEW_QUEUE,삭제,human_confirmed
+1.Basic principle,96.0,Multi Selection,1. 리스트 화면에서 임의 항목 Long Tap,1. 대상 항목이 체크박스 표시되지 않고 프로필 아이콘이 체크표시로 변경된다.,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+1.Basic principle,97.0,Multi Selection,1. 리스트 화면에서 임의 항목 Tap,1. 대상 항목이 체크박스 표시된다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,98.0,Multi Selection,"1. 화면 상단 Dropdown 아이콘 Tap 한다 2. ""전체 선택"" Tap 한다 3. Dropdown 아이콘 Tap 한다","1. ""전체 선택 해제"" Dropdown 메뉴 노출된다",REVIEW_QUEUE,토글,human_confirmed
+1.Basic principle,99.0,Multi Selection,"1. 화면 상단 Dropdown 아이콘 Tap 한다 2. ""전체 선택"" Tap 한다 3. Dropdown 아이콘 Tap 한다 4. ""전체 선택 해제"" Tap 한다","1. 리스트 전체 체크 해제된다 2. 타이틀 영역에 닫기아이콘, 0개 선택됨, Dropdown 아이콘 노출된다",REVIEW_QUEUE,토글,human_confirmed
+1.Basic principle,101.0,Search,1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap,1. 화면 하단 Soft 키패드 노출된다,REVIEW_QUEUE,input,cue_auto
+1.Basic principle,102.0,Search,"1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap 3. ""ㅇㅇ"" 입력","1. 검색 영역에 ""ㅇㅇ"" 노출된다 2. 화면 중간에 ""연락처 없음"" 노출된다",REVIEW_QUEUE,input,cue_auto
+1.Basic principle,103.0,Search,"1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap 3. ""ㅇㅇ"" 입력 후 우측 닫기(X) 아이콘 Tap",1. 입력한 검색어 삭제되고 연락처 검색 초기 화면으로 전환된다,REVIEW_QUEUE,삭제,human_confirmed
+1.Basic principle,105.0,Search,"1. 연락처 검색 화면 진입 2. 연락처 검색 영역 Tap 3. ""진"" 입력","1. 화면하단 Keypad 노출된다 2. ""진""이 포함된 연락처 검색되어 노출된다 3. 입력 Text에 해당하는 부분이 Highlight 된다",REVIEW_QUEUE,input,cue_auto
+1.Basic principle,107.0,Search,1. 타이틀 검색 화면 진입 2. 돋보기 아이콘 Tap 3. 검색 영역 Tap,1. 화면 하단 키패드 노출된다,REVIEW_QUEUE,input,cue_auto
+1.Basic principle,108.0,Search,"1. 타이틀 검색 화면 진입 2. 돋보기 아이콘 Tap 3. ""ㅇㅇ"" 입력","1. 검색 영역에 ""ㅇㅇ"" 노출된다 2. 화면 중간에 ""결과 없음"" 노출된다",REVIEW_QUEUE,input,cue_auto
+1.Basic principle,109.0,InputBox,1. 입력 방식을 '기호'로 변경한다 2. Inputbox에 * 입력한다,"1. Inputbox 하단에 /"":*? 는 입력할 수 없습니다.' 빨강색 문구 노출된다 2. 확인 버튼 비활성화 된다",REVIEW_QUEUE,토글; 변경,human_confirmed
+1.Basic principle,110.0,InputBox,1. 입력 방식을 '기호'로 변경한다 2. Inputbox에 / 입력한다,"1. Inputbox 하단에 /"":*? 는 입력할 수 없습니다.' 빨강색 문구 노출된다 2. 확인 버튼 비활성화 된다",REVIEW_QUEUE,토글; 변경,human_confirmed
+1.Basic principle,111.0,InputBox,1. 입력 방식을 '기호'로 변경한다 2. Inputbox에 : 입력한다,"1. Inputbox 하단에 /"":*? 는 입력할 수 없습니다.' 빨강색 문구 노출된다 2. 확인 버튼 비활성화 된다",REVIEW_QUEUE,토글; 변경,human_confirmed
+1.Basic principle,112.0,InputBox,1. 입력 방식을 '기호'로 변경한다 2. Inputbox에 ? 입력한다,"1. Inputbox 하단에 /"":*? 는 입력할 수 없습니다.' 빨강색 문구 노출된다 2. 확인 버튼 비활성화 된다",REVIEW_QUEUE,토글; 변경,human_confirmed
+1.Basic principle,113.0,InputBox,1. 입력 방식을 '기호'로 변경한다 2. Inputbox에 '가나' 입력한다,1. 확인 버튼 선택시 Inputbox 하단에 '같은 이름의 파일이 이미 있습니다.' 빨강색 문구 노출된다 2. 확인 버튼 비활성화 된다,REVIEW_QUEUE,토글; 변경,human_confirmed
+1.Basic principle,114.0,InputBox,1. 입력 방식을 '한글'로 변경한다 2. Inputbox에 Text를 최대로 입력한다 (Max 120 Byte),1. Inputbox 하단에 '더 이상 입력할 수 없습니다.' 빨강색 문구 노출된다 2. Max text 입력될 경우 더 이상 입력이 안되어야 한다 3. 확인 버튼 비활성화 된다,REVIEW_QUEUE,토글; 변경,human_confirmed
+1.Basic principle,115.0,Font Size,1. 글꼴 크기 설정 Bar 확인한다,"1. 글꼴 크기 설정은 5단계로 변경 할수 있다 (small/medium/large/larger/largest) 2. Default 크기는 ""medium""",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+1.Basic principle,116.0,Font Size,1. 글꼴 크기 설정 Bar를 small로 설정한다,1. 글꼴 크기에 따라 화면 Text 축소 된다,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,117.0,Font Size,1. 글꼴 크기 설정 Bar를 large로 설정한다,1. 글꼴 크기에 따라 화면 Text 확대 된다,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,118.0,Font Size,1. 글꼴 크기 설정 Bar를 larger로 설정한다,1. 글꼴 크기에 따라 화면 Text 확대 된다 2. 확대에 따른 Text 잘림 발생 없어야 한다,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,130.0,Landscape Mode,1. 설정 > 연결된 기기 > 새 기기와 페어링 > 기기이름 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,133.0,Landscape Mode,1. 설정 > 안심기능 > 보호자 등록 > 보호자 추가하기 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE_CANDIDATE_UNREVIEWED,등록,cue_auto
+1.Basic principle,134.0,Landscape Mode,1. 설정 > 안심기능 > 안심메세지 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,136.0,Landscape Mode,1. 설정 > 알림 > 기기 및 앱 알림 > 허용 앱 > 알림 액세스 허용 토글 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+1.Basic principle,137.0,Landscape Mode,1. 설정 > 개인 정보 보호 > 잠금 화면에 표시할 알림 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,138.0,Landscape Mode,1. 설정 > 소리 및 진동 > 전화 벨소리 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE_CANDIDATE_UNREVIEWED,진동,cue_auto
+1.Basic principle,139.0,Landscape Mode,1. 설정 > 소리 및 진동 > 기본 알림 소리 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE_CANDIDATE_UNREVIEWED,진동,cue_auto
+1.Basic principle,140.0,Landscape Mode,1. 설정 > 소리 및 진동 > 기본 알람 소리 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE_CANDIDATE_UNREVIEWED,진동,cue_auto
+1.Basic principle,141.0,Landscape Mode,1. 설정 > 디스플레이 > 잠금 화면 > 개인 정보 보호 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,142.0,Landscape Mode,1. 설정 > 디스플레이 > 잠금 화면 > 잠금 화면에 텍스트 추가 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,143.0,Landscape Mode,1. 설정 > 접근성 > 텍스트 음성 변환 출력 > 언어 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,144.0,Landscape Mode,1. 설정 > 보안 > 보안 및 개인 정보 보호 더보기 > Android 세이프 브라우징 > 실시간 위협 방지 사용 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,146.0,Landscape Mode,1. 설정 > 보안 > 보안 및 개인 정보 보호 더보기 > 앱 고정 > 앱 고정 사용 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,147.0,Landscape Mode,1. 설정 > 개인 정보 보호 > 잠금 화면에 표시할 알림 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,148.0,Landscape Mode,1. 설정 > 위치 > 위치 사용 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,150.0,Landscape Mode,1. 설정 > 시스템 > 키보드 > 맞춤법 검사기 > 기본 맞춤법 검사기 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,151.0,Landscape Mode,1. 설정 > 시스템 > 키보드 > 포인터 속도 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,152.0,Landscape Mode,1. 설정 > 시스템 > 날짜 및 시간 > 자동으로 시간 설정 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,EXCLUDE,cue 무해,human_confirmed
+1.Basic principle,153.0,Landscape Mode,1. 설정 > 휴대전화 정보 > 기기이름 Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+1.Basic principle,155.0,Landscape Mode,1. 설정 > 휴대전화 정보 > IMEI Tap,1. 팝업박스 텍스트 크기가 한 가지 크기로 고정되어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+10.Weather widget,7.0,기본 화면,1. 폴더를 열고 홈 화면에 진입한다. 2. 날씨 위젯을 확인 한다,1. 현재 위치 / 현재 온도 / 날씨 상태 / 미세먼지 상태 / 날씨 일러스트가 노출된다.,REVIEW_QUEUE,cue 무해,human_confirmed
+10.Weather widget,8.0,기본 화면,,1. 날씨 위젯은 매시간 마다 자동으로 갱신된다. (매 시간 정시 또는 사용자 확인 이후 1시간 단위인지 문의상태),EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,9.0,위쳇 선택 시 동작 확인,1. 날씨 위젯을 Tap 한다.,"1. ""날씨 정보를 불러오고 있습니다"" 문구 노출됨 2. 안내문구 위에 로딩 아이콘(애니메이션 처리)이 업데이트하는동안 노출된다.",REVIEW_QUEUE,시스템,human_confirmed
+10.Weather widget,10.0,위쳇 선택 시 동작 확인,1. 날씨 위젯을 Tap 한다. 2. 업데이트 완료에 따른 동작 확인,"1. ""날씨 정보가 업데이트 되었습니다."" 토스트 팝업 발생된다 2. 업데이트 된 내용이 날씨 위젯에 노출된다.",REVIEW_QUEUE,시스템,human_confirmed
+10.Weather widget,11.0,위쳇 선택 시 동작 확인,1. 날씨 위젯을 Tap 한다. 2. 업데이트 완료 후 다시 Tap 한다,"1. ""방금 전 업데이트 되었습니다. 잠시 후 다시 시도해주세요."" 토스트 팝업 발생된다 2. 날씨 위젯 영역 터치시 15분 이후 업데이트 가능하다.",EXCLUDE_CANDIDATE_UNREVIEWED,시스템,cue_auto
+10.Weather widget,12.0,위쳇 선택 시 동작 확인,,"1. ""날씨 정보를 불러오고 있습니다"" 문구 노출됨 2. 안내문구 위에 로딩 아이콘(애니메이션 처리)이 업데이트하는동안 노출된다. 3. ""날씨 정보가 업데이트 되었습니다."" 토스트 팝업 발생된다 4. 업데이트 된 내용이 날씨 위젯에 노출된다.",EXCLUDE,시스템,human_confirmed
+10.Weather widget,13.0,위쳇 선택 시 동작 확인,1. 날씨별 위젯 GUI 확인 Case 추가 필요,1. MMI 1.3 Weather widget GUI 확인 방법 체크 필요,EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,32.0,미세먼지 기본 화면,1. 폴더 Open 상태에서 날씨 위젯 확인 한다,"1. 날씨 위젯 우측 ""미세먼지 좋음"" 문구가 노출된다.",EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,33.0,미세먼지 기본 화면,1. 폴더 Open 상태에서 날씨 위젯 확인 한다,"1. 날씨 위젯 우측 ""미세먼지 보통"" 문구가 노출된다.",EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,34.0,미세먼지 기본 화면,1. 폴더 Open 상태에서 날씨 위젯 확인 한다,"1. 날씨 위젯 우측 ""미세먼지 나쁨"" 문구가 노출된다.",EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,35.0,미세먼지 기본 화면,1. 폴더 Open 상태에서 날씨 위젯 확인 한다,"1. 날씨 위젯 우측 ""미세먼지 최악"" 상태를 나타내는 문구 노출 된다",EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,36.0,데이터 연결 해제 시 상태 확인,1. 날씨 위젯을 확인한다,1. 날씨 위젯이 Dimmed 되어 노출 된다,REVIEW_QUEUE,cue 무해,human_confirmed
+10.Weather widget,38.0,데이터 연결 해제 시 상태 확인,"1. 날씨 위젯을 Tap 한다. 2. 데이터 활성화 팝업창에서 ""취소"" 버튼 선택 한다",1. 팝업 사라지고 데이터 비 활성화 상태 유지된다,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+10.Weather widget,40.0,Location,날씨 위젯,"1. 날씨 위젯 어둡게 노출된다. 1-1. ""날씨 정보를 불러올 수 없습니다."" 문구 노출된다.",REVIEW_QUEUE,cue 무해,human_confirmed
+10.Weather widget,41.0,Location,날씨 위젯 영역 터치,1. 위치 정보 활성화를 위한 팝업 발생한다. 1-1. '확인' 버튼 선택시 설정 > 위치로 이동된다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글; 이동/복사,cue_auto
+10.Weather widget,42.0,Location,날씨 위젯 영역 터치,1. 위치 정보 활성화를 위한 팝업 발생한다. 1-1. '취소' 버튼 선택 시 팝업이 닫히며 여전히 날씨 위젯은 어둡게 노출된다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+10.Weather widget,43.0,Data Off & Location Off,"1. 날씨 위젯을 Tap 한다. 2. 데이터 활성화 팝업창에서 ""취소"" 버튼 선택 한다",1. 팝업 사라지고 데이터 비 활성화 상태 유지된다 2. 날씨 위젯 Dimmed 처리 상태 유지된다,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+10.Weather widget,46.0,Data Off & Location Off,1. 날씨 위젯을 Tap 한다.,"1. 위치 활성화 팝업창이 노출된다 2. ""날씨 위젯을 사용하기 위해 위치 정보 활성화가 필요합니다"" 팝업 및 취소/확인 버튼 노출된다",REVIEW_QUEUE,토글,human_confirmed
+10.Weather widget,47.0,Data Off & Location Off,"1. 날씨 위젯을 Tap 한다. 2. 위치 활성화 팝업창에서 ""취소"" 버튼 선택 한다",1. 팝업 사라지고 위치 비 활성화 상태 유지된다 2. 날씨 위젯 Dimmed 처리 유지된다,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+10.Weather widget,48.0,날씨 위젯,셋업위자드 완료 후 간편 모드 홈화면에서 현재 위치 정보 확인,현재 위치가 정확하게 표시됨,EXCLUDE,cue 무해,human_confirmed
+10.Weather widget,49.0,Data Off & Location Off,"1. 날씨 위젯을 Tap 한다. 2. 위치 활성화 팝업창에서 ""확인"" 버튼 선택 한다 3. 위치 설정 메뉴에서 위치 사용 On 설정한다 4. 홈화면 이동 후 날씨 위젯 확인한다",1. Setting의 위치 설정 메뉴로 이동한다 2. 위치 사용 On 설정된다 3. 홈화면 날씨 위젯 활성화 되어 정보 노출된다,EXCLUDE_CANDIDATE_UNREVIEWED,토글; 이동/복사,cue_auto
+12.Setup Wizard,1.0,시작화면,1. 셋업위자드 > 언어 탭 2. 셋업위자드 > 언어 탭 > 한국어 3. 셋업위자드 > 언어 탭 > 영어 4. 3셋업위자드 > 언어 탭 > 취소,1. 언어 목록 표시 (한국어와 영어만 지원) 2. 한국어 설정됨 3. 영어 설정됨 4. 이전 화면,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,4.0,시작화면 - 비상전화,1. 셋업위자드 > 언어 탭 영어 변경 > 셋업위자드 > 비상전화 영문 으로 문구 표기 확인,1. 긴급전화 'Emergency Call' 긴급번호 'Emergency numbers',EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+12.Setup Wizard,5.0,시작화면 - 비상전화,1. 셋업위자드 > 언어 탭 영어 변경 > 셋업위자드 > 비상전화 > 긴급번호 진입,1. 긴급번호 영문으로 표기 되어있는지 확인,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+12.Setup Wizard,7.0,시작화면,1. 셋업위자드 > 보기설정,1. 보기 설정 list 표시 - 디스플레이 크기 및 텍스트 - 확대 - 텍스트 읽어주기 - TalkBack,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,10.0,시작화면,셋업위자드 > 보기설정 > 텍스트 읽어주기 > 텍스트 읽어주기 바로가기 On > 스피커 아이콘 눌러서 Play,화면에 표시된 텍스트를 읽어야 함,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,26.0,구글서비스,1.구글서비스 > 개인정보처리방침 및 위치서비스 약관 탭 2.구글서비스 > 기본 기기 백업 사용 / 위치 사용 / 검색 허용 / 사용 및 진단 데이터 보내기 3.구글서비스 > 동의,1. 약관 내용 표시됨 2. On/Off 동작확인 3. 구글 서비스 사용 동의되어 다음 화면으로 전환된다.,EXCLUDE,토글,human_confirmed
+12.Setup Wizard,28.0,구글서비스,1. 구글서비스 > 위치 사용 Off 2. 위치 사용 Off > 셋업위자드 설정 완료 > 퀵세팅 > 위치 타일을 눌러 위치 켬 > 위치 정확도 확인,위치 정확도 Off 상태,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,32.0,약관 동의,1. 약관동의 > 개인정보 수집/이용 동의 보기 2. 약관동의 > 위치기반 서비스 이용 동의 보기 3. 약관동의 > 소프트웨어 업데이트 동의 보기,1. 약관 정상적으로 표시 2. 약관 정상적으로 표시 3. 약관 정상적으로 표시,EXCLUDE_CANDIDATE_UNREVIEWED,시스템,cue_auto
+12.Setup Wizard,33.0,약관 동의,1. 약관동의 > 위치기반 서비스 이용 동의 문구 확인,2.문구 표기 되어있는지 확인 - KR '위치기반 서비스 이용 동의' - EN 'Location service agreemant' 2.'2.2 'Location service agreemant',EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,34.0,개인위치정보 제공 서비스,1. 긴급 구조 기관 요청 시의 개인 위치정보 제공 서비스 2. 동의 버튼 선택,1. 긴급호 전화 후 구조기관에서 위치 조회 가능함,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,36.0,홈 설정,홈 설정 > 일반 홈,1. 일반 홈에 대한 이미지 노출된다. 2. 셋업위자드 완료 후 일반 홈으로 설정되어있다.,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,37.0,홈 설정,홈 설정 > 간편 홈,1. 간편 홈에 대한 이미지 노출된다. 2. 셋업위자드 완료 후 간편 홈으로 설정되어있다.,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,38.0,홈 설정,홈 설정 페이지 순서대로 확인 및 문구 버튼 변경,"1.'홈 설정 ' 2..'일반 홈과, 주요 기능을 크고 쉽게 보여주는 간편 홈 중 선택할 수 있습니다.' 3.'일반 홈' (일반 홈 선택시 이미지 표기 확인 ) 4.'간편 홈' (간편 홈 선택시 이미지 표기 확인) 5.홈 화면의 모드전환 버튼을 사용하여 모드 간 변환을 할 수 있습니다.",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+12.Setup Wizard,61.0,포커싱 동작,1. 셋업위자드 약관 동의 화면 > 방향키 버튼 or OK 버튼 2. 개인정보 수집/이용 동의 메뉴에 포커싱 > OK 버튼 or Tap 3. 소프트웨어 업데이트 동의 메뉴에 포커싱 > OK 버튼 or Tap,1. 포커싱이 활성화됨 2. 개인 정보 관련 내용이 표시되며 위쪽/ 아래쪽 버튼으로 스크롤 가능함 3. 소프트웨어 업데이트 동의 관련 내용이 표시되며 위쪽/ 아래쪽 버튼으로 스크롤 가능함,EXCLUDE_CANDIDATE_UNREVIEWED,시스템; 토글,cue_auto
+12.Setup Wizard,63.0,,1.셋업위자드 마지막 단계 > 문구 확인 2.셋업위자드 마지막 단계 > 문구 확인 밑 버튼 문구 확인,1.'준비되었습니다' 문구 확인 2.'완료' 문구 확인,EXCLUDE,cue 무해,human_confirmed
+12.Setup Wizard,64.0,,셋업위자드 마지막 단계 > 완료 버튼 > 진입,1.홈 화면 준비 중 문구 확인,EXCLUDE,cue 무해,human_confirmed
+15.Lockscreen,2.0,화면 잠금 - 스와이프,1. 폴더 오픈하여 LCD On 한다 2. Lockscreen 확인 후 Up 스와이프 하여 Lockscreen 해제한다,1. Lockscreen 해제되고 홈화면 노출된다,REVIEW_QUEUE,토글,human_confirmed
+15.Lockscreen,9.0,화면 잠금 - 패턴,1. 폴더 오픈하여 LCD On 한다 2. Lockscreen 확인 후 Up 스와이프 한다.,1. 패턴 입력 화면이 검은색 반투명 효과로 표시되는지 확인(#5656참고),REVIEW_QUEUE,cue 무해,human_confirmed
+15.Lockscreen,14.0,화면 잠금 - 패턴,1. 폴더 오픈하여 LCD On 한다 2. Lockscreen 확인 후 Up 스와이프 한다 3. 긴급 전화 버튼 Tap 한다,1. 긴급 전화 입력 화면으로 전환된다,EXCLUDE,cue 무해,human_confirmed
+15.Lockscreen,27.0,화면 잠금 - Password,1. 폴더를 열고 잠금 화면에서 (종료/ 뒤로 가기/ 취소/ 숫자키 제외) 버튼 누름 2. 패스워드 입력 필드에 포커싱 된 상태에서 숫자키 버튼 누름 3. 패스워드 입력 필드에 영문 입력된 상태에서 화면 터치,1. 패스워드 입력 필드에 포커싱 됨 2. 영문이 입력됨 3. 키패드가 표시됨,REVIEW_QUEUE,input,cue_auto
+15.Lockscreen,36.0,화면 잠금 - Password,1. 폴더 오픈하여 LCD On 한다 2. Lockscreen 확인 후 Up 스와이프 한다 3. 올바른 Password 입력 후 키패드 다음 버튼 Tap,1. Password 입력 화면 및 긴급전화 버튼 노출된다 2. 올바른 Password 입력 시 Lockscreen 해제 후 홈화면 노출된다,REVIEW_QUEUE,토글,human_confirmed
+15.Lockscreen,38.0,화면 잠금 - Password,1. 폴더 오픈하여 LCD On 한다 2. Lockscreen 확인 후 Up 스와이프 한다 3. 올바르지 않은 Password 입력 후 키패드 다음 버튼 Tap,1. Password 입력 창 및 긴급전화 버튼 노출된다 2. 올바르지 않은 Password 시 실패 문구 노출된다. 4. 5회 실패 시 30초 후 재입력 팝업 노출된다. (5자 이상),REVIEW_QUEUE,input,cue_auto
+15.Lockscreen,40.0,화면 잠금 - Password,1. 폴더 오픈하여 LCD On 한다 2. Lockscreen 확인 후 Up 스와이프 한다 3. 긴급 전화 버튼 Tap 한다,1. 긴급 전화 입력 화면으로 전환된다,EXCLUDE,cue 무해,human_confirmed
+15.Lockscreen,45.0,화면 잠금- 잠금방식관계없음,일반 충전기를 삽입 > 잠금 화면 확인,"""급속충전'이 아닌 ""충전중""으로 표시되어야 함",EXCLUDE,시간/전원,human_confirmed
+15.Lockscreen,46.0,잠금 화면 알림 - 모든 알림 내용 표시,설정 > 디스플레이 > 잠금 화면 > 개인 정보 보호 > 모든 알림 내용 표시 선택,"잠금 화면에서 알림 발생시 알림발생한 앱, 알림 내용 노출되어야 함",REVIEW_QUEUE,fixture pre,cue_auto
+15.Lockscreen,47.0,잠금 화면 알림 - 민감한 콘텐츠 표시,설정 > 디스플레이 > 잠금 화면 > 개인 정보 보호 > 민감한 콘텐츠는 잠금이 해제되었을 때만 표시 선택,잠금 화면에서 알림 발생시 알림 발생한 앱은 노출되지만 알림 내용은 노출되어선 안됨,EXCLUDE,토글,human_confirmed
+15.Lockscreen,48.0,잠금 화면 알림 - 알림 표시 안함,설정 > 디스플레이 > 잠금 화면 > 개인 정보 보호 > 알림 표시 안함 선택,잠금 화면에서 알림 발생되어선 안됨,REVIEW_QUEUE,fixture pre,cue_auto
+17.Safety Feature,4.0,Press Power key,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,5.0,Press Other keys,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,6.0,Receive Call,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,7.0,Receive Message,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,8.0,Receive Messages from other app service,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,11.0,Connect/disconnect charging cable,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,12.0,Close Folder,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,13.0,,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,14.0,Press Side key,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,15.0,Press Volume key,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,19.0,Alarms,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,20.0,Notifications,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,21.0,Connect charging cable,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,22.0,Open Folder > Backlight Off,Care message is sent out in time,OK,EXCLUDE,cue 무해,human_confirmed
+17.Safety Feature,23.0,안심 메시지 > 폴더 개폐 동작,1. 설정 > 안심기능 > 안심 메시지 선택 2. 폴더 개폐 확인 설정값을 On으로 변경한다,1. 폴더 개폐 확인 메뉴 하단에 확인 주기 메뉴 노출된다 2. 확인 주기 시간 설정 값은 하기와 같다 - 36시간(Default)으로 설정된다,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+17.Safety Feature,24.0,안심 메시지 > 폴더 개폐 동작,1. 설정 > 안심기능 > 안심 메시지 선택 2. 폴더 개폐 확인 설정값을 On으로 변경한다 3. 확인 주기 영역을 Tap 한다,1.폴더 개폐 확인 주기 팝업창 노출된다 2. 확인 주기 시간 설정 값은 하기와 같다 -24시간 / 36시간(Default) / 48시간 / 60시간,REVIEW_QUEUE,변경,human_confirmed
+17.Safety Feature,25.0,안심 메시지 > 폴더 개폐 동작,1. 설정 > 안심기능 > 안심 메시지 선택 2. 폴더 개폐 확인 설정값을 Off로 설정한다,1. 폴더 개폐 확인 주기가 Off로 설정된다 2. 폴더 개폐에 따른 안심메시지 기능동작 안된다.,REVIEW_QUEUE,fixture pre,cue_auto
+17.Safety Feature,36.0,안심 메시지 > 물리 키 동작,1. 설정 > 안심기능 > 안심 메시지 선택 2. 물리키 입력 확인 설정값을 On으로 변경한다,1. 물리키 입력 확인 메뉴 하단에 확인 주기 메뉴 노출된다 2. 확인 주기 시간 설정 값은 하기와 같다 - 36시간(Default)으로 설정된다,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+17.Safety Feature,37.0,안심 메시지 > 물리 키 동작,1. 설정 > 안심기능 > 안심 메시지 선택 2. 물리키 입력 확인 설정값을 On으로 변경한다 3. 확인 주기 영역을 Tap 한다,1. 물리키 입력 체크 주기 팝업창 노출된다 2. 확인 주기 시간 설정 값은 하기와 같다 - 24시간 / 36시간(Default) / 48시간 / 60시간,REVIEW_QUEUE,변경,human_confirmed
+17.Safety Feature,38.0,안심 메시지 > 물리 키 동작,1. 설정 > 안심기능 > 안심 메시지 선택 2. 물리키 입력 확인 설정값을 Off로 설정한다,1. 물리키 입력 체크 주기가 Off로 설정된다 2. 물리키 입력에 따른 안심메시지 기능동작 안된다.,REVIEW_QUEUE,input,cue_auto
+17.Safety Feature,구분,물리키,확인결과,확인자,EXCLUDE,cue 무해,human_confirmed
+2.Touch lock,4.0,Screen Touch lock,홈 화면 아무곳이나 터치,터치 스크린 락 잠겨있어 '#' 버튼 길게 눌러 해제하라는 토스트 팝업 발생한다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+2.Touch lock,9.0,Screen Touch lock,1. Touch lock 'ON' 상태에서 폴더 Close 2. 폴더 Open 후 Touch lock 유지 확인,Touch lock 'ON' 유지된다,EXCLUDE,cue 무해,human_confirmed
+20.Dura speed,1.0,,설정 > Dura Speed > Dura Speed On (Default),Dura Speed On상태(Default) / 각각의 앱들은 Off상태 (Default),KEEP,cue 무해,human_confirmed
+20.Dura speed,5.0,,설정 > Dura Speed > Dura Speed On > 더 보기 > 제한 기록,제한된 앱 리스트 표시됨,KEEP,cue 무해,human_confirmed
+20.Dura speed,7.0,,설정 > Dura Speed > Dura Speed On > 더 보기 > 모두 끄기 > 가장 하단에 있는 앱 4개정도 On > 스크롤 UP/Down,On되어 있는 앱들 유지되어야 함,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+20.Dura speed,8.0,,설정 > Dura Speed > Dura Speed On > 더 보기 > 모두 켜기 > Back > Dura Speed,다시 Dura Speed 진입 했을때 설정값 유지되어야 함,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+20.Dura speed,9.0,,설정 > Dura Speed > Dura Speed On > 더 보기 > 모두 끄기 > Back > Dura Speed,다시 Dura Speed 진입 했을때 설정값 유지되어야 함,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+20.Dura speed,10.0,,설정 > Dura Speed > Dura Speed On > 더 보기 > 모두 켜기 > Dura Speed Off Back > Dura Speed,다시 Dura Speed 진입 했을때 설정값 유지되어야 함,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+20.Dura speed,11.0,,설정 > Dura Speed > Dura Speed On > 더 보기 > 모두 끄기 > Dura Speed Off > Back > Dura Speed,다시 Dura Speed 진입 했을때 설정값 유지되어야 함,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+3.Sub LCD,2.0,Sub LCD (Basic rule),폴더 열기 > 폴더 닫기,폴더를 열고 닫을때마다 Sub LCD는 켜짐,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,3.0,Sub LCD (Basic rule),폴더 닫힘 > 폴더 열기,폴더를 닫고 때마다 Sub LCD는 꺼짐,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,4.0,Sub LCD (Basic rule),폴더 열기 > 폴더 닫기 > 동작안함,동작이 없으면 8초후 Sub LCD가 꺼져야 함,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,29.0,알람 중 Sub LCD,폴더 닫힘 > (라벨 없음) 알람 발생,1. 알람 시간 표시 2. 알람 아이콘 표시 3. 알람 문구 표시 알람을 중지하려면 사용자가 폴더를 열고 중지해야 함,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,33.0,알람 중 Sub LCD,폴더 닫힘 > (라벨 있음) 알람 발생,1. 알람 시간 표시 2. 알람 아이콘 표시 3. 알람라벨 표시 알람을 중지하려면 사용자가 폴더를 열고 중지해야 함,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,34.0,타이머 진행중 Sub LCD,폴더 닫힘 > Sub LCD 확인,1. 타이머 시간 표시 2. 타이머 아이콘 표시 3. 타이머 문구 표시,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,36.0,타이머 진행중 Sub LCD,폴더 닫힘 > Sub LCD 확인,1. 타이머 시간 표시 2. 타이머 아이콘 표시 3. 추가 타이머 문구(라벨) 표시,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,37.0,타이머 진행중 Sub LCD,폴더 닫힘 > 타이머 실행중 > 타이머 종료,현재 시간표시되고 타이머 알람 발생함,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,38.0,라디오 재생중 Sub LCD,폴더 닫힘 > Sub LCD 확인,1. 현재 듣는 라디오 주파수 표시됨 2. 라디오 문구 표시됨 (라디오가 재생되는 동안 사용자가 폴더를 닫을 때마다 이 화면이 표시됨),EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,40.0,라디오 재생중 Sub LCD,폴더 닫힘 > 이어마이크 탈착 > Sub LCD 확인,라디오 멈추고 기본화면(시계화면) 표시됨 (방치시 8초후 Sub LCD off됨),EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,41.0,라디오 재생중 Sub LCD,1. 라디오 앱 실행후 Sleep Timer설정 2. 폴더 닫고 Sub LCD확인,Sub LCD에 Sleep Timer 표시됨,EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,42.0,음악 재생중 Sub LCD,폴더 닫힘 > Sub LCD 확인,1. 노레 제목 표시됨 2. 아티스트 이름 표시됨 (음악이 재생되는 동안 사용자가 폴더를 닫을 때마다 이 화면이 표시됨),EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,43.0,음악 재생중 Sub LCD,폴더 닫힘 > Sub LCD 확인,1. 노레 제목 표시됨(왼쪽으로 흐름) 2. 아티스트 이름 표시됨 (Sub LCD가 켜질 때마다 노래 제목이 표시됨),EXCLUDE,cue 무해,human_confirmed
+3.Sub LCD,44.0,음악 재생중 Sub LCD,폴더 닫힘 > Sub LCD 확인 > 방치,8초후 LCD Off됨,EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,45.0,음악 재생중 Sub LCD,폴더 닫힘 > 이어 마이크 탈착,음악 멈추고 날짜 및 시계 화면 표시됨 (방치시 8초후 Sub LCD Off됨),EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,51.0,배터리 아이콘,1. 폴더 닫힘 > 충전기 장착 2. 폴더 닫힘 > 충전기 장착 > 충전기 탈착 3. 폴더 닫힘 > 충전기 장착 > 충전기 탈착 > 8초 대기,1. 배터리 아이콘 초록색 표시 되고 번개아이콘 표시 2. 배터리아이콘은 휜색으로 표시 되고 번개아이콘이 사라진다. 3. LCD 화면이 OFF 됨,EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,56.0,배터리 아이콘 거치대 충전기,1. 폴더 닫힘 > 거치대 충전기 장착 > LCD 확인,1. 배터리 아이콘 충전 표시 초록색으로 표시 번개아이콘이 표시 2. LCD ON 유지 배터리아이콘 초록색 유지 번개아이콘 유지,EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,57.0,배터리 아이콘 거치대 충전기,1. 폴더 닫힘 > 거치대 충전기 장착 > LCD 확인 1. 폴더 닫힘 > 거치대 충전기 장착 > LCD 확인 > 8초 대기,1. 배터리 아이콘 충전 표시 초록색으로 표시 번개아이콘이 표시 2. LCD ON 유지 배터리아이콘 초록색 유지 번개아이콘 유지,EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,58.0,배터리 아이콘 거치대 충전기,1. 기기 OFF > 폴더 닫힘 > 거치대 충전기 장착 > LCD 확인,1. 배터리아이콘 충전 표시 초록색 유지 번개아이콘 유지 100% 문구도 표시 충전기에 연결되어 있을동안 LCD가 유지.,EXCLUDE_CANDIDATE_UNREVIEWED,시간/전원,cue_auto
+3.Sub LCD,65.0,부팅시 Sub LCD,1. Phone Off > 폴더 닫기 > 전원키로 부팅 2. Phone Off > 폴더 열기 > 전원키로 부팅,1. Main LCD / Sub LCD에서 부팅 애니메이션 표시됨 2. Main LCD / Sub LCD에서 부팅 애니메이션 표시됨,EXCLUDE,cue 무해,human_confirmed
+33.Near Medi,5.0,,니어메디 > 병원찾기 탭 > 더 보기(탭 / OK Key),"표시되는 병원이 11곳 이상일 경우, 상위 10개의 병원 리스트의 하단에 배치",REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,6.0,,니어메디 > 병원찾기 탭 > 더 보기(탭 / OK Key) > 더 보기(탭 / OK Key),1. 리스트 하단으로 검색결과 10개씩 추가 2. 현재 위치 3km반경 내 병원이 10개 이하일 경우 혹은 모든 병원 리스트 표시가 완료된 경우 더 이상 버튼을 표시하지 않음,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,7.0,,니어메디 > 병원찾기 탭(검색 결과가 없을경우),"리스트가 없을 경우 해당 내용을 표시함 """" 검색 결과가 없습니다""",REVIEW_QUEUE,input,cue_auto
+33.Near Medi,8.0,,니어메디 > 약국 찾기 탭,1. 현재 위치 기준으로 가까운 약국들이 10개 단위로 표시 2. 약국명 / 영업시간 / 거리 / 전화번호 / 주소 / 지도버튼 / 전화연결버튼이 표시됨,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,12.0,,1. 니어메디 > 약국 찾기,화면에 '검색 결과가 없습니다.' 표시됨,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,14.0,,1. 니어메디 > 약국 찾기 2. 표시된 약국 지도에 포커싱 후 확인버튼,2. 구글맵으로 연결되며 해당 약국의 이름과 위치가 표시됨,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,15.0,,1. 니어메디 > 약국 찾기 2. 표시된 약국 전화에 포커싱 후 확인버튼,"1. 전화앱이 열리고, 해당 약국의 번호가 다이얼 패드에 자동으로 입력됨 2. 다이얼화면에 약국 전화번호가 표시됨",REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,16.0,,1. 니어메디 > 앱 정보,1. 앱 버전 / 위치기반서비스 이용약관 / 오픈소스 라이선스 / 병원/약국 정보 출처 항목이 표시됨,KEEP,cue 무해,human_confirmed
+33.Near Medi,17.0,,1. 니어메디 > 앱 정보 > 위치기반서비스 이용약관,이용약관이 표시됨,KEEP,cue 무해,human_confirmed
+33.Near Medi,18.0,,1. 니어메디 > 앱 정보 > 오픈소스 라이선스,오프소스 라이선스가 표시됨,KEEP,cue 무해,human_confirmed
+33.Near Medi,20.0,위치정보 사용 고지,1. 니어메디 실행,1. 위치 사용 고지 확인창 팝업 2. 취소 / 확인 버튼 표시,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,30.0,위치 설정 팝업,1. 니어메디 실행 2. 위치 설정 팝업에서 앱 종료 버튼 선택,1. 앱 종료 됨,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,31.0,위치 설정 팝업,1. 니어메디 실행 2. 위치 설정 팝업에서 설정 버튼 선택,1. DUT 세팅의 위치 설정화면으로 전환됨,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,36.0,"위치서비스, 위치정확도 팝업",1. 니어메디 실행 2. 메인 화면에서 병원 찾기 선택 3. 병원 List 화면에서 DUT Location Off 설정 4. 지움 / 취소 선택 5. 병원 / 약국 찾기 선택,"1. 위치서비스,위치정확도가 꺼져 있으면 앱을 사용할 수 없습니다. 2. 취소 / 설정",EXCLUDE,cue 무해,human_confirmed
+33.Near Medi,38.0,"위치서비스, 위치정확도 팝업",1. 니어메디 실행 2. 메인 화면에서 병원 찾기 선택 3. 병원 List 화면에서 DUT Location Off 설정 4. 리스트에서 지도 버튼 선택,1. 구글 지도 화면으로 전환 되어 해당 병원 표시,EXCLUDE,cue 무해,human_confirmed
+33.Near Medi,39.0,"위치서비스, 위치정확도 팝업",1. 니어메디 실행 2. 메인 화면에서 병원 찾기 선택 3. 병원 List 화면에서 DUT Location Off 설정 4. 리스트에서 전화 버튼 선택,1. 해당 병원/약국 번호가 입력된 상태의 다이얼러 화면으로 전환,EXCLUDE,cue 무해,human_confirmed
+33.Near Medi,44.0,인터넷 사용 불가 팝업,1. 니어메디 실행 2. 확인 버튼 선택,1. 니어메디 앱 종료 됨,REVIEW_QUEUE,cue 무해,human_confirmed
+33.Near Medi,47.0,해외에서 접근 시,1. 니어메디 실행,"1. ""니어메디는 국내전용 앱이며, 해외에서 사용 불가능합니다."" 팝업 처리 2. 확인 버튼 표시",EXCLUDE,cue 무해,human_confirmed
+33.Near Medi,48.0,해외에서 접근 시,1. 니어메디 실행 2. 팝업창에서 확인 버튼 선택,1. 앱 종료 후 이전 실행화면 표시됨,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),2.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 ON,1. 알림 시작 시간( 오전 08:00 ) 2. 알림 종료 시간 (오후 08: 00) 3. 알림 요일( 매일 ) 이 default값으로 노출된다.,REVIEW_QUEUE,cue 무해,human_confirmed
+4.Voice notification (TTS),3.0,정각 알림 읽어주기,알람 시작 시간 Tap,"1. 시작 시간 설정 팝업창이 노출되며 ,시간을 설정할 수 있는 박스가 노출된다. 1-1 . 해당 박스는 설정 > 시계 설정 페이지의 박스와 동일하다.",REVIEW_QUEUE,cue 무해,human_confirmed
+4.Voice notification (TTS),4.0,정각 알림 읽어주기,1. 알람 시작 시간 Tap > 키보드 Tap > 임의 시간 입력 > 확인 Tap 2. 알람 시작 시간 Tap > 시계 UI Tap 하여 시간 설정 > 확인,1. 시작 시간 설정 팝업창이 닫히며 알림 시작 시간 하단에 지정한 값이 노출된다.,REVIEW_QUEUE,input,cue_auto
+4.Voice notification (TTS),5.0,정각 알림 읽어주기,알람 종료시간 Tap,"1. 종료 시간 설정 팝업창이 노출되며 ,시간을 설정할 수 있는 박스가 노출된다. 1-1 . 해당 박스는 설정 > 시계 설정 페이지의 박스와 동일하다.",REVIEW_QUEUE,cue 무해,human_confirmed
+4.Voice notification (TTS),6.0,정각 알림 읽어주기,1. 알람 종료 시간 Tap > 키보드 Tap > 임의 시간 입력 > 확인 Tap 2. 알람 종료 시간 Tap > 시계 UI Tap 하여 시간 설정 > 확인,1. 종료 시간 설정 팝업창이 닫히며 알림 종료 시간 하단의 지정한 값이 노출된다.,REVIEW_QUEUE,input,cue_auto
+4.Voice notification (TTS),7.0,정각 알림 읽어주기,알림 요일 Tap,1. 매일 / 주중 / 주말 / 취소/ 확인으로 이뤄져 있다. 2. 매일 / 주중 / 주말을 탭했을때 각각의 버튼 옆의 라디오 버튼이 활성화되어야하며 중복 활성화되지 않아야 한다. 2-1. 매일 값이 default이다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+4.Voice notification (TTS),8.0,정각 알림 읽어주기,1. 알림 요일 Tap 2. 임의 버튼 선택 후 확인 Tap,1. 알림 요일 설정 팝업창이 닫히며 알림 요일 하단에 해당 값이 노출된다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),9.0,정각 알림 읽어주기,1. 알림 요일 Tap 2. 임의 버튼 선택 후 취소 Tap,1. 알림 요일 설정 팝업창이 닫히며 알림 요일 하단에 이전 값이 그대로 남아있어야 한다.,REVIEW_QUEUE,cue 무해,human_confirmed
+4.Voice notification (TTS),10.0,정각 알림 읽어주기 - TTS 동작,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On > 알림 시작 시간 ~ 종료 시간 오전 시간대의 시간 설정 3.오전시간 TTS 음성 문구 확인,"1. 정각이 되었을 때 해당 시각에 대한 알림이 음성으로 노출된다. 2. 알림 시작 시간 ~ 알림 종료 시간까지 동작하며, 설정된 알림 요일 내에서만 음성알림이 노출된다. 3. TTS 오전 시간 음성 알림이 해당 문구와 일치하는지 확인 - 1 AM: [KOR] 오전 1시 입니다. [ENG] It is 1 AM - 2 AM: [KOR] ​오전 2시 입니다. [ENG] It is 2 AM​ - 3 AM: [KOR] ​오전 3시 입니다. [ENG] It is 3 AM​ - 4 AM: [KOR] ​오전 4시 입니다. [ENG] It is 4 AM​ - 5 AM: [KOR] ​오전 5시 입니다. [ENG] It is 5 AM​ - 6 AM: [KOR] ​오전 6시 입니다. [ENG] It is 6 AM​ - 7 AM: [KOR] ​오전 7시 입니다. [ENG] It is 7 AM​ - 8 AM: [KOR] ​오전 8시 입니다. [ENG] It is 8 AM​ - 9 AM: [KOR] ​오전 9시 입니다. [ENG] It is 9 AM​ - 10 AM: [KOR] ​오전 10시 입니다. [ENG] It is 10 AM​ - 11 AM: [KOR] ​오전 11시 입니다. [ENG] It is 11 AM​",EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),11.0,정각 알림 읽어주기 - TTS 동작,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On > 알림 시작 시간 ~ 종료 시간 정오 시간대의 시간 설정 3. 정오 시간 TTS 음성 문구 확인,"1. TTS 정오 정각 음성 알림이 해당 문구와 일치하는지 확인 - 12 PM: [KOR] ​낮 12시, 정오입니다. [ENG] It is 12 PM",EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),12.0,정각 알림 읽어주기 - TTS 동작,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On > 알림 시작 시간 ~ 종료 시간 오후 시간대의 시간 설정 3. 오후 시간 TTS 음성 문구 확인,"1. 정각이 되었을 때 해당 시각에 대한 알림이 음성으로 노출된다. 2. 알림 시작 시간 ~ 알림 종료 시간까지 동작하며, 설정된 알림 요일 내에서만 음성알림이 노출된다. 3. TTS 오전 시간 음성 알림이 해당 문구와 일치하는지 확인 - 1 PM: [KOR] 오후 1시 입니다. [ENG] It is 1 PM - 2 PM: [KOR] 오후 2시 입니다. [ENG] It is 2 PM - 3 PM: [KOR] 오후 3시 입니다. [ENG] It is 3 PM - 4 PM: [KOR] 오후 4시 입니다. [ENG] It is 4 PM - 5 PM: [KOR] 오후 5시 입니다. [ENG] It is 5 PM - 6 PM: [KOR] 오후 6시 입니다. [ENG] It is 6 PM - 7 PM: [KOR] 오후 7시 입니다. [ENG] It is 7 PM - 8 PM: [KOR] 오후 8시 입니다. [ENG] It is 8 PM - 9 PM: [KOR] 오후 9시 입니다. [ENG] It is 9 PM - 10 PM: [KOR] 오후 10시 입니다. [ENG] It is 10 PM - 11 PM: [KOR] 오후 11시 입니다. [ENG] It is 11 PM",EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),13.0,정각 알림 읽어주기 - TTS 동작,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On > 알림 시작 시간 ~ 종료 시간 자정 시간대의 시간 설정 3. 자정 시간 TTS 음성 문구 확인,"1. TTS 자정 정각 음성 알림이 해당 문구와 일치하는지 확인 -12 AM: [KOR] 밤 12시, 자정입니다. [ENG] It is 12 AM",EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),18.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On,음성 알림 동작하지 않는다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),19.0,정각 알림 읽어주기,1. 음성 알림 (TTS) 설정을 ON,음성 알림 동작하지 않고 Talkback 우선 동작됨.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),20.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On 3. 폴더 닫고 대기,폴더 닫힌 상태에서 정각 알림 울릴 경우 Sub LCD On 된다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),21.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap 2. 정각 알림 읽어주기 On 3. 폴더 닫고 대기,해당 시간이 되어도 동작하지 않는다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),22.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오전 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 nn:nn 설정 > 폴더Open 상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),23.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오전 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 nn:nn 설정 > 폴더 Close 상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다. 2. Sub LCD On 된다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),24.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오전 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 nn:nn 설정 > 핸드폰 시간을 알람 시작/종료 시간대가 아닌 시각 으로 변경 > 정각 음성 알림 동작 확인,"1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 시각이 아닐경우, 정각 음성 알림이 동작 하지 않는다.",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+4.Voice notification (TTS),25.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오전 nn: nn 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오후 nn:nn 설정 > 폴더Open 상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),26.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오전 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오후 nn:nn 설정 > 폴더 Close 상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다. 2. Sub LCD On 된다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),27.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오전 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오후 nn:nn 설정 > 핸드폰 시간을 알람 시작/종료 시간대가 아닌 시각 으로 변경 > 정각 음성 알림 동작 확인,"1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 시각이 아닐경우, 정각 음성 알림이 동작 하지 않는다.",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+4.Voice notification (TTS),28.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 nn: nn 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오후 nn:nn 설정 > 폴더Open 상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),29.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 nn: nn 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오후 nn:nn 설정 > 폴더Close상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다. 2. Sub LCD On 된다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),30.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오후 nn:nn 설정 > 핸드폰 시간을 알람 시작/종료 시간대가 아닌 시각 으로 변경 > 정각 음성 알림 동작 확인,"1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 시각이 아닐경우, 정각 음성 알림이 동작 하지 않는다.",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+4.Voice notification (TTS),31.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 nn:nn 설정 > 폴더 Open상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),32.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 nn:nn 설정 > 폴더 Close 상태로 대기,1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 정각 음성 알림이 동작 한다. 2. Sub LCD On 된다.,EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),33.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 nn: nn 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 nn:nn 설정 > 핸드폰 시간을 알람 시작/종료 시간대가 아닌 시각 으로 변경 > 정각 음성 알림 동작 확인,"1. 설정한 알림 시작 시간 ~ 알림 종료 시간대의 시각이 아닐경우, 정각 음성 알림이 동작 하지 않는다.",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+4.Voice notification (TTS),34.0,정각 알림 읽어주기,1. 설정 > 알림 읽어주기 Tap > 알림 시작 시간 Tap > 오후 11: 50 분 설정 > 알람 종료 시간 Tap > 알림 종료 시간 오전 12:1n분 설정 > 정각 음성 알림 동작 확인,"1. TTS 자정 정각 음성 알림을 읽어주는지 확인 -12 AM: [KOR] 밤 12시, 자정입니다. [ENG] It is 12 AM",EXCLUDE,cue 무해,human_confirmed
+4.Voice notification (TTS),81.0,미확인 메시지 존재 시 동작,UX 시나리오 답변 완료 또는 MMI 발행 시 업데이트 예정,,EXCLUDE_CANDIDATE_UNREVIEWED,시스템,cue_auto
+5.Magnifying glasses,24.0,-,1. 돋보기 앱에 진입한다.,1. 돋보기 앱은 2X 확대되어있는 형태로 시작한다. 1-1. 후면 카메라만 지원한다.,KEEP,cue 무해,human_confirmed
+5.Magnifying glasses,25.0,슬라이더패널 및 방향키를 이용한 Zoom In/Out,1. 슬라이더 패널을 탭하여 오른쪽 / 왼쪽으로 이동 2. 오른쪽 / 왼쪽 방향키를 누름,1. 슬라이더 패널을 오른쪽으로 이동시키면 Zoom In (4X) / 왼쪽으로 이동시키면 Zoom Out (2X)된다. 2. 오른쪽 방향키를 누르면 Zoom In (4X)/ 왼쪽 방향키를 누르면 Zoom Out (2X)된다.,EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+5.Magnifying glasses,29.0,Shot Button,가운데 촬영버튼을 누름,현재 배율에 맞는 촬영이 되어야 함. 사진 촬영 후에는 촬영한 사진이 좌측 하단에 미리보기로 보여져야 함 해당 사진은 구글 갤러리 앱에 저장된다.,EXCLUDE_CANDIDATE_UNREVIEWED,캡처; 저장,cue_auto
+5.Magnifying glasses,30.0,Shot Button,촬영 버튼 > 썸네일 확인 > 돋보기 앱 종료 후 다시 실행,앱 내 좌측 하단 썸네일 노출되지 않는다.,EXCLUDE_CANDIDATE_UNREVIEWED,캡처,cue_auto
+5.Magnifying glasses,31.0,FLASH,촬영 버튼의 우측에 있는 플래쉬 버튼을 살펴본다.,"손전등 버튼의 초기상태는 비활성화 되어있어야 하며, 손전등 아이콘에 빗금이 쳐져 있다.",EXCLUDE_CANDIDATE_UNREVIEWED,캡처; 토글,cue_auto
+5.Magnifying glasses,32.0,FLASH,비활성화 되어 있는 플래쉬 버튼을 탭한다.,플래쉬 버튼이 활성화되며 핸드폰 후면에 있는 플래쉬가 동작한다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+5.Magnifying glasses,33.0,FLASH,활성화되어 있는 플래쉬 버튼을 탭한다.,플래쉬 버튼이 비활성화되며 핸드폰 후면에 있는 플래쉬가 꺼진다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+5.Magnifying glasses,34.0,FLASH,손전등 On > 촬영 버튼,최근 찍은 사진의 썸네일이 표시되는지 확인.,EXCLUDE_CANDIDATE_UNREVIEWED,캡처,cue_auto
+5.Magnifying glasses,39.0,Album,좌측 하단 앨범 확인,썸네일 앨범 진입 된다.,REVIEW_QUEUE,cue 무해,human_confirmed
+5.Magnifying glasses,40.0,Album,좌측 하단 앨범 tab,앨범에 사진이 없는 경우 앨범이 비어져 있으며 탭해도 응답이 없어야 함,KEEP,cue 무해,human_confirmed
+5.Magnifying glasses,42.0,Album,"사진 내를 두 손가락을 통해 바깥쪽으로 밀어보거나 , 안쪽으로 당겨본다.","바깥쪽으로 밀 때는 사진이 확대 되어야 하며 , 안쪽으로 당겨볼 때는 사진이 축소되어야 한다.",REVIEW_QUEUE,cue 무해,human_confirmed
+6.Pedometer app,2.0,메인 화면,1. Pedometer app 실행 2. 키 입력영역 Tap,"1. 키 입력 팝업창 노출되며, DEFAULT값 170CM 입력되어있다. 2. 하단 숫자 Keypad 노출된다",REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,3.0,메인 화면,1. Pedometer app 실행 2. 키 Blank cm 입력,"1. 확인 버튼 비활성화되고, 취소 버튼만 활성화된다.",EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+6.Pedometer app,4.0,메인 화면,1. Pedometer app 실행 2. 키 200 cm 입력 후 확인 Tap,1. 키 정보가 200 cm로 설정된다,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,5.0,메인 화면,1. Pedometer app 실행 2. 키 201 cm 입력,"1. ""최대 200cm까지 적용 가능합니다"" 안내문구 노출된다 2. 확인 버튼 비활성화되고 취소 버튼만 활성화된다",REVIEW_QUEUE,토글,human_confirmed
+6.Pedometer app,6.0,메인 화면,1. Pedometer app 실행 2. 몸무게 입력영역 Tap,"1. 몸무게 입력 팝업창 노출되며, Default값 60kg 입력되어있다. 2. 하단 숫자 Keypad 노출된다",REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,7.0,메인 화면,1. Pedometer app 실행 2. 몸무게 Blank kg 입력,1. 확인 버튼이 비활성화되고 취소 버튼만 활성화된다.,EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+6.Pedometer app,8.0,메인 화면,1. Pedometer app 실행 2. 몸무게 200 kg 입력 후 확인 버튼 Tap,1. 몸무게 정보가 200 kg로 설정된다,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,9.0,메인 화면,1. Pedometer app 실행 2. 몸무게 201 kg 입력,"1. ""최대 200 kg까지 적용 가능합니다"" 안내문구 노출된다 2. 확인 버튼 비활성화되고 취소 버튼만 활성화된다",REVIEW_QUEUE,토글,human_confirmed
+6.Pedometer app,10.0,메인 화면,1. Pedometer app 실행 2. 성별 입력영역 Tap,1. 성별 선택 라디오 버튼 팝업창 노출된다(남성(Default)/여성) 2. 취소 버튼 노출된다.,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,11.0,메인 화면,1. Pedometer app 실행 2. 성별 입력영역 Tap 3. 취소 버튼 Tap,1. 팝업창 사라지고 기 입력된 성별값 유지된다,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,12.0,메인 화면,1. Pedometer app 실행 2. 성별 입력영역 Tap 3. 여성 Tap,1. 성별이 여성으로 설정되고 팝업장 사라진다,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,13.0,메인 화면,1. Pedometer app 실행 2. 목표 걸음수 입력영역 Tap,1. 목표 걸음 수 라디오 버튼 팝업 노출된다.(2000보/4000보/6000보/8000보/10000보(Default)/20000보) 2. 취소 버튼 노출된다.,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,14.0,메인 화면,1. Pedometer app 실행 2. 목표 걸음수 입력영역 Tap 3. 취소 버튼 Tap,1. 팝업창 사라지고 기 입력된 목표 걸음 수 유지된다,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,15.0,메인 화면,"1. Pedometer app 실행 2. 목표 걸음수 입력영역 Tap 3. 20,000보 Tap","1. 목표 걸음 수 20,000보 설정되고 팝업창 사라진다",REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,16.0,메인 화면,1. Pedometer app 실행 2. 목표 걸음 수 선택,1. 팝업창 사라지며 기 입력된 목표 걸음 수 유지된다,EXCLUDE,cue 무해,human_confirmed
+6.Pedometer app,19.0,메인 화면,1. Pedometer app 실행,"1. 오늘 걸음수, 목표 걸음수, 소모 칼로리, 이동거리, 원형 그래프, 어제 걸음 수, 내 정보 아이콘 노출된다. 2. 걸음 수에 따라 그래프 및 걸음 수 값 변화한다. 3. 걸음 수에 따른 이동거리 및 소모칼로리 노출 된다",KEEP,이동/복사,human_confirmed
+6.Pedometer app,20.0,내 정보,1. Pedometer app >내 정보 아이콘 Tap,1. 내 정보 화면으로 이동한다. 2. 키/ 몸무게/성별/목표 걸음 수 메뉴 노출된다.,KEEP,이동/복사,human_confirmed
+6.Pedometer app,21.0,내 정보,1. Pedometer app > 내 정보 아이콘 Tap 2. 키 몸무게 값 Tap,"1. 키/몸무게 입력 팝업창 노출되며, 입력 시 값 변경된다.",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+6.Pedometer app,22.0,내 정보,1. Pedometer app > 내 정보 아이콘 Tap > 키 > 키 입력 팝업창 > 입력 칸 Tap 2. 키 150cm 입력 > 팝업 창 버튼 확인 3. 키 200cm 이상 입력 > 팝업 창 버튼 확인,1. 키 입력 텍스트 전용 숫자 키패드 GUI 노출된다. 2. 확인 취소 버튼 활성화 된다. 3. '최대 200cm까지 적용가능 합니다. 문구 표시 되며 확인버튼 비활성화 된다.,REVIEW_QUEUE,토글,human_confirmed
+6.Pedometer app,23.0,내 정보,1. 키 입력 칸 > 입력된 키 지우기 > 텍스트 전용 키패드 확인 버튼 Tap,1. 텍스트 전용 키패드가 사라진다. 2. 키 입력 팝업 창만 표시된다.,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,24.0,내 정보,1. Pedometer app > 내 정보 아이콘 Tap > 몸무게 > 몸무게 입력 팝업창 > 입력 칸 Tap 2. 몸무게 60kg 입력 > 팝업 창 버튼 확인 3. 몸무게 200kg 이상 입력 > 팝업 창 버튼 확인,1. 몸무게 입력 텍스트 전용 숫자 키패드 GUI 노출된다. 2. 확인 취소 버튼 활성화 된다. 3. '최대 200kg까지 적용가능 합니다. 문구 표시 되며 확인버튼 비활성화 된다.,REVIEW_QUEUE,토글,human_confirmed
+6.Pedometer app,25.0,내 정보,1. 몸무게 입력 칸 > 입력된 몸무게 지우기 > 텍스트 전용 키패드 확인 버튼 Tap,1. 텍스트 전용 키패드가 사라진다. 2. 키 입력 팝업 창만 표시된다.,REVIEW_QUEUE,input,cue_auto
+6.Pedometer app,26.0,내 정보,1. Pedometer app > 내 정보 아이콘 Tap 2. 성별 Tap,1. 라디오 버튼 팝업창 노출된다.(남성/여성) 2. 설정한 값에 따라 성별 변경된다.,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+6.Pedometer app,27.0,내 정보,1. Pedometer app > 내 정보 아이콘 Tap 2. 목표 걸음 수Tap,1. 라디오 버튼 팝업창 (2000보 / 4000보 / 6000보 / 8000보 / 10000보(default) / 20000보) 노출된다. 2. 설정한 값에 따라 목표 걸음 수 변경된다.,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+6.Pedometer app,28.0,오늘 걸음 수,1. Pedometer app > 오늘 걸음 수 그래프,1. 그래프 중앙에 오늘 걸음 수 표기된다.,REVIEW_QUEUE,fixture pre,cue_auto
+6.Pedometer app,29.0,오늘 걸음 수,1. Pedometer app > 오늘 걸음 수 그래프,1. 걸음수에 따라 오늘 걸음 수 및 그래프 노출된다. 2. 목표 걸음수 달성 시 오늘 걸음 수 위에 깃발 아이콘 노출된다. 3. 추가 걸음수에 따른 카운트 지속 진행된다,REVIEW_QUEUE,fixture pre,cue_auto
+6.Pedometer app,31.0,이동거리,1. Pedoemeter app > 이동거리,1. 오늘 걸은 거리에 따라 이동거리 표기된다. 2. 걸은 거리에 따라 실시간으로 값 변한다.,EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+6.Pedometer app,33.0,소모 칼로리,1. Pedoemeter app > 소모 칼로리,1. 오늘 걸은 거리에 따라 소모된 칼로리 표기된다. 2. 걸은 거리에 따라 실시간으로 값 변한다.,REVIEW_QUEUE,fixture pre,cue_auto
+6.Pedometer app,35.0,어제 걸음 수,1. Pedometer app 실행 2. 어제 걸음 수 확인,1. 어제 걸음 수 표기된다.,REVIEW_QUEUE,fixture pre,cue_auto
+6.Pedometer app,36.0,어제 걸음 수,1. 00:00 지난 이후 Pedometer App 실행 2. 어제 걸음 수 확인,1. 전일 카운드 된 걸음수가 어제 걸음 수에 노출 된다,REVIEW_QUEUE,fixture pre,cue_auto
+7. Mode Switch app,1.0,기본화면,1. 설정 > 모드 설정,"1. 일반 모드 / 간편모드가 있으며 라디오 버튼이 있다. 2. 간편모드 하단에는 간편모드에 대한 설명문이 있다. 2-1. ""폴더폰을 더 쉽게 사용하실수 있도록 메인 화면 구성을 간단하게 , 글자 크기를 크게 변경합니다.""",EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+7. Mode Switch app,2.0,,1. 홈화면 or 앱서랍 > 모드 전환,"1. 모드 전환 토스트 메세지가 노출된다. 1-1. "" 모드가 설정되었습니다. """,EXCLUDE,cue 무해,human_confirmed
+7. Mode Switch app,3.0,,1. 다시시작 > 모든앱,1. 모든 앱이 표시되야함,EXCLUDE,cue 무해,human_confirmed
+7. Mode Switch app,4.0,,1. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 일반 모드 선택 > 확인 2. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 일반 모드 선택 > 취소,1. 일반 모드 변경됨 2. 간편 모드 유지됨,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+7. Mode Switch app,5.0,,1. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 간편 모드 선택 > 확인 2. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 간편 모드 선택 > 취소,1. 간편 모드 유지됨 2. 간편 모드 유지됨,REVIEW_QUEUE,cue 무해,human_confirmed
+7. Mode Switch app,7.0,,1. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 일반 모드 선택 > 확인 2. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 일반 모드 선택 > 취소,1. 일반 모드 유지됨 2. 일반 모드 유지됨,REVIEW_QUEUE,cue 무해,human_confirmed
+7. Mode Switch app,8.0,,1. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 간편 모드 선택 > 확인 2. 홈화면 or 앱서랍 > 모드 전환 > 팝업에서 간편 모드 선택 > 취소,1. 간편 모드 변경됨 2. 일반 모드 유지됨,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+8. Picture Frame widget,1.0,설정 메뉴,1. 홈화면 > 마지막 페이지로 이동해 포토 슬라이드쇼 화면 확인,사진 추가하기 메뉴가 포토 슬라이드쇼 화면 중앙에 표시됨,EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+8. Picture Frame widget,2.0,팝업,1. 포토 슬라이드쇼 화면의 사각형 프레임 안을 Tap 2. '포토 슬라이드 쇼' 팝업 노출 화면에서 확인 버튼 선택 3. '포토 슬라이드 쇼' 팝업 노출 화면에서 취소 버튼 선택,"1.. '포토 슬라이드 쇼' 팝업이 노출되며 아래의 문구 표시 - [KR] 사진 선택은 최대 10개 까지 가능하며 각각 5초 동안 표시됩니다. - [ENG] You can select up to 10 photos, each displayed for 8 seconds. 2. 사진 선택 화면으로 이동 3. 이전 화면으로 돌아감",KEEP,이동/복사,human_confirmed
+8. Picture Frame widget,3.0,이미지 선택,1. 포토 슬라이드쇼 화면의 사각형 프레임 안을 Tap 2. '포토 슬라이드 쇼' 팝업 노출 화면에서 확인 버튼 선택 3. 이미지 여러 개 선택 후 우측 상단 저장 버튼 Tap,선택한 이미지가 포토 슬라이드쇼 화면에 계속 표시됨,EXCLUDE_CANDIDATE_UNREVIEWED,저장,cue_auto
+8. Picture Frame widget,4.0,이미지 표시 및 Loop,1. 첫 번째 이미지 화면에서 5초간 대기 2. 두 번째 이미지 화면에서 5초간 대기 3. 마지막 이미지 화면에서 5초간 대기,1. 다음 (두 번째) 이미지 화면으로 이동한다. 2. 다음 (세 번째) 이미지 화면으로 이동한다. 3. 첫 번째 이미지 화면으로 이동한다.,EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+8. Picture Frame widget,5.0,이미지 표시 및 Loop,1. 포토 슬라이드 재생 > 버튼을 제외한 다른 이미지를 터치,1. 슬라이드쇼가 중지되며 해당 이미지 화면만 계속 표시됨,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,6.0,이미지 표시 및 Loop,1. 포토 슬라이드 중지 > 버튼을 제외한 다른 이미지를 터치,1. 슬라이드쇼가 재생되며 5초간격으로 사진 페이지가 변경됨,EXCLUDE_CANDIDATE_UNREVIEWED,변경,cue_auto
+8. Picture Frame widget,7.0,화면 편집,1. 우측 상단의 편집 버튼 Tap 2. 이미지를 10개 선택한 후 우측 상단의 저장 버튼 Tap,포토 슬라이드쇼 화면에 선택한 10개의 이미지가 5초 간격으로 순차적으로 표시됨,EXCLUDE_CANDIDATE_UNREVIEWED,저장,cue_auto
+8. Picture Frame widget,8.0,이미지 선택 갯수,1. 우측 상단의 편집 버튼 Tap 2. 이미지 10개 선택한 후 1개 추가 선택,추가 선택한 이미지는 적용이 안되며 아래의 토스트가 출력됨 - [KOR] 사진 선택은 10개까지 가능합니다. - [ENG] You can select up to 10 photos.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,26.0,Picture Frame,Photo selection > 사진 영역에서 손가락으로 ↓ (Flicking)드래그 하기 > 사진 영역 표시 확인,Photo selection > 사진 영역에서 ↓ (Flicking)드래그하여 사진 영역을 내려서 볼 수 있다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,27.0,Picture Frame,Photo selection > 사진 영역에서 손가락으로 ↑ (Flicking)드래그 하기 > 사진 영역 표시 확인,Photo selection > 사진 영역에서 ↑ (Flicking)드래그하여 사진 영역을 올려서 볼 수 있다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,28.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) → 방향 드래그 하여 선택하기,Photo selection > 사진 영역에서 손가락으로(Panning) → 방향 드래그 시 드래그 영역에서 V 표시 체크가 된다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,29.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) ← 방향 드래그 하여 선택하기,Photo selection > 사진 영역에서 손가락으로(Panning) ← 방향 드래그 시 드래그 영역에서 V 표시 체크가 된다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,30.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) ↓ 방향 드래그 하여 선택하기,Photo selection > 사진 영역에서 손가락으로(Panning) ↓ 방향 드래그 시 드래그 영역에서 V 표시 체크가 된다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,31.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) ↑ 방향 드래그 하여 선택하기,Photo selection > 사진 영역에서 손가락으로(Panning) ↑ 방향 드래그 시 드래그 영역에서 V 표시 체크가 된다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,32.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) 대각선 ↓ 방향 드래그 하여 선택하기,Photo selection > 사진 영역에서 손가락으로(Panning) 대각선 ↓ 방향 드래그 시 드래그 영역에서 V 표시 체크가 된다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,33.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) 대각선 ↑ 방향 드래그 하여 선택하기,Photo selection > 사진 영역에서 손가락으로(Panning) 대각선 ↑ 방향 드래그 시 드래그 영역에서 V 표시 체크가 된다.,REVIEW_QUEUE,fixture pre,cue_auto
+8. Picture Frame widget,34.0,Picture Frame,Photo selection > 사진 선택 > 손가락으로(Panning) 대각선 방향으로 드래그 하여 11개 선택 시도,"Photo selection 화면에 선택한 사진이 10개 초과 시 "" 사진 선택은 10개까지 가능합니다. "" 안내 창 나옴",REVIEW_QUEUE,fixture pre,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,1.0,,메시지 > 더 보기 > 차단 및 스팸 관리 > 스팸 신고 안내,1. 스팸 신고 안내 페이지로 정상적으로 이동되는지 확인 2. 스팸 신고 안내 제목 및 설명 문구 정상적으로 노출되는지 확인 3. 스팸 신고 안내 페이지내 확인 버튼 존재 유뮤 및 확인 누를 시 [차단 및 스팸관리] 페이지로 정상적으로 이동되는지 확인,KEEP,이동/복사,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,2.0,,메시지 > 더 보기 > 차단 및 스팸 관리 > 개인정보 수집 동의,1. 개인정보 수집 동의 페이지로 정상적으로 이동되는지 확인 2. 개인 정보 수집 동의 제목 및 설명 문구 정상적으로 노출되는지 확인,KEEP,이동/복사,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,3.0,,메시지 > 더 보기 > 차단 및 스팸 관리 > 개인정보 수집 동의,1. 동의 버튼 누를 시 [차단 및 스팸관리] 페이지로 정상적으로 이동되는지 확인,EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,4.0,,메시지 > 더 보기 > 차단 및 스팸 관리 > 개인정보 수집 동의 철회,1. 동의 철회 버튼 누를 시 [차단 및 스팸관리] 페이지로 정상적으로 이동되는지 확인,EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,8.0,,"메시지 > 우측 상단 더보기 ""차단 및 스팸관리"" > 차단된 메시지 > 스팸신고했던 메시지 롱탭 > 스팸 신고","""이미 신고된 메시지입니다."" 라는토스트 팝업 출력되어야 함",EXCLUDE,cue 무해,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,26.0,,전화 > 최근기록 > 개별 통화 기록 롱탭 > 스팸신고,음성신고는 신고하려는 통화목록에서 매칭되는 첨부파일을 등록할 수 있어야 한다.,EXCLUDE_CANDIDATE_UNREVIEWED,send/call; 등록,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,57.0,,1. DUT A 보내기 > DUT B 받기 > 통화 녹음 > DUT B가 DUT A에 스팸 신고 및 차단 > 차단 해제 및 스팸 다시 신고 > 메시지 앱 진입,"1. 메시지 앱 진입 시 "" 메시지 앱 중지 팝업이 발생"" 문구 발생하며 중지 되지 않아야함",EXCLUDE_CANDIDATE_UNREVIEWED,send/call; 캡처; 토글,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,58.0,,메시지 > 메시지 리스트 터치 > 이전에 신고한 말풍선 롱프레스 > [스팸 신고] 터치,"스팸 신고가 이미된 메시지는 차단 메시지함으로 즉시 이동해야합니다. 스팸신고가 된 메시지는 다시 스팸신고를 할 경우 ""이미 신고된 메시지입니다.""의 토스트 메시지를 출력해야합니다.",EXCLUDE_CANDIDATE_UNREVIEWED,이동/복사,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,61.0,,메시지 > 메시지 리스트 터치 > 말풍선 롱프레스 > [스팸 신고] 터치 > 스팸신고 완료 > 메시지 리스트 화면으로 회귀 > 메시지 리스트에 기존의 차단되었던 메시지 문구가 출력되는지 확인,스팸 신고 후 차단된 메시지 내용이 일반 메시지 리스트에 잔재하지 않아야 합니다.,EXCLUDE,cue 무해,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,62.0,,메시지 > [더보기] > [차단 및 스팸관리] > [차단된 메시지] > 화면 우상단에 [더보기] 버튼이 존재하는지 확인,제플린에 정의된 것과 같이 차단된 메시지 화면 우상단에는 [더보기] 메뉴를 제공해야합니다.,KEEP,cue 무해,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,63.0,,메시지 > [더보기] > [차단 및 스팸관리] > [차단된 메시지] > 차단 메시지 리스트 롱프레스 > 임의의 리스트 선택/해제를 반복 > 크래시가 발생하지 않는지 확인,차단 메시지함에서 다중선택모드로 메시지 선택이 가능해야합니다. (크래시가 발생하지 않아야함),EXCLUDE_CANDIDATE_UNREVIEWED,토글,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,64.0,,메시지 > [더보기] > [차단 및 스팸관리] > [차단된 메시지] > 차단 메시지 리스트 롱프레스 > 화면 우상단에 [더보기] 버튼이 있는지 확인,제플린 정의와 같이 차단 메시지함 > 다중선택 모드에 [더보기] 버튼 존재해야합니다.,REVIEW_QUEUE,cue 무해,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,65.0,,메시지 > [더보기] > [차단 및 스팸관리] > [차단된 메시지] > 차단 메시지 리스트 터치 > 차단 메시지 말풍선이 상단부터 출력되는지 확인,스팸차단 메시지의 말풍선이 스팸 메시지 화면 상단부터 출력되어야 합니다. (제플린 정의),REVIEW_QUEUE,cue 무해,human_confirmed
+스팸 메시지 및 번호 차단 확인 TC,68.0,,메시지 > [더보기] > [차단 및 스팸관리] > [차단된 메시지] > 차단 메시지 리스트 롱프레스 > [휴지통] 아이콘 터치 > 삭제 팝업에서 [삭제] 터치 > 토스트 메시지가 올바른지 확인,"차단된 메시지를 다중 선택 모드에서 삭제할 경우 ""삭제되었습니다."" 토스트 메시지가 출력되어야 합니다.",EXCLUDE_CANDIDATE_UNREVIEWED,삭제,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,76.0,,1. 메시지 > [새 메시지 작성] > 메시지 필드에 최대로 입력(한글/ 영어),1. 한글 입력 시 1024개 문자 입력되는지 확인 2. 영문 입력 시 2048개 문자 입력되는지 확인,REVIEW_QUEUE,input,cue_auto
+스팸 메시지 및 번호 차단 확인 TC,80.0,,1. 메세지 >우 상단에 검색 icon Tap > 차단된 메세지함에 있는 메세지 검색 > 검색 결과 리스트 확인,1. 메세지 검색 시 차단된 메세지함에 존재하는 메세지는 검색 결과에 노출되면 안됨,REVIEW_QUEUE,input,cue_auto

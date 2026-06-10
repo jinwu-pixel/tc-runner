@@ -1,0 +1,67 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# app-domain (Clock/Calculator): Settings menu-tree baseline 비적용 (anchor_state=MISSING).
+# 앱 패키지/activity 미확정 — 발명 금지, launcher 경유 진입 후보 (entry_type=app_launch_unresolved).
+
+tc_id: ALTBASIC_CLK_096
+title: "시계 > 스톱워치 탭 진입 및 화면 구성 확인 (실행 이력 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "96.0"
+preconditions:
+  - { text: "스톱워치 실행 이력이 없는 경우", normalized: "state_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 시계 앱 실행"
+    normalized_intent:
+      type: navigate
+      target: "시계 앱 실행 (launcher)"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "app entry/verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 시계 앱 실행", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 화면 하단 스톱워치 Tap"
+    normalized_intent:
+      type: tap
+      target: "스톱워치"
+      value: null
+    expected:
+      - { type: verify_text, target: "스톱워치", value: null }
+      - { type: verify_text, target: "00:00", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "app entry/verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 화면 하단 스톱워치 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "스톱워치 화면 노출 / 시간 영역 00:00 / Play 버튼 / 회색 비활성 라인"
+expected_texts_candidate:
+  - "스톱워치"
+  - "00:00"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 현재 상태/색상 비단정; 회색 비활성 '색상' sub-assert는 screenshot 검증 필요(텍스트 dump 외) — 보강 axis"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

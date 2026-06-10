@@ -1,0 +1,52 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave2 KEEP (human_confirmed 2026-06-10). app/launcher-domain: Settings menu-tree
+# baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_MSG_361
+title: "설정 경유 메시지 앱 알림 메뉴 — 한글 표시 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "361.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "설정 > 앱 > 기본앱 > 앱 모두 보기 > 메시지 > 알림 > 메뉴 확인"
+    normalized_intent:
+      type: navigate
+      target: "설정 > 앱 > 기본앱 > 앱 모두 보기 > 메시지 > 알림 > 메뉴 확인"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "설정 > 앱 > 기본앱 > 앱 모두 보기 > 메시지 > 알림 > 메뉴 확인", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "메뉴가 한글로 표시됨"
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: tap_navigation_required
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "verifier = 메뉴 항목 한글 라벨 — 단말 확정 후 고정; Settings 도메인 경유(설정>앱>기본앱)"
+  cleanup_candidate: "BACK 반복 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

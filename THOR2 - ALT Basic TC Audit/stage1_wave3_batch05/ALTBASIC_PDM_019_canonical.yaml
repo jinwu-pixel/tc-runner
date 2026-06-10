@@ -1,0 +1,57 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave3 KEEP (human_confirmed 2026-06-10). app-domain: menu-tree baseline 비적용,
+# 패키지/component 미확정 — 발명 0 (launcher 경유 진입 후보).
+tc_id: ALTBASIC_PDM_019
+title: "만보기 메인 화면 구성 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "6.Pedometer app"
+  row: "19.0"
+preconditions:
+  - { text: "만보기 최초 설정(목표 걸음 수) 완료 상태", normalized: "env_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "Pedometer app 실행"
+    normalized_intent:
+      type: navigate
+      target: "Pedometer app 실행"
+      value: null
+    expected:
+      - { type: verify_text, target: "오늘 걸음수", value: null }
+      - { type: verify_text, target: "목표 걸음수", value: null }
+      - { type: verify_text, target: "어제 걸음 수", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Pedometer app 실행", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 오늘 걸음수, 목표 걸음수, 소모 칼로리, 이동거리, 원형 그래프, 어제 걸음 수, 내 정보 아이콘 노출된다. 2. 걸음 수에 따라 그래프 및 걸음 수 값 변화한다. 3. 걸음 수에 따른 이동거리 및 소모칼로리 노출 된다"
+expected_texts_candidate:
+  - "오늘 걸음수"
+  - "목표 걸음수"
+  - "어제 걸음 수"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정; 걸음수/거리 값은 dynamic — presence만; 최초 실행 시 목표 설정 팝업 = 환경 전제(기통과)"
+  cleanup_candidate: "BACK 반복 또는 HOME 복귀; 팝업/픽커는 취소 이탈, 확인/선택/저장 금지"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

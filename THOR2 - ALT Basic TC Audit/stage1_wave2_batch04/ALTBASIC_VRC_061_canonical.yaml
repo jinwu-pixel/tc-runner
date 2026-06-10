@@ -1,0 +1,66 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave2 KEEP (human_confirmed 2026-06-10). app/launcher-domain: Settings menu-tree
+# baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_VRC_061
+title: "녹음 파일 목록 → 뒤로 — 메인 복귀 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "30.Voice Recorder"
+  row: "61.0"
+preconditions:
+  - { text: "녹음된 파일이 있는 상태", normalized: "state_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "Voice Recorder > 화면 우상단의 메뉴 버튼 Tap"
+    normalized_intent:
+      type: navigate
+      target: "Voice Recorder > 화면 우상단의 메뉴 버튼 Tap"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Voice Recorder > 화면 우상단의 메뉴 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "녹음 파일 목록 화면 좌상단의 [<-]을 Tap"
+    normalized_intent:
+      type: tap
+      target: "녹음 파일 목록 화면 좌상단의 [<-]을 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "음성 녹음", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "녹음 파일 목록 화면 좌상단의 [<-]을 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 앱 메인 화면으로 전환된다"
+expected_texts_candidate:
+  - "음성 녹음"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정"
+  cleanup_candidate: "BACK/HOME 종료"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

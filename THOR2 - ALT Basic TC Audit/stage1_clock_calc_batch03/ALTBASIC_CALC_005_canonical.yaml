@@ -1,0 +1,64 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# app-domain (Clock/Calculator): Settings menu-tree baseline 비적용 (anchor_state=MISSING).
+# 앱 패키지/activity 미확정 — 발명 금지, launcher 경유 진입 후보 (entry_type=app_launch_unresolved).
+
+tc_id: ALTBASIC_CALC_005
+title: "계산기 양수 입력 표시 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "5.0"
+preconditions:
+  - { text: "스크린으로 입력", normalized: "input_method_constraint", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 계산기 앱 실행"
+    normalized_intent:
+      type: navigate
+      target: "계산기 앱 실행 (launcher)"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "app entry/verify strings are source paraphrase, not confirmed on-screen literals"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 계산기 앱 실행", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "계산기 > 양수 입력"
+    normalized_intent:
+      type: input_text
+      target: "계산기 키패드"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "구체 입력값 소스 미지정 — STAGE2에서 고정값 채택; 표시부 echo가 verifier"
+    confidence: 0.5
+    source_trace: { raw_segment: "계산기 > 양수 입력", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "양수가 입력이 되어야 한다"
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "INPUT_REQUIRED — 입력 transient('=' 미사용, 계산 기록 미생성), AC로 복구; 입력값 구체 수열은 소스 미지정 → STAGE2 고정 필요"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

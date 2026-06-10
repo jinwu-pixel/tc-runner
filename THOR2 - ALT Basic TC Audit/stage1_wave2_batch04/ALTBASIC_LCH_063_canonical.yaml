@@ -1,0 +1,53 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# wave2 KEEP (human_confirmed 2026-06-10). app/launcher-domain: Settings menu-tree
+# baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_LCH_063
+title: "단축 다이얼 페이지 구성 확인 (추가 영역 6 + 편집 버튼)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "63.0"
+preconditions:
+  - { text: "단축 다이얼 페이지 이동 상태", normalized: "nav_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "단축다이얼 페이지 확인"
+    normalized_intent:
+      type: navigate
+      target: "단축다이얼 페이지 확인"
+      value: null
+    expected:
+      - { type: verify_text, target: "편집", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: "—"
+    confidence: 0.7
+    source_trace: { raw_segment: "단축다이얼 페이지 확인", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 6개의 추가 가능한 아이콘 영역과 우측상단 '편집' 버튼 노출됨"
+expected_texts_candidate:
+  - "편집"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 0
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정; '편집' 진입 금지(등록/삭제 가능 화면)"
+  cleanup_candidate: "HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
