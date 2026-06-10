@@ -1,7 +1,7 @@
 # Settings batch01+02 (32건) → Device Validation Handoff Package — 2026-06-10
 
 **성격**: sidecar 패키지. 기존 pushed YAML 32건 **무수정** — 판정·실측 반영은 본 패키지 레이어에만 기록.
-**소비자**: thor2j-tc-appium 2-run gate (단말 배정 = 해당 트랙 결정). F0 배치 run은 RUNNABLE_NOW 성공률 확인용으로 별도 (tc-runner 측).
+**소비자**: thor2j-tc-appium 2-run gate (단말 배정 = 해당 트랙 결정). F0 배치 run = **thor2j-tc-appium 실행, tc-runner는 결과 회수만** (RUNNABLE_NOW 성공률 확인용 — correction 2026-06-10, 종전 'tc-runner 측' 표기 정정).
 **증거 전이 금지**: thor2j FocusRule(ja-JP, 별개 corpus) 증거는 본 패키지에 전이하지 않음 (`focusrule_evidence_transfer=false` 유지).
 **표기 상한**: `DEVICE_VALIDATION_READY_CANDIDATE`까지만. READY 확정·승격은 소비 트랙의 단말 실측 후.
 

@@ -74,7 +74,7 @@ automation_summary:
   ambiguous_steps: 3
 audit_meta:
   automation_class: SEMI_AUTO_CANDIDATE
-  safety_class: NAVIGATION_ONLY
+  safety_class: SELECTION_GATED  # correction 2026-06-10: '+' 다이얼로그 진입 후 취소 = NAVIGATION_ONLY 초과 (생성 플로우 진입)
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
   verifier_type: verify_text
@@ -82,8 +82,8 @@ audit_meta:
   menu_tree_anchor: none
   matched_screen_id: null
   deepen_anchor_link: none
-  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정"
-  cleanup_candidate: "BACK 복귀"
+  risk_note: "SELECTION_GATED — '+' 추가 다이얼로그 진입 후 취소만 허용(저장/확인 tap 절대 금지). 생성 데이터 0 검증 = 취소 후 '차단된 문구가 없습니다' 재확인 필수 — 미노출 시 데이터 생성 의심, CLEANUP_FAILED 처리"
+  cleanup_candidate: "BACK 복귀 + '차단된 문구가 없습니다' 재확인(생성 데이터 0)"
   carrier_fit: not_applicable
   export_status: STAGE1_DRAFT
   evidence_level: STATIC_ONLY

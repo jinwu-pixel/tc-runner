@@ -7,7 +7,7 @@
 ## 입력 (절대 경로)
 
 - 실행 manifest (20건, run_order 포함): `C:\Users\momen\Projects\tc-runner\THOR2 - ALT Basic TC Audit\handoff_device_validation\VALIDATION_MANIFEST_BATCH1_2026-06-10.csv`
-- TC 상세 (CTF YAML, manifest의 `yaml_abs_path` 컬럼): batch01/03/04 폴더 분산, manifest가 절대 경로 보유
+- TC 상세 (CTF YAML, manifest의 `yaml_path` 컬럼): batch01/02/03/04 폴더 분산. **경로는 tc-runner repo-root 상대** (repo root = `C:\Users\momen\Projects\tc-runner`) — thor2j 측에서 절대 경로로 resolve
 - handoff 계약 (entry/verifier/cleanup/risk/precondition): `HANDOFF_PACKAGE{,_BATCH03,_BATCH04}_2026-06-10.csv` 동일 폴더
 
 ## 단말 제약 (위반 = 즉시 중단)
@@ -16,6 +16,15 @@
 - **B27 `B2700125BW000083` 미접촉** (thor2j 기본 단말이지만 본 batch는 ko ALT corpus → F0)
 - **선결 승인 항목**: F0는 현재 무설치 read-only probe 단말 — Appium uiautomator2 구동은 helper APK 설치를 동반하므로 **단말 호출 승인 시 "F0 Appium 서버 설치 허용"을 명시 확인** 후 진행
 - 단말 호출 자체가 별도 명시 승인 후에만 가능
+
+## Appium helper 패키지 생명주기 계약 (위반 = batch 결과 무효)
+
+1. **사전 snapshot**: helper 설치 전 `pm list packages -f` 전체 목록 저장 (read-only) → `pkg_snapshot_pre.txt`
+2. **설치 허용 한정 3종만**: `io.appium.uiautomator2.server` / `io.appium.uiautomator2.server.test` / `io.appium.settings` — 이외 패키지 설치 = 즉시 중단 + 보고
+3. **사후 uninstall**: batch 종료 시 위 3종 전부 `pm uninstall` → `pm list packages -f` 재수집 → `pkg_snapshot_post.txt`
+4. **package diff 0 계약**: pre/post snapshot diff = **0** 확인 후 batch 종료 보고. diff ≠ 0 = 잔존 패키지 목록 보고 후 정지 (자체 추가 정리 금지 — 사용자 결정)
+5. **중단 시 cleanup**: 사용자 중단/INFRA_FAILURE/예외 종료 포함 어떤 경로로 끝나도 3·4 (uninstall + diff 0) 는 **반드시 수행** — 수행 불가(USB 단선 등) 시 미정리 상태를 명시 보고
+6. snapshot 산출물은 thor2j 측 결과 폴더에 보존 (tc-runner 회수 대상)
 
 ## 실행 계약
 
@@ -49,4 +58,9 @@
 
 ## 선정 요약
 
-DVR_CANDIDATE 75 중 20 선정. 제외: carrier UNCONFIRMED 11 / redaction REQUIRED·CHECK 5 / 외부 pkg 가능(Google leaf) 3 / INPUT_REQUIRED 6 / 기타 분산 조정. Camera 1건(CAM_002)은 최초 실행 권한 팝업 1회 전제 — 사전 수동 동의 후 실행.
+DVR_CANDIDATE 75 중 20 선정. 제외: carrier UNCONFIRMED 11 / redaction REQUIRED·CHECK 5 / 외부 pkg 가능(Google leaf) 3 / INPUT_REQUIRED 6 / SELECTION_GATED 1(MSG_117) / 기타 분산 조정. Camera 1건(CAM_002)은 최초 실행 권한 팝업 1회 전제 — 사전 수동 동의 후 실행.
+
+**Correction 2026-06-10 (commit 후 정정)**:
+- MSG_117 제외 — '+ → 취소' 플로우 = SELECTION_GATED 재분류(NAVIGATION_ONLY 과소 정정), batch1에서 SET_144(알림>대화창, 부모 deeplink F0 CONFIRMED)로 대체
+- CNT_223 scope 축소 — 라이선스/개인정보처리방침/서비스 약관 tap 제거(외부/웹 페이지 전환 가능), 라벨 존재 확인만
+- STB_001 verifier 계약 명시 — status bar 시간(UI dump) ↔ `date`(read-only shell) 분 단위 대조

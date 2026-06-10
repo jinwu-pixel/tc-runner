@@ -2,7 +2,7 @@
 # wave2 KEEP (human_confirmed 2026-06-10). app/launcher-domain: Settings menu-tree
 # baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
 tc_id: ALTBASIC_CNT_223
-title: "연락처 정보 4종 화면 표시 확인 (빌드버전/라이선스/개인정보/약관)"
+title: "연락처 정보 4종 라벨 노출 확인 (빌드버전/라이선스/개인정보/약관) — tap 없음"
 source_type: excel
 source_trace:
   file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
@@ -26,9 +26,10 @@ procedure_steps:
     source_trace: { raw_segment: "연락처 > 메뉴 > 설정 > 연락처 정보 > 빌드버전", source_phase: procedure, position: 1, total_segments: 4 }
   - step_no: 2
     raw_text: "연락처 > 메뉴 > 설정 > 연락처 정보 > 오픈소스 라이선스"
+    # correction 2026-06-10: source는 항목 tap이나 외부/웹 페이지 전환 가능 — 라벨 존재 확인으로 scope 축소 (tap 0)
     normalized_intent:
-      type: tap
-      target: "연락처 > 메뉴 > 설정 > 연락처 정보 > 오픈소스 라이선스"
+      type: verify_text
+      target: "오픈소스 라이선스"
       value: null
     expected:
       []
@@ -39,9 +40,10 @@ procedure_steps:
     source_trace: { raw_segment: "연락처 > 메뉴 > 설정 > 연락처 정보 > 오픈소스 라이선스", source_phase: procedure, position: 2, total_segments: 4 }
   - step_no: 3
     raw_text: "연락처 > 메뉴 > 설정 > 연락처 정보 > 개인정보처리방침"
+    # correction 2026-06-10: scope 축소 — 라벨 존재 확인만 (tap 0)
     normalized_intent:
-      type: tap
-      target: "연락처 > 메뉴 > 설정 > 연락처 정보 > 개인정보처리방침"
+      type: verify_text
+      target: "개인정보처리방침"
       value: null
     expected:
       []
@@ -52,9 +54,10 @@ procedure_steps:
     source_trace: { raw_segment: "연락처 > 메뉴 > 설정 > 연락처 정보 > 개인정보처리방침", source_phase: procedure, position: 3, total_segments: 4 }
   - step_no: 4
     raw_text: "연락처 > 메뉴 > 설정 > 연락처 정보 > 서비스 약관"
+    # correction 2026-06-10: scope 축소 — 라벨 존재 확인만 (tap 0)
     normalized_intent:
-      type: tap
-      target: "연락처 > 메뉴 > 설정 > 연락처 정보 > 서비스 약관"
+      type: verify_text
+      target: "서비스 약관"
       value: null
     expected:
       - { type: verify_text, target: "빌드버전", value: null }
@@ -88,7 +91,7 @@ audit_meta:
   menu_tree_anchor: none
   matched_screen_id: null
   deepen_anchor_link: none
-  risk_note: "control_presence_only — 노출 확인만, 상태/색상 비단정"
+  risk_note: "control_presence_only — 라벨 노출 확인만; 오픈소스 라이선스/개인정보처리방침/서비스 약관 tap 금지(외부/웹 페이지 전환 가능) — scope 축소 (correction 2026-06-10)"
   cleanup_candidate: "BACK 반복 복귀"
   carrier_fit: not_applicable
   export_status: STAGE1_DRAFT
