@@ -1,0 +1,71 @@
+# STAGE1 CTF draft — VRC fixture 재사용 확장 batch07 (2026-06-11, DEFER ledger A-2 사용자 승인). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 하단 메뉴 아이콘 노출 observe 한정 — Edit/Share 실행 0 (Edit 계열은 VRC_074/075 별도 case).
+tc_id: ALTBASIC_VRC_073
+title: "녹음 파일 재생창 — 하단 메뉴 Tap 시 Edit/Share 아이콘 노출 확인 (실행 금지)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "30.Voice Recorder"
+  row: "73.0"
+preconditions:
+  - { text: "fixture: 음성 녹음 파일 ≥1 — VRC_061 실증 사이클로 생성, 검증 후 삭제 (잔존 0)", normalized: "fixture_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Voice Recorder > 녹음 파일 목록 버튼 선택 2. 녹음 파일 목록에서 임의의 목록을 Tap 한다"
+    normalized_intent:
+      type: tap
+      target: "Voice Recorder (launcher) > 녹음 파일 목록 > fixture 파일 Tap — 재생창 노출"
+      value: null
+    expected:
+      - { type: verify_text, target: "재생창 노출 — fixture 파일명 표시", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "재생창 구조/자동 재생 여부 단말 미확정 (transient, mutation 0)"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 녹음 파일 목록에서 임의의 목록을 Tap 한다", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "3. 화면 하단 메뉴 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "재생창 하단 메뉴 버튼 Tap — Edit/Share 아이콘 노출 observe (tap 0) 후 BACK 이탈"
+      value: null
+    expected:
+      - { type: verify_text, target: "Edit + Share 아이콘(또는 라벨) 노출 — 실행 0, BACK 이탈", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "원문 라벨 영문(Edit/Share) — ko 단말 한글 라벨('편집'/'공유') 가능, 1차 관찰로 literal 확정"
+    confidence: 0.4
+    source_trace: { raw_segment: "3. 화면 하단 메뉴 버튼 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "하기 메뉴(아이콘) 노출된다 1. Edit 2. Share"
+expected_texts_candidate:
+  - "Edit"
+  - "Share"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "'Share' tap 절대 금지(외부 공유 시트/외부 pkg 전환) · 'Edit' tap 금지(노출 확인만 — 실행은 VRC_074/075 별도 case); 파일 Tap 자동 재생 가능 transient NOTE"
+  cleanup_candidate: "BACK ×2 — 재생창 닫기 + 목록 복귀; fixture 삭제 사이클로 잔존 0"
+  carrier_fit: not_applicable
+  fixture_dependency: vrc_recording_exists
+  fixture_cycle: "생성(녹음→'정지'→'녹음 저장'→'확인')→검증→삭제→잔존 0 — VRC_061 batch3 단말 실증 사이클 (2026-06-10), 재사용 승인 2026-06-11; '정지' 정확 literal 매칭('일시중지' 부분문자열 오매칭 금지)"
+  redesign_source: REVIEW_QUEUE_wave2_defer_A2
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — 원문 자체가 노출 확인 (Edit/Share 실행 금지 가드 명시 추가)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

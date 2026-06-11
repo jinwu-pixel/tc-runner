@@ -1,0 +1,71 @@
+# STAGE1 CTF draft — VRC fixture 재사용 확장 batch07 (2026-06-11, DEFER ledger A-2 사용자 승인). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 파일명 수정 팝업 노출 observe → 취소 이탈 — 입력 0, 저장 금지.
+tc_id: ALTBASIC_VRC_074
+title: "녹음 파일 메뉴 Edit — 파일명 수정 팝업 노출 확인 (무입력, 취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "30.Voice Recorder"
+  row: "74.0"
+preconditions:
+  - { text: "fixture: 음성 녹음 파일 ≥1 — VRC_061 실증 사이클로 생성, 검증 후 삭제 (잔존 0)", normalized: "fixture_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Voice Recorder > 녹음 파일 목록 버튼 선택 2. 녹음 파일 목록에서 임의의 목록을 Tap 한다 3. 팝업 상단 좌측 파일명 수정 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "Voice Recorder (launcher) > 녹음 파일 목록 > fixture 파일 Tap > 파일명 수정(Edit) 버튼 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "파일명 수정 팝업 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "수정 버튼 위치 원문 불일치(074 '상단 좌측'/075 '하단 좌측') — 단말 관찰로 확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "3. 팝업 상단 좌측 파일명 수정 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 팝업 구성 observe (취소/저장/키패드) → 취소 Tap — 무입력 이탈"
+    normalized_intent:
+      type: tap
+      target: "팝업 구성 observe 후 취소 버튼 Tap — 입력 0"
+      value: null
+    expected:
+      - { type: verify_text, target: "취소 + 저장 버튼 + 하단 Soft-key Pad 노출 → 취소 후 팝업 닫힘 (파일명 무변경)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "키패드 노출 판정(input field focus 시점) 단말 관찰 필요"
+    confidence: 0.4
+    source_trace: { raw_segment: "1. 파일명 수정 팝업창이 노출된다 2. 취소 / 저장 버튼이 노출된다 3. 화면 하단 Soft-key Pad 노출된다", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 파일명 수정 팝업창이 노출된다 2. 취소 / 저장 버튼이 노출된다 3. 화면 하단 Soft-key Pad 노출된다"
+expected_texts_candidate:
+  - "취소"
+  - "저장"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "'저장' tap 절대 금지(파일명 변경 mutation) · 입력 0(팝업 노출 observe 한정); 취소 literal 정확 매칭"
+  cleanup_candidate: "취소 Tap + BACK ×2 — 파일명 전후 일치 확인 (변경 시 중단 보고); fixture 삭제 사이클로 잔존 0"
+  carrier_fit: not_applicable
+  fixture_dependency: vrc_recording_exists
+  fixture_cycle: "생성(녹음→'정지'→'녹음 저장'→'확인')→검증→삭제→잔존 0 — VRC_061 batch3 단말 실증 사이클 (2026-06-10), 재사용 승인 2026-06-11; '정지' 정확 literal 매칭('일시중지' 부분문자열 오매칭 금지)"
+  redesign_source: REVIEW_QUEUE_wave2_defer_A2
+  redesign_pattern: popup_cancel
+  redesign_removed: "없음 — 원문이 노출 확인 (무입력·취소 이탈 가드 명시 추가)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

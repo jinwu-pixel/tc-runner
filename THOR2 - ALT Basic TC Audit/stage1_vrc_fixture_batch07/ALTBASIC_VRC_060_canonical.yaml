@@ -1,0 +1,72 @@
+# STAGE1 CTF draft — VRC fixture 재사용 확장 batch07 (2026-06-11, DEFER ledger A-2 사용자 승인). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 목록 필드/탭 라벨 presence 한정 — 필터 전환 동작·파일명 규칙 질문(비결정) 제거.
+tc_id: ALTBASIC_VRC_060
+title: "녹음 파일 목록 — 파일 행 필드(파일명/생성시각/녹음시간) + 분류 탭 라벨 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "30.Voice Recorder"
+  row: "60.0"
+preconditions:
+  - { text: "fixture: 음성 녹음 파일 ≥1 — VRC_061 실증 사이클로 생성, 검증 후 삭제 (잔존 0)", normalized: "fixture_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Voice Recorder > 녹음 파일 목록 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "Voice Recorder (launcher) > 녹음 파일 목록 버튼 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "목록 화면 — fixture 파일 행 노출 (파일명 + 생성시각 YYYY-MM-DD hh:mm:ss + 녹음시간)", value: null }
+      - { type: verify_text, target: "분류 탭 라벨 노출 — 모든 녹음/음성 녹음/통화 녹음/라디오 녹음", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "탭 라벨 literal·시각/시간 포맷 단말 미확정 — 1차 관찰로 regex 확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Voice Recorder > 녹음 파일 목록 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) BACK — 메인 복귀"
+    normalized_intent:
+      type: navigate
+      target: "BACK — 녹음 파일 목록 이탈"
+      value: null
+    expected:
+      - { type: verify_text, target: "음성 녹음", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: null
+    confidence: 0.7
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 저장된 음성 녹음 파일 목록이 표시된다. 2. 모든 녹음/ 음성녹음(default) / 통화녹음 파일/ 라디오녹음 파일 순으로 목록을 변경할 수 있다 3. 저장된 파일명 규칙은? 4. 파일 생성된 YYYY-MM-DD hh:mm:ss 표시된다 5. 녹음 시간이 표시된다"
+expected_texts_candidate:
+  - "모든 녹음"
+  - "통화 녹음"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "분류 탭 tap 금지(선택 상태 잔존 불확실 — 탭 전환은 VRC_064 roundtrip 계약으로 별도); 생성시각/녹음시간 포맷 판정은 1차 관찰로 regex 확정"
+  cleanup_candidate: "BACK — 메인 복귀 + 앱 종료; fixture 삭제 사이클로 잔존 0"
+  carrier_fit: not_applicable
+  fixture_dependency: vrc_recording_exists
+  fixture_cycle: "생성(녹음→'정지'→'녹음 저장'→'확인')→검증→삭제→잔존 0 — VRC_061 batch3 단말 실증 사이클 (2026-06-10), 재사용 승인 2026-06-11; '정지' 정확 literal 매칭('일시중지' 부분문자열 오매칭 금지)"
+  redesign_source: REVIEW_QUEUE_wave2_defer_A2
+  redesign_pattern: observe_split
+  redesign_removed: "원문 #2 목록 변경 동작(필터 전환) + #3 파일명 규칙 질문(비결정 assert) — 라벨/필드 presence 한정"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

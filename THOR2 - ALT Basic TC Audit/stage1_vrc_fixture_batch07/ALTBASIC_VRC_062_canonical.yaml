@@ -1,0 +1,71 @@
+# STAGE1 CTF draft — VRC fixture 재사용 확장 batch07 (2026-06-11, DEFER ledger A-2 사용자 승인). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 음성 녹음 탭(default) list + 플레이 버튼 presence 한정 — 재생 동작 검증 제거 (원문 NOTE 자동 재생 기획 미확정).
+tc_id: ALTBASIC_VRC_062
+title: "녹음 파일 목록 — 음성 녹음 탭(default) list 노출 + 플레이 버튼 presence 확인 (재생 금지)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "30.Voice Recorder"
+  row: "62.0"
+preconditions:
+  - { text: "fixture: 음성 녹음 파일 ≥1 — VRC_061 실증 사이클로 생성, 검증 후 삭제 (잔존 0)", normalized: "fixture_precondition", blocking: true }
+  - { text: "음성 녹음 탭 = default 선택 상태 (미충족 시 skip — 탭 tap 금지)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Voice Recorder > 녹음 파일 목록 버튼 Tap 2. 음성 녹음 list 선택"
+    normalized_intent:
+      type: tap
+      target: "Voice Recorder (launcher) > 녹음 파일 목록 버튼 Tap — 음성 녹음 탭 default 선택 상태"
+      value: null
+    expected:
+      - { type: verify_text, target: "음성 녹음 탭 선택 상태(default) + fixture 파일 행 노출 + 행 내 플레이 버튼 presence", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "탭 선택 상태 판정(selected 속성)·플레이 버튼 구조 단말 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Voice Recorder > 녹음 파일 목록 버튼 Tap 2. 음성 녹음 list 선택", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) BACK — 메인 복귀 (플레이 미접촉)"
+    normalized_intent:
+      type: navigate
+      target: "BACK — 목록 이탈, 플레이 버튼 미접촉"
+      value: null
+    expected:
+      - { type: verify_text, target: "음성 녹음", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: null
+    confidence: 0.7
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 음성 녹음된 list가 노출 및 플레이 버튼을 누르면 재생됨. (자동 재생이 기획과 동일한지 추후 MMI UPdate되면 확인 필요)"
+expected_texts_candidate:
+  - "음성 녹음"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "플레이 버튼 tap 금지 — 재생 검증은 원문 자체 NOTE(자동 재생 기획 미확정 = 비결정 assert)로 제거; 탭 tap 불요(default 전제, 불일치 시 skip)"
+  cleanup_candidate: "BACK — 메인 복귀 + 앱 종료; fixture 삭제 사이클로 잔존 0"
+  carrier_fit: not_applicable
+  fixture_dependency: vrc_recording_exists
+  fixture_cycle: "생성(녹음→'정지'→'녹음 저장'→'확인')→검증→삭제→잔존 0 — VRC_061 batch3 단말 실증 사이클 (2026-06-10), 재사용 승인 2026-06-11; '정지' 정확 literal 매칭('일시중지' 부분문자열 오매칭 금지)"
+  redesign_source: REVIEW_QUEUE_wave2_defer_A2
+  redesign_pattern: observe_split
+  redesign_removed: "원문 재생 동작 검증(플레이 tap → 재생됨) — 기획 미확정 NOTE로 presence 한정"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

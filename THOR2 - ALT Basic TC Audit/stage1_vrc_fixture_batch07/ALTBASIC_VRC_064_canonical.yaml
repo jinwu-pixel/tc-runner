@@ -1,0 +1,70 @@
+# STAGE1 CTF draft — VRC fixture 재사용 확장 batch07 (2026-06-11, DEFER ledger A-2 사용자 승인). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE (직독). 재설계: 통화 녹음 탭 전환 roundtrip — 파일 노출 비단정 (통화 녹음 파일 fixture 생성 불가, 통화 의존).
+tc_id: ALTBASIC_VRC_064
+title: "녹음 파일 목록 — 통화 녹음 탭 전환 + 복귀 roundtrip (파일 노출 비단정)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "30.Voice Recorder"
+  row: "64.0"
+preconditions:
+  - { text: "fixture: 음성 녹음 파일 ≥1 — VRC_061 실증 사이클로 생성, 검증 후 삭제 (잔존 0)", normalized: "fixture_precondition", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Voice Recorder > 녹음 파일 목록 버튼 Tap 2. 통화 녹음 list 선택"
+    normalized_intent:
+      type: tap
+      target: "Voice Recorder (launcher) > 녹음 파일 목록 > 통화 녹음 탭 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "통화 녹음 탭 선택 상태 전환 — 통화 녹음 파일 부재 시 빈 목록 = 정상 observe (파일 노출 비단정)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "탭 라벨 literal·선택 상태 판정(selected 속성) 단말 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Voice Recorder > 녹음 파일 목록 버튼 Tap 2. 통화 녹음 list 선택", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 음성 녹음 탭 복귀 Tap — roundtrip 원상복귀"
+    normalized_intent:
+      type: tap
+      target: "음성 녹음 탭 Tap — 탭 상태 원상복귀"
+      value: null
+    expected:
+      - { type: verify_text, target: "음성 녹음 탭 선택 상태 복귀 + fixture 파일 행 재노출 (전후 일치)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "탭 전환 잔존 여부(앱 재진입 시 default 복원) 단말 관찰 필요"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 통화 녹음된 list가 노출된다"
+expected_texts_candidate:
+  - "통화 녹음"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "통화 녹음 파일 fixture 생성 불가(통화 의존) — 원문 '통화 녹음된 list 노출'은 파일 존재 비단정으로 축소, 탭 전환 동작 한정; 통화 녹음 파일 실존 시 파일명에 전화번호 포함 가능 — 캡처 redaction 검사"
+  cleanup_candidate: "음성 녹음 탭 복귀 Tap + BACK — 탭 상태 전후 일치 확인; fixture 삭제 사이클로 잔존 0"
+  carrier_fit: not_applicable
+  fixture_dependency: vrc_recording_exists
+  fixture_cycle: "생성(녹음→'정지'→'녹음 저장'→'확인')→검증→삭제→잔존 0 — VRC_061 batch3 단말 실증 사이클 (2026-06-10), 재사용 승인 2026-06-11; '정지' 정확 literal 매칭('일시중지' 부분문자열 오매칭 금지)"
+  redesign_source: REVIEW_QUEUE_wave2_defer_A2
+  redesign_pattern: roundtrip_restore
+  redesign_removed: "원문 '통화 녹음된 list 노출' 단정 — 파일 존재 비단정(빈 목록 = 정상)으로 축소 + 복귀 step 추가"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
