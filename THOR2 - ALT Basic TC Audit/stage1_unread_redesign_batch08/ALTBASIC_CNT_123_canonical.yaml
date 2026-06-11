@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — 미직독 rejudge REDESIGN batch08 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE cue_auto → 2026-06-11 직독 REDESIGN_CANDIDATE. editor-entry — CNT_132 계약 재사용 (사용자 ⓓ 승인 2026-06-11 계층). CNT_124는 near-dup EXCLUDE.
+tc_id: ALTBASIC_CNT_123
+title: "연락처 — '+' Tap 시 새 연락처 만들기 페이지 전환 확인 (저장 0 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "27.Contacts"
+  row: "123.0"
+preconditions:
+  - { text: "사전: 연락처 개수 기록 (전후 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 > 연락처 추가하기 2. 연락처 > 우측 상단 \"+\" 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "연락처 (launcher) > 우측 상단 '+' 버튼 Tap (빈 상태면 '연락처 추가하기' 경로 — 단말 상태 따라 1경로 확정)"
+      value: null
+    expected:
+      - { type: verify_text, target: "새 연락처 만들기 페이지 전환", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "두 진입 경로(추가하기/'+') 중 단말 상태 기반 1경로 확정; '+'=desc '추가' (LIT-013)"
+    confidence: 0.5
+    source_trace: { raw_segment: "연락처 > 우측 상단 \"+\" 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) BACK — 저장 0 이탈"
+    normalized_intent:
+      type: navigate
+      target: "BACK — 입력 0·저장 0 이탈 (이탈 팝업 시 '저장 안 함' 계열)"
+      value: null
+    expected:
+      - { type: verify_text, target: "연락처 목록/메인 복귀 + 연락처 개수 전후 일치", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 팝업 문구 단말 1차 관찰 확정 (CNT_132 관찰 결과 재사용)"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 새 연락처 만들기 페이지로 전환된다."
+expected_texts_candidate:
+  - "새 연락처"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: MEDIUM
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "editor-entry — 저장 tap 절대 금지; 잔존(빈 연락처 생성) 시 중단 보고·임의 삭제 금지 (CNT_132 계약 동일); 캡처 redaction CHECK"
+  cleanup_candidate: "BACK + 연락처 개수 전후 일치 확인 — 증가 시 중단 보고"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_UNREAD_REJUDGE_2026-06-11
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — 페이지 전환 확인 (저장 0 이탈 계약 추가; CNT_124 near-dup 미합성)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

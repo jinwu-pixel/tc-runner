@@ -1,0 +1,67 @@
+# STAGE1 CTF draft — 미직독 rejudge REDESIGN batch08 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE cue_auto → 2026-06-11 직독 REDESIGN_CANDIDATE. 재설계: 초성 검색 결과 노출 observe — 하이라이트(색상) axis 제거 (LCH_222 transient_input 동형).
+tc_id: ALTBASIC_LCH_223
+title: "앱서랍 검색 — 초성 입력 시 매칭 앱 노출 확인 (하이라이트 axis 제외)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "223.0"
+preconditions: []
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈화면 > 앱서랍 > 앱 검색 > 초성검색 (ㄱ or ㄴ or ㄷ...)"
+    normalized_intent:
+      type: input_text
+      target: "홈 (launcher) > 앱서랍 > 앱 검색 필드"
+      value: "ㅅ (초성 1자 — '시계' 등 매칭 보장 초성, 단말 앱 구성 따라 확정)"
+    expected:
+      - { type: verify_text, target: "초성 매칭 앱 결과 노출 (예: 시계 — 단말 1차 관찰로 기준 앱 고정)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "검색 필드 진입 동선·초성 매칭 대상 앱 단말 확정 필요"
+    confidence: 0.5
+    source_trace: { raw_segment: "앱 검색 > 초성검색 (ㄱ or ㄴ or ㄷ...)", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 검색어 clear + BACK ×2 — 잔존 0"
+    normalized_intent:
+      type: navigate
+      target: "검색어 clear (X/삭제) + BACK ×2 — 앱서랍/홈 복귀"
+      value: null
+    expected:
+      - { type: verify_text, target: "검색어 0 + 홈 복귀, 배치 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: null
+    confidence: 0.7
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 초성이 들어간 모든 앱이 검색되어야 한다. 2. 검색한 글자가 앱 이름에 하이라이트 처리가 되야한다."
+expected_texts_candidate:
+  - "시계"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "검색 결과 앱 tap 금지(실행 방지); '모든 앱 검색' 전수 단정 불가 — 기준 앱 1종 매칭 presence로 축소; 하이라이트 = 색상 판정이라 제외(DEFER C 풀)"
+  cleanup_candidate: "검색어 clear + BACK ×2 — 잔존 0, 홈 배치 무변경"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_UNREAD_REJUDGE_2026-06-11
+  redesign_pattern: transient_input
+  redesign_removed: "원문 #2 하이라이트(색상 판정 = screenshot axis) + #1 '모든 앱' 전수 단정 → 기준 앱 1종 presence"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — 미직독 rejudge REDESIGN batch08 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE cue_auto → 2026-06-11 직독 REDESIGN_CANDIDATE. 133 시리즈 변형(2필드) — 134 GREEN 시 일괄 판단 후보.
+tc_id: ALTBASIC_CNT_135
+title: "이름 확장 — 2개 필드 입력 후 닫기(△) 시 미입력 필드 숨김 확인 (저장 0)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "27.Contacts"
+  row: "135.0"
+preconditions:
+  - { text: "사전: 연락처 개수 기록 (전후 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 > 새 연락처 만들기 > 이름 > 확장 버튼(▽) 2. 성 / 중간이름 / 이름 중 2개만 입력 3. 확장 닫기 버튼(△)"
+    normalized_intent:
+      type: input_text
+      target: "새 연락처 > 확장(▽) > 성+중간이름 2필드 입력 후 확장 닫기(△) Tap"
+      value: "테스트 (각 필드 transient — 저장 0)"
+    expected:
+      - { type: verify_text, target: "미입력 필드 숨김 + 이름 입력창 유지(이름 미입력) + 버튼 ▽ 전환", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "숨김/유지 판정 = 필드 노드 dump 비교 — 134와 동일 계약"
+    confidence: 0.4
+    source_trace: { raw_segment: "성 / 중간이름 / 이름 중 2개만 입력 3. 확장 닫기 버튼(△)", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 입력 clear + BACK — 저장 0 이탈"
+    normalized_intent:
+      type: navigate
+      target: "입력 clear + BACK (이탈 팝업 시 '저장 안 함' 계열)"
+      value: null
+    expected:
+      - { type: verify_text, target: "연락처 개수 전후 일치 (잔존 0)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 팝업 문구 1차 관찰 확정"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 입력 안된 입력창은 숨겨진다. 2. 이름이 입력안된 경우 이름 입력창은 사라지지 않는다. 2. 확장 버튼으로 바뀐다(▽)"
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: MEDIUM
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "editor-entry + 입력 — 저장 tap 절대 금지, 잔존 시 중단 보고; 캡처 redaction CHECK; 133 시리즈 변형(2필드) — 단말 세션 우선순위는 134 다음"
+  cleanup_candidate: "입력 clear + BACK — 연락처 개수 전후 일치, 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_UNREAD_REJUDGE_2026-06-11
+  redesign_pattern: transient_input
+  redesign_removed: "없음 — 원문 동작 확인 (저장 0 계약 추가)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

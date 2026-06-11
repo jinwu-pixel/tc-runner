@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — 미직독 rejudge REDESIGN batch08 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE cue_auto → 2026-06-11 직독 REDESIGN_CANDIDATE. byte-limit transient_input — MSG_119(32바이트 차단) 동형, 저장 0.
+tc_id: ALTBASIC_CNT_130
+title: "새 연락처 이름 — 한글/영문 byte 한도까지 입력 수용 확인 (저장 0, 무잔존)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "27.Contacts"
+  row: "130.0"
+preconditions:
+  - { text: "사전: 연락처 개수 기록 (전후 비교용)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 > 새 연락처 만들기 > 이름 > 한글,영어 200byte까지 입력"
+    normalized_intent:
+      type: input_text
+      target: "연락처 (launcher) > 새 연락처 만들기 > 이름 필드"
+      value: "영문 200자 테스트 문자열 (한글 100자 변형은 단말 세션 2차 — 1run 1조합)"
+    expected:
+      - { type: verify_text, target: "이름 필드에 한도(영문 200자)까지 입력 수용 — 필드 내용 길이 판정 (resource-id 한정, PAT-004)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이름 필드 resource-id·한도 동작(절단/차단) 단말 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "이름 > 한글,영어 200byte까지 입력", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) 입력 clear + BACK — 저장 0 이탈"
+    normalized_intent:
+      type: navigate
+      target: "입력 clear + BACK (이탈 팝업 시 '저장 안 함' 계열) — 저장 0"
+      value: null
+    expected:
+      - { type: verify_text, target: "연락처 개수 전후 일치 (잔존 0)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 팝업 문구 1차 관찰 확정"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 한글(100자), 영어(200자), 혼합(100자)까지 입력된다."
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_REQUIRED
+  recovery_likelihood: MEDIUM
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "editor-entry + 입력 — 저장 tap 절대 금지, 잔존 시 중단 보고; 혼합/한글 변형 axis는 1차 GREEN 후 확장 (1 run 1 조합); 캡처 redaction CHECK"
+  cleanup_candidate: "입력 clear + BACK — 연락처 개수 전후 일치, 잔존 0"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_UNREAD_REJUDGE_2026-06-11
+  redesign_pattern: transient_input
+  redesign_removed: "원문 3조합(한글/영문/혼합) 동시 단정 → 영문 1조합 우선 (잔여 조합은 변형 확장 후보)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

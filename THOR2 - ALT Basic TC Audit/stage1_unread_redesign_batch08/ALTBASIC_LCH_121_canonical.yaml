@@ -1,0 +1,68 @@
+# STAGE1 CTF draft — 미직독 rejudge REDESIGN batch08 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE cue_auto → 2026-06-11 직독 REDESIGN_CANDIDATE. 재설계: 편집 진입 → 선택화면 전환 observe — 사진 노출 비단정, 선택 0.
+tc_id: ALTBASIC_LCH_121
+title: "포토 슬라이드 쇼 — 편집 Tap 시 사진 선택화면 전환 확인 (선택 0, 사진 노출 비단정)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "121.0"
+preconditions:
+  - { text: "홈 포토 슬라이드 쇼 페이지 도달 가능 (미충족 시 skip)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈 화면 > 포토 슬라이드 쇼페이지 > 편집"
+    normalized_intent:
+      type: tap
+      target: "홈 (launcher) > 포토 슬라이드 쇼 페이지 > 편집 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "사진 선택화면 전환 — 갤러리 사진 노출은 비단정 (사진 0 = 빈 선택화면도 정상 observe)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "편집 버튼/선택화면 literal 단말 미확정; 최근사진 정렬·최대 10개 axis는 사진 fixture 필요 — 제외"
+    confidence: 0.5
+    source_trace: { raw_segment: "홈 화면 > 포토 슬라이드 쇼페이지 > 편집", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) BACK — 선택 0 이탈"
+    normalized_intent:
+      type: navigate
+      target: "BACK — 사진 선택 0, 슬라이드 쇼 페이지 복귀"
+      value: null
+    expected:
+      - { type: verify_text, target: "포토 슬라이드 쇼 페이지 복귀 — 구성 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 시 확인 팝업 여부 단말 관찰"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 사진 선택화면으로 전환된다 2. 상단부터 가장 최근사진으로 갤러리 사진 노출된다. (사진만 가능, 동영상 노출 안됨) (최대 10개까지 가능, 8초간 노출)"
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "사진 선택 tap 절대 금지(슬라이드 쇼 구성 mutation); 갤러리 사진 노출 시 redaction CHECK(개인 사진 썸네일) — 캡처 검사"
+  cleanup_candidate: "BACK — 선택 0 이탈, 슬라이드 쇼 구성 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_UNREAD_REJUDGE_2026-06-11
+  redesign_pattern: observe_split
+  redesign_removed: "원문 #2 최근사진 정렬/사진만/최대 10개 axis (사진 fixture 의존 — DEFER A 풀과 분리) — 화면 전환 observe 한정"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

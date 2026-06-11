@@ -1,0 +1,67 @@
+# STAGE1 CTF draft — 미직독 rejudge REDESIGN batch08 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 REVIEW_QUEUE cue_auto → 2026-06-11 직독 REDESIGN_CANDIDATE. LCH_085(빈 공간 '+')와 진입 경로 상이 — 앱추가 버튼 경유.
+tc_id: ALTBASIC_LCH_123
+title: "홈 앱추가 버튼 — 앱서랍 진입 + 앱 리스트 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "123.0"
+preconditions: []
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈 화면 > 앱추가 버튼 Tap"
+    normalized_intent:
+      type: tap
+      target: "홈 (launcher) > 앱추가 버튼 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "앱 서랍 진입 + 앱 리스트 노출", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "앱추가 버튼 위치/desc 단말 미확정 ('추가'=desc literal LIT-013 후보)"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈 화면 > 앱추가 버튼 Tap", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "(재설계) BACK — 홈 복귀, 앱 배치 0"
+    normalized_intent:
+      type: navigate
+      target: "BACK — 앱서랍 이탈 (앱 선택/배치 tap 0)"
+      value: null
+    expected:
+      - { type: verify_text, target: "홈 복귀 — 배치 무변경", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: false
+    ambiguity_reason: null
+    confidence: 0.7
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 앱 서랍으로 진입된다 2. 앱 리스트 노출 된다"
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "앱 아이콘 tap 금지(배치 mutation) — 진입/리스트 노출 observe 한정; 앱서랍 도달 판정 = 앱 집합(LIT-007 패턴, 헤더 의존 금지)"
+  cleanup_candidate: "BACK — 홈 복귀, 배치 전후 일치 확인"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_UNREAD_REJUDGE_2026-06-11
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — 원문 자체가 진입/노출 확인 (배치 금지 가드 명시 추가)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
