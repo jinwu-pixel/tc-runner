@@ -1,0 +1,82 @@
+# STAGE1 CTF draft — DEFER B 재판정 redesign batch09 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 26.Message REVIEW_QUEUE → DEFER B(compose-entry). 2026-06-11 직독 재판정 KEEP. picker-transition observe (LCH_121 동형).
+# B-gate 해제 근거: MSG_201 TWO_RUN_GREEN + draft 무생성 (RESULT_RECOVERY_BATCH4_2026-06-11.md).
+tc_id: ALTBASIC_MSG_203
+title: "새 메시지 — '+' > 앨범 Tap 시 사진 선택(탐색) 화면 전환 확인 (선택/첨부 0, 사진 노출 비단정)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "203.0"
+preconditions:
+  - { text: "메시지 앱 진입 가능 (사진 fixture 무관 — picker는 사진 0건도 노출)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "메시지 > 새 메시지 작성 (compose 진입)"
+    normalized_intent:
+      type: navigate
+      target: "메시지 (launcher) > 새 메시지 작성 — compose 입력 화면"
+      value: null
+    expected:
+      - { type: verify_text, target: "메시지 작성/입력 화면 진입 (입력창 노출)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "메시지 패키지/component 미확정 — launcher 경유, 발명 0"
+    confidence: 0.5
+    source_trace: { raw_segment: "새 메시지 작성", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "'+' Tap > 앨범 Tap"
+    normalized_intent:
+      type: tap
+      target: "'+' (첨부/추가 메뉴) > 앨범 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "사진 선택(탐색) 화면 전환 — 갤러리 사진 노출은 비단정 (사진 0 = 빈 picker도 정상 observe)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "'앨범'/picker 화면 literal 단말 미확정; 외부 picker(별도 앱) 전환 가능"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 새 메시지 작성 > \"+\" Tap 2. 앨범 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+  - step_no: 3
+    raw_text: "(재설계) 사진 선택 0 — BACK 이탈"
+    normalized_intent:
+      type: navigate
+      target: "BACK ×N — picker 닫고 compose 복귀 후 이탈, 사진 선택/첨부 0"
+      value: null
+    expected:
+      - { type: verify_text, target: "대화 list 전후 일치 + draft('임시') 마커 부재", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "외부 picker 복귀 경로·draft 거동 단말 미관찰 — 발생 시 중단 보고"
+    confidence: 0.4
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 저장된 사진 파일 탐색 화면으로 전환된다. 2. 첨부할 사진 선택 시 메시지 입력창에 사진 첨부된다."
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "[NAVIGATION_ONLY] 사진 선택/첨부 tap 절대 금지(첨부 mutation·draft 오염); 외부 picker(별도 앱) 전환 가능 — BACK 복귀 확인; 사진 0건이어도 picker 노출=정상(데이터 비종속); BACK 이탈 draft 무생성(B-gate MSG_201). 캡처 정책(LOCK): 갤러리 사진 썸네일 노출 가능 + 현 redaction gate는 PNG 마스킹 불가 → 스크린샷 local-only(커밋 금지) · 커밋 후보 = redacted XML/JSON/요약만 · 사진 접근 권한 팝업 발생 시 '허용' 누르지 말고 DEVICE_FIT_SKIP"
+  cleanup_candidate: "BACK ×N 이탈 — 사진 선택 0, compose 복귀 후 이탈, 대화 list 전후 일치 + draft 마커 부재 확인"
+  carrier_fit: not_applicable
+  redesign_source: DEFER_B_REJUDGE_2026-06-11
+  redesign_pattern: observe_split
+  redesign_removed: "원문 #2 '사진 선택 시 메시지 첨부' (사진 fixture + 첨부 mutation) — 선택화면 전환 observe 한정 (LCH_121 동형). 첨부 최대 크기/스크롤/복수 선택 axis는 사진 fixture 의존으로 207/297/298/372/455와 함께 EXCLUDE"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

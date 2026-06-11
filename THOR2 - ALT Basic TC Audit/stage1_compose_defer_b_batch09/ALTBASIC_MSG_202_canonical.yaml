@@ -1,0 +1,82 @@
+# STAGE1 CTF draft — DEFER B 재판정 redesign batch09 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 26.Message REVIEW_QUEUE cue_auto(input) → DEFER B(compose-entry). 2026-06-11 직독 재판정 KEEP.
+# B-gate 해제 근거: MSG_201 TWO_RUN_GREEN + draft 무생성 (RESULT_RECOVERY_BATCH4_2026-06-11.md).
+tc_id: ALTBASIC_MSG_202
+title: "새 메시지 — '+' > 제목 Tap 시 제목 입력창 생성 확인 (제목 입력 0)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "202.0"
+preconditions:
+  - { text: "메시지 앱 진입 가능 (대화 이력 무관)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "메시지 > 새 메시지 작성 (compose 진입)"
+    normalized_intent:
+      type: navigate
+      target: "메시지 (launcher) > 새 메시지 작성 — compose 입력 화면"
+      value: null
+    expected:
+      - { type: verify_text, target: "메시지 작성/입력 화면 진입 (입력창 노출)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "메시지 패키지/component 미확정 — launcher 경유, 발명 0"
+    confidence: 0.5
+    source_trace: { raw_segment: "새 메시지 작성", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "'+' Tap > 제목 Tap"
+    normalized_intent:
+      type: tap
+      target: "'+' (첨부/추가 메뉴) > 제목 Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "제목 추가 입력창 생성/노출 (입력 0)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "'+'(첨부/추가)·'제목' literal 단말 미확정 — 발송 아이콘과 구분(정확 literal), resource-id 한정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 새 메시지 작성 > \"+\" Tap 2. 제목 Tap", source_phase: procedure, position: 2, total_segments: 2 }
+  - step_no: 3
+    raw_text: "(재설계) 제목 입력 0 — BACK 이탈"
+    normalized_intent:
+      type: navigate
+      target: "BACK ×N — compose 이탈, 제목/본문 입력 0"
+      value: null
+    expected:
+      - { type: verify_text, target: "대화 list 전후 일치 + draft('임시') 마커 부재", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "이탈 시 draft 저장 팝업 거동 단말 미관찰 — 발생 시 중단 보고"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "1. 제목 추가 입력창이 생성된다."
+expected_texts_candidate:
+  - "제목"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "[NAVIGATION_ONLY] compose-entry — 제목/본문 텍스트 입력·저장·발송 tap 0; '+' = 첨부/추가 메뉴(발송 아이콘과 정확 literal 구분); '제목' 2자 literal 부분문자열 위양성 주의(resource-id/필드 한정); BACK 이탈 draft 무생성(B-gate MSG_201)"
+  cleanup_candidate: "BACK ×N 이탈 — 제목 입력 0, 대화 list 전후 일치 + draft('임시') 마커 부재 확인"
+  carrier_fit: not_applicable
+  redesign_source: DEFER_B_REJUDGE_2026-06-11
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — 원문이 입력창 '생성' 노출 단정. 제목 텍스트 입력 axis 미포함 (가드 명시: 제목 입력 0). 길이 한도/carrier axis는 MSG_393(REVIEW)로 분리"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

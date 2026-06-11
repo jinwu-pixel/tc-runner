@@ -1,0 +1,82 @@
+# STAGE1 CTF draft — DEFER B 재판정 redesign batch09 (2026-06-11). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: wave2 26.Message REVIEW_QUEUE → DEFER B(compose-entry). 2026-06-11 직독 재판정 KEEP. 더보기 메뉴 observe.
+# B-gate 해제 근거: MSG_201 TWO_RUN_GREEN + draft 무생성 (RESULT_RECOVERY_BATCH4_2026-06-11.md).
+tc_id: ALTBASIC_MSG_296
+title: "메시지 — 메인/새 메시지 더 보기 메뉴 중복 없이 표시 확인 (메뉴 항목 실행 0)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "26.Message"
+  row: "296.0"
+preconditions:
+  - { text: "메시지 앱 진입 가능 (대화 이력 무관)", normalized: "state_precondition", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "메시지 > 더 보기"
+    normalized_intent:
+      type: tap
+      target: "메시지 메인 > 더 보기 (overflow) Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "메인 더 보기 메뉴 항목 노출 (항목 집합)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "'더 보기'/메뉴 항목 literal 단말 미확정 — 라벨/resource-id 한정 판독"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 메시지 > 더 보기", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "메시지 > 새 메시지 > 더 보기"
+    normalized_intent:
+      type: tap
+      target: "새 메시지(compose) 진입 > 더 보기 (overflow) Tap"
+      value: null
+    expected:
+      - { type: verify_text, target: "compose 더 보기 메뉴 항목 노출 — 항목 집합 distinct(중복 없음)", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "'중복 없음' 판정 = 메뉴 항목 집합 distinct 비교 — 항목 literal 단말 판독 후 확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 메시지 > 새 메시지 > 더 보기", source_phase: procedure, position: 2, total_segments: 2 }
+  - step_no: 3
+    raw_text: "(재설계) 메뉴 항목 실행 0 — BACK 이탈"
+    normalized_intent:
+      type: navigate
+      target: "BACK ×N — 메뉴 닫고 compose/메인 이탈, 항목 선택 0"
+      value: null
+    expected:
+      - { type: verify_text, target: "대화 list 전후 일치 + draft('임시') 마커 부재", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "compose 더보기 후 이탈 draft 거동 단말 미관찰 — 발생 시 중단 보고"
+    confidence: 0.5
+    source_trace: { raw_segment: "(재설계 추가)", source_phase: expected, position: 2, total_segments: 2 }
+expected_result_raw: "메뉴가 중복되지 않고 표시됨"
+expected_texts_candidate:
+  - "—"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "[NAVIGATION_ONLY] 더 보기 메뉴 항목 실행 tap 절대 금지(설정 진입/mutation 방지) — 항목 노출 observe 한정; '중복 없음' = 메뉴 항목 집합 distinct 판정(라벨/resource-id 한정, 전역 substring 금지); compose 더보기 후 BACK 이탈 draft 무생성(B-gate MSG_201)"
+  cleanup_candidate: "BACK ×N 이탈 — 메뉴 닫고 항목 선택 0, 대화 list 전후 일치 + draft 마커 부재 확인"
+  carrier_fit: not_applicable
+  redesign_source: DEFER_B_REJUDGE_2026-06-11
+  redesign_pattern: observe_split
+  redesign_removed: "없음 — 원문이 메뉴 표시/중복 없음 observe. 메뉴 항목 실행 tap axis 미포함 (가드 명시: 항목 실행 0)"
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false

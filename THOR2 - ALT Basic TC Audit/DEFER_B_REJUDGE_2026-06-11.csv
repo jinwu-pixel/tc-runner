@@ -1,0 +1,18 @@
+tc_id,sheet,source_row,functionality,verdict,redesign_pattern,reason,manifest_included
+ALTBASIC_MSG_191,26.Message,191.0,새 메시지 작성,KEEP,popup_cancel,빠른 답장 팝업/목록 컨테이너 노출 observe — 문구 삽입(transient input) axis 제거 + 문구 내용/개수 비단정(시스템 기본 여부 미실증),YES
+ALTBASIC_MSG_202,26.Message,202.0,새 메시지 작성,KEEP,observe_split,'+'>제목 입력창 생성 노출 observe — 제목 입력 0; 길이/carrier axis는 393으로 분리,YES
+ALTBASIC_MSG_203,26.Message,203.0,새 메시지 작성,KEEP,observe_split,'+'>앨범 picker 화면 전환 observe — 사진 첨부 axis 제거(LCH_121 동형); 사진 0건도 picker 노출=데이터 비종속,YES
+ALTBASIC_MSG_205,26.Message,205.0,새 메시지 작성,KEEP,observe_split,'+'>동영상 picker 화면 전환 observe — 첨부 axis 제거(MSG_203 동형),YES
+ALTBASIC_MSG_210,26.Message,210.0,새 메시지 작성,KEEP,observe_split,'+'>오디오 벨소리/오디오 선택 메뉴 노출 observe — 첨부 axis 제거; 오디오 파일 picker 미진입,YES
+ALTBASIC_MSG_296,26.Message,296.0,메시지 메뉴 확인,KEEP,observe_split,메인/compose 더보기 메뉴 중복 없음 observe — 항목 실행 0; mutation/fixture 0,YES
+ALTBASIC_MSG_218,26.Message,218.0,새 메시지 작성,REVIEW,—,"핵심 axis=MMS 전환 toast verifier 미실증(DEFER C); 글자수 counter observe만 남으면 가치 박약 — toast verifier 실증 후 재판정",NO
+ALTBASIC_MSG_266,26.Message,266.0,잘라내기된 메시지 미리보기,REVIEW,—,"클립보드 cut/paste = 시스템 클립보드 잔류(외부효과) + 키패드 위 클립보드 칩 verifier 미실증 — 관찰 전용 비순수",NO
+ALTBASIC_MSG_326,26.Message,326.0,MMS 변환 알림,REVIEW,—,MMS 변환 알림 verifier(toast/banner) 미실증 — MSG_218과 동축; verifier 실증 후 dedup 합성,NO
+ALTBASIC_MSG_393,26.Message,393.0,(제목 입력),REVIEW,—,제목 입력창=MSG_202 중복 + carrier별 max 길이(SKT/LGU+20·KT14) carrier axis — carrier pool 연계 후 판정,NO
+ALTBASIC_SPM_076,스팸 메시지 및 번호 차단 확인 TC,76.0,(대량 입력),REVIEW,—,"MSG_325 중복(시트 상이); 길이 검증=dump 판정 가능하나 canonical 1개만 합성 — dedup 결정 후",NO
+ALTBASIC_MSG_207,26.Message,207.0,새 메시지 작성,EXCLUDE,—,'+'>연락처 1개 첨부 — 연락처 fixture 이중 게이트(A-3 연락처 fixture 종속); 사용자 제외 지시(연락처),NO
+ALTBASIC_MSG_208,26.Message,208.0,새 메시지 작성,EXCLUDE,—,'+'>연락처 2개+ 첨부 — 연락처 fixture 이중 게이트,NO
+ALTBASIC_MSG_297,26.Message,297.0,메시지 첨부 최대 크기,EXCLUDE,—,첨부 최대 크기 — >1MB 사진 fixture 이중 게이트 + 용량초과 toast; 사용자 제외 지시(사진),NO
+ALTBASIC_MSG_298,26.Message,298.0,첨부 이미지 스크롤,EXCLUDE,—,사진 3장 첨부 상태 스크롤 — 사진 fixture 이중 게이트(첨부 mutation),NO
+ALTBASIC_MSG_372,26.Message,372.0,이미지 파일 리사이징,EXCLUDE,—,이미지 3장 크기별 리사이징 — 사진 fixture 이중 게이트(특정 크기 의존),NO
+ALTBASIC_MSG_455,26.Message,455.0,첨부 시 파일 복수 선택,EXCLUDE,—,사진 복수 선택 — 사진 fixture 이중 게이트(multi-select=사진 의존); picker-open observe는 MSG_203 중복,NO
