@@ -12,7 +12,7 @@
 | automation_usage | STAGE2/verifier/runner 적용 지점 |
 | evidence_tc / evidence_ref | 근거 TC·회수 문서 (`—` = 문서 총괄 기재, tc 미특정) |
 | device_profile | 관측 단말 (serial·모델·locale·SIM) |
-| build_id | 관측 시점 빌드 문자열 — 현재 전 row `UNRECORDED_AT_OBSERVATION` (Day1 채록 누락) |
+| build_id | 관측 시점 빌드 문자열 — 기존 40 row `UNRECORDED_AT_OBSERVATION` (Day1 채록 누락, 매핑은 아래 채록 절 참조) |
 | observed_at | 관측 일자 |
 
 **스코프 원칙**: 본 카탈로그의 모든 entry — 특히 `device_fit`(기능 부재) — 는 **보편 사실이 아니라 해당 device_profile × build_id 관측값**이다. 빌드 변경 시 FIT/STR 항목은 재검 대상이며, 타 단말 적용 시 evidence 전이 금지.
@@ -24,11 +24,21 @@
 - 검증 세션(RESULT_RECOVERY) 종료마다 수확분 추가가 표준 사이클
 - F0 빌드 문자열 미기록 상태 — **batch4에서 `getprop ro.build.display.id` 채록 후 본 노트 + 신규 row의 build_id에 기재** (기존 row의 UNRECORDED는 append-only 원칙상 유지, 본 노트가 매핑 보관)
 
-## 현재 수확 (2026-06-10 3-batch)
+## F0 빌드 채록 (2026-06-11 batch4, manual evidence observed)
 
-literal 26 / verify_pattern 5 / structure 4 / device_fit 5 = **40 entries**
+- `ro.build.display.id` = `UP1A.231005.007 release-keys` / `ro.build.version.incremental` = **`RY07260600S`** / model AT-M140 (getprop 실측)
+- **매핑 (추론, 확정 아님)**: 기존 40 row의 `UNRECORDED_AT_OBSERVATION`은 **본 빌드 `RY07260600S`일 개연성이 높음** — 근거 = 관측일 2026-06-10~11 사이 F0 flash 이력 없음 (2026-06-11 flash 작업은 타 단말)이라는 **no-flash 기록에 따른 추론**. 채록 시점 build_id가 실제 기록되지 않았으므로 단정 불가. **CSV의 `UNRECORDED_AT_OBSERVATION`은 그대로 유지** (추론값으로 덮어쓰지 않음 — append-only + 무기록 사실 보존).
+- batch4 이후 신규 row만 build_id에 `RY07260600S` 직접 기재 (실측 채록)
 
-## STAGE2 반영 제안 (승인 게이트 — tc_prompts 편집은 §2.1 사용자 승인 필요, 본 노트는 제안만)
+## 현재 수확 (2026-06-10 3-batch + 2026-06-11 batch4)
+
+- 2026-06-10 batch1~3: literal 26 / verify_pattern 5 / structure 4 / device_fit 5 = 40
+- 2026-06-11 batch4: literal 8 (LIT-027~034) / structure 4 (STR-005~008) / device_fit 5 (FIT-006~010) = 17 — build_id `RY07260600S` 직접 기재
+- 누적 **57 entries**
+
+## STAGE2 반영 제안 → ✅ 별도 무단말 TDD 트랙 승인 (사용자 2026-06-11)
+
+**결정**: 아래 5건은 **별도 무단말 TDD 트랙**으로 진행 (STAGE2_COMPILE 규칙 추가 = 정의→코드→테스트 동기, §2.3 source-of-truth). 단말 불필요 — golden_tc_set 회귀 기반. tc_prompts 편집은 §2.1 승인 게이트 이미 충족 (본 결정). 착수 시점은 별도 (batch4 commit 마감 후).
 
 | # | 제안 | 근거 entry |
 |---|---|---|
