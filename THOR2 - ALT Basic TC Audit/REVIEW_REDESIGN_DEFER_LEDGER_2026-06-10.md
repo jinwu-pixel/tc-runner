@@ -2,7 +2,9 @@
 
 REVIEW_QUEUE 296 중 batch06 합성 57 제외 잔여의 분류. **본 ledger의 각 카테고리 = 트랙 D 게이트 해제 항목** — 사용자 결정/승인 후 후속 batch 모집단이 된다.
 
-직독 완료 199 / 296. 미직독 97 (wave2 cue-input 30 + cue-fixture 22 + wave3 토글류 20 + wave3 fixture pre 25) — cue 기준 분류만 적용된 상태, 후속 직독 대상.
+~~직독 완료 199 / 296. 미직독 97~~ → **직독 296/296 완료 (2026-06-11)**: 잔여 미직독 실측 **102** (ledger 97은 추정치 — 정정) 전수 직독 = `REVIEW_UNREAD_REJUDGE_2026-06-11.csv`.
+
+**모집단 산식 (2026-06-11 실측 lock)**: REVIEW_QUEUE 고유 모집단 **296** = wave1 39 + wave2 145 + wave3 112 — (sheet,row) 고유 키 296/296, 중복 0. 분할 = **CSV `human_confirmed` 194 (Day2) + `cue_auto` 102 (2026-06-11 rejudge) = 296** (교집합 0). 종전 "직독 199" 보고치는 CSV 표기 194 대비 **5 과대 — 보고-표기 불일치로 정정** (199+102=301 산술 충돌의 원인). rejudge 102 내 stale 24(batch06 기합성 8 + 본 ledger 기분류 16)는 모집단 중복이 아니라 Day2 산출물과의 내용 중복임. 구성: 신규 판정 78 (REDESIGN_CANDIDATE 12 / DEFER A 19·B 4·C 22·D 7·E 6 / EXCLUDE_CONFIRMED 8) + stale 24 (batch06 기합성 8 + 본 ledger 기분류 16 — wave2/3 CSV `judge_method=cue_auto` 표기가 Day2 처리 후 미갱신). 신규 DEFER 분은 해당 카테고리 모집단에 합산 (A: STB_006·MSG 209/222/367·CNT 154/157/158/172~181·LCH_119·PFW 5/26/27 / B: MSG 202/326/393·SPM_076 / C: 폴더 drag-merge·음파그래프·toast·하이라이트·panning 등 22 / D: STB 8/9/10/32·LSC 46/48·SFT_025 / E: BSC 82/84/85/87/89/90).
 
 ## A. fixture 승인 대기 (사용자 결정)
 

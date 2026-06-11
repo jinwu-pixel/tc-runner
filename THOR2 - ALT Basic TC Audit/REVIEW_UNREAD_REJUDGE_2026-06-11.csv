@@ -1,0 +1,103 @@
+﻿wave,sheet,source_row,functionality,rejudge_2026_06_11,reason,judge_method
+wave2,24.Launcher,84.0,홈화면,DEFER_C_UNPROVEN,hardkey 별키 long-press primitive 미실증 — keyevent longpress 단말 실증 후,human_confirmed_2026-06-11
+wave2,24.Launcher,119.0,포토 슬라이드 쇼,DEFER_A_FIXTURE,갤러리 사진 11+ fixture + toast 미실증 + '다시 보지 않기' 체크=persist mutation 주의,human_confirmed_2026-06-11
+wave2,24.Launcher,121.0,포토 슬라이드 쇼,REDESIGN_CANDIDATE,"편집 진입→사진 선택화면 전환 observe (사진 노출 비단정, 선택 0, BACK 이탈)",human_confirmed_2026-06-11
+wave2,24.Launcher,123.0,앱서랍,REDESIGN_CANDIDATE,앱추가 버튼→앱서랍 진입+리스트 observe (LCH_085 인접 — 진입 경로 상이),human_confirmed_2026-06-11
+wave2,24.Launcher,210.0,앱 / 폴더,DEFER_C_UNPROVEN,drag-merge 폴더 생성 primitive 미실증 + 알림 뱃지 fixture — 홈 구성 mutation 동반,human_confirmed_2026-06-11
+wave2,24.Launcher,213.0,앱 / 폴더,DEFER_C_UNPROVEN,폴더 생성 mutation 동반 (drag-merge) + 폴더명 입력 — 원상복귀 계약 미설계,human_confirmed_2026-06-11
+wave2,24.Launcher,214.0,앱 / 폴더,DEFER_C_UNPROVEN,폴더 생성 mutation 동반 + toast 미실증,human_confirmed_2026-06-11
+wave2,24.Launcher,223.0,홈화면,REDESIGN_CANDIDATE,"앱서랍 초성 검색 transient_input (LCH_222 동형) — 하이라이트 axis 제거, 결과 노출 observe 한정",human_confirmed_2026-06-11
+wave2,13.Status bar,6.0,,DEFER_A_FIXTURE,알람 존재 fixture(알람 fixture 승인 연계) + status bar 아이콘=screenshot axis (STR-001),human_confirmed_2026-06-11
+wave2,13.Status bar,8.0,,DEFER_D_SYSTEM,사운드 모드 변경 pre = 상태 조작 + screenshot axis,human_confirmed_2026-06-11
+wave2,13.Status bar,9.0,,DEFER_D_SYSTEM,진동 모드 변경 pre = 상태 조작 + screenshot axis,human_confirmed_2026-06-11
+wave2,13.Status bar,10.0,,DEFER_D_SYSTEM,무음 모드 변경 pre = 상태 조작 + screenshot axis,human_confirmed_2026-06-11
+wave2,13.Status bar,32.0,,DEFER_D_SYSTEM,Touch Screen Lock 설정 조작 + screenshot axis,human_confirmed_2026-06-11
+wave2,30.Voice Recorder,50.0,녹음 파일 편집 - 편집 구간 선택,DEFER_C_UNPROVEN,음파 그래프 편집 구간 조정 = 시각(screenshot) 판정 + drag 조정 primitive 미실증,human_confirmed_2026-06-11
+wave2,30.Voice Recorder,51.0,녹음 파일 편집 - 편집 구간 선택,DEFER_C_UNPROVEN,그래프 간격 시각 판정 (그리드 2칸) — screenshot axis,human_confirmed_2026-06-11
+wave2,26.Message,202.0,새 메시지 작성,DEFER_B_COMPOSE,compose-entry 연쇄 — MSG_201 게이트 후 (B 목록 추가 후보: 제목 입력창 생성 observe),human_confirmed_2026-06-11
+wave2,26.Message,209.0,새 메시지 작성,DEFER_A_FIXTURE,연락처 50 대량 fixture 비현실 + toast — 보류 권장,human_confirmed_2026-06-11
+wave2,26.Message,222.0,그룹 메시지,DEFER_A_FIXTURE,그룹 대화방 존재 fixture (A-4 외부 의존 계열),human_confirmed_2026-06-11
+wave2,26.Message,300.0,,DEFER_C_UNPROVEN,인디케이터 표시 = status bar screenshot axis,human_confirmed_2026-06-11
+wave2,26.Message,314.0,히든메뉴에서 SCA (Service Center Address),EXCLUDE_CONFIRMED,히든메뉴 SCA(서비스센터 주소) 편집 = 통신 설정 mutation — 미승인 영역,human_confirmed_2026-06-11
+wave2,26.Message,325.0,최대 글자 수 입력 제한,DEFER_C_UNPROVEN,글자수 초과 toast 미실증 — compose 종속(B) + SPM_076 중복,human_confirmed_2026-06-11
+wave2,26.Message,326.0,MMS 변환 알림,DEFER_B_COMPOSE,compose 종속 — MMS 변환 표시는 화면 내 노출이면 dump 판정 가능,human_confirmed_2026-06-11
+wave2,26.Message,328.0,메시지 검색,DEFER_C_UNPROVEN,검색 하이라이트 색상 판정 = screenshot axis + 대화 fixture,human_confirmed_2026-06-11
+wave2,26.Message,363.0,,DEFER_C_UNPROVEN,제목 최대 입력 toast 미실증 — compose 종속(B),human_confirmed_2026-06-11
+wave2,26.Message,367.0,,DEFER_A_FIXTURE,연락처 fixture (A-3 redaction 종속) + compose,human_confirmed_2026-06-11
+wave2,26.Message,393.0,,DEFER_B_COMPOSE,compose 종속 + carrier별 자리수(SKT/LGU+/KT) = carrier 보류 풀 연계,human_confirmed_2026-06-11
+wave2,27.Contacts,1.0,연락처 메인화면,EXCLUDE_CONFIRMED,CNT_121 near-dup — superset(121)로 통합,human_confirmed_2026-06-11
+wave2,27.Contacts,121.0,연락처 메인 화면,REDESIGN_CANDIDATE,"빈 연락처 메인 observe ('연락처가 없습니다'+버튼) — pre 연락처 0 conditional, 미충족 skip",human_confirmed_2026-06-11
+wave2,27.Contacts,123.0,새 연락처 만들기,REDESIGN_CANDIDATE,새 연락처 페이지 전환 observe — CNT_132 editor-entry 계약 재사용 (저장 0),human_confirmed_2026-06-11
+wave2,27.Contacts,124.0,새 연락처 만들기,EXCLUDE_CONFIRMED,CNT_123 near-dup (단일 진입 부분집합),human_confirmed_2026-06-11
+wave2,27.Contacts,130.0,새 연락처 만들기,REDESIGN_CANDIDATE,이름 byte-limit transient_input (MSG_119 동형) — 입력 후 저장 0 이탈+개수 전후 일치,human_confirmed_2026-06-11
+wave2,27.Contacts,131.0,새 연락처 만들기,DEFER_C_UNPROVEN,글자수 초과 toast 미실증,human_confirmed_2026-06-11
+wave2,27.Contacts,133.0,새 연락처 만들기,REDESIGN_CANDIDATE,이름 확장 필드 노출+입력 반영 observe — CNT_132 동형 확장 (저장 0),human_confirmed_2026-06-11
+wave2,27.Contacts,134.0,새 연락처 만들기,REDESIGN_CANDIDATE,확장 필드 1개 입력 조합 — 133 시리즈 (합성 시 대표 통합 검토),human_confirmed_2026-06-11
+wave2,27.Contacts,135.0,새 연락처 만들기,REDESIGN_CANDIDATE,확장 필드 2개 입력 조합 — 133 시리즈 (합성 시 대표 통합 검토),human_confirmed_2026-06-11
+wave2,27.Contacts,136.0,새 연락처 만들기,REDESIGN_CANDIDATE,확장 필드 전체 입력 조합 — 133 시리즈 (합성 시 대표 통합 검토),human_confirmed_2026-06-11
+wave2,27.Contacts,149.0,초성검색 하이라이트,DEFER_C_UNPROVEN,하이라이트 보라색 = 색상 판정 screenshot axis + 연락처 fixture,human_confirmed_2026-06-11
+wave2,27.Contacts,150.0,초성검색 하이라이트,DEFER_C_UNPROVEN,동일 (영문 검색 variant),human_confirmed_2026-06-11
+wave2,27.Contacts,151.0,초성검색 하이라이트,DEFER_C_UNPROVEN,동일 (특수기호 variant),human_confirmed_2026-06-11
+wave2,27.Contacts,154.0,연락처 목록,DEFER_A_FIXTURE,연락처 다수 fixture — 스크롤 assert는 N>화면 전제,human_confirmed_2026-06-11
+wave2,27.Contacts,157.0,연락처 목록,DEFER_A_FIXTURE,연락처 존재 fixture (A-3 redaction 종속) — selection_gated 계층은 실증됨,human_confirmed_2026-06-11
+wave2,27.Contacts,158.0,연락처 목록,DEFER_A_FIXTURE,동일 — N개 선택됨 드롭박스 observe,human_confirmed_2026-06-11
+wave2,27.Contacts,164.0,연락처 목록,EXCLUDE_CONFIRMED,연락처 연결(merge) = 영속 mutation,human_confirmed_2026-06-11
+wave2,27.Contacts,172.0,초성검색,DEFER_A_FIXTURE,연락처 fixture (A-3) — 초성 검색 매칭,human_confirmed_2026-06-11
+wave2,27.Contacts,173.0,초성검색,DEFER_A_FIXTURE,동일 + 전화 앱 경유 (다이얼러 진입 risk note),human_confirmed_2026-06-11
+wave2,27.Contacts,175.0,초성검색,DEFER_A_FIXTURE,동일 (영문),human_confirmed_2026-06-11
+wave2,27.Contacts,176.0,초성검색,DEFER_A_FIXTURE,"동일 (영문, 전화 앱 경유)",human_confirmed_2026-06-11
+wave2,27.Contacts,178.0,초성검색,DEFER_A_FIXTURE,동일 (특수기호 edge — 입력 가능성 단말 확인 필요),human_confirmed_2026-06-11
+wave2,27.Contacts,179.0,초성검색,DEFER_A_FIXTURE,"동일 (특수기호, 전화 앱 경유)",human_confirmed_2026-06-11
+wave2,27.Contacts,180.0,초성검색,DEFER_A_FIXTURE,동일 (이모티콘 edge),human_confirmed_2026-06-11
+wave2,27.Contacts,181.0,초성검색,DEFER_A_FIXTURE,"동일 (이모티콘, 전화 앱 경유)",human_confirmed_2026-06-11
+wave2,27.Contacts,200.0,설정 - 연락처 가져오기,EXCLUDE_CONFIRMED,메모리카드 VCF 가져오기 = 외부 매체 의존 + 영속 mutation,human_confirmed_2026-06-11
+wave3,1.Basic principle,82.0,Multi Selection,DEFER_E_BINDING,Multi Selection 대상 리스트 앱 미지정 (ledger E 추가) — VRC_066 GREEN 시 VRC 목록 바인딩 후보,human_confirmed_2026-06-11
+wave3,1.Basic principle,84.0,Multi Selection,DEFER_E_BINDING,동일 — dropdown 전체 선택 노출,human_confirmed_2026-06-11
+wave3,1.Basic principle,85.0,Multi Selection,DEFER_E_BINDING,동일 — N개 선택됨 영역 tap,human_confirmed_2026-06-11
+wave3,1.Basic principle,87.0,Multi Selection,DEFER_E_BINDING,동일 (84 near-dup 의심 — 바인딩 확정 시 통합 검토),human_confirmed_2026-06-11
+wave3,1.Basic principle,89.0,Multi Selection,DEFER_E_BINDING,동일 + 배경 하늘색 = 색상 판정(C 축 병존),human_confirmed_2026-06-11
+wave3,1.Basic principle,90.0,Multi Selection,DEFER_E_BINDING,동일 + 색상 판정 병존,human_confirmed_2026-06-11
+wave3,1.Basic principle,101.0,Search,ALREADY_SYNTHESIZED,batch06 ALTBASIC_BSC_101 (transient_input) — wave3 CSV cue_auto 표기 stale,human_confirmed_2026-06-11
+wave3,1.Basic principle,102.0,Search,ALREADY_SYNTHESIZED,batch06 ALTBASIC_BSC_102 — stale,human_confirmed_2026-06-11
+wave3,1.Basic principle,105.0,Search,ALREADY_LEDGERED,DEFER ledger A-3 (연락처 fixture + redaction),human_confirmed_2026-06-11
+wave3,1.Basic principle,107.0,Search,ALREADY_LEDGERED,DEFER ledger E (타이틀 검색 — 대상 앱 미지정),human_confirmed_2026-06-11
+wave3,1.Basic principle,108.0,Search,ALREADY_LEDGERED,DEFER ledger E,human_confirmed_2026-06-11
+wave3,15.Lockscreen,27.0,화면 잠금 - 암호,ALREADY_LEDGERED,DEFER ledger A-5 (잠금 설정 고위험 — 보류 권장),human_confirmed_2026-06-11
+wave3,15.Lockscreen,38.0,화면 잠금 - 암호,ALREADY_LEDGERED,DEFER ledger A-5,human_confirmed_2026-06-11
+wave3,15.Lockscreen,46.0,잠금 화면 알림 - 모든 알림 내용 표시,DEFER_D_SYSTEM,잠금화면 알림 표시 설정 변경 = persist mutation + F0 잠금화면 미사용(STR-002 device-fit),human_confirmed_2026-06-11
+wave3,15.Lockscreen,48.0,잠금 화면 알림 - 알림 표시 안함,DEFER_D_SYSTEM,동일,human_confirmed_2026-06-11
+wave3,17.Safety Feature,25.0,안심 메시지 > 폴더 개폐 동작,DEFER_D_SYSTEM,폴더 개폐 확인 Off 설정 = 본 mutation이 검증 대상 (ledger D SFT_038 동형 추가),human_confirmed_2026-06-11
+wave3,17.Safety Feature,38.0,안심 메시지 > 물리 키 동작,ALREADY_LEDGERED,DEFER ledger D,human_confirmed_2026-06-11
+wave3,33.Near Medi,7.0,,ALREADY_LEDGERED,"DEFER ledger F (검색결과 없음 — 환경 conditional, skip 확률 높음)",human_confirmed_2026-06-11
+wave3,4.Voice notification (TTS),4.0,정각 알림 읽어주기,ALREADY_LEDGERED,DEFER ledger F (확인 = persist),human_confirmed_2026-06-11
+wave3,4.Voice notification (TTS),6.0,정각 알림 읽어주기,ALREADY_LEDGERED,DEFER ledger F,human_confirmed_2026-06-11
+wave3,6.Pedometer app,2.0,메인 화면,ALREADY_SYNTHESIZED,batch06 ALTBASIC_PDM_002 — stale,human_confirmed_2026-06-11
+wave3,6.Pedometer app,4.0,메인 화면,ALREADY_LEDGERED,DEFER ledger F (값 변경 — 원복 사이클 승인 필요),human_confirmed_2026-06-11
+wave3,6.Pedometer app,6.0,메인 화면,ALREADY_SYNTHESIZED,batch06 ALTBASIC_PDM_006 — stale,human_confirmed_2026-06-11
+wave3,6.Pedometer app,8.0,메인 화면,ALREADY_LEDGERED,DEFER ledger F,human_confirmed_2026-06-11
+wave3,6.Pedometer app,10.0,메인 화면,ALREADY_SYNTHESIZED,batch06 ALTBASIC_PDM_010 — stale,human_confirmed_2026-06-11
+wave3,6.Pedometer app,11.0,메인 화면,ALREADY_SYNTHESIZED,batch06 ALTBASIC_PDM_011 — stale,human_confirmed_2026-06-11
+wave3,6.Pedometer app,12.0,메인 화면,ALREADY_LEDGERED,DEFER ledger F (성별 변경 = persist),human_confirmed_2026-06-11
+wave3,6.Pedometer app,13.0,메인 화면,ALREADY_SYNTHESIZED,batch06 ALTBASIC_PDM_013 — stale,human_confirmed_2026-06-11
+wave3,6.Pedometer app,14.0,메인 화면,ALREADY_SYNTHESIZED,batch06 ALTBASIC_PDM_014 — stale,human_confirmed_2026-06-11
+wave3,6.Pedometer app,15.0,메인 화면,ALREADY_LEDGERED,DEFER ledger F (20000보 설정 = persist),human_confirmed_2026-06-11
+wave3,6.Pedometer app,23.0,내 정보,ALREADY_LEDGERED,DEFER ledger F (빈 입력+확인 — 저장 trigger 불확실),human_confirmed_2026-06-11
+wave3,6.Pedometer app,25.0,내 정보,ALREADY_LEDGERED,DEFER ledger F,human_confirmed_2026-06-11
+wave3,6.Pedometer app,28.0,오늘 걸음 수,REDESIGN_CANDIDATE,오늘 걸음 수 표기 observe — 값 비단정 (0 포함 표기 자체 판정),human_confirmed_2026-06-11
+wave3,6.Pedometer app,29.0,오늘 걸음 수,EXCLUDE_CONFIRMED,물리 보행 의존 (걸음 카운트 진행/깃발) — 자동화 불가,human_confirmed_2026-06-11
+wave3,6.Pedometer app,33.0,소모 칼로리,EXCLUDE_CONFIRMED,실시간 칼로리 변화 = 물리 보행 의존,human_confirmed_2026-06-11
+wave3,6.Pedometer app,35.0,어제 걸음 수,REDESIGN_CANDIDATE,어제 걸음 수 표기 observe — 값 비단정,human_confirmed_2026-06-11
+wave3,6.Pedometer app,36.0,어제 걸음 수,EXCLUDE_CONFIRMED,자정 경계 + 걸음 fixture 의존 — 비결정,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,5.0,이미지 표시 및 Loop,DEFER_A_FIXTURE,갤러리 사진 fixture + 슬라이드 재생 상태 전제,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,8.0,이미지 선택 갯수,DEFER_C_UNPROVEN,toast 미실증 + 사진 11+ fixture,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,26.0,Picture Frame,DEFER_A_FIXTURE,사진 10+ fixture — flicking 스크롤 observe 자체는 실증 primitive,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,27.0,Picture Frame,DEFER_A_FIXTURE,동일 (역방향),human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,28.0,Picture Frame,DEFER_C_UNPROVEN,panning 드래그-선택 primitive 미실증 + 사진 fixture,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,29.0,Picture Frame,DEFER_C_UNPROVEN,동일,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,30.0,Picture Frame,DEFER_C_UNPROVEN,동일,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,31.0,Picture Frame,DEFER_C_UNPROVEN,동일,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,32.0,Picture Frame,DEFER_C_UNPROVEN,동일,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,33.0,Picture Frame,DEFER_C_UNPROVEN,동일,human_confirmed_2026-06-11
+wave3,8. Picture Frame widget,34.0,Picture Frame,DEFER_C_UNPROVEN,toast 미실증 + 드래그 선택 primitive + 사진 fixture,human_confirmed_2026-06-11
+wave3,스팸 메시지 및 번호 차단 확인 TC,76.0,,DEFER_B_COMPOSE,"compose 대량 입력 — MSG_325 중복(시트 상이), B 게이트 후 길이 검증은 dump 판정 가능",human_confirmed_2026-06-11
+wave3,스팸 메시지 및 번호 차단 확인 TC,80.0,,ALREADY_LEDGERED,DEFER ledger A-4 (SPM 80 — 차단 메시지 fixture 외부 의존),human_confirmed_2026-06-11
