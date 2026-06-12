@@ -450,6 +450,8 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 | 2026-05-21 | 분량 가드 | 1차 작성 결과 447 lines · spec 가드 250~350 lines 대비 초과 | §8.4 archive 정책 가동 검토 | applied |
 | 2026-05-22 | §2.3/§7.2 drift | push-audit가 catalog(append-only 누적상태)를 generated류 재생성물로 오분류 → staging FAIL ↔ §2.4/§5.6 핵심가치 충돌. catalog 재분류(audit FORBIDDEN 제거 + PR6C drift baseline test 동기) + Music/gallery catalog track (commit `0b817db`) | tools/git_safe_push_audit.py · test baseline (CLAUDE.md 본문 무변경 — §5.6 이미 정합) | applied |
 | 2026-05-28 | diagnostic verification | BTS18697 2차 검증에서 DebugScreen/dumpsys/ip 3-way 정합, scope NOTE, RESULT 시리즈 운영을 일반 패턴으로 승격 | §2.2/§4/§6 + memory | applied |
+| 2026-06-01 | diagnostic / QXDM | BUG-25796 추가검증: QXDM offline diag workflow(reference memory 신규) + REF negative-control(단말특이성) + 모뎀분석은 실패 discriminator + 정상경로 병행 판정 + 대용량 파생로그 digest-only | §4/§2.4 후보 (2차 사례 시 본문 승격) | proposed |
+| 2026-06-12 | §2.5 통합 | tc-runner×thor2j-tc-appium 통합 qa-suite 확정: staging(`qa-suite/` — Track A/B-1 fail-closed 러너 selftest 111) + 설계 v2(형제 repo `C:\Users\momen\Projects\qa-suite`, learning/synthesis/contracts/campaigns 책임 구조, provenance manifest, bugs 유일입력 bug-repro 한정). 이주 개시 시 §2.5 cross-commit 분기 정책 supersede 필요 | §2.5 (supersede 예정) · qa-suite/ARCHITECTURE.md v2 | proposed |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
