@@ -1,0 +1,12 @@
+# 실행 산출물
+automation/logs/
+automation/report/
+**/__pycache__/
+*.pyc
+# 로컬 환경 (실 단말 serial 등 로컬 식별자는 config.local.yaml 에만)
+automation/config.local.yaml
+.venv/
+*.log
+# 임시
+*.tmp
+~$*

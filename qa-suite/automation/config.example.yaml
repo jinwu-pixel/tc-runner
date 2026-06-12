@@ -1,0 +1,16 @@
+# 실행 설정 템플릿 — 복사해서 config.local.yaml 로 사용 (runner.py 는 config.local.yaml 만 읽음)
+# 실 단말 serial 등 로컬 식별자는 config.local.yaml 에만 기입한다 (.gitignore 대상).
+# 근거: 로컬 단말 식별자 보호 + repo 이식성.
+device_id: ""        # 비우면 연결 단말 1대일 때 자동 고정 (0대/2대 이상 = INFRA_FAILURE)
+bash_path: ""        # 비우면 Git Bash 자동 탐색. WSL/System32 bash 는 거부됨
+repeat: 30           # 기본 반복 횟수 (모듈별 설정이 우선)
+
+tests:               # 실행 대상 (주석 처리 = 제외)
+  - bug_23025        # Simple mode 모두닫기 blank — bash 하니스 래퍼
+  # - bug_24570      # bugs/BUG-24570.md 미해결 질문(Q1~Q3) 해소 후 등록
+
+bug_23025:
+  scenarios: "basic,toggle,reentry"   # 스모크 세트. 정식은 기본 5종+스트레스
+  count: 30
+  extra_args: []     # 예: ["--hwkeys", "KEYCODE_F1,KEYCODE_F2"]
+                     # 예약 옵션(-s/-S/-n/-o/--menu/--no-menu)은 wrapper 관리 — 사용 시 INFRA
