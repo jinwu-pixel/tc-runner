@@ -1,0 +1,96 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_HDK_055
+title: "메시지 앱 Navi 전체→↑→→→↓ — +메시지/검색/더보기 초점 순환 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "55.0"
+preconditions:
+  - { text: "폴더 열었을때", normalized: "THOR2 폴더(단말) 열림 상태", blocking: true }
+  - { text: "메세지 앱으로 진입", normalized: "메시지 앱 진입 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "Navi 키(전체) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키(전체) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "+메시지 작성", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키(전체) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 4 }
+  - step_no: 2
+    raw_text: "Navi 키( ↑) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키( ↑) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "검색", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키( ↑) 버튼을 누른다.", source_phase: procedure, position: 2, total_segments: 4 }
+  - step_no: 3
+    raw_text: "Navi 키( → ) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키( → ) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "더보기", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키( → ) 버튼을 누른다.", source_phase: procedure, position: 3, total_segments: 4 }
+  - step_no: 4
+    raw_text: "Navi 키( ↓ ) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키( ↓ ) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "+메시지 작성", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키( ↓ ) 버튼을 누른다.", source_phase: procedure, position: 4, total_segments: 4 }
+expected_result_raw: "+메시지 작성에 포커스가 맞춰진다. 검색 버튼으로 초점 포인트가 활성화된다. 더보기로 초점 포인트가 활성화된다. +메시지 작성에 포커스가 맞춰진다."
+expected_texts_candidate:
+  - "+메시지 작성"
+  - "검색"
+  - "더보기"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 4
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 4
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "버튼 초점 순환 노출 확인만, OK 실행 금지. transient 초점 원복."
+  cleanup_candidate: "뒤로가기로 메시지 앱 종료 후 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

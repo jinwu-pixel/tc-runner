@@ -1,0 +1,80 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_LCH_155
+title: "확인키 롱탭 말풍선 취소 — 롱탭 전 앱으로 포커스 복귀 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "155.0"
+preconditions:
+  - { text: "1. Normal Mode", normalized: null, blocking: true }
+  - { text: "2. 홈 화면에 다수의 앱 배치됨(구글 서치바 없음)", normalized: null, blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "홈 화면 하드키로 앱 포커스"
+    normalized_intent:
+      type: press_key
+      target: "홈 화면 하드키로 앱 포커스"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "홈 화면 하드키로 앱 포커스", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "HardKey '확인' 버튼 롱탭"
+    normalized_intent:
+      type: press_key
+      target: "HardKey '확인' 버튼 롱탭"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "HardKey '확인' 버튼 롱탭", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "'뒤로가기', '지움 취소' 버튼 입력"
+    normalized_intent:
+      type: press_key
+      target: "'뒤로가기', '지움 취소' 버튼"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "'뒤로가기', '지움 취소' 버튼 입력", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "확인버튼 롱탭 전 포커스된 앱에 포커스 되어있다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "말풍선 취소 후 포커스 복귀 노출 확인만 — 항목 실행 금지, 상태 비단정"
+  cleanup_candidate: "HOME으로 홈 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

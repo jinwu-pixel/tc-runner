@@ -1,0 +1,61 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_SET_256
+title: "설정 배터리 절전 모드 — 사용/예약/충전완료 중지 항목 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "256.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 설정 > 배터리 >절전 모드"
+    normalized_intent:
+      type: navigate
+      target: "설정 > 배터리 > 절전 모드"
+      value: null
+    expected:
+      - { type: verify_text, target: "절전 모드 사용", value: null }
+      - { type: verify_text, target: "절전 모드 예약", value: null }
+      - { type: verify_text, target: "백분율 기준", value: null }
+      - { type: verify_text, target: "충전 완료 시 사용 중지", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > 배터리 >절전 모드", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 절전 모드 사용 on/off(default) 2. 절전 모드 예약(없음/ 백분율 기준(10~75%) 3. 충전 완료 시 사용 중지 on(default/off)"
+expected_texts_candidate:
+  - "절전 모드 사용"
+  - "절전 모드 예약"
+  - "없음"
+  - "백분율 기준"
+  - "충전 완료 시 사용 중지"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: READ_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "절전 모드 항목 노출만 확인. on/off·default 상태 비단정, 토글/예약값 변경 접촉 금지."
+  cleanup_candidate: "HOME으로 홈 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

@@ -1,0 +1,67 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_CAL_341
+title: "통화 중 자동 녹음 focus에서 아래키 — 저장된 통화 녹음 focus 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "341.0"
+preconditions:
+  - { text: "통화 녹음", normalized: "통화 녹음 화면 진입 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "통화 중 자동 녹음 focus"
+    normalized_intent:
+      type: navigate
+      target: "통화 중 자동 녹음 focus"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "통화 중 자동 녹음 focus", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "press down"
+    normalized_intent:
+      type: press_key
+      target: "press down"
+      value: null
+    expected:
+      - { type: verify_text, target: "저장된 통화 녹음", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "press down", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "저장된 통화 녹음 focus"
+expected_texts_candidate:
+  - "저장된 통화 녹음"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "focus 이동만 확인 — 저장 녹음 재생/삭제 비실행, focus 강조 비단정."
+  cleanup_candidate: "HOME으로 홈 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

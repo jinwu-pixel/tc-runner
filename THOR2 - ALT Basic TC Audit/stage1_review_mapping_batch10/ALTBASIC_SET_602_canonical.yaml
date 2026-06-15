@@ -1,0 +1,64 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_SET_602
+title: "설정 접근성 실시간 자막 진입 — 하위 설정 메뉴 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "602.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 설정 > 접근성 > 실시간 자막 Tap"
+    normalized_intent:
+      type: tap
+      target: "설정 > 접근성 > 실시간 자막"
+      value: null
+    expected:
+      - { type: verify_text, target: "실시간 자막 사용", value: null }
+      - { type: verify_text, target: "언어", value: null }
+      - { type: verify_text, target: "자막 환경설정", value: null }
+      - { type: verify_text, target: "욕설 숨기기", value: null }
+      - { type: verify_text, target: "소리 라벨 표시", value: null }
+      - { type: verify_text, target: "볼륨 컨트롤에서 실시간 자막 사용", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > 접근성 > 실시간 자막 Tap", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "실시간 자막 설정화면으로 전환된다 / 하기 메뉴 노출된다 - 실시간 자막 사용 On/Off(Default) - 언어 - 자막 환경설정 - 욕설 숨기기 - 소리 라벨 표시 - 볼륨 컨트롤에서 실시간 자막 사용"
+expected_texts_candidate:
+  - "실시간 자막 사용"
+  - "언어"
+  - "자막 환경설정"
+  - "욕설 숨기기"
+  - "소리 라벨 표시"
+  - "볼륨 컨트롤에서 실시간 자막 사용"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: READ_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "실시간 자막 설정 메뉴 노출 확인만 — 기본 Off 상태는 노출 확인만, 토글/항목 변경 접촉 금지."
+  cleanup_candidate: "Back으로 접근성 복귀 후 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

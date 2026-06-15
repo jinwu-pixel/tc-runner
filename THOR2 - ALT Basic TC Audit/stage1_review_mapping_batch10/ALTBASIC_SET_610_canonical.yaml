@@ -1,0 +1,86 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_SET_610
+title: "자막 환경설정 추가 옵션 — 언어 메뉴 노출 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "610.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 설정 > 접근성 > 실시간 자막 Tap"
+    normalized_intent:
+      type: tap
+      target: "설정 > 접근성 > 실시간 자막"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > 접근성 > 실시간 자막 Tap", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "2. 자막 환경설정 Tap"
+    normalized_intent:
+      type: tap
+      target: "자막 환경설정"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 자막 환경설정 Tap", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "3. 추가 옵션 Tap"
+    normalized_intent:
+      type: tap
+      target: "추가 옵션"
+      value: null
+    expected:
+      - { type: verify_text, target: "언어", value: null }
+      - { type: verify_text, target: "기본값", value: null }
+      - { type: verify_text, target: "한국어", value: null }
+      - { type: verify_text, target: "English", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "3. 추가 옵션 Tap", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "언어 메뉴 노출된다.(기본값 / 한국어 / English)"
+expected_texts_candidate:
+  - "언어"
+  - "기본값"
+  - "한국어"
+  - "English"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: READ_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "언어 메뉴 노출 확인만 — 언어 항목 선택/변경 접촉 금지."
+  cleanup_candidate: "Back으로 실시간 자막 복귀 후 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

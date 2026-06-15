@@ -1,0 +1,57 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_HDK_050
+title: "퀵패널 전체화면에서 취소 키 — 분할화면 복귀·WIFI 초점 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "50.0"
+preconditions:
+  - { text: "THOR2 폴더 열었을때", normalized: "THOR2 폴더(단말) 열림 상태", blocking: true }
+  - { text: "퀵패널 전체 화면진입", normalized: "퀵패널 전체화면 진입 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "뒤로가기 / 지움| 취소 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "뒤로가기/지움/취소 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "WIFI 버튼", value: null }
+      - { type: verify_text, target: "알림 영역", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "뒤로가기 / 지움| 취소 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "전체화면에서 다시 분할화면으로 변경되며 하단에는 알림 영역이 생성된다. 퀵패널의 WIFI 버튼에 초점 포인트가 활성화된다."
+expected_texts_candidate:
+  - "WIFI 버튼"
+  - "알림 영역"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "분할화면 복귀·초점 노출 확인만, 상태 비단정. transient 퀵패널 원복."
+  cleanup_candidate: "퀵패널 닫고 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

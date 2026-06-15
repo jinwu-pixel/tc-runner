@@ -1,0 +1,272 @@
+﻿row_key,sheet,tc_id,functionality,redesign_pattern,confidence,reason
+1.Basic principle#14.0,1.Basic principle,14.0,Hard Key,-,0.85,"Recent App 버튼시 최근앱 리스트 화면 전환 - 화면전환 assert만, mutation 없음"
+1.Basic principle#15.0,1.Basic principle,15.0,Hard Key,-,0.92,"Home 버튼시 홈스크린 전환 - 고정 화면전환 assert, mutation 없음"
+1.Basic principle#17.0,1.Basic principle,17.0,Hard Key,-,0.88,"Contact 버튼시 연락처앱 초기화면 전환 - 앱 초기화면 assert, 데이터무관"
+1.Basic principle#18.0,1.Basic principle,18.0,Hard Key,-,0.88,"Message 버튼시 메시지앱 초기화면 전환 - 앱 초기화면 assert, 데이터무관"
+1.Basic principle#19.0,1.Basic principle,19.0,Hard Key,-,0.85,Camera 버튼시 카메라앱 초기화면 전환 - 앱 초기화면 assert만
+1.Basic principle#25.0,1.Basic principle,25.0,Hard Key,popup_cancel,0.85,종료 길게시 전원종료 팝업(긴급전화/끄기/재시작) 고정라벨 observe
+1.Basic principle#31.0,1.Basic principle,31.0,Hard Key,popup_cancel,0.82,"QuickDialer 미설정 precondition 명시, 숫자길게→'설정번호 없다' 고정문구 observe"
+1.Basic principle#38.0,1.Basic principle,38.0,Hard Key,-,0.9,Navi Up 짧게시 포커스 위로 이동 - focus 이동 assert만
+1.Basic principle#39.0,1.Basic principle,39.0,Hard Key,-,0.85,Navi Up 길게시 포커스 위로 빠르게 이동 - focus 이동 assert만
+1.Basic principle#40.0,1.Basic principle,40.0,Hard Key,-,0.9,Navi Down 짧게시 포커스 아래 이동 - focus 이동 assert만
+1.Basic principle#41.0,1.Basic principle,41.0,Hard Key,-,0.85,Navi Down 길게시 포커스 아래 빠르게 이동 - focus 이동 assert만
+1.Basic principle#42.0,1.Basic principle,42.0,Hard Key,-,0.9,Navi Left 짧게시 포커스 왼쪽 이동 - focus 이동 assert만
+1.Basic principle#43.0,1.Basic principle,43.0,Hard Key,-,0.85,Navi Left 길게시 포커스 왼쪽 빠르게 이동 - focus 이동 assert만
+1.Basic principle#44.0,1.Basic principle,44.0,Hard Key,-,0.9,Navi Right 짧게시 포커스 오른쪽 이동 - focus 이동 assert만
+1.Basic principle#45.0,1.Basic principle,45.0,Hard Key,-,0.85,Navi Right 길게시 포커스 오른쪽 빠르게 이동 - focus 이동 assert만
+1.Basic principle#71.0,1.Basic principle,71.0,Focus 이동,-,0.82,홈서 Navi키 입력시 포커스 활성화되어 전화앱(고정) 위치 - focus 이동 assert만
+1.Basic principle#72.0,1.Basic principle,72.0,Focus 이동,-,0.8,포커스 활성서 Navi Up시 갤러리앱 아이콘으로 포커스 이동 - focus 이동 assert만
+1.Basic principle#73.0,1.Basic principle,73.0,Focus 이동,-,0.8,포커스 활성서 Navi Down시 앱서랍 진입 - 화면전환 assert만
+1.Basic principle#120.0,1.Basic principle,120.0,More menu,popup_cancel,0.78,더보기 Tap→돌아가기시 Dropdown 닫히고 포커스 더보기 유지 - 닫힘/focus assert
+1.Basic principle#121.0,1.Basic principle,121.0,More menu,popup_cancel,0.8,"더보기 탭으로 dropdown 연 뒤 하드키 취소로 닫힘+더보기 아이콘 focus 유지. 고정 아이콘 focus assert, mutation 없음"
+1.Basic principle#124.0,1.Basic principle,124.0,Select box - Focus,popup_cancel,0.72,"dropdown 활성 후 뒤로가기로 첫 항목 focus 소실. focus 부재 관찰 가능, 사용자 데이터 아님, mutation 없음"
+11.Hard Key#16.0,11.Hard Key,16.0,메뉴 키 정의 (최근 앱 버튼),-,0.72,"최근앱 버튼 시 '최근항목이 없습니다' 고정 텍스트. 빈 recents=기본 상태, presence assert 가능"
+11.Hard Key#19.0,11.Hard Key,19.0,메뉴 키 정의 (홈 버튼),-,0.72,"홈 길게 시 퀵패널 열림. 화면 전환 관찰, 앱실행 선택('혹은'), mutation 없음"
+11.Hard Key#21.0,11.Hard Key,21.0,메뉴 키 정의 ( 연락처 버튼),-,0.78,"연락처 버튼 시 화면 이동, 빈 시 '연락처가 없습니다'+'새 연락처 만들기' 고정 텍스트. 빈 상태 명시"
+11.Hard Key#22.0,11.Hard Key,22.0,메뉴 키 정의 (카메라 버튼),-,0.8,"카메라 버튼 시 카메라 화면 이동. 화면 전환 관찰만, mutation 없음"
+11.Hard Key#23.0,11.Hard Key,23.0,메뉴 키 정의( 메세지 버튼),-,0.74,"메시지 버튼 시 보관함 이동, 설정 리스트 고정 라벨, 빈 시 '대화가 없습니다'. fixed 요소 assert"
+11.Hard Key#34.0,11.Hard Key,34.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.78,"초점 포인트 없을 때 버튼 시 초점 생성. focus 요소 presence assert, mutation 없음"
+11.Hard Key#35.0,11.Hard Key,35.0,메뉴 키 정의 ( Navi 키 ↑  버튼),-,0.8,"Navi↑ 짧게/길게 시 초점 위쪽 이동. focus 이동 관찰만, 초점 존재 precondition 명시, mutation 없음"
+11.Hard Key#36.0,11.Hard Key,36.0,메뉴 키 정의 ( Navi 키 ↓ 버튼),-,0.8,"Navi↓ 짧게/길게 시 초점 아래쪽 이동. focus 이동 관찰만, mutation 없음"
+11.Hard Key#37.0,11.Hard Key,37.0,메뉴 키 정의 ( Navi 키 ← 버튼),-,0.8,"Navi← 짧게/길게 시 초점 왼쪽 이동. focus 이동 관찰만, mutation 없음"
+11.Hard Key#38.0,11.Hard Key,38.0,메뉴 키 정의 ( Navi 키 → 버튼),-,0.8,"Navi→ 짧게/길게 시 초점 오른쪽 이동. focus 이동 관찰만, mutation 없음"
+11.Hard Key#41.0,11.Hard Key,41.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.76,"홈서 Navi 시 전화앱 초점 활성, ↓ 더이상 이동 안함. focus 경계 assert, mutation 없음"
+11.Hard Key#42.0,11.Hard Key,42.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.74,"홈서 Navi↑ 반복 시 초점 위로 이동·전화앱서 시작. focus 이동 관찰만, mutation 없음"
+11.Hard Key#43.0,11.Hard Key,43.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.78,"최하단 초점서 Navi↑ 시 한단계 위 이동. precondition에 초점위치 명시, focus 이동 관찰만"
+11.Hard Key#44.0,11.Hard Key,44.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.72,"2번째 홈 grid서 Navi↓ 꾹 시 초점 순차 이동. 고정 앱 grid, focus 이동만, mutation 없음"
+11.Hard Key#45.0,11.Hard Key,45.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.72,"세번째 우측앱 초점서 Navi↑ 꾹 시 상단 좌측까지 이동. 고정 grid focus 이동만, mutation 없음"
+11.Hard Key#46.0,11.Hard Key,46.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.72,"상단 우측앱 초점서 Navi↓ 꾹 시 하단 전화앱까지 이동. 고정 grid focus 이동만, mutation 없음"
+11.Hard Key#47.0,11.Hard Key,47.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.72,"하단 좌측앱 초점서 Navi↑ 꾹 시 상단 좌측까지 이동. 고정 grid focus 이동만, mutation 없음"
+11.Hard Key#50.0,11.Hard Key,50.0,메뉴 키 정의 ( Navi 키 모든 버튼),popup_cancel,0.68,"퀵패널 전체화면서 뒤로가기 시 분할화면 복귀+WIFI 초점. 화면전환 관찰, WIFI 고정 요소 assert"
+11.Hard Key#52.0,11.Hard Key,52.0,메뉴 키 정의 ( Navi 키 모든 버튼),popup_cancel,0.7,"종료팝업서 Navi→ 반복 시 응급전화/기기종료/재시작 초점 순환. focus 이동 관찰만, 실행 안함"
+11.Hard Key#53.0,11.Hard Key,53.0,메뉴 키 정의 ( Navi 키 모든 버튼),popup_cancel,0.7,"종료팝업서 Navi← 시 응급전화/재시작/기기종료 초점 이동. focus 이동 관찰만, 실행 안함"
+11.Hard Key#54.0,11.Hard Key,54.0,메뉴 키 정의 ( Navi 키 모든 버튼),popup_cancel,0.7,"종료팝업서 Navi↓↑ 시 재시작/응급전화 초점 이동. focus 이동 관찰만, 실행 안함"
+11.Hard Key#55.0,11.Hard Key,55.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.76,"메시지앱서 Navi 순회 시 작성/검색/더보기 focus. 고정 툴바 요소 focus assert, 메시지 데이터 불요"
+11.Hard Key#56.0,11.Hard Key,56.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.78,"설정 버튼 활성서 Navi→ 시 더이상 이동 안함·설정 버튼 유지. focus 경계 assert, mutation 없음"
+11.Hard Key#62.0,11.Hard Key,62.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.74,"더보기 활성서 Navi← 반복 시 더이상 이동 안함. focus 경계 assert, mutation 없음"
+11.Hard Key#64.0,11.Hard Key,64.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.78,"연락처 없을 때 Navi 시 '새 연락처 만들기' 텍스트 이동. 빈 상태 precondition 명시, 고정 텍스트 assert"
+11.Hard Key#69.0,11.Hard Key,69.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.66,"더보기 OK 시 설정 리스트 활성+Navi 상하 리스트 focus. 고정 설정 메뉴 focus assert, 사용자 데이터 불요"
+11.Hard Key#70.0,11.Hard Key,70.0,메뉴 키 정의 ( Navi 키 모든 버튼),popup_cancel,0.72,"더보기 OK로 리스트 활성, 뒤로가기로 닫힘+더보기 아이콘 활성. 화면전환 관찰, mutation 없음"
+11.Hard Key#94.0,11.Hard Key,94.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.8,"OK로 심플설정 진입, 고정 메뉴 라벨(소리/Wifi/디스플레이/안심기능 등) presence assert 가능. mutation 없음."
+11.Hard Key#95.0,11.Hard Key,95.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.82,"최상단에서 ↑눌러도 focus 안 올라감=경계 focus 검증. mutation·데이터 없음, 결정적."
+11.Hard Key#96.0,11.Hard Key,96.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.8,"↓로 소리&진동에서 한단계씩 내림·하단 경계 정지=focus 이동 검증. 고정 설정 항목, mutation 없음."
+11.Hard Key#97.0,11.Hard Key,97.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.82,"OK로 소리&진동 설정 페이지 이동=화면 전환 검증. 고정 라벨 assert 가능, mutation 없음."
+11.Hard Key#98.0,11.Hard Key,98.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.82,"OK로 WIFI 설정 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음."
+11.Hard Key#99.0,11.Hard Key,99.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.82,"OK로 배경화면 및 스타일 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음."
+11.Hard Key#100.0,11.Hard Key,100.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.82,"OK로 디스플레이 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음."
+11.Hard Key#101.0,11.Hard Key,101.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.82,"OK로 안심 기능 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음."
+11.Hard Key#102.0,11.Hard Key,102.0,메뉴 키 정의 ( Navi 키 모든 버튼),-,0.8,"OK로 긴급 상황 정보 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음."
+14.Quick panel#1.0,14.Quick panel,1.0,디폴트 퀵 패널,-,0.78,"퀵패널 활성화 후 기본 항목(WIFI/블루투스/모바일데이터 등) 고정 default 라벨 presence assert 가능. 노출만, mutation 없음."
+14.Quick panel#2.0,14.Quick panel,2.0,전체 보기,-,0.76,"편집 버튼 Tap→추가가능 아이콘(핫스팟/QR 등) 고정 라벨 presence assert 가능. 편집모드 미커밋, mutation 없음."
+14.Quick panel#4.0,14.Quick panel,4.0,퀵패널 진입,-,0.72,"펼치기 Tap→퀵패널 전체 화면 노출=화면 전환 검증. 요소 presence assert 가능, mutation 없음."
+14.Quick panel#8.0,14.Quick panel,8.0,퀵 패널 - 수정,roundtrip_restore,0.74,"편집 버튼→뒤로가기→편집 전 화면 복귀=왕복 검증, 외부효과 없음. 화면 전환 assert 가능."
+14.Quick panel#10.0,14.Quick panel,10.0,퀵 패널 - 설정,-,0.8,"설정 버튼→설정 화면 전환=화면 전환 검증. 고정 라벨 assert 가능, mutation 없음."
+14.Quick panel#11.0,14.Quick panel,11.0,퀵 패널 - 전원 버튼,popup_cancel,0.78,"전원 버튼→전원 팝업(긴급전화/전원끄기/다시시작) 고정 라벨 presence assert 가능. 노출만, 실행 안 함."
+14.Quick panel#12.0,14.Quick panel,12.0,퀵 패널 - 전원 버튼,-,0.72,"긴급 전화→긴급 전화 화면 전환=화면 전환 검증. 고정 라벨 assert 가능, 발신 안 함."
+14.Quick panel#26.0,14.Quick panel,26.0,모바일 데이터 - Long 탭,-,0.74,"모바일 데이터 Long Tap→모바일 데이터 설정 이동=화면 전환. 토글 아닌 long tap 이동, mutation 없음."
+14.Quick panel#43.0,14.Quick panel,43.0,화면 터치 잠금 - ON,popup_cancel,0.72,"precondition '꺼짐'=default 상태(셋업 불필요). 탭→켜기 팝업+취소/확인 presence assert, 확정 안 함, mutation 없음."
+14.Quick panel#44.0,14.Quick panel,44.0,화면 터치 잠금 - ON,popup_cancel,0.78,precondition '꺼짐'=default. 탭→팝업→취소→팝업 사라짐+꺼짐 유지=취소 경로 상태 불변 검증. mutation 없음.
+14.Quick panel#53.0,14.Quick panel,53.0,자동 회전 long tap,-,0.72,"자동 회전 Long 탭→자동 회전 메뉴 이동+토글 표시. 토글 표시 presence assert, 전환만, mutation 없음."
+14.Quick panel#56.0,14.Quick panel,56.0,절전 모드 - Long 탭,-,0.76,"절전 모드 Long 탭→절전 모드 메뉴 이동=화면 전환 검증. 고정 라벨 assert 가능, mutation 없음."
+14.Quick panel#66.0,14.Quick panel,66.0,핫스팟 - Long 탭,-,0.85,"핫스팟 Long탭 시 Wi-Fi 핫스팟 설정 화면 전환, 고정 화면 presence assert. mutation 없음"
+14.Quick panel#102.0,14.Quick panel,102.0,집중 모드 - Long 탭,-,0.85,"집중모드 Long탭 시 설정메뉴 이동, 고정 화면 전환만. mutation 없음"
+14.Quick panel#116.0,14.Quick panel,116.0,퀵 패널 - 알림창,-,0.78,"퀵패널 내림 시 패널/아이콘/알림창 chrome 노출, 고정요소 presence. mutation 없음"
+14.Quick panel#120.0,14.Quick panel,120.0,하드키 동작,-,0.76,"간편모드 홈화면 최초 focus 미표시 부정검증, 시스템모드 전제 가능"
+14.Quick panel#121.0,14.Quick panel,121.0,하드키 동작,-,0.8,"방향키 입력 시 전화앱 focus 이동, 고정 라벨 focus presence assert"
+14.Quick panel#122.0,14.Quick panel,122.0,하드키 동작,-,0.82,"홈버튼 Long press 시 퀵패널 노출, 고정 패널 presence. mutation 없음"
+14.Quick panel#123.0,14.Quick panel,123.0,하드키 동작,-,0.85,"방향키 입력 시 블루투스/모바일데이터 focus 이동, 고정 타일 focus assert"
+14.Quick panel#124.0,14.Quick panel,124.0,하드키 동작,-,0.85,"방향키 입력 시 소리모드 focus 이동, 고정 타일 focus assert. mutation 없음"
+14.Quick panel#125.0,14.Quick panel,125.0,하드키 동작,-,0.85,"방향키 입력 시 펼치기 focus 이동, 고정 라벨 focus presence assert"
+14.Quick panel#130.0,14.Quick panel,130.0,하드키 동작,-,0.8,"펼치기 OK 시 패널 펼침+wifi focus, 화면전환·고정 focus. mutation 없음"
+14.Quick panel#131.0,14.Quick panel,131.0,하드키 동작,-,0.82,"wifi focus up 시 밝기 아이콘 focus, 고정 요소 focus 이동만"
+14.Quick panel#133.0,14.Quick panel,133.0,하드키 동작,-,0.82,"wifi OK 길게 시 Wi-Fi 설정페이지 이동, 고정 화면 전환만"
+14.Quick panel#134.0,14.Quick panel,134.0,하드키 동작,-,0.85,"wifi focus right 시 블루투스 focus, 고정 타일 focus 이동만"
+14.Quick panel#135.0,14.Quick panel,135.0,하드키 동작,-,0.85,"wifi focus down 시 모바일데이터 focus, 고정 타일 focus 이동만"
+14.Quick panel#137.0,14.Quick panel,137.0,하드키 동작,-,0.85,"밝기바 아이콘 focus down 시 wifi focus, 고정 요소 focus 이동만"
+14.Quick panel#138.0,14.Quick panel,138.0,하드키 동작,-,0.88,"wifi focus down keep 시 수정버튼 focus, 고정 라벨 focus 이동만"
+14.Quick panel#140.0,14.Quick panel,140.0,하드키 동작,-,0.85,"수정버튼 focus up 시 밝기조절 focus, 고정 요소 focus 이동만"
+14.Quick panel#141.0,14.Quick panel,141.0,하드키 동작,-,0.85,"수정버튼 focus right 시 전원버튼 focus, 고정 라벨 focus 이동만"
+14.Quick panel#142.0,14.Quick panel,142.0,하드키 동작,-,0.8,"back 시 퀵패널+알림창 노출+wifi focus, 화면 복귀·고정 focus. mutation 없음"
+14.Quick panel#145.0,14.Quick panel,145.0,하드키 동작,-,0.85,"모바일데이터 OK 길게 시 네트워크설정 페이지 이동, 고정 화면 전환만"
+14.Quick panel#146.0,14.Quick panel,146.0,하드키 동작,-,0.85,"소리모드 OK 길게 시 소리/진동 설정 이동, 고정 화면 전환만. mutation 없음"
+14.Quick panel#149.0,14.Quick panel,149.0,하드키 동작,-,0.85,"자동회전 OK 길게 시 화면 자동회전 메뉴 이동, 고정 화면 전환만"
+14.Quick panel#153.0,14.Quick panel,153.0,하드키 동작,-,0.85,"데이터절약 OK 길게 시 메뉴 페이지 이동, 고정 화면 전환만"
+14.Quick panel#155.0,14.Quick panel,155.0,하드키 동작,-,0.85,"방해금지 OK 길게 시 모드 메뉴 페이지 이동, 고정 화면 전환만"
+14.Quick panel#157.0,14.Quick panel,157.0,하드키 동작,-,0.85,"핫스팟 OK long 시 Wi-Fi 핫스팟 메뉴 이동, 고정 화면 전환만"
+14.Quick panel#158.0,14.Quick panel,158.0,하드키 동작,-,0.82,"Quick Share OK 시 설정창 이동, 고정 화면 전환만. mutation 없음"
+14.Quick panel#159.0,14.Quick panel,159.0,하드키 동작,-,0.8,"QR코드 스캐너 OK 시 스캔 페이지 이동, 고정 화면 전환만"
+14.Quick panel#163.0,14.Quick panel,163.0,하드키 동작,-,0.82,"집중모드 OK 시 집중모드 페이지 이동, 고정 화면 전환만"
+14.Quick panel#165.0,14.Quick panel,165.0,하드키 동작,-,0.82,"알람 OK 시 알람앱 페이지 이동, 고정 화면 전환만. mutation 없음"
+14.Quick panel#167.0,14.Quick panel,167.0,하드키 동작,-,0.82,"수정버튼 OK 시 수정화면 전환+최초 focus 왼쪽상단, 화면전환·고정 focus"
+14.Quick panel#168.0,14.Quick panel,168.0,하드키 동작,-,0.85,"수정화면 첫메뉴 up 시 뒤로가기 focus, 고정 라벨 focus 이동만"
+14.Quick panel#169.0,14.Quick panel,169.0,하드키 동작,-,0.85,"수정화면 첫메뉴 down 시 아래 메뉴 focus 이동, 고정 focus 이동만"
+14.Quick panel#170.0,14.Quick panel,170.0,하드키 동작,-,0.85,"수정화면 첫메뉴 right 시 오른쪽 메뉴 focus 이동, 고정 focus 이동만"
+14.Quick panel#171.0,14.Quick panel,171.0,하드키 동작,-,0.82,"뒤로가기 focus OK 시 펼친 화면 복귀+최초 focus 첫번째, 화면복귀·고정 focus"
+14.Quick panel#175.0,14.Quick panel,175.0,하드키 동작,popup_cancel,0.81,"전원버튼 focus+OK로 전원끄기창 노출. 긴급전화/전원끄기/다시시작 고정라벨 assert, 실제 전원조작 아닌 다이얼로그 노출만"
+14.Quick panel#176.0,14.Quick panel,176.0,하드키 동작,-,0.88,"설정버튼 focus+OK로 설정 화면전환. mutation 없음, 단순 전환"
+17.Safety Feature#54.0,17.Safety Feature,54.0,SOS 버튼,-,0.88,"설정>안심기능>SOS버튼 진입, 짧게/길게 누르기 고정 메뉴라벨+Default 노출 assert. mutation 없음"
+17.Safety Feature#55.0,17.Safety Feature,55.0,SOS 버튼,-,0.8,"짧게 누르기 Tap 화면전환, 토글버튼+앱리스트 비활성 구조 노출. 고정요소 presence, 토글 조작 아님"
+2.Touch lock#1.0,2.Touch lock,1.0,Screen Touch lock,popup_cancel,0.8,"# 하드키 길게로 터치락 팝업 노출+확인버튼 포커스. 고정요소 assert, 팝업 노출만"
+23.Settings#90.0,23.Settings,90.0,보호자 등록,popup_cancel,0.8,"설정>안심기능>보호자 등록시 보호자 추가하기 팝업 노출. 고정 팝업 텍스트 assert, mutation 없음"
+23.Settings#91.0,23.Settings,91.0,보호자 등록,popup_cancel,0.79,"보호자 등록>보호자 추가 Tap시 보호자 추가 팝업 노출. 팝업 텍스트 assert, mutation 없음"
+23.Settings#123.0,23.Settings,123.0,SOS버튼,-,0.82,"설정>안심기능>측면버튼 진입, 길게/짧게 누르기 토글 On/Off 고정 라벨 표시. 조회만"
+23.Settings#256.0,23.Settings,256.0,배터리,-,0.8,절전모드 화면의 사용 토글/예약/충전완료 사용중지 고정 메뉴라벨+default 노출. 조회만
+23.Settings#273.0,23.Settings,273.0,소리 및 진동,-,0.86,"소리및진동>방해금지모드 화면 전환. 단순 화면전환, mutation 없음"
+23.Settings#602.0,23.Settings,602.0,접근성 - 실시간 자막,-,0.82,실시간 자막 화면 전환+고정 메뉴라벨(언어/자막환경설정/욕설숨기기 등) 노출. 조회만
+23.Settings#610.0,23.Settings,610.0,접근성 - 실시간 자막,-,0.82,자막 환경설정>추가옵션 Tap시 언어 메뉴(기본값/한국어/English) 고정 라벨 노출. 조회만
+23.Settings#651.0,23.Settings,651.0,접근성 - 텍스트 음성 변환 출력,-,0.8,TTS 기본엔진 설정 Tap시 GoogleTTS 옵션 고정 메뉴라벨 노출. 화면 진입+조회만
+23.Settings#972.0,23.Settings,972.0,시스템,-,0.78,터치 키보드 화면의 Gboard/Google음성입력 토글 On 고정 상태 조회. mutation 없음
+23.Settings#977.0,23.Settings,977.0,시스템,-,0.74,"기본엔진 설정 화면의 7개 고정 메뉴라벨 조회. '설정변경 시 적용'은 부가서술, procedure는 진입만"
+23.Settings#985.0,23.Settings,985.0,시스템,-,0.82,날짜및시간 화면의 자동시간설정/시간대/24시간형식 등 고정 메뉴라벨 조회. mutation 없음
+23.Settings#987.0,23.Settings,987.0,시스템,-,0.84,여러 사용자 화면의 허용 On/Off(기본 Off) 고정 라벨 조회. mutation 없음
+24.Launcher#1.0,24.Launcher,1.0,Focus,-,0.82,"볼륨키→볼륨바 노출+영역 포커스. 고정 UI 요소 노출, mutation 없음"
+24.Launcher#2.0,24.Launcher,2.0,Focus,-,0.83,"볼륨바 위 소리모드 아이콘 포커스 이동. 고정요소 focus만, 입력·부작용 없음"
+24.Launcher#6.0,24.Launcher,6.0,Focus - 홈 화면,-,0.78,"홈 좌측하단 앱 위치 focus. 특정 사용자데이터 무명, 위치 focus 노출만"
+24.Launcher#7.0,24.Launcher,7.0,Focus - 홈 화면,-,0.8,최상단서 상키 무반응=focus 경계 assert 가능. mutation 없음
+24.Launcher#10.0,24.Launcher,10.0,Focus - 홈 화면,-,0.78,우키3회→간편설정 페이지 이동+모든앱 focus. 화면전환+고정 focus
+24.Launcher#11.0,24.Launcher,11.0,Focus - 홈 화면,-,0.8,"하키→앱서랍 이동. 화면전환 assert 가능, mutation 없음"
+24.Launcher#16.0,24.Launcher,16.0,Focus - 앱 서랍,-,0.78,앱서랍 좌측최상단 앱 focus. 설치앱 위치 focus 노출만
+24.Launcher#17.0,24.Launcher,17.0,Focus - 앱 서랍,-,0.82,앱서랍 우키→오른쪽앱 focus 이동. 위치 focus 이동만
+24.Launcher#18.0,24.Launcher,18.0,Focus - 앱 서랍,-,0.82,최우측앱 이동 후 무반응=경계 assert. mutation 없음
+24.Launcher#19.0,24.Launcher,19.0,Focus - 앱 서랍,-,0.82,최하단앱 이동 후 무반응. focus 경계 assert 가능
+24.Launcher#20.0,24.Launcher,20.0,Focus - 앱 서랍,-,0.8,하단→상방 최상단앱 focus 경계. mutation 없는 스크롤 focus
+24.Launcher#21.0,24.Launcher,21.0,Focus - 단축다이얼,-,0.72,단축다이얼 1-30 UI 격자 focus. 빈슬롯 격자는 등록데이터 무관 노출
+24.Launcher#22.0,24.Launcher,22.0,Focus - 단축다이얼,-,0.72,"단축다이얼 1번 슬롯 focus+좌키 무반응. 슬롯 UI focus, 등록데이터 무관"
+24.Launcher#23.0,24.Launcher,23.0,Focus - 단축다이얼,-,0.74,우키→31-60 UI focus 이동. 슬롯격자 페이지 focus만
+24.Launcher#24.0,24.Launcher,24.0,Focus - 단축다이얼,-,0.72,우키3회 1-30/31-60/61-99 한칸씩+다음페이지 focus. 격자 focus 이동
+24.Launcher#26.0,24.Launcher,26.0,Focus - 단축다이얼,-,0.78,우키 유지→최우측+다음페이지 이동. focus 이동만
+24.Launcher#27.0,24.Launcher,27.0,Focus - 단축다이얼,-,0.78,상키→편집버튼 이동 후 무반응. 고정 편집버튼 focus 경계
+24.Launcher#28.0,24.Launcher,28.0,Focus - 단축다이얼,-,0.8,"좌키 누름유지 무반응. focus 경계 assert, mutation 없음"
+24.Launcher#29.0,24.Launcher,29.0,Focus - 단축다이얼,-,0.8,하키→최하단 스크롤+focus 유지. 스크롤 focus만
+24.Launcher#30.0,24.Launcher,30.0,Focus - 단축다이얼,-,0.76,편집버튼 focus 후 하키→1-30 UI focus. 격자 focus 복귀만
+24.Launcher#42.0,24.Launcher,42.0,Focus - 간편 설정 탭,-,0.8,간편설정 모든앱 focus. 고정 focus 노출만
+24.Launcher#44.0,24.Launcher,44.0,Focus - 간편 설정 탭,-,0.78,상키→의료정보 앱 focus. 고정 시스템앱 라벨 focus
+24.Launcher#45.0,24.Launcher,45.0,Focus - 간편 설정 탭,-,0.76,"의료정보 Page 이동. 화면전환 assert 가능, mutation 없음"
+24.Launcher#46.0,24.Launcher,46.0,Focus - 간편 설정 탭,-,0.78,상키2회→만보기 앱 focus. 고정앱 라벨 focus
+24.Launcher#47.0,24.Launcher,47.0,Focus - 간편 설정 탭,-,0.76,만보기 Page 이동. 화면전환 assert만
+24.Launcher#48.0,24.Launcher,48.0,Focus - 간편 설정 탭,-,0.78,상키3회→나의 휴대폰 상태 focus. 고정 라벨 focus
+24.Launcher#49.0,24.Launcher,49.0,Focus - 간편 설정 탭,-,0.76,쉬운설정 Page 이동. 화면전환 assert만
+24.Launcher#50.0,24.Launcher,50.0,Focus - 간편 설정 탭,-,0.76,상키4회→사용데이터 focus. 고정 라벨 focus 노출
+24.Launcher#144.0,24.Launcher,144.0,Focus - 홈 화면,-,0.78,구글서치바서 좌측하단 앱 focus. 고정위치 focus 노출
+24.Launcher#145.0,24.Launcher,145.0,Focus - 홈 화면,-,0.78,하키→좌측최하단 앱 focus. 고정위치 focus 이동
+24.Launcher#146.0,24.Launcher,146.0,Focus - 홈 화면,-,0.78,"최하단 하키→앱서랍 열림. 화면전환 assert, mutation 없음"
+24.Launcher#147.0,24.Launcher,147.0,Focus - 홈 화면,-,0.82,최상단 상키 무반응. focus 경계 assert 가능
+24.Launcher#153.0,24.Launcher,153.0,Focus - 홈 화면,popup_cancel,0.8,"시스템 기본 다수앱 홈, OK롱탭 말풍선 고정라벨+'앱정보' 포커스, mutation 없음"
+24.Launcher#154.0,24.Launcher,154.0,Focus - 홈 화면,popup_cancel,0.8,"말풍선 하방향 포커스 설치삭제→위젯 고정라벨 이동만, 입력·부작용 없음"
+24.Launcher#155.0,24.Launcher,155.0,Focus - 홈 화면,popup_cancel,0.76,"롱탭 후 뒤로/취소로 직전 시스템앱 포커스 복귀, 관찰·취소만 mutation 없음"
+24.Launcher#158.0,24.Launcher,158.0,Focus - 앱 서랍,-,0.82,"앱서랍 방향키시 좌상단 시스템앱 포커스, 기본 앱 존재만 전제 관찰만"
+24.Launcher#159.0,24.Launcher,159.0,Focus - 앱 서랍,-,0.82,"상방향시 서치바 포커스+경계 무반응, 고정 요소 assert mutation 없음"
+24.Launcher#160.0,24.Launcher,160.0,Focus - 앱 서랍,-,0.82,"우방향 포커스 이동+경계 무반응, 관찰 전용 mutation 없음"
+24.Launcher#161.0,24.Launcher,161.0,Focus - 앱 서랍,-,0.82,"하방향 포커스 이동+경계 무반응, 관찰 전용 mutation 없음"
+24.Launcher#241.0,24.Launcher,241.0,즐겨찾기,popup_cancel,0.8,"즐겨찾기 등록 0 명시 상태 롱탭 팝업+미등록 문구·취소/등록 고정 노출, mutation 없음"
+25.Call#291.0,25.Call,291.0,하드키 동작,-,0.78,"즐겨찾기 0 명시 상태 연락처 실행시 '즐겨찾기 추가' text 최초 포커스, 고정 라벨"
+25.Call#293.0,25.Call,293.0,하드키 동작,-,0.8,"즐겨찾기 0 명시 검색focus 하방향시 즐겨찾기 추가 포커스, 고정 라벨 관찰"
+25.Call#294.0,25.Call,294.0,하드키 동작,-,0.8,"즐겨찾기 0 검색focus 하방향 2회시 즐겨찾기 탭 포커스, 고정 요소 mutation 없음"
+25.Call#326.0,25.Call,326.0,하드키 동작,-,0.74,"더보기 단축다이얼 ok로 설정 화면 전환+페이지 탐색 최초 포커스, 고정 UI 관찰 부작용 없음"
+25.Call#327.0,25.Call,327.0,하드키 동작,-,0.76,"단축다이얼 페이지 탐색 우방향 100~199 전환+focus 유지, 고정 페이지 라벨 등록 슬롯 무관"
+25.Call#328.0,25.Call,328.0,하드키 동작,-,0.76,"페이지 탐색 좌방향 900~999 전환+focus 유지, 고정 페이지 라벨 mutation 없음"
+25.Call#331.0,25.Call,331.0,하드키 동작,-,0.78,"페이지 탐색 하방향 '연락처 추가' 포커스, 고정 라벨 관찰 mutation 없음"
+25.Call#332.0,25.Call,332.0,하드키 동작,-,0.8,"페이지 탐색 상방향 '뒤로가기' 포커스, 고정 요소 관찰 mutation 없음"
+25.Call#333.0,25.Call,333.0,하드키 동작,-,0.82,"'최초 focus 소리 및 진동'은 메뉴 라벨명 focus이지 실제 진동 아님. 화면전환+라벨 presence assert 가능, mutation 없음"
+25.Call#334.0,25.Call,334.0,하드키 동작,-,0.85,"설정화면 소리및진동 focus up→뒤로가기 focus. 고정 라벨 focus 이동만, mutation 없음"
+25.Call#335.0,25.Call,335.0,하드키 동작,-,0.85,"focus 아래 이동·최하단 정지. 고정 메뉴 focus 이동만, mutation 없음"
+25.Call#336.0,25.Call,336.0,하드키 동작,-,0.88,"소리및진동 focus ok→화면전환. 화면전환·라벨 presence assert 가능, ok는 진입일뿐 토글 아님"
+25.Call#337.0,25.Call,337.0,하드키 동작,-,0.85,"통화녹음 focus ok→화면전환+알림표시 메뉴 focus. 고정 라벨 presence, mutation 없음"
+25.Call#339.0,25.Call,339.0,하드키 동작,-,0.88,"알림표시 focus down→통화중자동녹음 focus. 고정 메뉴 focus 이동만, mutation 없음"
+25.Call#340.0,25.Call,340.0,하드키 동작,-,0.78,"자동녹음 focus ok→설정화면+사용 focus. ok는 화면진입, 사용은 focus 대상 라벨일뿐 토글 안함"
+25.Call#341.0,25.Call,341.0,하드키 동작,-,0.88,"자동녹음 focus down→저장된통화녹음 focus. 고정 메뉴 focus 이동만, mutation 없음"
+25.Call#353.0,25.Call,353.0,하드키 동작,-,0.85,"연락처 ok→'새 연락처 만들기' focus. 항상 존재하는 고정 항목 focus, 등록 연락처 무관, mutation 없음"
+25.Call#354.0,25.Call,354.0,하드키 동작,-,0.85,새연락처만들기 focus up/left/right→마이크/돋보기/더보기 아이콘 focus. 고정 아이콘 focus 이동만
+25.Call#355.0,25.Call,355.0,하드키 동작,-,0.85,"키패드 탭 후 방향키/ok→하단 숫자입력박스 focus. 앱내 진입, 고정 요소 focus 이동만, mutation 없음"
+25.Call#356.0,25.Call,356.0,하드키 동작,-,0.88,"입력칸 focus down→키패드'1' focus. 고정 키패드 focus 이동만, mutation 없음"
+25.Call#357.0,25.Call,357.0,하드키 동작,-,0.88,"숫자버튼 focus up→전화번호 입력칸 focus. 고정 요소 focus 이동만, mutation 없음"
+26.Message#68.0,26.Message,68.0,하드키 동작,-,0.83,"차단/스팸관리 진입 후 '뒤로가기' 고정 라벨 최초 focus. 메뉴구조 정적, 데이터 무관, mutation 0."
+26.Message#69.0,26.Message,69.0,하드키 동작,-,0.84,"차단/스팸관리에서 Up/Down focus 이동만. 방향키 탐색, 부작용 없음."
+26.Message#70.0,26.Message,70.0,하드키 동작,-,0.82,"'차단된 번호' 고정 메뉴항목 진입 focus 이동. 정적 메뉴, 데이터 무관, mutation 0."
+26.Message#71.0,26.Message,71.0,하드키 동작,-,0.82,"'차단된 문구' 고정 메뉴항목 진입 focus 이동. 정적 메뉴, 데이터 무관, mutation 0."
+26.Message#72.0,26.Message,72.0,하드키 동작,-,0.82,"'차단된 메시지' 고정 메뉴항목 진입 focus 이동. 정적 메뉴, 데이터 무관, mutation 0."
+26.Message#73.0,26.Message,73.0,하드키 동작,popup_cancel,0.79,스팸 신고 안내 팝업 '취소' 최초 focus + 이동. 취소로 무변경 종결.
+26.Message#74.0,26.Message,74.0,하드키 동작,popup_cancel,0.78,"개인정보 수집 동의 팝업 '취소' 최초 focus + 이동. 취소=동의 안함, mutation 회피."
+26.Message#75.0,26.Message,75.0,,-,0.8,"휴지통 진입 후 '뒤로가기' 고정 라벨 최초 focus + 이동. 삭제데이터 무관, 고정요소 assert."
+26.Message#76.0,26.Message,76.0,하드키 동작,-,0.83,설정 진입 후 '뒤로가기' 고정 라벨 최초 focus. mutation 없음.
+26.Message#77.0,26.Message,77.0,하드키 동작,-,0.85,"설정 화면 Up/Down focus 이동만. 방향키 탐색, 부작용 없음."
+26.Message#80.0,26.Message,80.0,하드키 동작,-,0.83,설정>MMS 진입 후 '뒤로가기' 고정 focus + 이동. mutation 없음.
+26.Message#81.0,26.Message,81.0,하드키 동작,-,0.83,설정>알림 진입 후 '뒤로가기' 고정 focus + 이동. mutation 없음.
+26.Message#82.0,26.Message,82.0,하드키 동작,-,0.81,글꼴 크기 진입 후 '시스템 글꼴 크기를 따름' 고정 라벨 최초 focus + 이동. 고정텍스트 assert.
+27.Contacts#2.0,27.Contacts,2.0,연락처 - 하드키 focus,-,0.86,"precondition '등록된 연락처 없음' 명시, '새 연락처 만들기' 고정 라벨 최초 focus. fixture 깨끗."
+27.Contacts#3.0,27.Contacts,3.0,연락처 - 하드키 focus,-,0.85,"연락처 없음 상태, Press Up 시 좌상단 메뉴 focus. 고정 요소, mutation 없음."
+27.Contacts#4.0,27.Contacts,4.0,연락처 - 하드키 focus,-,0.85,"연락처 없음, 메뉴에서 Right 시 '추가하기(+)' 버튼 focus. 고정 요소, mutation 없음."
+27.Contacts#5.0,27.Contacts,5.0,연락처 - 하드키 focus,-,0.85,"추가 버튼에서 Right 시 '검색 버튼' focus. 고정 요소, mutation 없음."
+27.Contacts#6.0,27.Contacts,6.0,연락처 - 하드키 focus,-,0.85,"상단 버튼에서 Down 시 '새 연락처 만들기' focus. 고정 요소, mutation 없음."
+27.Contacts#48.0,27.Contacts,48.0,새 연락처 생성 - 하드키 focus,-,0.86,"사진변경 팝업 고정항목 focus 이동(찍기→선택), mutation 없음, 라벨 assert 가능"
+27.Contacts#49.0,27.Contacts,49.0,새 연락처 생성 - 하드키 focus,-,0.86,"사진변경 팝업 고정항목 focus 이동(변경→취소), 부작용 없음"
+27.Contacts#50.0,27.Contacts,50.0,새 연락처 생성 - 하드키 focus,-,0.9,"빈 새연락처 폼 이름칸→확장버튼(▽) focus 이동, mutation 없음"
+27.Contacts#53.0,27.Contacts,53.0,새 연락처 생성 - 하드키 focus,-,0.9,"빈 폼 이름칸→전화번호칸 focus 이동, 부작용 없음"
+27.Contacts#54.0,27.Contacts,54.0,새 연락처 생성 - 하드키 focus,-,0.9,"전화번호칸→메일칸 focus 이동, mutation 없음"
+27.Contacts#55.0,27.Contacts,55.0,새 연락처 생성 - 하드키 focus,-,0.8,"메일칸→항목더보기 focus 이동, 저장위치값은 precondition 컨텍스트로 미assert"
+27.Contacts#57.0,27.Contacts,57.0,새 연락처 생성 - 하드키 focus,-,0.78,"항목더보기 활성 precondition 선언 상태에서 Down→저장위치 focus, 요소 presence assert"
+27.Contacts#60.0,27.Contacts,60.0,,popup_cancel,0.7,"드롭박스 cancel/back으로 닫고 focus 유지, roundtrip 복원 관찰"
+27.Contacts#65.0,27.Contacts,65.0,그룹 만들기 - 하드키 focus,-,0.85,"그룹만들기 입력창→취소 focus 이동, 빈 폼 결정적"
+27.Contacts#68.0,27.Contacts,68.0,그룹 만들기 - 하드키 focus,-,0.88,"메뉴→추가 focus 이동, 고정 라벨 assert 가능"
+27.Contacts#69.0,27.Contacts,69.0,그룹 만들기 - 하드키 focus,-,0.88,"추가→더보기 focus 이동, mutation 없음"
+27.Contacts#70.0,27.Contacts,70.0,그룹 만들기 - 하드키 focus,-,0.85,"메뉴바→연락처추가하기 메뉴 focus 이동, 부작용 없음"
+27.Contacts#72.0,27.Contacts,72.0,그룹 만들기 - 하드키 focus,-,0.85,"뒤로가기→검색 focus 이동, 고정 라벨 결정적"
+27.Contacts#77.0,27.Contacts,77.0,연락처 설정 - 하드키 focus,-,0.78,"설정 화면 고정 구조항목(뒤로가기↔연락처정보) 상하 focus, looping 없음 assert"
+27.Contacts#79.0,27.Contacts,79.0,가져오기 - 하드키 focus,-,0.82,"내부저장소→뒤로가기 focus 이동, 결정적 라벨"
+28.Camera#130.0,28.Camera,130.0,하드키 동작 - 사진,-,0.78,"방향키 입력 시 촬영버튼 focus, 고정 요소 focus assert 가능"
+28.Camera#131.0,28.Camera,131.0,하드키 동작 - 사진,-,0.78,"UP 방향키로 사진 항목 focus 이동, 결정적 고정 요소"
+28.Camera#132.0,28.Camera,132.0,하드키 동작,-,0.76,"UP 연속으로 1x 항목 focus, 고정 요소 focus assert"
+28.Camera#133.0,28.Camera,133.0,하드키 동작,-,0.74,"전면 카메라 설정 항목 focus 이동, 고정 라벨, mutation 없음"
+28.Camera#134.0,28.Camera,134.0,하드키 동작,-,0.74,"전면 Right로 타이머 focus, 결정적 고정 요소"
+28.Camera#135.0,28.Camera,135.0,하드키 동작,-,0.74,"후면 UP 연속으로 타이머 focus, 고정 요소 assert 가능"
+28.Camera#136.0,28.Camera,136.0,하드키 동작,-,0.74,"후면 Right로 플래시 아이콘 focus, 결정적 고정 요소"
+28.Camera#137.0,28.Camera,137.0,하드키 동작,-,0.72,"후면 Down으로 2x focus 이동, 고정 요소 focus assert"
+28.Camera#146.0,28.Camera,146.0,하드키 동작,-,0.82,"precondition 공란, UP키로 사진 요소 포커스만 mutation 없음 고정 요소 assert"
+28.Camera#147.0,28.Camera,147.0,하드키 동작,-,0.85,방향키로 동영상 촬영 버튼 포커스 이동만 고정 요소 검증 mutation 없음
+28.Camera#157.0,28.Camera,157.0,하드키 동작,-,0.84,가로모드 방향키로 사진 촬영 버튼 포커스만 고정 요소 검증 mutation 없음
+28.Camera#158.0,28.Camera,158.0,하드키 동작,-,0.84,방향키로 동영상 촬영 버튼 포커스 이동만 고정 요소 검증
+28.Camera#163.0,28.Camera,163.0,하드키 동작,-,0.84,Up키로 화면 전환 요소 포커스만 고정 요소 검증 mutation 없음
+28.Camera#164.0,28.Camera,164.0,하드키 동작,-,0.82,Left키로 사진 요소 포커스만 mutation 없음 고정 요소 포커스 assert
+28.Camera#166.0,28.Camera,166.0,하드키 동작,-,0.8,Left키로 1X 배율 라벨 포커스만 포커스 이동이며 줌 적용 아님
+28.Camera#167.0,28.Camera,167.0,하드키 동작,-,0.8,방향키로 2X 라벨 포커스만 포커스 이동이며 줌 적용 아님
+28.Camera#174.0,28.Camera,174.0,하드키 동작,-,0.84,방향키로 타이머 요소 포커스만 고정 요소 검증 mutation 없음
+28.Camera#175.0,28.Camera,175.0,하드키 동작,-,0.84,방향키로 설정 요소 포커스만 고정 요소 검증 mutation 없음
+29.Clock#1.0,29.Clock,1.0,Focus,-,0.9,"알람 없음 명시, 방향키로 '+' 아이콘 포커스만 고정 요소 검증"
+29.Clock#2.0,29.Clock,2.0,Focus,-,0.88,"알람 없음 명시, Up으로 '+' 포커스 후 무변화 고정 요소 검증"
+29.Clock#3.0,29.Clock,3.0,Focus,-,0.9,"알람 없음 명시, Down으로 '알람 추가' 문구 포커스만 고정 텍스트 검증"
+29.Clock#4.0,29.Clock,4.0,Focus,-,0.89,Down 2회로 하단 '알람' 탭 포커스만 고정 탭 요소 검증
+29.Clock#5.0,29.Clock,5.0,Focus,-,0.88,Right로 세계시각/타이머/스톱워치 탭 포커스 이동만 고정 탭 라벨 검증
+29.Clock#9.0,29.Clock,9.0,Focus - 세계시각,-,0.88,세계시각 탭에서 방향키로 '+' 아이콘 포커스만 고정 요소 검증
+29.Clock#10.0,29.Clock,10.0,Focus - 세계시각,-,0.76,"OK로 도시 선택창 이동+뒤로가기 버튼 포커스, 화면 전환·포커스만 데이터 mutation 아님"
+29.Clock#15.0,29.Clock,15.0,Focus - 타이머,-,0.88,"타이머 없음 명시, 방향키로 '00분' 영역 포커스만 고정 요소 검증"
+29.Clock#17.0,29.Clock,17.0,Focus - 타이머,-,0.87,"타이머 없음, Right/Left로 '00초'/'00시' 영역 포커스 이동만 고정 요소 검증"
+29.Clock#18.0,29.Clock,18.0,Focus - 타이머,-,0.86,"타이머 없음, Right 2회로 스톱워치 탭 이동만 고정 탭 검증 포커스 이동"
+29.Clock#19.0,29.Clock,19.0,Focus - 타이머,-,0.85,"타이머 없음, Keep Down/Up으로 알람 탭/더보기 아이콘 포커스 한계 고정 요소 검증"
+29.Clock#26.0,29.Clock,26.0,Focus - 스톱워치,-,0.88,스톱워치 진입 후 방향키로 재생버튼 최초 포커스만 고정 요소 검증
+30.Voice Recorder#1.0,30.Voice Recorder,1.0,Focus,-,0.9,하드키 입력으로 '녹음 시작' 아이콘 포커스만 녹음 미시작 고정 요소 검증
+31.Radio#17.0,31.Radio,17.0,Focus,-,0.83,"채널 리스트서 Right→즐겨찾기 아이콘(고정 UI 요소) 포커스. mutation·input 없음, 요소 presence assert 가능."
+32.Calculator#25.0,32.Calculator,25.0,하드키 focus,-,0.84,"공학 계산기 좌우키 행 포커스 이동, 끝 loop 미동작. 고정 버튼, 결정적 포커스 assert."
+32.Calculator#26.0,32.Calculator,26.0,하드키 focus,-,0.84,"상하키 열 포커스 이동, 끝 loop 미동작. 고정 버튼 포커스 assert, 변형 없음."
+5.Magnifying glasses#1.0,5.Magnifying glasses,1.0,Focus,-,0.82,"돋보기 진입 후 방향키/OK→줌 슬라이더 핸들(고정) 포커스. presence assert 가능, mutation 없음."
+5.Magnifying glasses#2.0,5.Magnifying glasses,2.0,Focus,-,0.82,"하드키 돋보기 진입 후 줌 슬라이더 핸들 포커스 확인. 고정 요소 assert, 변형 없음."
+5.Magnifying glasses#5.0,5.Magnifying glasses,5.0,Focus,-,0.81,손전등 버튼 focus서 위키→확대/축소 그래프(고정 요소) 포커스 이동. mutation 없음.
+5.Magnifying glasses#6.0,5.Magnifying glasses,6.0,Focus,-,0.8,촬영 버튼 focus서 왼쪽키→썸네일 버튼(고정 UI) 포커스 이동. 사진 데이터 아닌 버튼 assert.
+5.Magnifying glasses#10.0,5.Magnifying glasses,10.0,Focus,-,0.82,"최초 포커스서 위키→포커스 이동 안함. 포커스 부동 assert 가능, mutation 없음."
+6.Pedometer app#40.0,6.Pedometer app,40.0,하드키 - focus,-,0.84,최초 실행 시 최초 focus 뒤로가기 버튼(고정) 위치 확인. presence assert 가능.
+6.Pedometer app#41.0,6.Pedometer app,41.0,하드키 - focus,-,0.84,"뒤로가기 focus서 Down→키 항목(고정) 포커스. 포커스 이동만, mutation 없음."
+6.Pedometer app#42.0,6.Pedometer app,42.0,하드키 - focus,-,0.84,"키 focus서 Down→몸무게(고정 항목) 포커스. assert 가능, 입력 없음."
+6.Pedometer app#43.0,6.Pedometer app,43.0,하드키 - focus,-,0.84,"몸무게 focus서 Down→성별(고정 항목) 포커스. 포커스 이동만, mutation 없음."
+6.Pedometer app#44.0,6.Pedometer app,44.0,하드키 - focus,-,0.84,성별 focus서 Down→목표 걸음수(고정 항목) 포커스. assert 가능.
+8. Picture Frame widget#10.0,8. Picture Frame widget,10.0,FOCUS 동작,-,0.77,슬라이드쇼서 좌우/위키→화살표·편집 아이콘(고정 chrome) 포커스. 사진 아닌 위젯 UI assert.
+8. Picture Frame widget#11.0,8. Picture Frame widget,11.0,FOCUS 동작,-,0.8,화살표 포커스서 방향키→아무 일 없음 또는 설정 아이콘 포커스. 포커스 경계 assert 가능.
+8. Picture Frame widget#13.0,8. Picture Frame widget,13.0,Focus - Photo sildeshow,-,0.78,"슬라이드쇼서 OK→편집(고정 chrome)에 포커스 위치. 메뉴 진입 아닌 포커스 land, assert 가능."
+8. Picture Frame widget#14.0,8. Picture Frame widget,14.0,Focus - Photo sildeshow,-,0.8,"OK 후 Down→< 화살표(고정) 포커스. 포커스 이동만, mutation 없음."
+8. Picture Frame widget#15.0,8. Picture Frame widget,15.0,Focus - Photo sildeshow,-,0.8,"OK·Down·Right→> 화살표(고정) 포커스. 포커스 이동만, 입력·변형 없음."
+8. Picture Frame widget#22.0,8. Picture Frame widget,22.0,Focus - Photo sildeshow 편집,-,0.78,편집 뒤로가기 포커스서 Right→저장(고정 chrome) 포커스. 사진 데이터 무관 버튼간 이동.
+9.Simple settings#8.0,9.Simple settings,8.0,Simple settings,-,0.84,"쉬운 설정서 방향키/OK→소리및진동(고정 메뉴) 포커스. assert 가능, 변형 없음."
+9.Simple settings#9.0,9.Simple settings,9.0,Simple settings,-,0.84,"좌우키→포커스 이동·변화 없음. 포커스 부동 assert 가능, mutation 없음."
+9.Simple settings#12.0,9.Simple settings,12.0,Simple settings,-,0.88,"방향키 네비게이션으로 WiFi 설정 메뉴 진입, expected는 고정 메뉴 진입 assert, fixture·입력·mutation 0"
+9.Simple settings#13.0,9.Simple settings,13.0,Simple settings,-,0.88,"테마및배경화면 메뉴 진입만, 고정 라벨 presence assert 가능, 사용자데이터·toggle 없음"
+9.Simple settings#14.0,9.Simple settings,14.0,Simple settings,-,0.9,"디스플레이 메뉴 진입만, 입력·부작용 없고 고정 메뉴 진입 결정적"
+9.Simple settings#15.0,9.Simple settings,15.0,Simple settings,-,0.89,"안심기능 메뉴 진입 검증, fixture·toggle 없음 고정 라벨 assert 가능"
+9.Simple settings#16.0,9.Simple settings,16.0,Simple settings,-,0.85,"Emergency 메뉴 진입만, expected는 메뉴 진입 자체로 carrier 비가변, mutation 없음"

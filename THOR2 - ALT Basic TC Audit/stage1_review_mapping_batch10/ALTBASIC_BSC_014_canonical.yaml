@@ -1,0 +1,54 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_BSC_014
+title: "Recent App 버튼 — 최근앱 리스트 화면 전환 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "1.Basic principle"
+  row: "14.0"
+preconditions:
+  - { text: "폴더 열린상태", normalized: "폴더(폴더폰)를 펼친 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Recent App 버튼 누른다"
+    normalized_intent:
+      type: press_key
+      target: "Recent App 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "최근앱 리스트 화면", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Recent App 버튼 누른다", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 최근앱 리스트 화면으로 전환된다"
+expected_texts_candidate:
+  - "최근앱 리스트 화면"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "최근앱 리스트 화면 전환 노출만 확인. 리스트 항목 탭/제거 등 접촉 금지."
+  cleanup_candidate: "HOME으로 홈 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

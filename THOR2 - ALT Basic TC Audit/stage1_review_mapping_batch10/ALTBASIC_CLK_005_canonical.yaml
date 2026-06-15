@@ -1,0 +1,58 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_CLK_005
+title: "시계 — 알람 탭에서 Right 반복 시 세계시각·타이머·스톱워치 탭 포커스 이동 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "5.0"
+preconditions:
+  - { text: "—", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "시계 > Press Any Direction > Press Down > Press Down > Press Right"
+    normalized_intent:
+      type: press_key
+      target: "시계 > Press Any Direction > Press Down > Press Down > Press Right"
+      value: null
+    expected:
+      - { type: verify_text, target: "세계시각", value: null }
+      - { type: verify_text, target: "타이머", value: null }
+      - { type: verify_text, target: "스톱워치", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "시계 > Press Any Direction > Press Down > Press Down > Press Right", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "\"세계시각\" 탭으로 포커스 이동되며 Press Right시마다 \"타이머\", \"스톱워치\" 탭으로 포커스 이동된다."
+expected_texts_candidate:
+  - "세계시각"
+  - "타이머"
+  - "스톱워치"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "탭 포커스 이동 노출 확인만 — 각 탭 실제 진입 탭 금지, 상태 단정 비단정."
+  cleanup_candidate: "HOME으로 홈 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

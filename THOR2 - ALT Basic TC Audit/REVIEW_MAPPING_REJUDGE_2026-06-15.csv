@@ -1,0 +1,1131 @@
+﻿row_key,sheet,tc_id,verdict,defect_class,redesign_pattern,defer_category,cue_flags,confidence,reason,pass
+1.Basic principle#1.0,1.Basic principle,1.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,"'아무런 동작 없음' - 무동작 negative assert, 확인할 positive 요소 없음(부재 증명)",strict2
+1.Basic principle#2.0,1.Basic principle,2.0,REVIEW,,-,A_fixture,fixture,0.85,"음악 재생 중 fixture 전제, 볼륨 1단계 변화 검증 위해 재생상태 구성 필요",pass1
+1.Basic principle#3.0,1.Basic principle,3.0,REVIEW,,-,A_fixture,fixture,0.85,"라디오 재생 중 fixture 전제, 볼륨 변화 검증 위해 재생상태 구성 필요",pass1
+1.Basic principle#4.0,1.Basic principle,4.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,"'아무런 동작 없음' - 무동작 negative assert, positive 요소 부재로 결정적 검증 불가",strict2
+1.Basic principle#5.0,1.Basic principle,5.0,REVIEW,,-,A_fixture,fixture,0.85,"음악 재생 중 fixture 전제, 볼륨 1단계 작게 검증 위해 재생상태 구성 필요",pass1
+1.Basic principle#6.0,1.Basic principle,6.0,REVIEW,,-,A_fixture,fixture,0.85,"라디오 재생 중 fixture 전제, 볼륨 작게 검증 위해 재생상태 구성 필요",pass1
+1.Basic principle#7.0,1.Basic principle,7.0,REVIEW,D2_verifier,-,C_verifier,none,0.88,expected가 Sub LCD On/걸음수화면 - 별도 디스플레이 비결정 verify 불가,strict2
+1.Basic principle#8.0,1.Basic principle,8.0,EXCLUDE,,-,-,external,0.92,"구제 재적용: expected '등록 보호자에게 위치·알림 보내기' = 실제 외부발송 결과 서술, 라벨·취소경로 아님 → EXCLUDE 유지",pass1
+1.Basic principle#9.0,1.Basic principle,9.0,REVIEW,D5_mutation,roundtrip_restore,D_system_state,none,0.82,Vol Up시 벨소리 볼륨 Up - 시스템 음량 변경 부작용,strict2
+1.Basic principle#10.0,1.Basic principle,10.0,REVIEW,D5_mutation,roundtrip_restore,D_system_state,none,0.82,Vol Down시 벨소리 볼륨 Down - 시스템 음량 변경 부작용,strict2
+1.Basic principle#11.0,1.Basic principle,11.0,REVIEW,D3_prestate,-,A_fixture,none,0.75,"구글 어시스턴트 실행 - 외부 구글앱/계정 의존 실행, 전제 셋업",strict2
+1.Basic principle#12.0,1.Basic principle,12.0,REVIEW,D5_mutation,-,D_system_state,none,0.8,SOS 5회시 안드로이드 SOS 기능 동작 - 긴급 외부효과 트리거,strict2
+1.Basic principle#13.0,1.Basic principle,13.0,EXCLUDE,,-,-,external,0.92,"구제 재적용: expected '등록 보호자에게 위치·알림 보내기' = 실제 외부발송, 라벨·빈상태 아님 → EXCLUDE 유지",pass1
+1.Basic principle#14.0,1.Basic principle,14.0,KEEP,none,-,-,none,0.85,"Recent App 버튼시 최근앱 리스트 화면 전환 - 화면전환 assert만, mutation 없음",strict2
+1.Basic principle#15.0,1.Basic principle,15.0,KEEP,none,-,-,none,0.92,"Home 버튼시 홈스크린 전환 - 고정 화면전환 assert, mutation 없음",strict2
+1.Basic principle#16.0,1.Basic principle,16.0,REVIEW,D3_prestate,-,A_fixture,none,0.68,"'이전화면으로 전환' - 직전 화면이 context 의존, 결정적 요소 assert 불가",strict2
+1.Basic principle#17.0,1.Basic principle,17.0,KEEP,none,-,-,none,0.88,"Contact 버튼시 연락처앱 초기화면 전환 - 앱 초기화면 assert, 데이터무관",strict2
+1.Basic principle#18.0,1.Basic principle,18.0,KEEP,none,-,-,none,0.88,"Message 버튼시 메시지앱 초기화면 전환 - 앱 초기화면 assert, 데이터무관",strict2
+1.Basic principle#19.0,1.Basic principle,19.0,KEEP,none,-,-,none,0.85,Camera 버튼시 카메라앱 초기화면 전환 - 앱 초기화면 assert만,strict2
+1.Basic principle#20.0,1.Basic principle,20.0,REVIEW,D1_fixture,-,A_fixture,none,0.82,'즐겨찾기 등록된 앱 화면' - 사전 등록 즐겨찾기 데이터 전제,strict2
+1.Basic principle#21.0,1.Basic principle,21.0,REVIEW,D1_fixture,-,A_fixture,none,0.65,"통화목록 화면 - 통화 기록 사용자 데이터 의존 가능, 빈/채움 가변",strict2
+1.Basic principle#23.0,1.Basic principle,23.0,REVIEW,D3_prestate,-,A_fixture,none,0.66,precondition '홈화면 아닌 상태' - 임의 비홈화면 선행 셋업 전제,strict2
+1.Basic principle#24.0,1.Basic principle,24.0,REVIEW,,-,A_fixture,fixture,0.82,"통화중 fixture 전제 + 통화종료 상태변경 검증, 실통화 구성 필요",pass1
+1.Basic principle#25.0,1.Basic principle,25.0,KEEP,none,popup_cancel,-,none,0.85,종료 길게시 전원종료 팝업(긴급전화/끄기/재시작) 고정라벨 observe,strict2
+1.Basic principle#26.0,1.Basic principle,26.0,REVIEW,D3_prestate,-,A_fixture,none,0.66,'이전화면' + '홈화면 아닌 상태' - 직전화면 비결정 + 선행 셋업 전제,strict2
+1.Basic principle#27.0,1.Basic principle,27.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.8,"Text 입력중 fixture + 마지막 Text 삭제 input field 상태변경 검증, 삭제는 reconstructable transient",pass1
+1.Basic principle#28.0,1.Basic principle,28.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.8,"Text 입력중 fixture + Text 모두 삭제 input field 상태변경 검증, 영속 데이터 아님 transient",pass1
+1.Basic principle#29.0,1.Basic principle,29.0,REVIEW,D5_mutation,transient_input,E_binding,none,0.74,숫자버튼시 다이얼러 전환+입력번호 노출 - 입력 부작용 발생,strict2
+1.Basic principle#31.0,1.Basic principle,31.0,KEEP,none,popup_cancel,-,none,0.82,"QuickDialer 미설정 precondition 명시, 숫자길게→'설정번호 없다' 고정문구 observe",strict2
+1.Basic principle#32.0,1.Basic principle,32.0,REVIEW,D5_mutation,transient_input,E_binding,none,0.74,* 짧게시 다이얼러 실행+* 입력 - 입력 부작용 발생,strict2
+1.Basic principle#33.0,1.Basic principle,33.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.78,Text 입력 Field fixture 전제 + 입력모드 변경 transient 검증,pass1
+1.Basic principle#34.0,1.Basic principle,34.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,"구제 재적용: 진동모드 On/Off 토글은 영속이나 가역(roundtrip 복원 가능), expected가 검증 대상=상태확인 → EXCLUDE 완화 REVIEW",pass1
+1.Basic principle#35.0,1.Basic principle,35.0,REVIEW,D5_mutation,transient_input,E_binding,none,0.74,# 짧게시 다이얼러 실행+# 입력 - 입력 부작용 발생,strict2
+1.Basic principle#36.0,1.Basic principle,36.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.78,Text 입력 Field fixture 전제 + 공란 입력 transient 검증,pass1
+1.Basic principle#37.0,1.Basic principle,37.0,REVIEW,D5_mutation,popup_cancel,D_system_state,none,0.66,"# 길게시 터치스크린 락 On/Off 설정 팝업 - mutation gateway, observe-only 불확실",strict2
+1.Basic principle#38.0,1.Basic principle,38.0,KEEP,none,-,-,none,0.9,Navi Up 짧게시 포커스 위로 이동 - focus 이동 assert만,strict2
+1.Basic principle#39.0,1.Basic principle,39.0,KEEP,none,-,-,none,0.85,Navi Up 길게시 포커스 위로 빠르게 이동 - focus 이동 assert만,strict2
+1.Basic principle#40.0,1.Basic principle,40.0,KEEP,none,-,-,none,0.9,Navi Down 짧게시 포커스 아래 이동 - focus 이동 assert만,strict2
+1.Basic principle#41.0,1.Basic principle,41.0,KEEP,none,-,-,none,0.85,Navi Down 길게시 포커스 아래 빠르게 이동 - focus 이동 assert만,strict2
+1.Basic principle#42.0,1.Basic principle,42.0,KEEP,none,-,-,none,0.9,Navi Left 짧게시 포커스 왼쪽 이동 - focus 이동 assert만,strict2
+1.Basic principle#43.0,1.Basic principle,43.0,KEEP,none,-,-,none,0.85,Navi Left 길게시 포커스 왼쪽 빠르게 이동 - focus 이동 assert만,strict2
+1.Basic principle#44.0,1.Basic principle,44.0,KEEP,none,-,-,none,0.9,Navi Right 짧게시 포커스 오른쪽 이동 - focus 이동 assert만,strict2
+1.Basic principle#45.0,1.Basic principle,45.0,KEEP,none,-,-,none,0.85,Navi Right 길게시 포커스 오른쪽 빠르게 이동 - focus 이동 assert만,strict2
+1.Basic principle#46.0,1.Basic principle,46.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.78,"OK 짧게시 포커스 앱/기능 실행 - 앱 실행 부작용, 대상 가변",strict2
+1.Basic principle#47.0,1.Basic principle,47.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.78,"OK 길게시 포커스 앱/기능 설정메뉴 노출 - 설정진입 부작용, 대상 가변",strict2
+1.Basic principle#48.0,1.Basic principle,48.0,REVIEW,,-,D_system_state,none,0.8,"화면 잠금 상태 사전 조작 전제, 잠금화면서 Volume 조절바·Up 검증",pass1
+1.Basic principle#49.0,1.Basic principle,49.0,REVIEW,,-,D_system_state,none,0.8,"화면 잠금 상태 사전 조작 전제, 잠금화면서 Volume 조절바·Down 검증",pass1
+1.Basic principle#50.0,1.Basic principle,50.0,REVIEW,,-,D_system_state,none,0.8,"화면 잠금 상태 사전 조작 전제, 조절바 사라지고 잠금화면 유지 검증",pass1
+1.Basic principle#51.0,1.Basic principle,51.0,REVIEW,D5_mutation,roundtrip_restore,D_system_state,none,0.72,잠금서 Vol Down→취소; 음량변경 부작용 후 조절바 사라짐,strict2
+1.Basic principle#52.0,1.Basic principle,52.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.72,Vol Up 후 조절바 3초 유지후 사라짐 - 시간기반 소멸 비결정+음량 mutation,strict2
+1.Basic principle#53.0,1.Basic principle,53.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.72,Vol Down 후 조절바 3초 유지후 사라짐 - 시간기반 소멸 비결정+음량 mutation,strict2
+1.Basic principle#54.0,1.Basic principle,54.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.74,Vol Up→OK로 소리모드 노출+음량/모드 변경 - 선택 부작용 경로,strict2
+1.Basic principle#55.0,1.Basic principle,55.0,REVIEW,D5_mutation,roundtrip_restore,D_system_state,none,0.72,Vol Up→취소; 조절바 사라짐이나 Vol Up 음량변경 부작용 잔존,strict2
+1.Basic principle#56.0,1.Basic principle,56.0,REVIEW,D5_mutation,observe_split,D_system_state,none,0.72,Vol Up→3초방치 조절바 사라짐; 음량변경+시간기반 소멸,strict2
+1.Basic principle#57.0,1.Basic principle,57.0,REVIEW,D5_mutation,observe_split,D_system_state,none,0.72,Vol Up→Navi Down 더보기 포커스; 조절바 노출에 음량변경 부작용,strict2
+1.Basic principle#58.0,1.Basic principle,58.0,REVIEW,,observe_split,F_misc,mutation,0.65,"expected2 'Volume 1단계 Down 조절' 실제 볼륨값 변경 포함, 노출과 혼합 → assert 분리",pass1
+1.Basic principle#59.0,1.Basic principle,59.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.74,Vol Down→OK로 소리모드 노출 - 음량변경+선택 부작용 경로,strict2
+1.Basic principle#60.0,1.Basic principle,60.0,REVIEW,,observe_split,F_misc,mutation,0.62,expected2 'Volume Max까지 설정' 영속 볼륨값 변경 mutation → assert 분리,pass1
+1.Basic principle#61.0,1.Basic principle,61.0,REVIEW,,observe_split,F_misc,mutation,0.62,expected2 '진동으로 설정' 음향모드 영속 변경 mutation → assert 분리,pass1
+1.Basic principle#62.0,1.Basic principle,62.0,REVIEW,D5_mutation,roundtrip_restore,D_system_state,none,0.72,Vol Up→취소; 조절바 사라짐이나 음량변경 부작용 잔존,strict2
+1.Basic principle#63.0,1.Basic principle,63.0,REVIEW,D5_mutation,observe_split,D_system_state,none,0.72,Vol Up→3초방치 조절바 사라짐; 음량변경+시간기반 소멸,strict2
+1.Basic principle#64.0,1.Basic principle,64.0,REVIEW,D5_mutation,observe_split,D_system_state,none,0.72,Vol Up→Navi Down 더보기 포커스; 음량변경 부작용 동반,strict2
+1.Basic principle#65.0,1.Basic principle,65.0,REVIEW,,-,D_system_state,fixture,0.62,PIN 잠금 상태 사전 설정 필요(시스템 상태 pre). 키입력 후 잠금 유지 관찰,pass1
+1.Basic principle#66.0,1.Basic principle,66.0,REVIEW,,transient_input,C_verifier,"input,fixture",0.6,"숫자 입력 노출·일정시간 후 Hidden 검증 = transient input verifier, PIN fixture 필요",pass1
+1.Basic principle#67.0,1.Basic principle,67.0,REVIEW,,transient_input,D_system_state,"input,fixture",0.6,"올바른 PIN 입력 잠금해제, PIN fixture 전제 + 입력값 검증 필요",pass1
+1.Basic principle#68.0,1.Basic principle,68.0,REVIEW,,transient_input,D_system_state,"input,fixture",0.62,"틀린 PIN 입력 후 오류문구·잠금유지 검증, PIN fixture + 입력 전제",pass1
+1.Basic principle#69.0,1.Basic principle,69.0,REVIEW,,transient_input,D_system_state,"input,fixture",0.62,"숫자 입력값 PIN창 반영 검증, PIN fixture + input 검증 필요",pass1
+1.Basic principle#70.0,1.Basic principle,70.0,REVIEW,,-,D_system_state,"input,fixture",0.6,"PIN 잠금·키패드 노출 fixture 전제, 버튼 입력 후 PIN 화면 노출 관찰",pass1
+1.Basic principle#71.0,1.Basic principle,71.0,KEEP,none,-,-,none,0.82,홈서 Navi키 입력시 포커스 활성화되어 전화앱(고정) 위치 - focus 이동 assert만,strict2
+1.Basic principle#72.0,1.Basic principle,72.0,KEEP,none,-,-,none,0.8,포커스 활성서 Navi Up시 갤러리앱 아이콘으로 포커스 이동 - focus 이동 assert만,strict2
+1.Basic principle#73.0,1.Basic principle,73.0,KEEP,none,-,-,none,0.8,포커스 활성서 Navi Down시 앱서랍 진입 - 화면전환 assert만,strict2
+1.Basic principle#74.0,1.Basic principle,74.0,REVIEW,,-,E_binding,fixture,0.6,"간편모드·Message App 포커스 위치 fixture 전제, 리스트 binding 미결",pass1
+1.Basic principle#75.0,1.Basic principle,75.0,REVIEW,,-,E_binding,fixture,0.6,"간편모드·Camera App 포커스 위치 fixture 전제, 홈 레이아웃 binding 미결",pass1
+1.Basic principle#76.0,1.Basic principle,76.0,REVIEW,,-,E_binding,fixture,0.58,"일반모드 Grid 특정 위치(Gmail) 포커스 검증, 홈 앱배치 fixture/binding 필요",pass1
+1.Basic principle#77.0,1.Basic principle,77.0,REVIEW,,-,E_binding,fixture,0.55,"procedure 공란, Grid 1·2행 앱 없는 fixture 전제, 3행 포커스 binding 미결",pass1
+1.Basic principle#78.0,1.Basic principle,78.0,REVIEW,,-,E_binding,fixture,0.58,"특정 Grid 위치 앱 포커스 활성화 fixture 전제, 이동 binding 미결",pass1
+1.Basic principle#91.0,1.Basic principle,91.0,REVIEW,,-,A_fixture,fixture,0.58,"4개 항목 다중선택 리스트 화면 fixture 전제, Dropdown 초점 이동·색상 검증",pass1
+1.Basic principle#120.0,1.Basic principle,120.0,KEEP,none,popup_cancel,-,none,0.78,더보기 Tap→돌아가기시 Dropdown 닫히고 포커스 더보기 유지 - 닫힘/focus assert,strict2
+1.Basic principle#121.0,1.Basic principle,121.0,KEEP,none,popup_cancel,-,none,0.8,"더보기 탭으로 dropdown 연 뒤 하드키 취소로 닫힘+더보기 아이콘 focus 유지. 고정 아이콘 focus assert, mutation 없음",strict2
+1.Basic principle#124.0,1.Basic principle,124.0,KEEP,none,popup_cancel,-,none,0.72,"dropdown 활성 후 뒤로가기로 첫 항목 focus 소실. focus 부재 관찰 가능, 사용자 데이터 아님, mutation 없음",strict2
+10.Weather widget#1.0,10.Weather widget,1.0,REVIEW,,-,C_verifier,external,0.74,"OK로 네트워크 업데이트 호출+토스트 검증, 외부데이터/toast verifier 미실증",pass1
+10.Weather widget#2.0,10.Weather widget,2.0,REVIEW,,-,D_system_state,fixture,0.74,"15분 내 미업데이트 시간상태 pre 필요, 토스트·미업데이트 관찰",pass1
+10.Weather widget#3.0,10.Weather widget,3.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.62,"홈 위젯 focus 순서 검증, 날씨/갤러리 위젯 콘텐츠 존재 전제. 사용자 데이터 의존",strict2
+10.Weather widget#4.0,10.Weather widget,4.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.62,"갤러리>날씨 위젯 focus 순서, 갤러리/위젯 콘텐츠 존재 전제. 사용자 데이터 의존",strict2
+10.Weather widget#5.0,10.Weather widget,5.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.6,"라디오/메시지/갤러리 위젯 focus, 메시지앱·위젯 콘텐츠 존재 전제. 사용자 데이터 의존",strict2
+11.Hard Key#1.0,11.Hard Key,1.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,fixture",0.72,"음악/라디오 청취중 pre+볼륨버튼 미디어볼륨 영속변경, 복원 분리 필요",pass1
+11.Hard Key#2.0,11.Hard Key,2.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,"잠금화면 볼륨버튼으로 볼륨 영속 증감, 시스템 볼륨상태 변경",pass1
+11.Hard Key#3.0,11.Hard Key,3.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,"볼륨 길게눌러 최대/진동상태까지 영속 변경, 사운드모드 mutation",pass1
+11.Hard Key#4.0,11.Hard Key,4.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,"볼륨버튼 변경 후 그래프 사라짐 관찰, 시스템 볼륨 mutation 동반",pass1
+11.Hard Key#5.0,11.Hard Key,5.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,"볼륨버튼 변경+3초후 그래프 자동소멸 관찰, 볼륨 mutation 동반",pass1
+11.Hard Key#6.0,11.Hard Key,6.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,"홈화면 볼륨 단발/길게로 볼륨·진동상태 영속 변경, 시스템 mutation",pass1
+11.Hard Key#7.0,11.Hard Key,7.0,REVIEW,,observe_split,D_system_state,mutation,0.7,"볼륨+Navi키로 진동/무음/알림 모드 선택 노출, 사운드모드 변경 가능",pass1
+11.Hard Key#8.0,11.Hard Key,8.0,REVIEW,,observe_split,D_system_state,mutation,0.7,"볼륨+Navi키로 설정 버튼 활성 관찰, 볼륨변경 시스템 mutation 동반",pass1
+11.Hard Key#9.0,11.Hard Key,9.0,REVIEW,D2_verifier,-,C_verifier,none,0.85,앞면 불빛+mini LCD 별도 디스플레이 노출 검증. 고정 텍스트 assert 불가,strict2
+11.Hard Key#10.0,11.Hard Key,10.0,REVIEW,,-,A_fixture,"fixture,external",0.85,"보호자 설정·위치보내기 활성 fixture 전제, 위치를 보호자에게 발송 외부효과",pass1
+11.Hard Key#11.0,11.Hard Key,11.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"SOS 짧게에 설정된 앱 실행→앱 등록 fixture 전제, 실행 결과 검증",pass1
+11.Hard Key#12.0,11.Hard Key,12.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.6,SOS 길게서 등록하기/동의 탭 시 보호자 등록 페이지 이동. 모드선택·외부효과 경로,strict2
+11.Hard Key#13.0,11.Hard Key,13.0,REVIEW,,-,A_fixture,"fixture,external",0.85,"보호자 설정 fixture 전제, 위치를 보호자에게 발송 외부효과",pass1
+11.Hard Key#15.0,11.Hard Key,15.0,REVIEW,D2_verifier,-,C_verifier,none,0.82,"SUB LCD 별도 디스플레이 변경 검증, 음악 실행 상태 의존. 고정 assert 불가",strict2
+11.Hard Key#16.0,11.Hard Key,16.0,KEEP,none,-,-,none,0.72,"최근앱 버튼 시 '최근항목이 없습니다' 고정 텍스트. 빈 recents=기본 상태, presence assert 가능",strict2
+11.Hard Key#17.0,11.Hard Key,17.0,REVIEW,,-,A_fixture,fixture,0.7,"최근앱 리스트 위해 앱 진입후 나감 fixture 전제, 모두닫기는 라벨 노출",pass1
+11.Hard Key#18.0,11.Hard Key,18.0,REVIEW,D3_prestate,observe_split,B_compose,none,0.78,precondition '임의의 앱 실행' 선행 셋업 전제. 홈 이동 자체는 OK이나 prestate 의존,strict2
+11.Hard Key#19.0,11.Hard Key,19.0,KEEP,none,-,-,none,0.72,"홈 길게 시 퀵패널 열림. 화면 전환 관찰, 앱실행 선택('혹은'), mutation 없음",strict2
+11.Hard Key#20.0,11.Hard Key,20.0,REVIEW,D3_prestate,observe_split,B_compose,none,0.72,"precondition '임의의 앱 실행' 선행 셋업, expected '이전 화면' 가변 모호. prestate 의존",strict2
+11.Hard Key#21.0,11.Hard Key,21.0,KEEP,none,-,-,none,0.78,"연락처 버튼 시 화면 이동, 빈 시 '연락처가 없습니다'+'새 연락처 만들기' 고정 텍스트. 빈 상태 명시",strict2
+11.Hard Key#22.0,11.Hard Key,22.0,KEEP,none,-,-,none,0.8,"카메라 버튼 시 카메라 화면 이동. 화면 전환 관찰만, mutation 없음",strict2
+11.Hard Key#23.0,11.Hard Key,23.0,KEEP,none,-,-,none,0.74,"메시지 버튼 시 보관함 이동, 설정 리스트 고정 라벨, 빈 시 '대화가 없습니다'. fixed 요소 assert",strict2
+11.Hard Key#24.0,11.Hard Key,24.0,REVIEW,,selection_gated,A_fixture,fixture,0.7,앱 선택 등록후 즐겨찾기 이동 검증→등록 mutation·fixture 혼합,pass1
+11.Hard Key#25.0,11.Hard Key,25.0,REVIEW,,observe_split,A_fixture,"fixture,external",0.84,"연속2번/재누름이 최근연락처로 통화 연결=외부효과, 통화기록 fixture 혼합",pass1
+11.Hard Key#26.0,11.Hard Key,26.0,REVIEW,,transient_input,C_verifier,input,0.78,"문자 입력중 마지막/전체 문자 지움 검증=transient input, 영속 mutation 아님",pass1
+11.Hard Key#27.0,11.Hard Key,27.0,REVIEW,,observe_split,D_system_state,external,0.78,"통화중 종료=통화 종료 외부효과·활성통화 전제, 전원 팝업 노출 혼합",pass1
+11.Hard Key#28.0,11.Hard Key,28.0,REVIEW,,observe_split,A_fixture,"fixture,external",0.82,키패드 길게→단축번호 등록자 통화 연결=외부효과·단축등록 fixture 혼합,pass1
+11.Hard Key#29.0,11.Hard Key,29.0,REVIEW,,transient_input,D_system_state,input,0.8,PIN 잠금 설정 전제·PIN 입력후 OK로 잠금해제=시스템 상태조작,pass1
+11.Hard Key#30.0,11.Hard Key,30.0,REVIEW,,transient_input,D_system_state,input,0.8,"PIN 잠금 설정 전제, 비밀번호 일부 입력 transient 검증·시스템 상태 pre",pass1
+11.Hard Key#31.0,11.Hard Key,31.0,REVIEW,,transient_input,D_system_state,input,0.79,"비밀번호 잠금 설정 전제, 키패드 전환 transient input 검증",pass1
+11.Hard Key#32.0,11.Hard Key,32.0,REVIEW,,observe_split,D_system_state,input,0.78,"* 길게→진동모드 변경=영속 토글, IME변경·다이얼입력 transient 혼합",pass1
+11.Hard Key#33.0,11.Hard Key,33.0,REVIEW,,observe_split,D_system_state,input,0.78,"# 길게→화면잠금 실행/해제=시스템 상태조작, 띄어쓰기·다이얼입력 혼합",pass1
+11.Hard Key#34.0,11.Hard Key,34.0,KEEP,none,-,-,none,0.78,"초점 포인트 없을 때 버튼 시 초점 생성. focus 요소 presence assert, mutation 없음",strict2
+11.Hard Key#35.0,11.Hard Key,35.0,KEEP,none,-,-,none,0.8,"Navi↑ 짧게/길게 시 초점 위쪽 이동. focus 이동 관찰만, 초점 존재 precondition 명시, mutation 없음",strict2
+11.Hard Key#36.0,11.Hard Key,36.0,KEEP,none,-,-,none,0.8,"Navi↓ 짧게/길게 시 초점 아래쪽 이동. focus 이동 관찰만, mutation 없음",strict2
+11.Hard Key#37.0,11.Hard Key,37.0,KEEP,none,-,-,none,0.8,"Navi← 짧게/길게 시 초점 왼쪽 이동. focus 이동 관찰만, mutation 없음",strict2
+11.Hard Key#38.0,11.Hard Key,38.0,KEEP,none,-,-,none,0.8,"Navi→ 짧게/길게 시 초점 오른쪽 이동. focus 이동 관찰만, mutation 없음",strict2
+11.Hard Key#39.0,11.Hard Key,39.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.62,OK 시 앱/시스템 진입=화면전환 부작용. 진입 대상 비결정·외부효과 경로,strict2
+11.Hard Key#40.0,11.Hard Key,40.0,REVIEW,,transient_input,D_system_state,input,0.8,"PIN 잠금 설정 전제, Navi키로 비번 입력후 진입=시스템 상태조작",pass1
+11.Hard Key#41.0,11.Hard Key,41.0,KEEP,none,-,-,none,0.76,"홈서 Navi 시 전화앱 초점 활성, ↓ 더이상 이동 안함. focus 경계 assert, mutation 없음",strict2
+11.Hard Key#42.0,11.Hard Key,42.0,KEEP,none,-,-,none,0.74,"홈서 Navi↑ 반복 시 초점 위로 이동·전화앱서 시작. focus 이동 관찰만, mutation 없음",strict2
+11.Hard Key#43.0,11.Hard Key,43.0,KEEP,none,-,-,none,0.78,"최하단 초점서 Navi↑ 시 한단계 위 이동. precondition에 초점위치 명시, focus 이동 관찰만",strict2
+11.Hard Key#44.0,11.Hard Key,44.0,KEEP,none,-,-,none,0.72,"2번째 홈 grid서 Navi↓ 꾹 시 초점 순차 이동. 고정 앱 grid, focus 이동만, mutation 없음",strict2
+11.Hard Key#45.0,11.Hard Key,45.0,KEEP,none,-,-,none,0.72,"세번째 우측앱 초점서 Navi↑ 꾹 시 상단 좌측까지 이동. 고정 grid focus 이동만, mutation 없음",strict2
+11.Hard Key#46.0,11.Hard Key,46.0,KEEP,none,-,-,none,0.72,"상단 우측앱 초점서 Navi↓ 꾹 시 하단 전화앱까지 이동. 고정 grid focus 이동만, mutation 없음",strict2
+11.Hard Key#47.0,11.Hard Key,47.0,KEEP,none,-,-,none,0.72,"하단 좌측앱 초점서 Navi↑ 꾹 시 상단 좌측까지 이동. 고정 grid focus 이동만, mutation 없음",strict2
+11.Hard Key#48.0,11.Hard Key,48.0,REVIEW,,observe_split,D_system_state,none,0.6,퀵패널 WiFi 초점 이동만이나 PRIVILEGED·WiFi 토글 영속변경 인접 위험,pass1
+11.Hard Key#49.0,11.Hard Key,49.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.6,퀵패널서 펼치기 OK 시 전체메뉴 펼침=상태변경 부작용. 토글성 동작,strict2
+11.Hard Key#50.0,11.Hard Key,50.0,KEEP,none,popup_cancel,-,none,0.68,"퀵패널 전체화면서 뒤로가기 시 분할화면 복귀+WIFI 초점. 화면전환 관찰, WIFI 고정 요소 assert",strict2
+11.Hard Key#51.0,11.Hard Key,51.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.58,위쪽 아이콘 OK 누름이 분할화면 전환 트리거=선택 부작용 경로. 단순 노출 아님,strict2
+11.Hard Key#52.0,11.Hard Key,52.0,KEEP,none,popup_cancel,-,none,0.7,"종료팝업서 Navi→ 반복 시 응급전화/기기종료/재시작 초점 순환. focus 이동 관찰만, 실행 안함",strict2
+11.Hard Key#53.0,11.Hard Key,53.0,KEEP,none,popup_cancel,-,none,0.7,"종료팝업서 Navi← 시 응급전화/재시작/기기종료 초점 이동. focus 이동 관찰만, 실행 안함",strict2
+11.Hard Key#54.0,11.Hard Key,54.0,KEEP,none,popup_cancel,-,none,0.7,"종료팝업서 Navi↓↑ 시 재시작/응급전화 초점 이동. focus 이동 관찰만, 실행 안함",strict2
+11.Hard Key#55.0,11.Hard Key,55.0,KEEP,none,-,-,none,0.76,"메시지앱서 Navi 순회 시 작성/검색/더보기 focus. 고정 툴바 요소 focus assert, 메시지 데이터 불요",strict2
+11.Hard Key#56.0,11.Hard Key,56.0,KEEP,none,-,-,none,0.78,"설정 버튼 활성서 Navi→ 시 더이상 이동 안함·설정 버튼 유지. focus 경계 assert, mutation 없음",strict2
+11.Hard Key#57.0,11.Hard Key,57.0,REVIEW,,-,A_fixture,fixture,0.62,"메세지에 초점 활성 전제=대화/메세지 존재 fixture, ↓로 하단 메세지 초점 이동",pass1
+11.Hard Key#58.0,11.Hard Key,58.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.62,메시지 초점 전제+하단 메시지로 이동=대화 기록 존재 의존. 사용자 메시지 데이터 fixture,strict2
+11.Hard Key#59.0,11.Hard Key,59.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.55,메시지 OK 길게로 선택 체크+쓰레기통/더보기 활성=선택 모드 진입. 기존 메시지 데이터 전제,strict2
+11.Hard Key#60.0,11.Hard Key,60.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.55,메시지 OK 길게로 선택 체크 토글=선택 모드 부작용. 기존 메시지 데이터 전제,strict2
+11.Hard Key#61.0,11.Hard Key,61.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.6,주소록 최상단 연락처 focus·하단 연락처 이동=등록 연락처 존재 전제. 사용자 데이터 의존,strict2
+11.Hard Key#62.0,11.Hard Key,62.0,KEEP,none,-,-,none,0.74,"더보기 활성서 Navi← 반복 시 더이상 이동 안함. focus 경계 assert, mutation 없음",strict2
+11.Hard Key#63.0,11.Hard Key,63.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.62,precondition이 연락처 저장 유무로 분기(돋보기 vs +버튼). expected도 연락처 데이터 의존 가변,strict2
+11.Hard Key#64.0,11.Hard Key,64.0,KEEP,none,-,-,none,0.78,"연락처 없을 때 Navi 시 '새 연락처 만들기' 텍스트 이동. 빈 상태 precondition 명시, 고정 텍스트 assert",strict2
+11.Hard Key#65.0,11.Hard Key,65.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.6,"expected #4 '최상단에 있는 연락처로 초점' 등록 연락처 존재 전제. precondition 빈/비빈 미명시, 사용자 데이터 의존",strict2
+11.Hard Key#66.0,11.Hard Key,66.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.6,돋보기 OK 시 검색창 활성화=IME 키패드 올라옴 가능. 키패드 노출은 비결정 verifier,strict2
+11.Hard Key#67.0,11.Hard Key,67.0,REVIEW,,transient_input,B_compose,input,0.85,검색창 글자 입력 후 연관 리스트 검증=transient input 필요,pass1
+11.Hard Key#68.0,11.Hard Key,68.0,REVIEW,,transient_input,B_compose,input,0.85,검색창 글자 입력 후 X버튼·리스트 검증=transient input 필요,pass1
+11.Hard Key#69.0,11.Hard Key,69.0,KEEP,none,-,-,none,0.66,"더보기 OK 시 설정 리스트 활성+Navi 상하 리스트 focus. 고정 설정 메뉴 focus assert, 사용자 데이터 불요",strict2
+11.Hard Key#70.0,11.Hard Key,70.0,KEEP,none,popup_cancel,-,none,0.72,"더보기 OK로 리스트 활성, 뒤로가기로 닫힘+더보기 아이콘 활성. 화면전환 관찰, mutation 없음",strict2
+11.Hard Key#71.0,11.Hard Key,71.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.58,"중복선택/삭제 리스트 페이지 전제, List 1번째 focus=리스트 항목 데이터 존재 의존",strict2
+11.Hard Key#72.0,11.Hard Key,72.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.78,precondition '중복선택·삭제 가능 리스트페이지·List 활성'=삭제가능 사용자 데이터 존재 전제. 체크박스 활성화는 selection mutation 경계나 fixture 우선.,strict2
+11.Hard Key#73.0,11.Hard Key,73.0,REVIEW,,selection_gated,E_binding,fixture,0.78,"삭제 리스트 모드 진입+체크박스 선택, 리스트 binding 전제. 실제 삭제 미실행",pass1
+11.Hard Key#74.0,11.Hard Key,74.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,중복선택 리스트페이지(사용자 데이터) 전제. ▼아이콘 활성화 assert 가능하나 fixture 필요.,strict2
+11.Hard Key#75.0,11.Hard Key,75.0,EXCLUDE,D5_mutation,selection_gated,-,none,0.86,OK 4회=모두선택→체크박스 전부 활성→모두해제→전부 비활성 실제 selection mutation. 노출 아님.,strict2
+11.Hard Key#76.0,11.Hard Key,76.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.78,토글 비활성→활성 변경=영속 상태 토글. 복원 필요,pass1
+11.Hard Key#77.0,11.Hard Key,77.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.7,expected '활성화된 메뉴 페이지로 이동' 대상 페이지 불명확 고정 assert 불가. precondition도 토글버튼 전제.,strict2
+11.Hard Key#78.0,11.Hard Key,78.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.76,우측 토글바 포커스 후 OK=비활성 토글 활성화=영속 토글. 복원 필요,pass1
+11.Hard Key#79.0,11.Hard Key,79.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.78,활성 토글→비활성 변경=영속 상태 토글. 복원 필요,pass1
+11.Hard Key#80.0,11.Hard Key,80.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,OK=팝업 내용 적용 저장. 단 추상 팝업·구체 데이터 없음→과배제 방지 REVIEW로 완화,pass1
+11.Hard Key#81.0,11.Hard Key,81.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.72,precondition '삭제 팝업창 생성'=삭제할 사용자 데이터 존재 필요. 취소버튼 초점이라 mutation 없으나 fixture 필요.,strict2
+11.Hard Key#82.0,11.Hard Key,82.0,REVIEW,D1_fixture,transient_input,A_fixture,none,0.65,precondition '입력 팝업창 생성' 전제. focus 이동만 검증이나 팝업 생성 경로 fixture 필요.,strict2
+11.Hard Key#83.0,11.Hard Key,83.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.65,precondition '아이템 리스트 팝업창 생성' 전제. focus 이동만이나 리스트 항목 데이터 fixture 필요.,strict2
+11.Hard Key#84.0,11.Hard Key,84.0,EXCLUDE,D5_mutation,selection_gated,-,none,0.82,OK로 '라디오 버튼 활성화'=실제 선택 mutation. 단순 focus 노출 아님.,strict2
+11.Hard Key#85.0,11.Hard Key,85.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,통화 기록 이동·통화 리스트 펼침 전제=통화 이력(사용자 데이터) 존재 필요.,strict2
+11.Hard Key#86.0,11.Hard Key,86.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.82,통화기록 최상단 리스트 활성=통화 이력 데이터 존재 전제. 암묵 fixture.,strict2
+11.Hard Key#87.0,11.Hard Key,87.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.82,통화기록 리스트·연락처 더보기 focus=통화/연락처 데이터 존재 전제. 암묵 fixture.,strict2
+11.Hard Key#88.0,11.Hard Key,88.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.75,카메라 진입+최근사진 갤러리 focus 이동=촬영된 사진(갤러리 데이터) 존재 전제. 카메라 진입 prestate도 동반.,strict2
+11.Hard Key#89.0,11.Hard Key,89.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.75,최근사진 갤러리 focus·사진 컨텐츠 노출=갤러리 사진 데이터 존재 전제. 암묵 fixture.,strict2
+11.Hard Key#90.0,11.Hard Key,90.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,precondition '만보기 앱 진입'=외부앱 선행 진입 prestate 필요. 뒤로가기 focus는 assert 가능하나 prestate.,strict2
+11.Hard Key#91.0,11.Hard Key,91.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,expected '초점포인트가 키 로 이동' 대상 불명확 고정 요소 assert 불가. 만보기 진입 prestate도 필요.,strict2
+11.Hard Key#92.0,11.Hard Key,92.0,REVIEW,,-,A_fixture,fixture,0.72,신체정보 팝업 fixture 전제(몸무게 텍스트박스 초점). 포커스 이동이나 팝업 사전조성 필요,pass1
+11.Hard Key#93.0,11.Hard Key,93.0,REVIEW,,-,A_fixture,fixture,0.72,신체정보 팝업 fixture 전제(성별 텍스트박스 초점)→목표걸음수 이동. 팝업 사전조성 필요,pass1
+11.Hard Key#94.0,11.Hard Key,94.0,KEEP,none,-,-,none,0.8,"OK로 심플설정 진입, 고정 메뉴 라벨(소리/Wifi/디스플레이/안심기능 등) presence assert 가능. mutation 없음.",strict2
+11.Hard Key#95.0,11.Hard Key,95.0,KEEP,none,-,-,none,0.82,"최상단에서 ↑눌러도 focus 안 올라감=경계 focus 검증. mutation·데이터 없음, 결정적.",strict2
+11.Hard Key#96.0,11.Hard Key,96.0,KEEP,none,-,-,none,0.8,"↓로 소리&진동에서 한단계씩 내림·하단 경계 정지=focus 이동 검증. 고정 설정 항목, mutation 없음.",strict2
+11.Hard Key#97.0,11.Hard Key,97.0,KEEP,none,-,-,none,0.82,"OK로 소리&진동 설정 페이지 이동=화면 전환 검증. 고정 라벨 assert 가능, mutation 없음.",strict2
+11.Hard Key#98.0,11.Hard Key,98.0,KEEP,none,-,-,none,0.82,"OK로 WIFI 설정 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음.",strict2
+11.Hard Key#99.0,11.Hard Key,99.0,KEEP,none,-,-,none,0.82,"OK로 배경화면 및 스타일 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음.",strict2
+11.Hard Key#100.0,11.Hard Key,100.0,KEEP,none,-,-,none,0.82,"OK로 디스플레이 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음.",strict2
+11.Hard Key#101.0,11.Hard Key,101.0,KEEP,none,-,-,none,0.82,"OK로 안심 기능 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음.",strict2
+11.Hard Key#102.0,11.Hard Key,102.0,KEEP,none,-,-,none,0.8,"OK로 긴급 상황 정보 페이지 이동=화면 전환. 고정 라벨 assert 가능, mutation 없음.",strict2
+11.Hard Key#104.0,11.Hard Key,104.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.62,precondition 'SetupWizard 약관동의 페이지'=초기 마법사 진입 선행 상태 필요. focus 이동은 고정 라벨이나 prestate.,strict2
+11.Hard Key#105.0,11.Hard Key,105.0,REVIEW,,-,D_system_state,fixture,0.7,SetupWizard Wi-Fi 페이지 fixture 전제. 포커스 이동이나 셋업 모드 사전조성 필요,pass1
+11.Hard Key#106.0,11.Hard Key,106.0,REVIEW,,-,D_system_state,fixture,0.7,SetupWizard Google서비스 페이지 fixture 전제. 토글은 포커스 이동만이나 셋업 상태 사전조성 필요,pass1
+11.Hard Key#107.0,11.Hard Key,107.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.62,SetupWizard PIN설정·비번 공백 선행 전제. focus 이동 검증이나 마법사 prestate 필요.,strict2
+11.Hard Key#108.0,11.Hard Key,108.0,REVIEW,,transient_input,D_system_state,input,0.72,"precondition에 비밀번호 박스 숫자 입력 전제, Setup Wizard 상태 조작 필요",pass1
+11.Hard Key#109.0,11.Hard Key,109.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,SetupWizard 위치정보 제공 페이지 전제=마법사 prestate 필요. focus 이동은 가변 '페이지 내용'.,strict2
+11.Hard Key#110.0,11.Hard Key,110.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,SetupWizard 스크린샷 페이지 전제=마법사 진입 prestate 필요. 다음 버튼 focus는 assert 가능하나 prestate.,strict2
+11.Hard Key#111.0,11.Hard Key,111.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,SetupWizard 모드설정 페이지 전제=마법사 prestate. expected 'default값 지정' 등 verifier도 복합.,strict2
+11.Hard Key#112.0,11.Hard Key,112.0,REVIEW,,observe_split,D_system_state,none,0.68,"OK로 SetupWizard 완료>홈 이동=시스템 상태 영속 변경, 포커스 관찰과 혼합",pass1
+11.Hard Key#113.0,11.Hard Key,113.0,REVIEW,,observe_split,A_fixture,fixture,0.66,"간편모드+모든앱 마지막페이지 fixture 전제, OK로 임의 앱 실행 혼합",pass1
+12.Setup Wizard#2.0,12.Setup Wizard,2.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.62,precondition 공란이나 procedure '셋업위자드 진입·동의창 발생까지 진행'=마법사 prestate. prestate.,strict2
+12.Setup Wizard#39.0,12.Setup Wizard,39.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.6,"'등록하기'→안심기능 설정, '건너뛰기'→완료 화면. 등록하기는 부작용 경로 가능, 불확실.",strict2
+12.Setup Wizard#40.0,12.Setup Wizard,40.0,REVIEW,,observe_split,D_system_state,none,0.64,"길게누르기 On 후 보호자 등록 절차 진행=등록 mutation 진입, 분리 필요",pass1
+12.Setup Wizard#41.0,12.Setup Wizard,41.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,위치정보 제공 서비스 화면(셋업위자드 단계) 전제=마법사 prestate. 확인→스샷 가이드 전환은 assert 가능.,strict2
+12.Setup Wizard#53.0,12.Setup Wizard,53.0,REVIEW,,observe_split,D_system_state,none,0.62,SetupWizard 완료 후 정상 부팅/동작 확인=시스템 상태 영속+부팅 검증,pass1
+12.Setup Wizard#55.0,12.Setup Wizard,55.0,REVIEW,,observe_split,D_system_state,none,0.6,"Google서비스 화면 하드키 Toggle 조작 및 기능 설정 포함, 관찰과 혼합",pass1
+12.Setup Wizard#62.0,12.Setup Wizard,62.0,REVIEW,D3_prestate,popup_cancel,D_system_state,none,0.6,precondition '셋업위자드 약관동의' prestate. OK로 '다음 단계 진행'은 마법사 진척 부작용 가능. 복합.,strict2
+14.Quick panel#1.0,14.Quick panel,1.0,KEEP,none,-,-,none,0.78,"퀵패널 활성화 후 기본 항목(WIFI/블루투스/모바일데이터 등) 고정 default 라벨 presence assert 가능. 노출만, mutation 없음.",strict2
+14.Quick panel#2.0,14.Quick panel,2.0,KEEP,none,-,-,none,0.76,"편집 버튼 Tap→추가가능 아이콘(핫스팟/QR 등) 고정 라벨 presence assert 가능. 편집모드 미커밋, mutation 없음.",strict2
+14.Quick panel#3.0,14.Quick panel,3.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.78,"expected '화면이 페이드아웃되며 진입'=애니메이션 검증, 고정 텍스트/요소 assert 불가.",strict2
+14.Quick panel#4.0,14.Quick panel,4.0,KEEP,none,-,-,none,0.72,"펼치기 Tap→퀵패널 전체 화면 노출=화면 전환 검증. 요소 presence assert 가능, mutation 없음.",strict2
+14.Quick panel#5.0,14.Quick panel,5.0,REVIEW,,-,C_verifier,none,0.66,글꼴 최대 fixture+Text 짤림 여부=layout 시각 검증 verifier 미실증,pass1
+14.Quick panel#7.0,14.Quick panel,7.0,REVIEW,,observe_split,C_verifier,none,0.62,Long탭 드래그로 아이콘 정렬(추가/삭제) 영속 배치 변경+드래그 verifier,pass1
+14.Quick panel#8.0,14.Quick panel,8.0,KEEP,none,roundtrip_restore,-,none,0.74,"편집 버튼→뒤로가기→편집 전 화면 복귀=왕복 검증, 외부효과 없음. 화면 전환 assert 가능.",strict2
+14.Quick panel#10.0,14.Quick panel,10.0,KEEP,none,-,-,none,0.8,"설정 버튼→설정 화면 전환=화면 전환 검증. 고정 라벨 assert 가능, mutation 없음.",strict2
+14.Quick panel#11.0,14.Quick panel,11.0,KEEP,none,popup_cancel,-,none,0.78,"전원 버튼→전원 팝업(긴급전화/전원끄기/다시시작) 고정 라벨 presence assert 가능. 노출만, 실행 안 함.",strict2
+14.Quick panel#12.0,14.Quick panel,12.0,KEEP,none,-,-,none,0.72,"긴급 전화→긴급 전화 화면 전환=화면 전환 검증. 고정 라벨 assert 가능, 발신 안 함.",strict2
+14.Quick panel#13.0,14.Quick panel,13.0,REVIEW,,popup_cancel,D_system_state,external,0.6,"전원 설정 팝업의 전원끄기 항목 노출은 관찰가능, 실행 전 취소로 분리 가능",pass1
+14.Quick panel#14.0,14.Quick panel,14.0,REVIEW,,popup_cancel,D_system_state,external,0.6,"전원 설정 팝업의 다시시작 항목 노출은 관찰가능, 실행 전 취소로 분리 가능",pass1
+14.Quick panel#15.0,14.Quick panel,15.0,REVIEW,,-,C_verifier,none,0.62,밝기 조절바로 화면 밝기 설정=영속 토글+밝기 시각 verifier 미실증,pass1
+14.Quick panel#16.0,14.Quick panel,16.0,REVIEW,,roundtrip_restore,D_system_state,none,0.66,"Wi-Fi ON 영속 토글, 사전상태 OFF 조작+색상 verifier",pass1
+14.Quick panel#17.0,14.Quick panel,17.0,REVIEW,,roundtrip_restore,D_system_state,none,0.66,"Wi-Fi OFF 영속 토글, 사전상태 ON 조작+색상 verifier",pass1
+14.Quick panel#18.0,14.Quick panel,18.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,"Long탭 후 Wi-Fi toggle on=영속 토글, 설정화면 전환 관찰과 혼합",pass1
+14.Quick panel#19.0,14.Quick panel,19.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,"Long탭 후 Wi-Fi toggle off=영속 토글, 설정화면 전환 관찰과 혼합",pass1
+14.Quick panel#20.0,14.Quick panel,20.0,REVIEW,,roundtrip_restore,D_system_state,none,0.66,"블루투스 ON 영속 토글, 사전상태 OFF 조작+색상 verifier",pass1
+14.Quick panel#21.0,14.Quick panel,21.0,REVIEW,,roundtrip_restore,D_system_state,none,0.66,"블루투스 OFF 영속 토글, 사전상태 ON 조작+색상 verifier",pass1
+14.Quick panel#22.0,14.Quick panel,22.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,Long탭 연결설정 거쳐 블루투스 토글 ON=영속 토글,pass1
+14.Quick panel#23.0,14.Quick panel,23.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,Long탭 연결설정 거쳐 블루투스 토글 OFF=영속 토글,pass1
+14.Quick panel#24.0,14.Quick panel,24.0,REVIEW,,popup_cancel,D_system_state,none,0.6,"허용 Tap시 모바일 데이터 On 영속, 취소 경로 관찰과 혼합 분리 필요",pass1
+14.Quick panel#25.0,14.Quick panel,25.0,REVIEW,,popup_cancel,D_system_state,none,0.6,"끄기 Tap시 모바일 데이터 Off 영속, 취소 경로 관찰과 혼합 분리 필요",pass1
+14.Quick panel#26.0,14.Quick panel,26.0,KEEP,none,-,-,none,0.74,"모바일 데이터 Long Tap→모바일 데이터 설정 이동=화면 전환. 토글 아닌 long tap 이동, mutation 없음.",strict2
+14.Quick panel#27.0,14.Quick panel,27.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,"Long탭 후 toggle On=모바일 데이터 영속 활성, 사전상태 조작",pass1
+14.Quick panel#28.0,14.Quick panel,28.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,"Long탭 후 toggle Off=모바일 데이터 영속 비활성, 사전상태 조작",pass1
+14.Quick panel#29.0,14.Quick panel,29.0,REVIEW,,roundtrip_restore,D_system_state,none,0.62,탭마다 소리>진동>무음 영속 모드 변경+색상 verifier,pass1
+14.Quick panel#33.0,14.Quick panel,33.0,REVIEW,,roundtrip_restore,D_system_state,none,0.62,"비행기 모드 탭=라디오 영속 토글, 사전 다중 연결상태 조작+색상 verifier",pass1
+14.Quick panel#34.0,14.Quick panel,34.0,REVIEW,,roundtrip_restore,D_system_state,none,0.62,"비행기 모드 ON 영속 토글, 사전 Off 상태 조작+색상 verifier",pass1
+14.Quick panel#35.0,14.Quick panel,35.0,REVIEW,,roundtrip_restore,D_system_state,none,0.62,"Long탭 비행기 모드 토글 ON=영속 토글, 사전상태 조작",pass1
+14.Quick panel#36.0,14.Quick panel,36.0,REVIEW,,roundtrip_restore,D_system_state,none,0.62,"Long탭 비행기 모드 토글 OFF=영속 토글, 사전상태 조작",pass1
+14.Quick panel#37.0,14.Quick panel,37.0,REVIEW,,roundtrip_restore,C_verifier,external,0.6,"손전등 ON=하드웨어 LED 외부효과+색상 verifier, 복원 필요",pass1
+14.Quick panel#38.0,14.Quick panel,38.0,REVIEW,,roundtrip_restore,C_verifier,external,0.6,"손전등 OFF=하드웨어 LED 외부효과+색상 verifier, 사전 켜짐 조작",pass1
+14.Quick panel#39.0,14.Quick panel,39.0,REVIEW,,roundtrip_restore,D_system_state,none,0.64,"위치 ON 영속 토글, 사전 꺼짐 상태 조작+색상 verifier",pass1
+14.Quick panel#40.0,14.Quick panel,40.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,위치 OFF 영속 시스템상태 변경+팝업. roundtrip 복원 필요,pass1
+14.Quick panel#41.0,14.Quick panel,41.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,위치 토글 ON 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#42.0,14.Quick panel,42.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.72,위치 토글 OFF 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#43.0,14.Quick panel,43.0,KEEP,none,popup_cancel,-,none,0.72,"precondition '꺼짐'=default 상태(셋업 불필요). 탭→켜기 팝업+취소/확인 presence assert, 확정 안 함, mutation 없음.",strict2
+14.Quick panel#44.0,14.Quick panel,44.0,KEEP,none,popup_cancel,-,none,0.78,precondition '꺼짐'=default. 탭→팝업→취소→팝업 사라짐+꺼짐 유지=취소 경로 상태 불변 검증. mutation 없음.,strict2
+14.Quick panel#45.0,14.Quick panel,45.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,확인 탭→터치잠금 켜짐 변경. 영속 상태변경 복원 필요,pass1
+14.Quick panel#46.0,14.Quick panel,46.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,잠금 켜고 터치→Toast. 잠금 상태변경 후 해제 복원 필요,pass1
+14.Quick panel#47.0,14.Quick panel,47.0,REVIEW,D3_prestate,popup_cancel,D_system_state,none,0.65,precondition '화면 터치 잠금 켜짐'=선행 ON 상태 셋업 필요(default 아님). 끄기 팝업 노출 assert 가능하나 prestate.,strict2
+14.Quick panel#48.0,14.Quick panel,48.0,REVIEW,D3_prestate,popup_cancel,D_system_state,none,0.65,precondition '화면 터치 잠금 켜짐'=선행 ON 셋업 필요. 취소로 상태 유지 검증이나 prestate.,strict2
+14.Quick panel#49.0,14.Quick panel,49.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,확인→터치잠금 꺼짐 변경. 영속 상태변경 복원 필요,pass1
+14.Quick panel#50.0,14.Quick panel,50.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,잠금해제 후 터치→Toast. 잠금 상태변경 동반,pass1
+14.Quick panel#51.0,14.Quick panel,51.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,자동회전 ON 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#52.0,14.Quick panel,52.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,자동회전 OFF 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#53.0,14.Quick panel,53.0,KEEP,none,-,-,none,0.72,"자동 회전 Long 탭→자동 회전 메뉴 이동+토글 표시. 토글 표시 presence assert, 전환만, mutation 없음.",strict2
+14.Quick panel#54.0,14.Quick panel,54.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,절전모드 ON 영속 시스템상태 변경+인디케이터. 복원 필요,pass1
+14.Quick panel#55.0,14.Quick panel,55.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,절전모드 OFF 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#56.0,14.Quick panel,56.0,KEEP,none,-,-,none,0.76,"절전 모드 Long 탭→절전 모드 메뉴 이동=화면 전환 검증. 고정 라벨 assert 가능, mutation 없음.",strict2
+14.Quick panel#57.0,14.Quick panel,57.0,REVIEW,,-,D_system_state,external,0.74,충전기 물리연결 전제. 충전상태 fixture/조작 필요,pass1
+14.Quick panel#58.0,14.Quick panel,58.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,데이터절약 ON 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#59.0,14.Quick panel,59.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,데이터절약 OFF 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#60.0,14.Quick panel,60.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,방해금지 ON 영속 시스템상태 변경+인디케이터. 복원 필요,pass1
+14.Quick panel#61.0,14.Quick panel,61.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,방해금지 OFF 영속 시스템상태 변경. 복원 필요,pass1
+14.Quick panel#62.0,14.Quick panel,62.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,long탭>지금사용설정→방해금지 ON 영속 변경. 복원 필요,pass1
+14.Quick panel#63.0,14.Quick panel,63.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,long탭>지금사용중지→방해금지 OFF 영속 변경. 복원 필요,pass1
+14.Quick panel#64.0,14.Quick panel,64.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,external",0.68,핫스팟 ON 영속 무선상태 변경(PRIVILEGED). 복원 필요,pass1
+14.Quick panel#65.0,14.Quick panel,65.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,external",0.68,핫스팟 OFF 영속 무선상태 변경(PRIVILEGED). 복원 필요,pass1
+14.Quick panel#66.0,14.Quick panel,66.0,KEEP,none,-,-,none,0.85,"핫스팟 Long탭 시 Wi-Fi 핫스팟 설정 화면 전환, 고정 화면 presence assert. mutation 없음",strict2
+14.Quick panel#67.0,14.Quick panel,67.0,REVIEW,,observe_split,D_system_state,"mutation,external",0.6,BT켜기+공유대상 선택+QuickShare ON 영속변경 다단계. assert분리·복원,pass1
+14.Quick panel#68.0,14.Quick panel,68.0,REVIEW,,observe_split,B_compose,"input,external",0.6,기기이름 수정창·구글로그인 등 분기 다중경로. 경로분리/계정 필요,pass1
+14.Quick panel#69.0,14.Quick panel,69.0,REVIEW,,observe_split,D_system_state,"mutation,external",0.6,기기공개상태 사용설정+약관동의 영속 변경 분기. assert분리·복원,pass1
+14.Quick panel#70.0,14.Quick panel,70.0,REVIEW,,selection_gated,D_system_state,mutation,0.62,공개범위 선택+완료→QuickShare 설정 영속 변경. 선택게이트·복원,pass1
+14.Quick panel#71.0,14.Quick panel,71.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.7,"precondition Bluetooth/QuickShare ON 사전셋업 전제, 설정 진입 다단계 절차",strict2
+14.Quick panel#72.0,14.Quick panel,72.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,external",0.64,BT OFF→QuickShare OFF 연동 영속 무선상태 변경. 복원 필요,pass1
+14.Quick panel#73.0,14.Quick panel,73.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,external",0.64,BT ON→QuickShare ON 연동 영속 무선상태 변경. 복원 필요,pass1
+14.Quick panel#74.0,14.Quick panel,74.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,external",0.64,BT OFF→QuickShare 꺼짐 연동 영속 변경. 복원 필요,pass1
+14.Quick panel#75.0,14.Quick panel,75.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,나와공유대상 토글 ON 영속 설정 변경+선택버튼 노출. 복원 필요,pass1
+14.Quick panel#76.0,14.Quick panel,76.0,REVIEW,,selection_gated,D_system_state,"mutation,external",0.6,공개범위 모든사용자 선택+체크박스 영속 설정(BT전제). 선택게이트,pass1
+14.Quick panel#77.0,14.Quick panel,77.0,REVIEW,,selection_gated,A_fixture,"mutation,fixture,external",0.58,주소록 선택→구글연락처 연동. 계정·연락처 fixture 필요,pass1
+14.Quick panel#78.0,14.Quick panel,78.0,REVIEW,,selection_gated,A_fixture,"mutation,fixture,external",0.58,내기기 선택→구글로그인 기기 연동. 계정 fixture 필요,pass1
+14.Quick panel#79.0,14.Quick panel,79.0,REVIEW,,-,A_fixture,"fixture,external",0.66,QR스캐너 ON→카메라+코드 인식. 실제 QR코드 fixture 필요,pass1
+14.Quick panel#80.0,14.Quick panel,80.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,QR스캐너 OFF 토글 영속 변경+인식불가 검증. 복원 필요,pass1
+14.Quick panel#81.0,14.Quick panel,81.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,기기컨트롤 ON 영속 설정 변경. 복원 필요,pass1
+14.Quick panel#82.0,14.Quick panel,82.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,기기컨트롤 OFF 영속 설정 변경. 복원 필요,pass1
+14.Quick panel#83.0,14.Quick panel,83.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,실시간자막 ON 영속 설정 변경. 복원 필요,pass1
+14.Quick panel#84.0,14.Quick panel,84.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,실시간자막 OFF 영속 설정 변경. 복원 필요,pass1
+14.Quick panel#85.0,14.Quick panel,85.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.55,"녹화 시작→촬영물 생성이나 expected는 시작/색상만 서술, 강한 결과 미서술. 중지+산출물 정리 복원 전제로 완화",pass1
+14.Quick panel#86.0,14.Quick panel,86.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.6,녹화 중지→종료. 녹화 fixture 전제+상태 전이 필요,pass1
+14.Quick panel#87.0,14.Quick panel,87.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.72,"시작 선택이 녹화 시작 부작용 경로, 인디케이터 아이콘 표시 가변검증",strict2
+14.Quick panel#88.0,14.Quick panel,88.0,REVIEW,,observe_split,D_system_state,"input,external",0.6,"녹화 시작은 transient 시스템동작이나 검증target=터치표시/알림문구/아이콘컬러 UI지표, 파일내용 아님→하드EXCLUDE 완화, 녹화시작+지표assert 분리",pass1
+14.Quick panel#89.0,14.Quick panel,89.0,REVIEW,,-,C_verifier,"external,fixture",0.78,"녹화물에 기기오디오 녹음여부=녹화파일 audio verifier 미실증, 통화/벨소리 fixture 필요",pass1
+14.Quick panel#90.0,14.Quick panel,90.0,REVIEW,,-,C_verifier,external,0.78,발화→녹화종료→마이크 녹음 검증=녹화 audio 내용 verifier 미실증,pass1
+14.Quick panel#91.0,14.Quick panel,91.0,REVIEW,,-,C_verifier,external,0.78,기기오디오+마이크 녹음여부=녹화파일 audio 내용 verifier 미실증,pass1
+14.Quick panel#92.0,14.Quick panel,92.0,REVIEW,,-,C_verifier,external,0.72,"터치 이펙트 녹화여부=녹화영상 내용 verifier 미실증, 종료후 이펙트 사라짐 관찰",pass1
+14.Quick panel#93.0,14.Quick panel,93.0,REVIEW,D2_verifier,-,C_verifier,none,0.62,"Default값이 off인지 확인은 설정상태값 검증, 고정텍스트 assert 아님",strict2
+14.Quick panel#94.0,14.Quick panel,94.0,REVIEW,,-,C_verifier,input,0.7,자동회전 ON 후 가로모드 전환 검증=물리 회전센서·layout 회전 verifier 미실증,pass1
+14.Quick panel#95.0,14.Quick panel,95.0,REVIEW,,-,C_verifier,input,0.7,홈/전화/연락처/메시지 가로모드 미지원 검증=layout 회전 verifier 미실증,pass1
+14.Quick panel#96.0,14.Quick panel,96.0,REVIEW,,-,C_verifier,input,0.7,자동회전 OFF 후 가로모드 미전환 검증=회전 layout verifier 미실증,pass1
+14.Quick panel#97.0,14.Quick panel,97.0,REVIEW,,-,D_system_state,"input,external,fixture",0.8,"무선 디스플레이 ON 외부기기 연결 필요, Wi-Fi/캐스트 시스템상태 조작+외부기기 fixture",pass1
+14.Quick panel#98.0,14.Quick panel,98.0,REVIEW,,-,D_system_state,"input,external,fixture",0.8,"무선 디스플레이 OFF, 외부기기 연결·Wi-Fi 시스템상태 전제 fixture 필요",pass1
+14.Quick panel#99.0,14.Quick panel,99.0,REVIEW,,observe_split,D_system_state,input,0.68,"집중모드 ON=앱 일시중지 시스템상태 조작, 토스트/인디케이터 관찰 혼합 assert 분리",pass1
+14.Quick panel#100.0,14.Quick panel,100.0,REVIEW,,roundtrip_restore,D_system_state,input,0.66,"집중모드 OFF 전제로 집중모드 사용중 시스템상태 pre 필요, 토글 복원",pass1
+14.Quick panel#101.0,14.Quick panel,101.0,REVIEW,,-,D_system_state,input,0.65,"집중모드 적용 앱 회색 표시 검증, 사전 앱 선택 시스템상태 전제 필요",pass1
+14.Quick panel#102.0,14.Quick panel,102.0,KEEP,none,-,-,none,0.85,"집중모드 Long탭 시 설정메뉴 이동, 고정 화면 전환만. mutation 없음",strict2
+14.Quick panel#103.0,14.Quick panel,103.0,REVIEW,,roundtrip_restore,D_system_state,input,0.68,"취침모드 ON 토글=영속 시스템상태 변경, 검증후 복원 필요",pass1
+14.Quick panel#104.0,14.Quick panel,104.0,REVIEW,,roundtrip_restore,D_system_state,input,0.68,"취침모드 OFF 토글, 켜짐 전제 pre+영속 상태변경 복원 필요",pass1
+14.Quick panel#106.0,14.Quick panel,106.0,REVIEW,D2_verifier,-,C_verifier,none,0.65,"카메라 정상 실행 모호 verifier, 카메라 프리뷰는 가변 화면",strict2
+14.Quick panel#107.0,14.Quick panel,107.0,REVIEW,D5_mutation,popup_cancel,D_system_state,none,0.7,"카메라사용 OFF 시스템상태 전제, 차단해제 팝업 노출. 사전 토글상태 필요",strict2
+14.Quick panel#108.0,14.Quick panel,108.0,REVIEW,D5_mutation,popup_cancel,D_system_state,none,0.7,"카메라 OFF 상태 전제+취소 경로, 부정확인(노출안됨) 검증",strict2
+14.Quick panel#109.0,14.Quick panel,109.0,REVIEW,,roundtrip_restore,D_system_state,input,0.66,"차단해제→퀵세팅 카메라사용 ON=영속 토글 상태변경, 복원 필요",pass1
+14.Quick panel#110.0,14.Quick panel,110.0,REVIEW,,-,C_verifier,external,0.7,"음성녹음 실행→파일 생성·녹음내용 verifier 미실증, 녹음파일 외부효과",pass1
+14.Quick panel#111.0,14.Quick panel,111.0,REVIEW,,-,C_verifier,external,0.7,마이크 OFF서 녹음 안됨 검증=음성파일 내용 verifier 미실증,pass1
+14.Quick panel#112.0,14.Quick panel,112.0,REVIEW,,-,A_fixture,fixture,0.68,"동작중인 알람 존재 전제로 ON 표시 확인, 알람 fixture 필요",pass1
+14.Quick panel#113.0,14.Quick panel,113.0,REVIEW,,selection_gated,A_fixture,"fixture,mutation",0.6,"알람 삭제 절차=실제 알람 제거 mutation, 설정된 알람 fixture 전제",pass1
+14.Quick panel#114.0,14.Quick panel,114.0,REVIEW,,roundtrip_restore,D_system_state,input,0.68,"색상보정 ON 토글=영속 디스플레이 상태변경, 복원 필요",pass1
+14.Quick panel#115.0,14.Quick panel,115.0,REVIEW,,roundtrip_restore,D_system_state,input,0.68,"색상보정 OFF 토글, 켜짐 전제 pre+영속 상태변경 복원 필요",pass1
+14.Quick panel#116.0,14.Quick panel,116.0,KEEP,none,-,-,none,0.78,"퀵패널 내림 시 패널/아이콘/알림창 chrome 노출, 고정요소 presence. mutation 없음",strict2
+14.Quick panel#117.0,14.Quick panel,117.0,REVIEW,,-,D_system_state,"external,fixture",0.72,유심 제거 후 NO SIM 인디케이터 확인=물리 SIM 제거 시스템상태 조작 필요,pass1
+14.Quick panel#118.0,14.Quick panel,118.0,REVIEW,,-,A_fixture,"fixture,external",0.65,"유튜브뮤직 재생→미디어 플레이어 확인, 재생 파일·앱 fixture 전제 필요",pass1
+14.Quick panel#120.0,14.Quick panel,120.0,KEEP,none,-,-,none,0.76,"간편모드 홈화면 최초 focus 미표시 부정검증, 시스템모드 전제 가능",strict2
+14.Quick panel#121.0,14.Quick panel,121.0,KEEP,none,-,-,input,0.8,"방향키 입력 시 전화앱 focus 이동, 고정 라벨 focus presence assert",strict2
+14.Quick panel#122.0,14.Quick panel,122.0,KEEP,none,-,-,input,0.82,"홈버튼 Long press 시 퀵패널 노출, 고정 패널 presence. mutation 없음",strict2
+14.Quick panel#123.0,14.Quick panel,123.0,KEEP,none,-,-,input,0.85,"방향키 입력 시 블루투스/모바일데이터 focus 이동, 고정 타일 focus assert",strict2
+14.Quick panel#124.0,14.Quick panel,124.0,KEEP,none,-,-,input,0.85,"방향키 입력 시 소리모드 focus 이동, 고정 타일 focus assert. mutation 없음",strict2
+14.Quick panel#125.0,14.Quick panel,125.0,KEEP,none,-,-,input,0.85,"방향키 입력 시 펼치기 focus 이동, 고정 라벨 focus presence assert",strict2
+14.Quick panel#126.0,14.Quick panel,126.0,REVIEW,,-,A_fixture,"input,fixture",0.66,"알림 존재 전제로 펼치기→알림영역 focus 이동, 알림 fixture 필요",pass1
+14.Quick panel#127.0,14.Quick panel,127.0,REVIEW,,-,A_fixture,"input,fixture",0.66,"알림창 focus OK→화면전환 등, 알림 존재 fixture 전제 필요",pass1
+14.Quick panel#128.0,14.Quick panel,128.0,REVIEW,,-,A_fixture,"input,fixture",0.66,"관리 focus→설정 알림화면/모두지우기 focus, 알림 fixture 전제 필요",pass1
+14.Quick panel#129.0,14.Quick panel,129.0,REVIEW,,selection_gated,A_fixture,"input,fixture,mutation",0.62,"모두 지우기 OK→알림 모두 삭제 실제 상태변경, 알림 fixture 전제+mutation",pass1
+14.Quick panel#130.0,14.Quick panel,130.0,KEEP,none,-,-,input,0.8,"펼치기 OK 시 패널 펼침+wifi focus, 화면전환·고정 focus. mutation 없음",strict2
+14.Quick panel#131.0,14.Quick panel,131.0,KEEP,none,-,-,input,0.82,"wifi focus up 시 밝기 아이콘 focus, 고정 요소 focus 이동만",strict2
+14.Quick panel#132.0,14.Quick panel,132.0,REVIEW,,roundtrip_restore,D_system_state,input,0.66,"wifi focus OK→Wifi On/Off=영속 네트워크 상태 토글, 복원 필요",pass1
+14.Quick panel#133.0,14.Quick panel,133.0,KEEP,none,-,-,input,0.82,"wifi OK 길게 시 Wi-Fi 설정페이지 이동, 고정 화면 전환만",strict2
+14.Quick panel#134.0,14.Quick panel,134.0,KEEP,none,-,-,input,0.85,"wifi focus right 시 블루투스 focus, 고정 타일 focus 이동만",strict2
+14.Quick panel#135.0,14.Quick panel,135.0,KEEP,none,-,-,input,0.85,"wifi focus down 시 모바일데이터 focus, 고정 타일 focus 이동만",strict2
+14.Quick panel#136.0,14.Quick panel,136.0,REVIEW,,roundtrip_restore,D_system_state,input,0.64,"밝기 조절 바 left/right→밝기 0~100% 조절=영속 디스플레이 상태변경, 복원 필요",pass1
+14.Quick panel#137.0,14.Quick panel,137.0,KEEP,none,-,-,input,0.85,"밝기바 아이콘 focus down 시 wifi focus, 고정 요소 focus 이동만",strict2
+14.Quick panel#138.0,14.Quick panel,138.0,KEEP,none,-,-,none,0.88,"wifi focus down keep 시 수정버튼 focus, 고정 라벨 focus 이동만",strict2
+14.Quick panel#139.0,14.Quick panel,139.0,REVIEW,D2_verifier,-,C_verifier,none,0.6,"페이지 이동된다 모호 — 대상 페이지 미명시, 고정 라벨 assert 불확실",strict2
+14.Quick panel#140.0,14.Quick panel,140.0,KEEP,none,-,-,none,0.85,"수정버튼 focus up 시 밝기조절 focus, 고정 요소 focus 이동만",strict2
+14.Quick panel#141.0,14.Quick panel,141.0,KEEP,none,-,-,none,0.85,"수정버튼 focus right 시 전원버튼 focus, 고정 라벨 focus 이동만",strict2
+14.Quick panel#142.0,14.Quick panel,142.0,KEEP,none,-,-,none,0.8,"back 시 퀵패널+알림창 노출+wifi focus, 화면 복귀·고정 focus. mutation 없음",strict2
+14.Quick panel#143.0,14.Quick panel,143.0,REVIEW,D5_mutation,popup_cancel,D_system_state,none,0.72,"모바일데이터 켜진상태 전제+OK시 끄기팝업, 확정시 토글 부작용 경로",strict2
+14.Quick panel#144.0,14.Quick panel,144.0,REVIEW,D5_mutation,popup_cancel,D_system_state,none,0.72,"모바일데이터 꺼진상태 전제+OK시 켜기팝업, 확정시 토글 부작용 경로",strict2
+14.Quick panel#145.0,14.Quick panel,145.0,KEEP,none,-,-,none,0.85,"모바일데이터 OK 길게 시 네트워크설정 페이지 이동, 고정 화면 전환만",strict2
+14.Quick panel#146.0,14.Quick panel,146.0,KEEP,none,-,-,none,0.85,"소리모드 OK 길게 시 소리/진동 설정 이동, 고정 화면 전환만. mutation 없음",strict2
+14.Quick panel#147.0,14.Quick panel,147.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.8,"expected=손전등 On/off 된다, 영속 H/W 토글. 원복 필요",pass1
+14.Quick panel#148.0,14.Quick panel,148.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,"화면터치잠금 OK 시 켜기팝업, 확정시 화면잠금 부작용 경로",strict2
+14.Quick panel#149.0,14.Quick panel,149.0,KEEP,none,-,-,none,0.85,"자동회전 OK 길게 시 화면 자동회전 메뉴 이동, 고정 화면 전환만",strict2
+14.Quick panel#150.0,14.Quick panel,150.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.8,"expected=자동회전 On/Off 된다, 영속 토글. 원복 필요",pass1
+14.Quick panel#151.0,14.Quick panel,151.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.8,"expected=절전모드 사용/안함 변경, 영속 토글. 원복 필요",pass1
+14.Quick panel#152.0,14.Quick panel,152.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,"데이터절약 OK 시 사용설정 팝업, 확정시 절약모드 토글 부작용 경로",strict2
+14.Quick panel#153.0,14.Quick panel,153.0,KEEP,none,-,-,none,0.85,"데이터절약 OK 길게 시 메뉴 페이지 이동, 고정 화면 전환만",strict2
+14.Quick panel#154.0,14.Quick panel,154.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.8,"expected=방해금지 켜짐/꺼짐 변경, 영속 토글. 원복 필요",pass1
+14.Quick panel#155.0,14.Quick panel,155.0,KEEP,none,-,-,none,0.85,"방해금지 OK 길게 시 모드 메뉴 페이지 이동, 고정 화면 전환만",strict2
+14.Quick panel#156.0,14.Quick panel,156.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,external",0.78,"expected=핫스팟 on/off 변경, 영속 토글+무선효과. 원복 필요",pass1
+14.Quick panel#157.0,14.Quick panel,157.0,KEEP,none,-,-,none,0.85,"핫스팟 OK long 시 Wi-Fi 핫스팟 메뉴 이동, 고정 화면 전환만",strict2
+14.Quick panel#158.0,14.Quick panel,158.0,KEEP,none,-,-,none,0.82,"Quick Share OK 시 설정창 이동, 고정 화면 전환만. mutation 없음",strict2
+14.Quick panel#159.0,14.Quick panel,159.0,KEEP,none,-,-,none,0.8,"QR코드 스캐너 OK 시 스캔 페이지 이동, 고정 화면 전환만",strict2
+14.Quick panel#160.0,14.Quick panel,160.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,"기기컨트롤 이용불가 사전상태 전제, 아무반응 없음 부정 verifier",strict2
+14.Quick panel#161.0,14.Quick panel,161.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,"화면녹화 OK 시 녹화 시작 팝업, 확정시 녹화 부작용 경로",strict2
+14.Quick panel#162.0,14.Quick panel,162.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,"화면전송 OK 시 전송 팝업+설정 focus, 확정시 전송 부작용 경로",strict2
+14.Quick panel#163.0,14.Quick panel,163.0,KEEP,none,-,-,none,0.82,"집중모드 OK 시 집중모드 페이지 이동, 고정 화면 전환만",strict2
+14.Quick panel#164.0,14.Quick panel,164.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.78,"expected=마이크 사용 On/off 된다, 영속 권한 토글. 원복 필요",pass1
+14.Quick panel#165.0,14.Quick panel,165.0,KEEP,none,-,-,none,0.82,"알람 OK 시 알람앱 페이지 이동, 고정 화면 전환만. mutation 없음",strict2
+14.Quick panel#166.0,14.Quick panel,166.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.78,"expected=색상보정 On/Off 된다, 영속 표시 토글. 원복 필요",pass1
+14.Quick panel#167.0,14.Quick panel,167.0,KEEP,none,-,-,none,0.82,"수정버튼 OK 시 수정화면 전환+최초 focus 왼쪽상단, 화면전환·고정 focus",strict2
+14.Quick panel#168.0,14.Quick panel,168.0,KEEP,none,-,-,none,0.85,"수정화면 첫메뉴 up 시 뒤로가기 focus, 고정 라벨 focus 이동만",strict2
+14.Quick panel#169.0,14.Quick panel,169.0,KEEP,none,-,-,none,0.85,"수정화면 첫메뉴 down 시 아래 메뉴 focus 이동, 고정 focus 이동만",strict2
+14.Quick panel#170.0,14.Quick panel,170.0,KEEP,none,-,-,none,0.85,"수정화면 첫메뉴 right 시 오른쪽 메뉴 focus 이동, 고정 focus 이동만",strict2
+14.Quick panel#171.0,14.Quick panel,171.0,KEEP,none,-,-,none,0.82,"뒤로가기 focus OK 시 펼친 화면 복귀+최초 focus 첫번째, 화면복귀·고정 focus",strict2
+14.Quick panel#174.0,14.Quick panel,174.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.76,"expected=활성/비활성 영역 상호 변경, 영속 레이아웃 config 변경",pass1
+14.Quick panel#175.0,14.Quick panel,175.0,KEEP,none,popup_cancel,-,none,0.81,"전원버튼 focus+OK로 전원끄기창 노출. 긴급전화/전원끄기/다시시작 고정라벨 assert, 실제 전원조작 아닌 다이얼로그 노출만",strict2
+14.Quick panel#176.0,14.Quick panel,176.0,KEEP,none,-,-,none,0.88,"설정버튼 focus+OK로 설정 화면전환. mutation 없음, 단순 전환",strict2
+14.Quick panel#183.0,14.Quick panel,183.0,REVIEW,,selection_gated,A_fixture,"fixture,mutation",0.72,타이머 실행중 fixture 전제 + 1분추가·일시중지·취소(삭제) mutation 혼합,pass1
+14.Quick panel#185.0,14.Quick panel,185.0,REVIEW,,-,D_system_state,external,0.8,습기·이물 H/W 감지 조건 유발 필요. 물리 상태 조작 전제,pass1
+14.Quick panel#186.0,14.Quick panel,186.0,REVIEW,,-,D_system_state,external,0.78,모바일 데이터 연결 실패 상태 유발 필요. 네트워크 상태 조작,pass1
+14.Quick panel#187.0,14.Quick panel,187.0,REVIEW,,-,D_system_state,external,0.78,충전 연결 불량 H/W 조건 유발 필요. 물리 상태 조작 전제,pass1
+14.Quick panel#188.0,14.Quick panel,188.0,REVIEW,,observe_split,D_system_state,"external,input",0.76,충전 불량 H/W 조건 유발 + 확인버튼 입력. 상태 조작 전제,pass1
+14.Quick panel#190.0,14.Quick panel,190.0,REVIEW,,-,D_system_state,external,0.8,충전기 반정도 물리 삽입 H/W 조작 필요. 자동화 불가 물리 조건,pass1
+14.Quick panel#191.0,14.Quick panel,191.0,REVIEW,,-,D_system_state,external,0.8,충전기 반·완전 물리 삽입 단계 조작 필요. H/W 상태 조작 전제,pass1
+14.Quick panel#192.0,14.Quick panel,192.0,REVIEW,,-,D_system_state,external,0.8,커넥터 60도 과열 H/W 유발(외부 요청) 필요. 물리 조작 전제,pass1
+14.Quick panel#193.0,14.Quick panel,193.0,REVIEW,,-,D_system_state,external,0.8,커넥터 60도 과열 H/W 유발 필요. 192와 동일 물리 조작 전제,pass1
+14.Quick panel#194.0,14.Quick panel,194.0,REVIEW,,observe_split,D_system_state,"external,input",0.78,60도 과열 H/W 유발 + 확인버튼 입력. 물리 상태 조작 전제,pass1
+14.Quick panel#195.0,14.Quick panel,195.0,REVIEW,,-,D_system_state,external,0.8,커넥터 온도 59도 강하 조건 유발 필요. 온도 상태 조작 전제,pass1
+14.Quick panel#197.0,14.Quick panel,197.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,precondition '알림 있는 상태(메시지)' 사용자 메시지 알림 데이터 전제. 관리 포커스까지 이동이나 알림 존재 필요,strict2
+14.Quick panel#198.0,14.Quick panel,198.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.73,포커스 대상이 메시지 알림(사용자 데이터). 알림 존재 전제 D1,strict2
+14.Quick panel#199.0,14.Quick panel,199.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,메시지 알림 전제+OK로 설정 알림메뉴 이동. 사용자 알림데이터 필요,strict2
+14.Quick panel#200.0,14.Quick panel,200.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,메시지 알림 존재 전제. 모두지우기 포커스 이동이나 알림 fixture 필요,strict2
+14.Quick panel#201.0,14.Quick panel,201.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,메시지 알림 fixture 전제. 포커스 이동이나 사용자 알림데이터 필요,strict2
+14.Quick panel#202.0,14.Quick panel,202.0,EXCLUDE,,-,-,mutation,0.85,모두 지우기 OK 실행→expected '알림 모두 삭제됨' 실제 삭제 결과 서술. 라벨/취소 아님,pass1
+14.Quick panel#203.0,14.Quick panel,203.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.76,메시지 1건 알림 fixture+OK로 대화함 진입(사용자 대화기록 전제),strict2
+14.Quick panel#204.0,14.Quick panel,204.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.72,메시지 1건 알림 fixture 전제. Back 포커스 복귀이나 알림데이터 필요,strict2
+14.Quick panel#205.0,14.Quick panel,205.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.72,메시지 1건 알림 fixture 전제. Back 포커스 복귀이나 사용자 알림데이터 필요,strict2
+14.Quick panel#206.0,14.Quick panel,206.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.73,메시지 1건 알림 fixture+메시지 펼침/닫힘. 사용자 메시지 데이터 전제,strict2
+14.Quick panel#207.0,14.Quick panel,207.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.74,메시지 1건 알림 fixture+OK로 대화함 이동(사용자 대화기록 전제),strict2
+14.Quick panel#208.0,14.Quick panel,208.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.75,메시지 2건 이상 알림 fixture 필수. 리스트 표시/닫힘이나 다건 알림데이터 전제,strict2
+14.Quick panel#209.0,14.Quick panel,209.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.75,메시지 2건 이상 알림 fixture 필수. 리스트 포커스 이동이나 다건 알림 전제,strict2
+14.Quick panel#210.0,14.Quick panel,210.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.75,메시지 2건 이상 알림 fixture 필수. 펼침/닫힘이나 다건 알림데이터 전제,strict2
+14.Quick panel#211.0,14.Quick panel,211.0,REVIEW,D1_fixture,observe_split,A_fixture,fixture,0.75,메시지 2건 이상 알림 fixture+OK로 대화함 이동(사용자 대화기록 전제),strict2
+14.Quick panel#212.0,14.Quick panel,212.0,REVIEW,,-,A_fixture,fixture,0.72,"타이머 실행중 fixture 전제, 탭으로 타이머 화면/알림 표시 관찰",pass1
+14.Quick panel#213.0,14.Quick panel,213.0,REVIEW,,-,A_fixture,fixture,0.72,"스탑워치 실행중 fixture 전제, 탭으로 화면/알림 표시 관찰",pass1
+14.Quick panel#214.0,14.Quick panel,214.0,REVIEW,,-,A_fixture,fixture,0.7,"타이머 실행중 fixture 전제, 포커스 이동 후 설정 알림화면 이동 관찰",pass1
+14.Quick panel#215.0,14.Quick panel,215.0,REVIEW,,-,A_fixture,fixture,0.68,"타이머 실행 fixture 전제, 접힘/펴짐 토글 후 포커스 확인",pass1
+14.Quick panel#216.0,14.Quick panel,216.0,REVIEW,,-,A_fixture,fixture,0.7,"타이머 실행 fixture 전제, 포커스 좌우 이동만 관찰",pass1
+14.Quick panel#217.0,14.Quick panel,217.0,REVIEW,,observe_split,A_fixture,"fixture,mutation",0.6,"타이머 일시중지/다시시작 상태조작, fixture+타이머 상태변경 혼합",pass1
+14.Quick panel#218.0,14.Quick panel,218.0,REVIEW,,observe_split,A_fixture,"fixture,mutation",0.58,"타이머 일시중지 후 reset 실행→reset 상태변경, fixture 전제",pass1
+14.Quick panel#219.0,14.Quick panel,219.0,REVIEW,,-,A_fixture,fixture,0.7,"스탑워치 실행중 fixture 전제, 포커스 이동 후 설정 알림화면 이동",pass1
+14.Quick panel#220.0,14.Quick panel,220.0,REVIEW,,-,A_fixture,fixture,0.66,"스탑워치 실행 fixture, 포커스 이동/닫힘열림 노출이나 다단계 fixture",pass1
+14.Quick panel#221.0,14.Quick panel,221.0,REVIEW,,observe_split,A_fixture,"fixture,mutation",0.58,"스탑워치 다시시작+랩타임 기록 상태변경, fixture 전제",pass1
+15.Lockscreen#3.0,15.Lockscreen,3.0,REVIEW,,-,D_system_state,input,0.65,스와이프 잠금 설정 pre+숫자 하드키 입력 해제. 시스템 상태 조작 전제,pass1
+15.Lockscreen#4.0,15.Lockscreen,4.0,REVIEW,,-,D_system_state,input,0.62,"절전모드 진입 pre+앱 실행 상태 유지 검증, 시스템 상태 조작 전제",pass1
+15.Lockscreen#10.0,15.Lockscreen,10.0,REVIEW,,transient_input,D_system_state,input,0.62,패턴 설정 pre+올바른 패턴 입력 해제. 시스템 잠금 상태+터치 입력,pass1
+15.Lockscreen#11.0,15.Lockscreen,11.0,REVIEW,,transient_input,D_system_state,input,0.62,패턴 설정 pre+하드키 패턴 입력 해제. 시스템 상태 조작 전제,pass1
+15.Lockscreen#12.0,15.Lockscreen,12.0,REVIEW,,transient_input,D_system_state,input,0.6,패턴 설정 pre+5회 오입력 실패 팝업 검증. 시스템 상태+입력,pass1
+15.Lockscreen#15.0,15.Lockscreen,15.0,REVIEW,,-,D_system_state,input,0.62,패턴 설정 pre+긴급전화 focus 후 화면 전환. 시스템 상태 조작 전제,pass1
+15.Lockscreen#19.0,15.Lockscreen,19.0,REVIEW,,transient_input,D_system_state,input,0.62,PIN 설정 pre+하드키 PIN 입력 해제. 시스템 상태+입력 검증,pass1
+15.Lockscreen#21.0,15.Lockscreen,21.0,REVIEW,,transient_input,D_system_state,input,0.6,PIN 설정 pre+오입력 5회 실패 팝업 검증. 시스템 상태+입력,pass1
+15.Lockscreen#23.0,15.Lockscreen,23.0,REVIEW,,-,D_system_state,input,0.62,PIN 설정 pre+스와이프 후 긴급전화 화면 전환. 시스템 상태 조작 전제,pass1
+15.Lockscreen#28.0,15.Lockscreen,28.0,REVIEW,,transient_input,D_system_state,input,0.6,Password 설정 pre+영문 입력/키패드 표시 검증. 시스템 상태+transient 입력,pass1
+15.Lockscreen#32.0,15.Lockscreen,32.0,REVIEW,,-,D_system_state,input,0.62,Pattern 설정 pre+키 누름 시 입력안됨/포커스 고정 검증. 시스템 상태 전제,pass1
+15.Lockscreen#41.0,15.Lockscreen,41.0,REVIEW,,-,D_system_state,input,0.62,Password 설정 pre+긴급전화 포커싱 OK 화면 전환. 시스템 상태 조작 전제,pass1
+15.Lockscreen#51.0,15.Lockscreen,51.0,REVIEW,,-,D_system_state,mutation,0.58,잠금 설정 pre+볼륨 Up 1레벨 증가 실제 음량 변경. 시스템 상태+영속변경,pass1
+15.Lockscreen#52.0,15.Lockscreen,52.0,REVIEW,,-,D_system_state,mutation,0.58,잠금 설정 pre+볼륨 Down 1레벨 감소 실제 음량 변경. 시스템 상태+영속변경,pass1
+15.Lockscreen#58.0,15.Lockscreen,58.0,REVIEW,,-,D_system_state,"fixture,input",0.6,잠금 설정 pre+메시지앱 실행 후 폴더 닫고열기 해제. 시스템 상태+fixture,pass1
+15.Lockscreen#59.0,15.Lockscreen,59.0,REVIEW,,-,D_system_state,"fixture,input",0.6,잠금 설정 pre+메시지앱 실행 후 타임아웃 깨움 해제. 시스템 상태+fixture,pass1
+15.Lockscreen#60.0,15.Lockscreen,60.0,REVIEW,,transient_input,D_system_state,input,0.58,패턴+화면터치잠금 ON pre+#길게눌러 해제 후 패턴 해제. 시스템 상태 다중 전제,pass1
+15.Lockscreen#61.0,15.Lockscreen,61.0,REVIEW,,-,D_system_state,input,0.62,PIN 잠금 설정 pre+하드키 포커스 이동 순서 검증. 시스템 상태 조작 전제,pass1
+15.Lockscreen#62.0,15.Lockscreen,62.0,REVIEW,,-,D_system_state,input,0.62,PIN 잠금 설정 pre+좌우키 포커스 고정/이동 검증. 시스템 상태 전제,pass1
+15.Lockscreen#63.0,15.Lockscreen,63.0,REVIEW,,transient_input,D_system_state,input,0.58,패턴+화면터치잠금 ON pre+#길게눌러 해제 후 패턴 해제. 시스템 상태 다중 전제,pass1
+15.Lockscreen#64.0,15.Lockscreen,64.0,REVIEW,,-,D_system_state,input,0.6,스와이프 잠금+간편모드 pre+하드키 길게눌러 홈진입 검증. 시스템 상태 전제,pass1
+15.Lockscreen#65.0,15.Lockscreen,65.0,REVIEW,,-,D_system_state,input,0.6,스와이프 잠금+일반모드 pre+하드키 길게눌러 홈진입 검증. 시스템 상태 전제,pass1
+17.Safety Feature#1.0,17.Safety Feature,1.0,REVIEW,,-,F_misc,external,0.55,Care 메시지 시간내 발송 검증=외부 발송효과+verifier 미실증. automation BLOCKED,pass1
+17.Safety Feature#3.0,17.Safety Feature,3.0,EXCLUDE,,-,-,external,0.85,"볼륨키 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#4.0,17.Safety Feature,4.0,EXCLUDE,,-,-,external,0.85,"전원키 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#5.0,17.Safety Feature,5.0,EXCLUDE,,-,-,external,0.85,"기타키 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#6.0,17.Safety Feature,6.0,EXCLUDE,,-,-,external,0.85,"수신통화 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#7.0,17.Safety Feature,7.0,EXCLUDE,,-,-,external,0.85,"메시지수신 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#8.0,17.Safety Feature,8.0,EXCLUDE,,-,-,external,0.85,"타앱 메시지수신 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#9.0,17.Safety Feature,9.0,EXCLUDE,,-,-,external,0.85,"알람 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#10.0,17.Safety Feature,10.0,EXCLUDE,,-,-,external,0.85,"알림 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#11.0,17.Safety Feature,11.0,EXCLUDE,,-,-,external,0.85,"충전케이블 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#12.0,17.Safety Feature,12.0,EXCLUDE,,-,-,external,0.85,"폴더 닫기 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#13.0,17.Safety Feature,13.0,EXCLUDE,,-,-,external,0.83,"Care message 시간내 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#15.0,17.Safety Feature,15.0,EXCLUDE,,-,-,external,0.85,"볼륨키 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#16.0,17.Safety Feature,16.0,EXCLUDE,,-,-,external,0.85,"수신통화 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#17.0,17.Safety Feature,17.0,EXCLUDE,,-,-,external,0.85,"메시지수신 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#18.0,17.Safety Feature,18.0,EXCLUDE,,-,-,external,0.85,"타앱 메시지수신 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#19.0,17.Safety Feature,19.0,EXCLUDE,,-,-,external,0.85,"알람 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#20.0,17.Safety Feature,20.0,EXCLUDE,,-,-,external,0.85,"알림 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#21.0,17.Safety Feature,21.0,EXCLUDE,,-,-,external,0.85,"충전케이블 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#22.0,17.Safety Feature,22.0,EXCLUDE,,-,-,external,0.85,"폴더열기·백라이트오프 후 Care message 외부 발송이 검증대상. 실제 송신, 구제 불가",pass1
+17.Safety Feature#54.0,17.Safety Feature,54.0,KEEP,none,-,-,none,0.88,"설정>안심기능>SOS버튼 진입, 짧게/길게 누르기 고정 메뉴라벨+Default 노출 assert. mutation 없음",strict2
+17.Safety Feature#55.0,17.Safety Feature,55.0,KEEP,none,-,-,none,0.8,"짧게 누르기 Tap 화면전환, 토글버튼+앱리스트 비활성 구조 노출. 고정요소 presence, 토글 조작 아님",strict2
+17.Safety Feature#56.0,17.Safety Feature,56.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.82,"짧게누르기 Toggle On=영속 토글 상태변경, 복원 필요",pass1
+17.Safety Feature#57.0,17.Safety Feature,57.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.8,"토글 On→Off 조작=영속 변경, 복원 필요",pass1
+17.Safety Feature#58.0,17.Safety Feature,58.0,REVIEW,D5_mutation,selection_gated,F_misc,none,0.62,"길게 누르기 토글 Tap이 보호자 미설정으로 등록 팝업 유발. 토글 탭 부작용 경로 불확실, 팝업 gated",strict2
+17.Safety Feature#59.0,17.Safety Feature,59.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,보호자 설정·토글 On 전제 fixture. 팝업 노출 관찰은 가능하나 사전상태 요구,pass1
+17.Safety Feature#60.0,17.Safety Feature,60.0,REVIEW,,roundtrip_restore,A_fixture,"mutation,fixture",0.78,"확인 후 위치보내기 토글 On=영속 변경, 보호자 fixture 전제",pass1
+17.Safety Feature#61.0,17.Safety Feature,61.0,EXCLUDE,,-,-,"external,fixture",0.9,"SOS키 10초→긴급 메시지 실제 보호자 번호 전송. expected=전송됨 명시, 라벨 아님. 구제 불가",pass1
+17.Safety Feature#62.0,17.Safety Feature,62.0,REVIEW,,roundtrip_restore,A_fixture,"mutation,fixture",0.76,"확인 시 토글 Off로 변경=영속 변경, 위치보내기 On 전제 fixture",pass1
+17.Safety Feature#63.0,17.Safety Feature,63.0,EXCLUDE,,-,-,"external,fixture",0.9,SOS키 10초→위치 미포함 긴급 메시지 실제 전송. expected=전송됨 명시. 구제 불가,pass1
+17.Safety Feature#65.0,17.Safety Feature,65.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,fixture",0.78,"길게누르기 토글 OFF=영속 조작, 보호자등록 전제, 복원 필요",pass1
+17.Safety Feature#66.0,17.Safety Feature,66.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.62,보호자 등록 pre-state+SOS 길게 누름 물리 하드키. 물리버튼 비결정,strict2
+17.Safety Feature#67.0,17.Safety Feature,67.0,REVIEW,,selection_gated,A_fixture,fixture,0.7,"토글 On·앱 선택 상태 전제 fixture, SOS 짧게→앱 실행 관찰",pass1
+17.Safety Feature#68.0,17.Safety Feature,68.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.8,"짧게누르기 토글 OFF=영속 상태변경, 복원 필요",pass1
+17.Safety Feature#69.0,17.Safety Feature,69.0,REVIEW,D2_verifier,-,C_verifier,none,0.72,"expected '아무 반응 없음'은 고정 텍스트/요소 assert 불가, negative 검증",strict2
+2.Touch lock#1.0,2.Touch lock,1.0,KEEP,none,popup_cancel,-,none,0.8,"# 하드키 길게로 터치락 팝업 노출+확인버튼 포커스. 고정요소 assert, 팝업 노출만",strict2
+2.Touch lock#2.0,2.Touch lock,2.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.6,"확인 선택으로 터치락 On 영속 토글+토스트+터치차단 검증, 상태변경/복원 필요",pass1
+2.Touch lock#6.0,2.Touch lock,6.0,REVIEW,,roundtrip_restore,D_system_state,"mutation,fixture",0.6,"터치락 ON pre + 확인으로 락 해제 영속 토글 변경, 시스템 상태 조작",pass1
+2.Touch lock#7.0,2.Touch lock,7.0,REVIEW,,popup_cancel,D_system_state,fixture,0.62,"터치락 ON pre fixture 전제, 취소로 팝업 닫고 락 유지 관찰",pass1
+2.Touch lock#11.0,2.Touch lock,11.0,REVIEW,,-,D_system_state,fixture,0.55,"터치락 ON pre 전제, 하드키 정의 기능 실행 검증(미실증 verifier)",pass1
+20.Dura speed#2.0,20.Dura speed,2.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.78,"Dura Speed Off=영속 설정 토글 변경, expected=Off됨. 복원 필요",pass1
+20.Dura speed#3.0,20.Dura speed,3.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.78,"Dura Speed On·모두켜기=영속 앱 제한 상태 변경, 복원 필요",pass1
+21.Mive keyboard#17.0,21.Mive keyboard,17.0,EXCLUDE,,-,-,mutation,0.85,"앱>Gboard>삭제, expected=삭제 가능해야 함. 실제 앱 제거 결과 서술, 라벨/이동대상 아님. 구제 불가",pass1
+21.Mive keyboard#22.0,21.Mive keyboard,22.0,REVIEW,,transient_input,C_verifier,input,0.82,하드키 기계공 입력 결과 텍스트 검증=transient input verifier 필요,pass1
+21.Mive keyboard#23.0,21.Mive keyboard,23.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.75,"메시지 임의 대화 fixture+하드키/키보드 한글 입력 검증, 앱 재실행 포함",pass1
+21.Mive keyboard#24.0,21.Mive keyboard,24.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.74,임의대화 fixture+하드키 *버튼 모드전환 UI 검증,pass1
+21.Mive keyboard#25.0,21.Mive keyboard,25.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.74,임의대화 fixture+기호 하드키 페이지 전환 UI 검증,pass1
+21.Mive keyboard#26.0,21.Mive keyboard,26.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.74,임의대화 fixture+이모지 하드키 페이지 전환 UI 검증,pass1
+21.Mive keyboard#27.0,21.Mive keyboard,27.0,REVIEW,,transient_input,C_verifier,input,0.78,하드키 한글모드 입력 결과 텍스트 검증=transient input verifier 필요,pass1
+21.Mive keyboard#495.0,21.Mive keyboard,495.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.68,작성영역 Tap시 하단 키보드(한글) 노출이 핵심 assert. IME 키패드 올라옴 D2 비결정,strict2
+21.Mive keyboard#496.0,21.Mive keyboard,496.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.68,키보드 노출+특수문자 전환 IME 동작 검증. IME 키패드 노출 D2,strict2
+21.Mive keyboard#497.0,21.Mive keyboard,497.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.68,키보드 노출+한/영 전환 IME 검증. IME 키패드 노출 D2 비결정,strict2
+21.Mive keyboard#528.0,21.Mive keyboard,528.0,REVIEW,,transient_input,C_verifier,input,0.68,"차단된문구 입력영역 Tap, 포커스·키보드 노출 검증. INPUT_REQUIRED·차단문구 입력 맥락 verifier 필요",pass1
+21.Mive keyboard#535.0,21.Mive keyboard,535.0,REVIEW,D3_prestate,transient_input,D_system_state,none,0.68,"구글계정+모바일가드 로그인 전제 pre-state, 제목영역 키보드 노출 IME D2 겸함",strict2
+21.Mive keyboard#542.0,21.Mive keyboard,542.0,REVIEW,D3_prestate,transient_input,D_system_state,none,0.68,"구글계정+모바일가드 로그인 전제 pre-state, 본문영역 키보드 노출 IME D2 겸함",strict2
+21.Mive keyboard#629.0,21.Mive keyboard,629.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.66,"마이브 키보드 활성+기호 키패드 포커싱. IME 활성/키패드 노출 D2, '추가 예정' 미완 TC",strict2
+23.Settings#2.0,23.Settings,2.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.68,검색란 활성+하드키 전용 IME 표시 확인. IME 키패드 노출 D2 비결정,strict2
+23.Settings#11.0,23.Settings,11.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.66,Wi-Fi 리스트 TAP시 하드키 전용 IME 표시. IME 노출 D2+Wi-Fi 리스트 환경 의존,strict2
+23.Settings#69.0,23.Settings,69.0,REVIEW,,observe_split,E_binding,none,0.7,"새 기기 페어링 진입 후 기기이름 표기 확인, 캐리어별 default 값 binding 분리 필요",pass1
+23.Settings#90.0,23.Settings,90.0,KEEP,none,popup_cancel,-,none,0.8,"설정>안심기능>보호자 등록시 보호자 추가하기 팝업 노출. 고정 팝업 텍스트 assert, mutation 없음",strict2
+23.Settings#91.0,23.Settings,91.0,KEEP,none,popup_cancel,-,none,0.79,"보호자 등록>보호자 추가 Tap시 보호자 추가 팝업 노출. 팝업 텍스트 assert, mutation 없음",strict2
+23.Settings#123.0,23.Settings,123.0,KEEP,none,-,-,none,0.82,"설정>안심기능>측면버튼 진입, 길게/짧게 누르기 토글 On/Off 고정 라벨 표시. 조회만",strict2
+23.Settings#124.0,23.Settings,124.0,REVIEW,,selection_gated,D_system_state,none,0.66,"보호자 미등록 pre+토글 ON 조작으로 팝업 분기, 토글변경·시스템상태 전제",pass1
+23.Settings#125.0,23.Settings,125.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.62,"측면 버튼 물리 길게 누름, 보호자 미등록 상태 전제 팝업 노출. 물리하드키 비결정",strict2
+23.Settings#127.0,23.Settings,127.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,"길게누르기 토글 OFF 영속 변경, 보호자등록+토글ON fixture pre",pass1
+23.Settings#128.0,23.Settings,128.0,REVIEW,,selection_gated,D_system_state,none,0.66,"보호자등록+토글OFF pre 후 팝업 변경하러가기 탭, 시스템상태 전제 필요",pass1
+23.Settings#129.0,23.Settings,129.0,REVIEW,,selection_gated,D_system_state,external,0.6,"구글 미로그인 pre+측면버튼으로 어시스턴트 음성지원 실행, 외부효과·시스템상태",pass1
+23.Settings#130.0,23.Settings,130.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,"짧게누르기 토글 OFF 영속 변경, 토글ON pre 시스템상태 전제",pass1
+23.Settings#131.0,23.Settings,131.0,REVIEW,,selection_gated,D_system_state,none,0.64,"짧게누르기 토글OFF pre 후 측면버튼 짧게눌러 무반응 확인, 시스템상태 전제",pass1
+23.Settings#151.0,23.Settings,151.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.66,"방해금지모드 지금사용중지로 영속 OFF, 모드ON pre·인디케이터 verifier",pass1
+23.Settings#160.0,23.Settings,160.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.62,"방해금지>앱 추가시 추가할 앱 목록 표기. 설치된 앱 목록 가변, 고정 라벨 assert 곤란",strict2
+23.Settings#179.0,23.Settings,179.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.66,"다시알림허용 ON 영속 토글+다시알림 발생 검증, 시스템상태 전제",pass1
+23.Settings#180.0,23.Settings,180.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.66,"다시알림허용 OFF 영속 토글, 미발생 검증·시스템상태 전제",pass1
+23.Settings#183.0,23.Settings,183.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.66,"개선된알림기능 ON 영속 토글+알림발생 검증, 시스템상태 전제",pass1
+23.Settings#184.0,23.Settings,184.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.66,"개선된알림기능 OFF 영속 토글, 미발생 검증·시스템상태 전제",pass1
+23.Settings#192.0,23.Settings,192.0,REVIEW,,transient_input,C_verifier,input,0.64,"정각알림 ON+시간 하드키 입력으로 포커스 자동이동 검증, transient input verifier",pass1
+23.Settings#205.0,23.Settings,205.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.6,"정각알림 OFF 영속 토글+정각 도달 TTS 미송출 검증, 시간경과·시스템상태",pass1
+23.Settings#254.0,23.Settings,254.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.75,배터리 사용량 그래프+앱별 % 가변값. 그래프/% D2 비결정 verifier,strict2
+23.Settings#256.0,23.Settings,256.0,KEEP,none,-,-,none,0.8,절전모드 화면의 사용 토글/예약/충전완료 사용중지 고정 메뉴라벨+default 노출. 조회만,strict2
+23.Settings#257.0,23.Settings,257.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,"절전모드 OFF 영속 토글 변경, 모드ON pre 시스템상태 전제",pass1
+23.Settings#258.0,23.Settings,258.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.68,"절전모드 ON 영속 토글 변경, 모드OFF pre 시스템상태 전제",pass1
+23.Settings#271.0,23.Settings,271.0,REVIEW,D4_carrier,observe_split,E_binding,none,0.78,소리및진동 중 T컬러링(SKT)/링투유(KT)/LGU+ 제외 carrier 분기. expected SIM 가변,strict2
+23.Settings#272.0,23.Settings,272.0,REVIEW,,transient_input,C_verifier,input,0.6,"볼륨 bar 좌우 이동으로 소리크기 조절 검증, slider input·소리 verifier 필요",pass1
+23.Settings#273.0,23.Settings,273.0,KEEP,none,-,-,none,0.86,"소리및진동>방해금지모드 화면 전환. 단순 화면전환, mutation 없음",strict2
+23.Settings#275.0,23.Settings,275.0,REVIEW,,observe_split,F_misc,external,0.62,"T컬러링/링투유 웹사이트 전환, 외부 브라우저·통신사 의존 외부효과",pass1
+23.Settings#468.0,23.Settings,468.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.66,"잼 테마 선택으로 단말 테마 영속 변경(적용), Basic pre·시스템상태 전제",pass1
+23.Settings#474.0,23.Settings,474.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,"TalkBack 단축키 영속 On+볼륨키 동시입력 팝업 검증, 시스템상태 전제",pass1
+23.Settings#476.0,23.Settings,476.0,REVIEW,,selection_gated,D_system_state,mutation,0.6,"바로가기 On pre+볼륨키 동시눌러 TalkBack 활성, 접근성 시스템상태 변경",pass1
+23.Settings#602.0,23.Settings,602.0,KEEP,none,-,-,none,0.82,실시간 자막 화면 전환+고정 메뉴라벨(언어/자막환경설정/욕설숨기기 등) 노출. 조회만,strict2
+23.Settings#610.0,23.Settings,610.0,KEEP,none,-,-,none,0.82,자막 환경설정>추가옵션 Tap시 언어 메뉴(기본값/한국어/English) 고정 라벨 노출. 조회만,strict2
+23.Settings#613.0,23.Settings,613.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,볼륨컨트롤 실시간자막 ON/OFF 영속 토글+볼륨키 메뉴 노출 검증,pass1
+23.Settings#651.0,23.Settings,651.0,KEEP,none,-,-,none,0.8,TTS 기본엔진 설정 Tap시 GoogleTTS 옵션 고정 메뉴라벨 노출. 화면 진입+조회만,strict2
+23.Settings#655.0,23.Settings,655.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,"음성볼륨증폭 On 영속 토글+크게 재생 검증, OFF pre 시스템상태·소리 verifier",pass1
+23.Settings#656.0,23.Settings,656.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.62,"음성볼륨증폭 Off 영속 토글+기본음 재생 검증, On pre 시스템상태·소리 verifier",pass1
+23.Settings#706.0,23.Settings,706.0,REVIEW,,transient_input,C_verifier,input,0.62,"PIN 입력·불일치 시도로 오류문구·포커스 검증, 입력 필요 transient verifier",pass1
+23.Settings#718.0,23.Settings,718.0,REVIEW,,transient_input,C_verifier,input,0.62,"비밀번호 입력·불일치 시도로 오류문구·포커스 검증, 입력 필요 transient verifier",pass1
+23.Settings#773.0,23.Settings,773.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.6,SIM PIN 입력 팝업의 핵심 assert에 '하단 입력 키패드 노출' 포함. IME/PIN 키패드 노출 D2 비결정,strict2
+23.Settings#925.0,23.Settings,925.0,REVIEW,,selection_gated,D_system_state,mutation,0.62,"허용 선택 시 설정값으로 취침모드 영속 적용, 처음실행 pre·시스템상태 전제",pass1
+23.Settings#972.0,23.Settings,972.0,KEEP,none,-,-,none,0.78,터치 키보드 화면의 Gboard/Google음성입력 토글 On 고정 상태 조회. mutation 없음,strict2
+23.Settings#973.0,23.Settings,973.0,REVIEW,,selection_gated,A_fixture,mutation,0.62,물리키보드 연결 fixture pre+터치키보드 사용 On 영속 토글 변경 검증,pass1
+23.Settings#977.0,23.Settings,977.0,KEEP,none,-,-,none,0.74,"기본엔진 설정 화면의 7개 고정 메뉴라벨 조회. '설정변경 시 적용'은 부가서술, procedure는 진입만",strict2
+23.Settings#982.0,23.Settings,982.0,REVIEW,D5_mutation,observe_split,D_system_state,none,0.6,빠르게 카메라 열기 On 설정 후 전원버튼 두번 물리 누름으로 카메라 실행. 설정 토글+물리키 외부효과,strict2
+23.Settings#985.0,23.Settings,985.0,KEEP,none,-,-,none,0.82,날짜및시간 화면의 자동시간설정/시간대/24시간형식 등 고정 메뉴라벨 조회. mutation 없음,strict2
+23.Settings#987.0,23.Settings,987.0,KEEP,none,-,-,none,0.84,여러 사용자 화면의 허용 On/Off(기본 Off) 고정 라벨 조회. mutation 없음,strict2
+24.Launcher#1.0,24.Launcher,1.0,KEEP,none,-,-,none,0.82,"볼륨키→볼륨바 노출+영역 포커스. 고정 UI 요소 노출, mutation 없음",strict2
+24.Launcher#2.0,24.Launcher,2.0,KEEP,none,-,-,none,0.83,"볼륨바 위 소리모드 아이콘 포커스 이동. 고정요소 focus만, 입력·부작용 없음",strict2
+24.Launcher#3.0,24.Launcher,3.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.55,Press OK가 소리모드 선택 토글 부작용 경로 가능. 모드 노출 확장 불확실,strict2
+24.Launcher#4.0,24.Launcher,4.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.55,선행 Press OK 모드선택 후 무음모드 포커스. OK 부작용 전제 경로,strict2
+24.Launcher#5.0,24.Launcher,5.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.55,선행 Press OK 후 더보기 포커스. OK 모드선택 부작용 가능성,strict2
+24.Launcher#6.0,24.Launcher,6.0,KEEP,none,-,-,none,0.78,"홈 좌측하단 앱 위치 focus. 특정 사용자데이터 무명, 위치 focus 노출만",strict2
+24.Launcher#7.0,24.Launcher,7.0,KEEP,none,-,-,none,0.8,최상단서 상키 무반응=focus 경계 assert 가능. mutation 없음,strict2
+24.Launcher#8.0,24.Launcher,8.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,expected가 시계>날씨위젯>갤러리>전화 특정 앱배치 순서 명시. 배치 fixture 의존,strict2
+24.Launcher#9.0,24.Launcher,9.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,전화>갤러리>날씨위젯>시계 특정 앱배치 순서 명시. 배치 fixture 의존,strict2
+24.Launcher#10.0,24.Launcher,10.0,KEEP,none,-,-,none,0.78,우키3회→간편설정 페이지 이동+모든앱 focus. 화면전환+고정 focus,strict2
+24.Launcher#11.0,24.Launcher,11.0,KEEP,none,-,-,none,0.8,"하키→앱서랍 이동. 화면전환 assert 가능, mutation 없음",strict2
+24.Launcher#12.0,24.Launcher,12.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.52,포토 슬라이드쇼 페이지는 갤러리 사진 데이터에 의존. 빈상태 표시 비결정,strict2
+24.Launcher#13.0,24.Launcher,13.0,REVIEW,D5_mutation,popup_cancel,F_misc,none,0.6,"OK 길게→앱 메뉴(앱삭제/홈삭제/위젯등록) 노출. 위험 메뉴 진입, 취소 필요",strict2
+24.Launcher#14.0,24.Launcher,14.0,REVIEW,D5_mutation,popup_cancel,F_misc,none,0.58,"OK 길게 앱메뉴 진입 후 포커스 이동. 앱삭제 메뉴 컨텍스트, 취소 미보장",strict2
+24.Launcher#15.0,24.Launcher,15.0,REVIEW,D5_mutation,popup_cancel,F_misc,none,0.58,OK 길게 앱메뉴 후 Back. 취소 패턴이나 위험 메뉴 진입 경로,strict2
+24.Launcher#16.0,24.Launcher,16.0,KEEP,none,-,-,none,0.78,앱서랍 좌측최상단 앱 focus. 설치앱 위치 focus 노출만,strict2
+24.Launcher#17.0,24.Launcher,17.0,KEEP,none,-,-,none,0.82,앱서랍 우키→오른쪽앱 focus 이동. 위치 focus 이동만,strict2
+24.Launcher#18.0,24.Launcher,18.0,KEEP,none,-,-,none,0.82,최우측앱 이동 후 무반응=경계 assert. mutation 없음,strict2
+24.Launcher#19.0,24.Launcher,19.0,KEEP,none,-,-,none,0.82,최하단앱 이동 후 무반응. focus 경계 assert 가능,strict2
+24.Launcher#20.0,24.Launcher,20.0,KEEP,none,-,-,none,0.8,하단→상방 최상단앱 focus 경계. mutation 없는 스크롤 focus,strict2
+24.Launcher#21.0,24.Launcher,21.0,KEEP,none,-,-,none,0.72,단축다이얼 1-30 UI 격자 focus. 빈슬롯 격자는 등록데이터 무관 노출,strict2
+24.Launcher#22.0,24.Launcher,22.0,KEEP,none,-,-,none,0.72,"단축다이얼 1번 슬롯 focus+좌키 무반응. 슬롯 UI focus, 등록데이터 무관",strict2
+24.Launcher#23.0,24.Launcher,23.0,KEEP,none,-,-,none,0.74,우키→31-60 UI focus 이동. 슬롯격자 페이지 focus만,strict2
+24.Launcher#24.0,24.Launcher,24.0,KEEP,none,-,-,none,0.72,우키3회 1-30/31-60/61-99 한칸씩+다음페이지 focus. 격자 focus 이동,strict2
+24.Launcher#25.0,24.Launcher,25.0,REVIEW,D5_mutation,popup_cancel,F_misc,none,0.62,"OK→단축다이얼 등록 팝업 발생. 등록 입력 경로, 취소 필요",strict2
+24.Launcher#26.0,24.Launcher,26.0,KEEP,none,-,-,none,0.78,우키 유지→최우측+다음페이지 이동. focus 이동만,strict2
+24.Launcher#27.0,24.Launcher,27.0,KEEP,none,-,-,none,0.78,상키→편집버튼 이동 후 무반응. 고정 편집버튼 focus 경계,strict2
+24.Launcher#28.0,24.Launcher,28.0,KEEP,none,-,-,none,0.8,"좌키 누름유지 무반응. focus 경계 assert, mutation 없음",strict2
+24.Launcher#29.0,24.Launcher,29.0,KEEP,none,-,-,none,0.8,하키→최하단 스크롤+focus 유지. 스크롤 focus만,strict2
+24.Launcher#30.0,24.Launcher,30.0,KEEP,none,-,-,none,0.76,편집버튼 focus 후 하키→1-30 UI focus. 격자 focus 복귀만,strict2
+24.Launcher#31.0,24.Launcher,31.0,REVIEW,,-,A_fixture,fixture,0.82,"단축다이얼 등록된 상태 전제, OK시 연락처 page 노출 — fixture 필요",pass1
+24.Launcher#32.0,24.Launcher,32.0,REVIEW,,-,A_fixture,fixture,0.82,"단축다이얼 등록 전제, Right로 전화UI 포커스 — fixture 필요",pass1
+24.Launcher#34.0,24.Launcher,34.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Right로 페이지 포커스 이동 — fixture 필요",pass1
+24.Launcher#35.0,24.Launcher,35.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Down으로 31번 포커스 — fixture 필요",pass1
+24.Launcher#36.0,24.Launcher,36.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Down유지 60번 포커스 유지 — fixture 필요",pass1
+24.Launcher#37.0,24.Launcher,37.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Left로 1-30 포커스 — fixture 필요",pass1
+24.Launcher#38.0,24.Launcher,38.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Down으로 61번 포커스 — fixture 필요",pass1
+24.Launcher#39.0,24.Launcher,39.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Right로 61번 전화UI 포커스 — fixture 필요",pass1
+24.Launcher#40.0,24.Launcher,40.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Right로 다음페이지 앱 포커스 — fixture 필요",pass1
+24.Launcher#41.0,24.Launcher,41.0,REVIEW,,-,A_fixture,fixture,0.82,"등록된 단축다이얼 전제, Left로 1-30 포커스 — fixture 필요",pass1
+24.Launcher#42.0,24.Launcher,42.0,KEEP,none,-,-,none,0.8,간편설정 모든앱 focus. 고정 focus 노출만,strict2
+24.Launcher#43.0,24.Launcher,43.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.52,expected가 사진에 포커스 명시. 갤러리 사진 데이터 전제,strict2
+24.Launcher#44.0,24.Launcher,44.0,KEEP,none,-,-,none,0.78,상키→의료정보 앱 focus. 고정 시스템앱 라벨 focus,strict2
+24.Launcher#45.0,24.Launcher,45.0,KEEP,none,-,-,none,0.76,"의료정보 Page 이동. 화면전환 assert 가능, mutation 없음",strict2
+24.Launcher#46.0,24.Launcher,46.0,KEEP,none,-,-,none,0.78,상키2회→만보기 앱 focus. 고정앱 라벨 focus,strict2
+24.Launcher#47.0,24.Launcher,47.0,KEEP,none,-,-,none,0.76,만보기 Page 이동. 화면전환 assert만,strict2
+24.Launcher#48.0,24.Launcher,48.0,KEEP,none,-,-,none,0.78,상키3회→나의 휴대폰 상태 focus. 고정 라벨 focus,strict2
+24.Launcher#49.0,24.Launcher,49.0,KEEP,none,-,-,none,0.76,쉬운설정 Page 이동. 화면전환 assert만,strict2
+24.Launcher#50.0,24.Launcher,50.0,KEEP,none,-,-,none,0.76,상키4회→사용데이터 focus. 고정 라벨 focus 노출,strict2
+24.Launcher#144.0,24.Launcher,144.0,KEEP,none,-,-,none,0.78,구글서치바서 좌측하단 앱 focus. 고정위치 focus 노출,strict2
+24.Launcher#145.0,24.Launcher,145.0,KEEP,none,-,-,none,0.78,하키→좌측최하단 앱 focus. 고정위치 focus 이동,strict2
+24.Launcher#146.0,24.Launcher,146.0,KEEP,none,-,-,none,0.78,"최하단 하키→앱서랍 열림. 화면전환 assert, mutation 없음",strict2
+24.Launcher#147.0,24.Launcher,147.0,KEEP,none,-,-,none,0.82,최상단 상키 무반응. focus 경계 assert 가능,strict2
+24.Launcher#148.0,24.Launcher,148.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,precondition 홈에 다수 앱 배치 전제. 사용자 앱배치 fixture 의존,strict2
+24.Launcher#149.0,24.Launcher,149.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,다수앱 배치+다음페이지 이동 전제. 앱배치 fixture 의존,strict2
+24.Launcher#150.0,24.Launcher,150.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,다수앱 배치 precondition 전제 후 앱서랍 진입. fixture 의존,strict2
+24.Launcher#151.0,24.Launcher,151.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.5,다수앱 배치 전제. 무반응 assert 자체는 OK이나 precondition fixture 의존,strict2
+24.Launcher#152.0,24.Launcher,152.0,REVIEW,D5_mutation,roundtrip_restore,D_system_state,none,0.58,OK→포커스 앱 실행=외부앱 기동 부작용. 다수앱 배치 fixture+실행 mutation,strict2
+24.Launcher#153.0,24.Launcher,153.0,KEEP,none,popup_cancel,-,none,0.8,"시스템 기본 다수앱 홈, OK롱탭 말풍선 고정라벨+'앱정보' 포커스, mutation 없음",strict2
+24.Launcher#154.0,24.Launcher,154.0,KEEP,none,popup_cancel,-,none,0.8,"말풍선 하방향 포커스 설치삭제→위젯 고정라벨 이동만, 입력·부작용 없음",strict2
+24.Launcher#155.0,24.Launcher,155.0,KEEP,none,popup_cancel,-,none,0.76,"롱탭 후 뒤로/취소로 직전 시스템앱 포커스 복귀, 관찰·취소만 mutation 없음",strict2
+24.Launcher#156.0,24.Launcher,156.0,REVIEW,D3_prestate,-,D_system_state,none,0.66,"'앱/앱폴더 하나만 존재' 비기본 홈 레이아웃 축소 셋업 전제, pre-state 필요",strict2
+24.Launcher#157.0,24.Launcher,157.0,REVIEW,D3_prestate,-,D_system_state,none,0.66,"'최하단 앱폴더 존재' 사용자 생성 폴더 pre-state 전제, 기본 홈 아님",strict2
+24.Launcher#158.0,24.Launcher,158.0,KEEP,none,-,-,none,0.82,"앱서랍 방향키시 좌상단 시스템앱 포커스, 기본 앱 존재만 전제 관찰만",strict2
+24.Launcher#159.0,24.Launcher,159.0,KEEP,none,-,-,none,0.82,"상방향시 서치바 포커스+경계 무반응, 고정 요소 assert mutation 없음",strict2
+24.Launcher#160.0,24.Launcher,160.0,KEEP,none,-,-,none,0.82,"우방향 포커스 이동+경계 무반응, 관찰 전용 mutation 없음",strict2
+24.Launcher#161.0,24.Launcher,161.0,KEEP,none,-,-,none,0.82,"하방향 포커스 이동+경계 무반응, 관찰 전용 mutation 없음",strict2
+24.Launcher#162.0,24.Launcher,162.0,REVIEW,,observe_split,C_verifier,none,0.7,인디케이터 흰색 미노출 검증=screenshot 색상 verifier 미실증,pass1
+24.Launcher#163.0,24.Launcher,163.0,REVIEW,,-,A_fixture,fixture,0.8,"폴더 생성된 상태 fixture 전제, 폴더 진입 포커스 관찰",pass1
+24.Launcher#164.0,24.Launcher,164.0,REVIEW,,roundtrip_restore,A_fixture,fixture,0.8,"폴더 fixture 전제, 진입 후 뒤로 복귀 포커스 확인",pass1
+24.Launcher#165.0,24.Launcher,165.0,REVIEW,,-,A_fixture,fixture,0.8,"폴더 fixture 전제, 상방향키 폴더명 포커스 관찰",pass1
+24.Launcher#166.0,24.Launcher,166.0,REVIEW,,transient_input,A_fixture,"fixture,input",0.78,"폴더 fixture 전제, 폴더명 변경가능 검증=입력 편집모드 진입",pass1
+24.Launcher#167.0,24.Launcher,167.0,REVIEW,,transient_input,A_fixture,"fixture,input",0.8,"폴더명 변경후 확인=텍스트 입력+영속 rename, fixture 전제",pass1
+24.Launcher#224.0,24.Launcher,224.0,REVIEW,D3_prestate,-,D_system_state,none,0.7,"'실행 중 앱 다수' 선행 앱 실행 셋업 전제, 순서 노출 검증에 외부 앱 필요",strict2
+24.Launcher#225.0,24.Launcher,225.0,REVIEW,,observe_split,C_verifier,none,0.6,"모두닫기는 백그라운드 프로세스 종료(영속데이터 아님 가역)→과배제 완화, 종료확인 assert 분리",pass1
+24.Launcher#226.0,24.Launcher,226.0,REVIEW,D3_prestate,-,D_system_state,none,0.65,"실행 중 앱 다수 전제+모두닫기 설정창 진입, 선행 앱 셋업 필요",strict2
+24.Launcher#227.0,24.Launcher,227.0,REVIEW,,-,D_system_state,external,0.78,자동닫기 On 후 새벽3시 백그라운드 종료 검증=시간기반 시스템 상태 필요,pass1
+24.Launcher#228.0,24.Launcher,228.0,REVIEW,,-,D_system_state,external,0.78,자동닫기 Off 새벽3시 이후 앱 유지 검증=시간기반 시스템 상태,pass1
+24.Launcher#230.0,24.Launcher,230.0,REVIEW,,-,D_system_state,"fixture,external",0.8,FamilyLink 부모폰 연동/차단·해제 외부계정 시스템 상태 전제,pass1
+24.Launcher#240.0,24.Launcher,240.0,REVIEW,,selection_gated,E_binding,mutation,0.62,"즐겨찾기 등록은 가역 설정 등록(영속데이터 삭제/저장 아님)→과배제 완화, 리스트 binding",pass1
+24.Launcher#241.0,24.Launcher,241.0,KEEP,none,popup_cancel,-,none,0.8,"즐겨찾기 등록 0 명시 상태 롱탭 팝업+미등록 문구·취소/등록 고정 노출, mutation 없음",strict2
+24.Launcher#242.0,24.Launcher,242.0,REVIEW,,selection_gated,E_binding,mutation,0.75,"변경>앱 선택해 즐겨찾기 등록 토스트=영속 등록 mutation, 리스트 binding",pass1
+24.Launcher#243.0,24.Launcher,243.0,REVIEW,,popup_cancel,A_fixture,fixture,0.78,"등록된 앱 있음 fixture 전제, 팝업 노출만 관찰",pass1
+24.Launcher#244.0,24.Launcher,244.0,REVIEW,,selection_gated,E_binding,"fixture,mutation",0.75,등록앱 있음 fixture+앱 선택해 등록 변경 토스트=영속 mutation,pass1
+24.Launcher#246.0,24.Launcher,246.0,REVIEW,D2_verifier,-,C_verifier,none,0.7,"'동작이 되야한다' 모호 검증, 30초 반복 입력 결정적 텍스트 assert 불가",strict2
+24.Launcher#247.0,24.Launcher,247.0,REVIEW,,observe_split,C_verifier,input,0.72,"닫기설정 자동닫기 on/off 동작 검증=토글 조작 포함, assert 분리 필요",pass1
+25.Call#213.0,25.Call,213.0,EXCLUDE,,-,-,"mutation,external",0.82,"영상통화 실발신=외부 통화 발신 외부효과, 라벨 아님 실동작",pass1
+25.Call#214.0,25.Call,214.0,REVIEW,,-,A_fixture,"fixture,external",0.75,"음성콜 통화중 전제(통화 발신/연락처 fixture), 키패드 사라짐 관찰",pass1
+25.Call#287.0,25.Call,287.0,REVIEW,D1_fixture,-,A_fixture,none,0.62,"단축다이얼 슬롯 99까지 이동 등록 슬롯 전제, focus 대상이 사용자 데이터",strict2
+25.Call#291.0,25.Call,291.0,KEEP,none,-,-,none,0.78,"즐겨찾기 0 명시 상태 연락처 실행시 '즐겨찾기 추가' text 최초 포커스, 고정 라벨",strict2
+25.Call#292.0,25.Call,292.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.72,"'키패드 올라온다'=IME 노출, 결정적 요소 assert 불가",strict2
+25.Call#293.0,25.Call,293.0,KEEP,none,-,-,none,0.8,"즐겨찾기 0 명시 검색focus 하방향시 즐겨찾기 추가 포커스, 고정 라벨 관찰",strict2
+25.Call#294.0,25.Call,294.0,KEEP,none,-,-,none,0.8,"즐겨찾기 0 검색focus 하방향 2회시 즐겨찾기 탭 포커스, 고정 요소 mutation 없음",strict2
+25.Call#295.0,25.Call,295.0,REVIEW,D1_fixture,-,A_fixture,none,0.7,"'즐겨찾기된 연락처 있는 상태' 등록 연락처 전제, focus 대상이 사용자 데이터",strict2
+25.Call#298.0,25.Call,298.0,REVIEW,D1_fixture,-,A_fixture,none,0.72,"즐겨찾기 연락처+휴대전화/집/직장 번호 저장 전제, 사용자 데이터 fixture",strict2
+25.Call#299.0,25.Call,299.0,REVIEW,D1_fixture,-,A_fixture,none,0.72,"즐겨찾기 연락처 4개 이상 존재 전제, 등록 연락처 사용자 데이터",strict2
+25.Call#300.0,25.Call,300.0,REVIEW,D1_fixture,-,A_fixture,none,0.72,"즐겨찾기 연락처 4개 이상 전제, 최하단까지 이동에 등록 데이터 필요",strict2
+25.Call#301.0,25.Call,301.0,REVIEW,,selection_gated,E_binding,fixture,0.78,"long-press로 선택 v표시·1개선택 UI, fixture(4+즐겨찾기)+선택binding 검증 필요",pass1
+25.Call#302.0,25.Call,302.0,REVIEW,,selection_gated,E_binding,fixture,0.74,"long-press 선택 후 뒤로가기 focus, 선택모드 진입 binding 전제",pass1
+25.Call#303.0,25.Call,303.0,REVIEW,,selection_gated,E_binding,fixture,0.74,"long-press 선택모드 후 n개선택 드롭박스 focus, 선택상태 전제",pass1
+25.Call#304.0,25.Call,304.0,REVIEW,,selection_gated,E_binding,fixture,0.72,"드롭박스 ok로 모두선택/해제 focus 노출, 선택모드 전제(실행 아님)",pass1
+25.Call#305.0,25.Call,305.0,REVIEW,,selection_gated,E_binding,fixture,0.72,"휴지통 아이콘 focus만 이동(삭제실행 아님=라벨 맥락), 선택모드 전제",pass1
+25.Call#306.0,25.Call,306.0,REVIEW,D3_prestate,-,D_system_state,none,0.6,"precondition 공란이나 '더보기 내 통화기록' 진입 선행 네비 전제, pre-state 불명확",strict2
+25.Call#307.0,25.Call,307.0,REVIEW,D3_prestate,-,D_system_state,none,0.62,"'모든 통화 드롭박스 focus' 통화목록 필터 화면 선행 진입 전제, pre-state",strict2
+25.Call#308.0,25.Call,308.0,REVIEW,D3_prestate,popup_cancel,D_system_state,none,0.62,"통화 구분 화면 선행 진입 전제+드롭박스 open/close, pre-state 셋업 필요",strict2
+25.Call#309.0,25.Call,309.0,REVIEW,D1_fixture,-,A_fixture,none,0.65,"통화 구분 화면+'최상단 콜 로그' 포커스, 기존 통화기록 데이터 전제",strict2
+25.Call#310.0,25.Call,310.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"'첫 번째 콜 로그 focus' 기존 통화기록 존재 전제, 사용자 데이터 fixture",strict2
+25.Call#311.0,25.Call,311.0,REVIEW,D1_fixture,-,A_fixture,none,0.7,"콜 로그 포커스+아래 콜 로그 이동, 통화기록 다수 존재 전제 사용자 데이터",strict2
+25.Call#313.0,25.Call,313.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.7,"콜 로그+연락처 저장 상태 전제, 통화기록·연락처 사용자 데이터 fixture",strict2
+25.Call#314.0,25.Call,314.0,REVIEW,D1_fixture,-,A_fixture,none,0.7,"콜 로그 다수+연락처 저장 전제, 아래 콜로그 이동에 통화기록 데이터 필요",strict2
+25.Call#315.0,25.Call,315.0,REVIEW,D1_fixture,-,A_fixture,none,0.7,"콜 로그 다수+연락처 저장 전제, 위 콜로그 이동에 통화기록 데이터 필요",strict2
+25.Call#316.0,25.Call,316.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"콜 로그+연락처 저장 전제 메뉴 진입, 통화기록 사용자 데이터 fixture",strict2
+25.Call#317.0,25.Call,317.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"콜 로그 컨텍스트 메뉴 우방향 포커스, 통화기록·연락처 저장 전제",strict2
+25.Call#318.0,25.Call,318.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"콜 로그 메뉴 우방향 2회 포커스, 통화기록·연락처 저장 전제 fixture",strict2
+25.Call#319.0,25.Call,319.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"콜 로그+연락처 미저장 전제 메뉴 진입, 통화기록 사용자 데이터 fixture",strict2
+25.Call#320.0,25.Call,320.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"콜 로그 미저장 메뉴 우방향, 통화기록 존재 전제 사용자 데이터",strict2
+25.Call#321.0,25.Call,321.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"콜 로그 미저장 메뉴 우방향 2회, 통화기록 존재 전제 fixture",strict2
+25.Call#322.0,25.Call,322.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"미저장 콜 로그 메뉴 하방향 '새 연락처 추가' 포커스, 통화기록 전제",strict2
+25.Call#323.0,25.Call,323.0,REVIEW,D1_fixture,-,A_fixture,none,0.68,"미저장 콜 로그 메뉴 하/우방향 포커스, 통화기록 존재 전제 fixture",strict2
+25.Call#324.0,25.Call,324.0,REVIEW,D1_fixture,-,A_fixture,none,0.66,"콜 로그 메뉴 '새 연락처 추가' ok로 생성 화면 전환, 통화기록 전제",strict2
+25.Call#325.0,25.Call,325.0,REVIEW,D1_fixture,-,A_fixture,none,0.66,"콜 로그 메뉴 '연락처에 추가' ok로 선택 화면 전환, 통화기록 전제",strict2
+25.Call#326.0,25.Call,326.0,KEEP,none,-,-,none,0.74,"더보기 단축다이얼 ok로 설정 화면 전환+페이지 탐색 최초 포커스, 고정 UI 관찰 부작용 없음",strict2
+25.Call#327.0,25.Call,327.0,KEEP,none,-,-,none,0.76,"단축다이얼 페이지 탐색 우방향 100~199 전환+focus 유지, 고정 페이지 라벨 등록 슬롯 무관",strict2
+25.Call#328.0,25.Call,328.0,KEEP,none,-,-,none,0.76,"페이지 탐색 좌방향 900~999 전환+focus 유지, 고정 페이지 라벨 mutation 없음",strict2
+25.Call#329.0,25.Call,329.0,REVIEW,D2_verifier,-,C_verifier,none,0.6,"keep press right '동작에 따라 페이지 전환' 가변 결과, 고정값 assert 불명확",strict2
+25.Call#330.0,25.Call,330.0,REVIEW,D2_verifier,-,C_verifier,none,0.6,"keep press left '동작에 따라 페이지 전환' 가변 결과, 고정값 assert 불명확",strict2
+25.Call#331.0,25.Call,331.0,KEEP,none,-,-,none,0.78,"페이지 탐색 하방향 '연락처 추가' 포커스, 고정 라벨 관찰 mutation 없음",strict2
+25.Call#332.0,25.Call,332.0,KEEP,none,-,-,none,0.8,"페이지 탐색 상방향 '뒤로가기' 포커스, 고정 요소 관찰 mutation 없음",strict2
+25.Call#333.0,25.Call,333.0,KEEP,none,-,-,none,0.82,"'최초 focus 소리 및 진동'은 메뉴 라벨명 focus이지 실제 진동 아님. 화면전환+라벨 presence assert 가능, mutation 없음",strict2
+25.Call#334.0,25.Call,334.0,KEEP,none,-,-,none,0.85,"설정화면 소리및진동 focus up→뒤로가기 focus. 고정 라벨 focus 이동만, mutation 없음",strict2
+25.Call#335.0,25.Call,335.0,KEEP,none,-,-,none,0.85,"focus 아래 이동·최하단 정지. 고정 메뉴 focus 이동만, mutation 없음",strict2
+25.Call#336.0,25.Call,336.0,KEEP,none,-,-,none,0.88,"소리및진동 focus ok→화면전환. 화면전환·라벨 presence assert 가능, ok는 진입일뿐 토글 아님",strict2
+25.Call#337.0,25.Call,337.0,KEEP,none,-,-,none,0.85,"통화녹음 focus ok→화면전환+알림표시 메뉴 focus. 고정 라벨 presence, mutation 없음",strict2
+25.Call#338.0,25.Call,338.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,"toggle on=영속 토글이나 단일탭 가역, 켠뒤 원복 설계로 자동화 가능(과배제 구제)",pass1
+25.Call#339.0,25.Call,339.0,KEEP,none,-,-,none,0.88,"알림표시 focus down→통화중자동녹음 focus. 고정 메뉴 focus 이동만, mutation 없음",strict2
+25.Call#340.0,25.Call,340.0,KEEP,none,-,-,none,0.78,"자동녹음 focus ok→설정화면+사용 focus. ok는 화면진입, 사용은 focus 대상 라벨일뿐 토글 안함",strict2
+25.Call#341.0,25.Call,341.0,KEEP,none,-,-,none,0.88,"자동녹음 focus down→저장된통화녹음 focus. 고정 메뉴 focus 이동만, mutation 없음",strict2
+25.Call#342.0,25.Call,342.0,REVIEW,,roundtrip_restore,D_system_state,mutation,0.7,"toggle on=영속 토글이나 가역 단일탭, 원복 설계로 자동화 가능(과배제 구제)",pass1
+25.Call#350.0,25.Call,350.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.75,최근기록 ok→'전화 목록 리스트 번호 focus'는 통화기록 데이터 존재 전제. precondition 공란인데 기존 기록 암묵 전제,strict2
+25.Call#351.0,25.Call,351.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,최근기록 리스트 항목의 ▼ focus는 통화기록 항목 존재 전제. 빈 기록이면 검증 불가,strict2
+25.Call#352.0,25.Call,352.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.7,"▼에서 ok→▲ focus는 기록 항목 확장 동작, 통화기록 데이터 존재 전제",strict2
+25.Call#353.0,25.Call,353.0,KEEP,none,-,-,none,0.85,"연락처 ok→'새 연락처 만들기' focus. 항상 존재하는 고정 항목 focus, 등록 연락처 무관, mutation 없음",strict2
+25.Call#354.0,25.Call,354.0,KEEP,none,-,-,none,0.85,새연락처만들기 focus up/left/right→마이크/돋보기/더보기 아이콘 focus. 고정 아이콘 focus 이동만,strict2
+25.Call#355.0,25.Call,355.0,KEEP,none,-,-,none,0.85,"키패드 탭 후 방향키/ok→하단 숫자입력박스 focus. 앱내 진입, 고정 요소 focus 이동만, mutation 없음",strict2
+25.Call#356.0,25.Call,356.0,KEEP,none,-,-,none,0.88,"입력칸 focus down→키패드'1' focus. 고정 키패드 focus 이동만, mutation 없음",strict2
+25.Call#357.0,25.Call,357.0,KEEP,none,-,-,none,0.88,"숫자버튼 focus up→전화번호 입력칸 focus. 고정 요소 focus 이동만, mutation 없음",strict2
+25.Call#358.0,25.Call,358.0,REVIEW,D3_prestate,roundtrip_restore,D_system_state,none,0.72,"뒤로가기→'이전 화면으로 되돌아간다'는 진입경로(선행화면) 전제. 이전화면 없으면 최근기록 분기, pre-state 의존",strict2
+25.Call#359.0,25.Call,359.0,REVIEW,,transient_input,C_verifier,input,0.82,"pre서 숫자 입력 후 취소키로 사라짐 검증, transient input fixture 필요",pass1
+25.Call#360.0,25.Call,360.0,REVIEW,,transient_input,C_verifier,input,0.8,"숫자 입력 pre 후 위키로 커서/포커스 이동, transient input 전제",pass1
+25.Call#361.0,25.Call,361.0,REVIEW,,transient_input,C_verifier,input,0.8,"숫자 입력 pre 후 위키로 검색창 포커스 이동, transient input 전제",pass1
+25.Call#362.0,25.Call,362.0,REVIEW,,transient_input,C_verifier,input,0.78,"숫자 입력 pre+좌키 커서이동+OK 화면전환, transient input 전제",pass1
+25.Call#363.0,25.Call,363.0,REVIEW,,transient_input,C_verifier,input,0.8,"숫자 입력 pre 후 아래키 리스트 포커스 이동, transient input 전제",pass1
+25.Call#364.0,25.Call,364.0,REVIEW,,transient_input,C_verifier,input,0.78,"숫자 입력 pre+아래키+OK 화면 이동, transient input 전제",pass1
+25.Call#365.0,25.Call,365.0,REVIEW,,transient_input,C_verifier,input,0.8,"숫자 입력 pre 후 취소키로 한자리씩 삭제 검증, transient input",pass1
+25.Call#366.0,25.Call,366.0,REVIEW,,transient_input,C_verifier,input,0.79,"영문/문자 입력 후 검색결과없음 화면 검증, input 검증 필요",pass1
+25.Call#367.0,25.Call,367.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.65,"전화번호 검색창·전화번호 리스트 전제, 검색 컨텍스트는 연락처 데이터 의존. 2단계 ok 화면이동 복합",strict2
+25.Call#369.0,25.Call,369.0,REVIEW,D2_verifier,popup_cancel,C_verifier,none,0.6,"더보기 리스트 열림 검증은 popup 노출, 고정 메뉴 라벨 assert 가능하나 리스트 open이 transient. popup_cancel 재설계 필요",strict2
+25.Call#370.0,25.Call,370.0,REVIEW,D3_prestate,popup_cancel,D_system_state,none,0.68,더보기 메뉴 연 상태(precondition) 전제 후 뒤로가기→복귀. 선행 popup open pre-state 필요,strict2
+25.Call#375.0,25.Call,375.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.7,precondition 공란인데 '음소거 버튼' 노출은 통화중 화면 전제. 통화 활성 pre-state 필요,strict2
+25.Call#376.0,25.Call,376.0,REVIEW,,-,D_system_state,none,0.78,"통화중 pre 필요, 스피커/녹음버튼 focus 이동 관찰뿐이나 통화 fixture 전제",pass1
+25.Call#377.0,25.Call,377.0,REVIEW,,-,D_system_state,none,0.8,"통화중 pre 필요, 대기버튼서 아래키 미이동 관찰, 통화 상태 전제",pass1
+25.Call#378.0,25.Call,378.0,REVIEW,,-,D_system_state,none,0.8,"통화중 pre 필요, 녹음서 더보기 focus 이동 관찰, 통화 상태 전제",pass1
+25.Call#380.0,25.Call,380.0,REVIEW,,-,D_system_state,none,0.8,"통화중 pre 필요, 음소거서 키패드/종료 focus 이동 관찰, 통화 전제",pass1
+25.Call#381.0,25.Call,381.0,REVIEW,,-,D_system_state,none,0.8,"통화중 pre 필요, 잠금서 종료/키패드/스피커 focus 이동 관찰, 통화 전제",pass1
+25.Call#382.0,25.Call,382.0,REVIEW,,transient_input,D_system_state,input,0.78,"통화중 pre+숫자 하드키 입력해 회색박스 생성 검증, input+통화 전제",pass1
+25.Call#383.0,25.Call,383.0,REVIEW,,-,D_system_state,none,0.78,"통화중+숫자박스 pre, 취소키로 다이얼패드 사라짐 관찰, 통화 fixture",pass1
+25.Call#384.0,25.Call,384.0,REVIEW,,-,D_system_state,none,0.78,"통화중+숫자박스 pre, 좌키로 커서 이동 관찰, 통화 상태 전제",pass1
+25.Call#385.0,25.Call,385.0,REVIEW,,-,D_system_state,none,0.78,"통화중+숫자입력 pre, 좌키+OK로 박스 닫힘 통화화면 복귀 관찰, 통화 전제",pass1
+25.Call#386.0,25.Call,386.0,REVIEW,,popup_cancel,D_system_state,none,0.77,"통화중 pre, OK 롱탭으로 잠금버튼 활성+안내문 노출 관찰, 통화 전제",pass1
+26.Message#1.0,26.Message,1.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 존재 pre, 메인서 최초 focus 미표시 관찰, 대화 fixture 필요",pass1
+26.Message#2.0,26.Message,2.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 방향키/OK로 메시지작성 focus 관찰, 대화 fixture 전제",pass1
+26.Message#3.0,26.Message,3.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 위키로 검색 focus 관찰, 대화 fixture 전제",pass1
+26.Message#4.0,26.Message,4.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 우키로 더보기 focus 관찰, 대화 fixture 전제",pass1
+26.Message#5.0,26.Message,5.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 더보기서 우키 focus 유지 관찰, 대화 fixture 전제",pass1
+26.Message#6.0,26.Message,6.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 아래키로 메시지작성 focus 관찰, 대화 fixture 전제",pass1
+26.Message#7.0,26.Message,7.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 대화함서 좌키로 프로필 focus 관찰, 대화 fixture 전제",pass1
+26.Message#8.0,26.Message,8.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 프로필서 OK로 프로필카드 노출 관찰, 대화 fixture 전제",pass1
+26.Message#9.0,26.Message,9.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 상하키로 대화함 포커스 이동 관찰, 대화 fixture 전제",pass1
+26.Message#10.0,26.Message,10.0,REVIEW,,-,A_fixture,fixture,0.8,"대화기록 pre, 상하키로 프로필 포커스 이동 관찰, 대화 fixture 전제",pass1
+26.Message#11.0,26.Message,11.0,REVIEW,,selection_gated,A_fixture,fixture,0.78,"대화기록 pre, 롱프레스로 선택 focus 관찰, 선택만이라 mutation 아님 fixture 전제",pass1
+26.Message#12.0,26.Message,12.0,REVIEW,,selection_gated,A_fixture,fixture,0.78,"대화기록 pre, 선택후 뒤로/취소로 이전화면 복귀 관찰, fixture 전제",pass1
+26.Message#13.0,26.Message,13.0,REVIEW,,selection_gated,A_fixture,fixture,0.78,"대화기록 pre, 선택후 OK로 선택해제 관찰, 선택토글만 mutation 아님 fixture 전제",pass1
+26.Message#14.0,26.Message,14.0,REVIEW,,selection_gated,A_fixture,fixture,0.78,"대화기록 pre, 선택후 위키로 취소 focus 관찰, fixture 전제",pass1
+26.Message#15.0,26.Message,15.0,REVIEW,,selection_gated,A_fixture,fixture,0.78,"대화기록 pre, 선택후 우키로 N개선택됨 focus 관찰, fixture 전제",pass1
+26.Message#16.0,26.Message,16.0,REVIEW,,selection_gated,A_fixture,fixture,0.78,"대화기록 pre, 선택후 우키 반복 focus 유지 관찰, fixture 전제",pass1
+26.Message#17.0,26.Message,17.0,REVIEW,,-,A_fixture,fixture,0.8,"임의 대화함 OK 진입+입력창 커서 focus 관찰, 대화함 존재 fixture 필요",pass1
+26.Message#18.0,26.Message,18.0,REVIEW,,-,A_fixture,fixture,0.8,"대화함 진입후 좌키로 첨부 focus 관찰, 대화함 fixture 전제",pass1
+26.Message#19.0,26.Message,19.0,REVIEW,,-,A_fixture,fixture,0.8,"첨부서 좌키로 뒤로가기 focus 관찰, 대화함 fixture 전제",pass1
+26.Message#20.0,26.Message,20.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.78,"대화함+텍스트 입력후 우키로 전송 focus 관찰, 전송 미실행 input+fixture 전제",pass1
+26.Message#21.0,26.Message,21.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.78,'임의의 대화함' 진입 전제=기존 대화 데이터 존재. precondition 공란인데 메시지 기록 암묵 fixture,strict2
+26.Message#22.0,26.Message,22.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,'임의의 대화함'+'가장 최근 메시지 focus'는 기존 메시지 기록 존재 전제. 빈 대화함이면 검증 불가,strict2
+26.Message#23.0,26.Message,23.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,'임의의 대화함'+'메시지 기록 focus 최상단까지' 전제=기존 메시지 데이터. 암묵 fixture,strict2
+26.Message#24.0,26.Message,24.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,'임의의 대화함'+'메시지 기록 focus' Long Press 전제=기존 메시지 데이터 존재,strict2
+26.Message#25.0,26.Message,25.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,'임의의 대화함'+'메시지 기록 focus' left 전제=기존 대화·메시지 데이터 존재,strict2
+26.Message#26.0,26.Message,26.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,'임의의 대화함'+'메시지 기록 focus' right 전제=기존 메시지 데이터 존재,strict2
+26.Message#27.0,26.Message,27.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.72,'임의의 대화함' 진입 전제=기존 대화 데이터. 뒤로가기→프로필이미지 focus 이동 자체는 OK이나 fixture 의존,strict2
+26.Message#28.0,26.Message,28.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.7,'임의의 대화함' 진입=기존 대화 데이터 전제. 프로필이미지→전화 focus 이동은 헤더 고정요소이나 fixture 의존,strict2
+26.Message#29.0,26.Message,29.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.7,'임의의 대화함' 진입=기존 대화 데이터 전제. 전화→더보기 focus 이동은 헤더 고정이나 fixture 의존,strict2
+26.Message#30.0,26.Message,30.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.7,'임의의 대화함' fixture 전제+더보기 ok→메뉴 노출(popup). fixture+transient popup 복합,strict2
+26.Message#31.0,26.Message,31.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.7,'임의의 대화함' fixture+더보기 메뉴 열고 back→focus 유지. fixture+popup roundtrip,strict2
+26.Message#32.0,26.Message,32.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,'임의의 대화함'+down→'최하단 메시지 focus'는 기존 메시지 데이터 존재 전제,strict2
+26.Message#42.0,26.Message,42.0,REVIEW,,-,A_fixture,fixture,0.8,"LMS 있는 대화함 fixture 전제, OK로 입력창 focus·최하단 관찰",pass1
+26.Message#43.0,26.Message,43.0,REVIEW,,-,A_fixture,fixture,0.8,"LMS 있는 대화함 fixture 전제, Up으로 최하단 메시지 focus",pass1
+26.Message#44.0,26.Message,44.0,REVIEW,,-,A_fixture,fixture,0.8,"LMS focus fixture 전제, Keep Up로 LMS 확인까지 focus 유지 관찰",pass1
+26.Message#45.0,26.Message,45.0,REVIEW,,-,A_fixture,fixture,0.8,"LMS 있는 대화함 fixture 전제, Long Up로 뒤로가기 focus",pass1
+26.Message#46.0,26.Message,46.0,REVIEW,,-,A_fixture,fixture,0.8,"LMS focus fixture 전제, Left로 뒤로가기 focus 관찰만",pass1
+26.Message#47.0,26.Message,47.0,REVIEW,,-,A_fixture,fixture,0.8,"LMS focus fixture 전제, Right로 더보기 focus 관찰만",pass1
+26.Message#48.0,26.Message,48.0,REVIEW,,-,A_fixture,fixture,0.8,"최상단 LMS 대화함 fixture 전제, Up/Down focus 유지 관찰",pass1
+26.Message#49.0,26.Message,49.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.68,'임의의 대화함' fixture+첨부 ok→첨부 메뉴(popup) 노출+제목 focus. fixture+transient popup,strict2
+26.Message#50.0,26.Message,50.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 제목 ok→메뉴 닫힘+입력창 focus. fixture+popup 상태전환,strict2
+26.Message#51.0,26.Message,51.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 열린 pre-state에서 right 이동. fixture+선행 popup open,strict2
+26.Message#52.0,26.Message,52.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 열린 pre-state에서 down→동영상 focus. fixture+선행 popup,strict2
+26.Message#53.0,26.Message,53.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 동영상 focus right 이동. fixture+선행 popup open,strict2
+26.Message#54.0,26.Message,54.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.68,앨범 focus ok→'사진 선택 화면' 진입은 외부 갤러리 picker 실행. 외부효과+fixture 대화함,strict2
+26.Message#55.0,26.Message,55.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,"카메라 focus ok→'카메라 실행'은 외부 카메라 앱 실행, 외부효과. fixture 대화함 의존",strict2
+26.Message#56.0,26.Message,56.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.68,"동영상 focus ok→'동영상 선택 화면' 외부 picker 실행, 외부효과. fixture 대화함 의존",strict2
+26.Message#57.0,26.Message,57.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,"동영상촬영 focus ok→'카메라 실행' 외부 앱 실행, 외부효과. fixture 대화함 의존",strict2
+26.Message#58.0,26.Message,58.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.68,"연락처 focus ok→'연락처 선택 화면' 외부 picker 실행, 외부효과+연락처 데이터 의존",strict2
+26.Message#59.0,26.Message,59.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+오디오 focus ok→오디오 추가 팝업+벨소리 focus. fixture+transient popup,strict2
+26.Message#60.0,26.Message,60.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+오디오 팝업 열고 down keep→취소 focus 유지. fixture+popup 내 이동,strict2
+26.Message#61.0,26.Message,61.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 오디오 focus right→전화 focus. fixture+선행 popup open,strict2
+26.Message#63.0,26.Message,63.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 오디오 focus left→카메라 focus. fixture+선행 popup open,strict2
+26.Message#64.0,26.Message,64.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.66,'임의의 대화함' fixture+첨부 메뉴 up→메뉴 닫힘+입력창 focus. fixture+popup 상태전환,strict2
+26.Message#65.0,26.Message,65.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.84,expected '첫 번째 대화함 focus'는 기존 대화함 메시지 데이터 존재 전제. precondition 공란.,strict2
+26.Message#66.0,26.Message,66.0,REVIEW,,-,E_binding,fixture,0.8,"대화함 선택된 상태 pre 전제, 취소 focus>Right로 확장·삭제 focus 이동",pass1
+26.Message#67.0,26.Message,67.0,REVIEW,,popup_cancel,E_binding,fixture,0.8,"대화함 선택 pre 전제, 삭제 OK로 삭제 팝업·취소 focus 노출, 삭제 실행 없음",pass1
+26.Message#68.0,26.Message,68.0,KEEP,none,-,-,none,0.83,"차단/스팸관리 진입 후 '뒤로가기' 고정 라벨 최초 focus. 메뉴구조 정적, 데이터 무관, mutation 0.",strict2
+26.Message#69.0,26.Message,69.0,KEEP,none,-,-,none,0.84,"차단/스팸관리에서 Up/Down focus 이동만. 방향키 탐색, 부작용 없음.",strict2
+26.Message#70.0,26.Message,70.0,KEEP,none,-,-,none,0.82,"'차단된 번호' 고정 메뉴항목 진입 focus 이동. 정적 메뉴, 데이터 무관, mutation 0.",strict2
+26.Message#71.0,26.Message,71.0,KEEP,none,-,-,none,0.82,"'차단된 문구' 고정 메뉴항목 진입 focus 이동. 정적 메뉴, 데이터 무관, mutation 0.",strict2
+26.Message#72.0,26.Message,72.0,KEEP,none,-,-,none,0.82,"'차단된 메시지' 고정 메뉴항목 진입 focus 이동. 정적 메뉴, 데이터 무관, mutation 0.",strict2
+26.Message#73.0,26.Message,73.0,KEEP,none,popup_cancel,-,none,0.79,스팸 신고 안내 팝업 '취소' 최초 focus + 이동. 취소로 무변경 종결.,strict2
+26.Message#74.0,26.Message,74.0,KEEP,none,popup_cancel,-,none,0.78,"개인정보 수집 동의 팝업 '취소' 최초 focus + 이동. 취소=동의 안함, mutation 회피.",strict2
+26.Message#75.0,26.Message,75.0,KEEP,none,-,-,none,0.8,"휴지통 진입 후 '뒤로가기' 고정 라벨 최초 focus + 이동. 삭제데이터 무관, 고정요소 assert.",strict2
+26.Message#76.0,26.Message,76.0,KEEP,none,-,-,none,0.83,설정 진입 후 '뒤로가기' 고정 라벨 최초 focus. mutation 없음.,strict2
+26.Message#77.0,26.Message,77.0,KEEP,none,-,-,none,0.85,"설정 화면 Up/Down focus 이동만. 방향키 탐색, 부작용 없음.",strict2
+26.Message#80.0,26.Message,80.0,KEEP,none,-,-,none,0.83,설정>MMS 진입 후 '뒤로가기' 고정 focus + 이동. mutation 없음.,strict2
+26.Message#81.0,26.Message,81.0,KEEP,none,-,-,none,0.83,설정>알림 진입 후 '뒤로가기' 고정 focus + 이동. mutation 없음.,strict2
+26.Message#82.0,26.Message,82.0,KEEP,none,-,-,none,0.81,글꼴 크기 진입 후 '시스템 글꼴 크기를 따름' 고정 라벨 최초 focus + 이동. 고정텍스트 assert.,strict2
+26.Message#365.0,26.Message,365.0,REVIEW,,-,A_fixture,"fixture,external",0.82,".vcf/.vcs 파일 DUT 전송 = 외부 파일 주입 fixture 필요, BLOCKED",pass1
+27.Contacts#2.0,27.Contacts,2.0,KEEP,none,-,-,none,0.86,"precondition '등록된 연락처 없음' 명시, '새 연락처 만들기' 고정 라벨 최초 focus. fixture 깨끗.",strict2
+27.Contacts#3.0,27.Contacts,3.0,KEEP,none,-,-,none,0.85,"연락처 없음 상태, Press Up 시 좌상단 메뉴 focus. 고정 요소, mutation 없음.",strict2
+27.Contacts#4.0,27.Contacts,4.0,KEEP,none,-,-,none,0.85,"연락처 없음, 메뉴에서 Right 시 '추가하기(+)' 버튼 focus. 고정 요소, mutation 없음.",strict2
+27.Contacts#5.0,27.Contacts,5.0,KEEP,none,-,-,none,0.85,"추가 버튼에서 Right 시 '검색 버튼' focus. 고정 요소, mutation 없음.",strict2
+27.Contacts#6.0,27.Contacts,6.0,KEEP,none,-,-,none,0.85,"상단 버튼에서 Down 시 '새 연락처 만들기' focus. 고정 요소, mutation 없음.",strict2
+27.Contacts#7.0,27.Contacts,7.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 등록된 연락처 있음 = 연락처 fixture 필요, focus 관찰",pass1
+27.Contacts#8.0,27.Contacts,8.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 등록된 연락처 있음 = fixture 필요, focus 관찰",pass1
+27.Contacts#9.0,27.Contacts,9.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 연락처 있음 + 프로필 진입 focus, fixture 필요 mutation 없음",pass1
+27.Contacts#10.0,27.Contacts,10.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.81,"연락처 프로필 화면 전제 = 등록 연락처 필요, precondition 공란. 즐겨찾기 버튼은 프로필 의존.",strict2
+27.Contacts#11.0,27.Contacts,11.0,REVIEW,,roundtrip_restore,A_fixture,"mutation,fixture",0.85,"expected 즐겨찾기 추가 = 실제 영속 토글 mutation, 복원·assert 분리 필요",pass1
+27.Contacts#12.0,27.Contacts,12.0,REVIEW,,roundtrip_restore,A_fixture,"mutation,fixture",0.85,"expected 즐겨찾기 삭제 = 실제 영속 토글 mutation(라벨 아님), 복원·assert 분리",pass1
+27.Contacts#13.0,27.Contacts,13.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.81,"연락처 프로필 열린 상태 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#14.0,27.Contacts,14.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,프로필 존재 전제(precondition 공란) + 수정 Ok로 수정 화면 진입. 데이터 의존.,strict2
+27.Contacts#15.0,27.Contacts,15.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.81,"프로필 화면 전제(등록 연락처 필요), precondition 공란.",strict2
+27.Contacts#16.0,27.Contacts,16.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,"프로필 더보기 Ok→연결 focus, 등록 연락처 전제이나 precondition 공란.",strict2
+27.Contacts#17.0,27.Contacts,17.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,"더보기 메뉴(삭제/공유/벨소리) 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#18.0,27.Contacts,18.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.81,"프로필 Down→전화번호 focus, 등록 연락처(전화번호 데이터) 전제, precondition 공란.",strict2
+27.Contacts#19.0,27.Contacts,19.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.81,"전화번호 focus 전제 = 등록 연락처 데이터 필요, precondition 공란.",strict2
+27.Contacts#20.0,27.Contacts,20.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.81,"전화번호 요소 존재 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#21.0,27.Contacts,21.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,"전화 버튼 focus 전제(프로필) = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#22.0,27.Contacts,22.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,"전화 버튼 존재 전제 = 등록 연락처 프로필 필요, precondition 공란.",strict2
+27.Contacts#23.0,27.Contacts,23.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,"메시지 버튼 focus 전제 = 등록 연락처 프로필 필요, precondition 공란.",strict2
+27.Contacts#24.0,27.Contacts,24.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.8,"메시지 버튼 존재 전제 = 등록 연락처 프로필 필요, precondition 공란.",strict2
+27.Contacts#25.0,27.Contacts,25.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 번호 2개 저장 = fixture 필요, focus 관찰",pass1
+27.Contacts#26.0,27.Contacts,26.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 번호 2개 저장 = fixture 필요, focus 관찰",pass1
+27.Contacts#27.0,27.Contacts,27.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 번호 2개 저장 = fixture 필요, focus 관찰",pass1
+27.Contacts#28.0,27.Contacts,28.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"연락처 수정 화면 진입 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#29.0,27.Contacts,29.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면(닫기/저장) 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#30.0,27.Contacts,30.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면 Down→카메라 버튼, 등록 연락처 수정 화면 전제, precondition 공란.",strict2
+27.Contacts#31.0,27.Contacts,31.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면 카메라 버튼 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#32.0,27.Contacts,32.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면 Down→이름 입력영역, 등록 연락처 수정 화면 전제, precondition 공란.",strict2
+27.Contacts#33.0,27.Contacts,33.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면 이름영역 focus 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#34.0,27.Contacts,34.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면 이름 확장 버튼 전제 = 등록 연락처 필요, precondition 공란.",strict2
+27.Contacts#35.0,27.Contacts,35.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.79,"수정 화면 이름영역 Down→전화번호, 등록 연락처 수정 화면 전제, precondition 공란.",strict2
+27.Contacts#36.0,27.Contacts,36.0,REVIEW,,-,A_fixture,fixture,0.8,precondition 전화번호·메일·주소·메모 입력 상태 = fixture 필요,pass1
+27.Contacts#37.0,27.Contacts,37.0,REVIEW,,-,A_fixture,fixture,0.8,precondition 전화번호·메일·주소·메모 입력 상태 = fixture 필요,pass1
+27.Contacts#38.0,27.Contacts,38.0,REVIEW,,-,A_fixture,fixture,0.8,precondition 전화번호·메일·주소·메모 입력 상태 = fixture 필요,pass1
+27.Contacts#39.0,27.Contacts,39.0,REVIEW,,-,A_fixture,fixture,0.8,"precondition 입력 상태 = fixture 필요, looping 안됨 관찰",pass1
+27.Contacts#40.0,27.Contacts,40.0,REVIEW,D4_carrier,observe_split,D_system_state,none,0.73,precondition '저장 위치 휴대전화만 가능' = SIM/계정 환경 의존 가변 상태.,strict2
+27.Contacts#41.0,27.Contacts,41.0,REVIEW,D4_carrier,observe_split,D_system_state,none,0.73,"precondition '저장 위치 휴대전화만 가능' 가변 시스템 상태 의존, layout 저장위치 유무로 분기.",strict2
+27.Contacts#42.0,27.Contacts,42.0,REVIEW,D4_carrier,observe_split,D_system_state,none,0.73,precondition '저장 위치 선택 가능' = 계정/SIM 환경 의존. Up→저장위치 focus 가변 전제.,strict2
+27.Contacts#43.0,27.Contacts,43.0,REVIEW,D4_carrier,observe_split,D_system_state,none,0.73,precondition '저장 위치 선택 가능' 가변 환경 의존. 저장위치 요소 존재 전제.,strict2
+27.Contacts#44.0,27.Contacts,44.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.71,"저장위치 Ok→드롭박스(구글/휴대전화/SIM) 진입, 선택 시 저장위치 변경 부작용. 환경 가변.",strict2
+27.Contacts#45.0,27.Contacts,45.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.71,드롭박스 Down/Up focus 이동이나 선택 확정 시 저장위치 변경 부작용. 가변 환경 전제.,strict2
+27.Contacts#46.0,27.Contacts,46.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.7,드롭박스 back/cancel 무변경 종결이나 #44 진입 자체가 mutation 경로. 저장위치 가변환경 전제.,strict2
+27.Contacts#47.0,27.Contacts,47.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.69,"카메라 Ok→사진 변경 팝업, '사진 찍기' 최초 focus는 카메라 기동 외부효과 경로.",strict2
+27.Contacts#48.0,27.Contacts,48.0,KEEP,none,-,-,none,0.86,"사진변경 팝업 고정항목 focus 이동(찍기→선택), mutation 없음, 라벨 assert 가능",strict2
+27.Contacts#49.0,27.Contacts,49.0,KEEP,none,-,-,none,0.86,"사진변경 팝업 고정항목 focus 이동(변경→취소), 부작용 없음",strict2
+27.Contacts#50.0,27.Contacts,50.0,KEEP,none,-,-,none,0.9,"빈 새연락처 폼 이름칸→확장버튼(▽) focus 이동, mutation 없음",strict2
+27.Contacts#51.0,27.Contacts,51.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.6,"확장버튼 OK가 성/중간/이름 칸 펼치는 토글 부작용, 단순 노출 아님",strict2
+27.Contacts#52.0,27.Contacts,52.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.6,"위화살표 OK가 이름칸으로 줄이는 토글 변경, 단순 focus 아님",strict2
+27.Contacts#53.0,27.Contacts,53.0,KEEP,none,-,-,none,0.9,"빈 폼 이름칸→전화번호칸 focus 이동, 부작용 없음",strict2
+27.Contacts#54.0,27.Contacts,54.0,KEEP,none,-,-,none,0.9,"전화번호칸→메일칸 focus 이동, mutation 없음",strict2
+27.Contacts#55.0,27.Contacts,55.0,KEEP,none,-,-,none,0.8,"메일칸→항목더보기 focus 이동, 저장위치값은 precondition 컨텍스트로 미assert",strict2
+27.Contacts#56.0,27.Contacts,56.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.58,"항목더보기 OK가 입력칸 모두 펼치는 확장 토글 부작용, 단순 노출 아님",strict2
+27.Contacts#57.0,27.Contacts,57.0,KEEP,none,-,-,none,0.78,"항목더보기 활성 precondition 선언 상태에서 Down→저장위치 focus, 요소 presence assert",strict2
+27.Contacts#58.0,27.Contacts,58.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.62,"전화번호 드롭박스 OK로 항목 펼침, 드롭박스 open 부작용 잔존(취소 미동반)",strict2
+27.Contacts#59.0,27.Contacts,59.0,REVIEW,D3_prestate,popup_cancel,B_compose,none,0.62,"드롭박스 열림 선행상태 전제, 열림 셋업·닫기 필요",strict2
+27.Contacts#60.0,27.Contacts,60.0,KEEP,none,popup_cancel,-,none,0.7,"드롭박스 cancel/back으로 닫고 focus 유지, roundtrip 복원 관찰",strict2
+27.Contacts#61.0,27.Contacts,61.0,REVIEW,,-,A_fixture,fixture,0.7,"구글계정 연동 fixture 전제, 연락처 focus. pre 필요",pass1
+27.Contacts#62.0,27.Contacts,62.0,REVIEW,,-,A_fixture,fixture,0.7,"구글계정 연동 전제, 연락처 Up/Down focus 이동. pre 필요",pass1
+27.Contacts#63.0,27.Contacts,63.0,REVIEW,,popup_cancel,A_fixture,fixture,0.7,"구글계정 연동 전제, 그룹만들기 ok로 계정선택 팝업 노출. fixture pre",pass1
+27.Contacts#64.0,27.Contacts,64.0,REVIEW,,popup_cancel,A_fixture,fixture,0.68,구글/휴대전화 선택 후 그룹만들기 팝업 노출. 계정 fixture 전제,pass1
+27.Contacts#65.0,27.Contacts,65.0,KEEP,none,-,-,none,0.85,"그룹만들기 입력창→취소 focus 이동, 빈 폼 결정적",strict2
+27.Contacts#66.0,27.Contacts,66.0,REVIEW,,transient_input,B_compose,input,0.7,그룹이름 입력 후 Right로 확인 focus. transient 텍스트 입력,pass1
+27.Contacts#67.0,27.Contacts,67.0,REVIEW,,observe_split,E_binding,mutation,0.62,"그룹만들기 완료=실제 그룹 생성 mutation 발생, focus 관찰 혼합",pass1
+27.Contacts#68.0,27.Contacts,68.0,KEEP,none,-,-,none,0.88,"메뉴→추가 focus 이동, 고정 라벨 assert 가능",strict2
+27.Contacts#69.0,27.Contacts,69.0,KEEP,none,-,-,none,0.88,"추가→더보기 focus 이동, mutation 없음",strict2
+27.Contacts#70.0,27.Contacts,70.0,KEEP,none,-,-,none,0.85,"메뉴바→연락처추가하기 메뉴 focus 이동, 부작용 없음",strict2
+27.Contacts#71.0,27.Contacts,71.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.6,"연락처추가하기 OK가 연락처 선택 화면 전환·진입, 단순 focus 아님",strict2
+27.Contacts#72.0,27.Contacts,72.0,KEEP,none,-,-,none,0.85,"뒤로가기→검색 focus 이동, 고정 라벨 결정적",strict2
+27.Contacts#73.0,27.Contacts,73.0,REVIEW,,-,A_fixture,fixture,0.68,"첫번째 연락처 focus, 연락처 존재 fixture 전제 필요",pass1
+27.Contacts#74.0,27.Contacts,74.0,REVIEW,,-,A_fixture,fixture,0.68,"첫번째 연락처서 Up 검색 focus, 연락처 존재 fixture 전제",pass1
+27.Contacts#75.0,27.Contacts,75.0,REVIEW,,observe_split,A_fixture,"mutation,fixture",0.65,"연락처 ok로 그룹에 추가됨 mutation 발생, 연락처 fixture 전제",pass1
+27.Contacts#76.0,27.Contacts,76.0,REVIEW,,-,A_fixture,fixture,0.7,"구글계정 연동 전제, 연락처설정 ok로 설정 진입. fixture pre",pass1
+27.Contacts#77.0,27.Contacts,77.0,KEEP,none,-,-,none,0.78,"설정 화면 고정 구조항목(뒤로가기↔연락처정보) 상하 focus, looping 없음 assert",strict2
+27.Contacts#78.0,27.Contacts,78.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.6,"가져오기 OK가 연락처 복사 소스 화면 전환, 진입 부작용",strict2
+27.Contacts#79.0,27.Contacts,79.0,KEEP,none,-,-,none,0.82,"내부저장소→뒤로가기 focus 이동, 결정적 라벨",strict2
+27.Contacts#80.0,27.Contacts,80.0,REVIEW,,-,D_system_state,fixture,0.7,"SD카드 삽입 시스템상태 pre 필요, 메모리/SIM 카드 focus 이동",pass1
+27.Contacts#81.0,27.Contacts,81.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.6,"다음 OK가 복사 위치 화면으로 진행 전환, 단순 focus 아님",strict2
+27.Contacts#82.0,27.Contacts,82.0,REVIEW,,-,D_system_state,fixture,0.72,"SD카드 삽입 pre, Left키 뒤로 focus 이동. 시스템상태 전제",pass1
+27.Contacts#83.0,27.Contacts,83.0,REVIEW,,-,D_system_state,fixture,0.72,"SD카드 삽입 pre, 뒤로 ok로 복사소스 복귀 관찰. 시스템상태 전제",pass1
+27.Contacts#84.0,27.Contacts,84.0,REVIEW,D4_carrier,observe_split,D_system_state,none,0.55,복사 위치 항목이 구글 계정 로그인 상태에 따라 가변(휴대전화/구글),strict2
+27.Contacts#85.0,27.Contacts,85.0,REVIEW,D4_carrier,observe_split,D_system_state,none,0.55,"구글 계정 항목 노출이 계정 로그인 상태 의존, 가변 결과",strict2
+27.Contacts#86.0,27.Contacts,86.0,REVIEW,,popup_cancel,D_system_state,fixture,0.7,"SD카드 삽입 pre, 내보내기 ok로 팝업 노출. 시스템상태 전제",pass1
+27.Contacts#87.0,27.Contacts,87.0,REVIEW,,-,D_system_state,fixture,0.72,"SD카드 삽입 pre, Down키 메모리/SIM/취소 focus 이동. 시스템상태",pass1
+27.Contacts#88.0,27.Contacts,88.0,REVIEW,D4_carrier,popup_cancel,D_system_state,none,0.58,"SIM 카드 내보내기는 장착 SIM 전제, 미장착 시 항목·팝업 가변",strict2
+27.Contacts#89.0,27.Contacts,89.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.5,"SIM 내보내기 팝업 OK가 내보내기 경로 진행, SIM 전제+부작용",strict2
+27.Contacts#90.0,27.Contacts,90.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,확인 OK 후 'n개 선택됨' 노출은 기존 연락처 데이터 존재 전제,strict2
+27.Contacts#91.0,27.Contacts,91.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,"연락처 선택 화면 진입은 등록 연락처 데이터 전제, n개 선택 가변",strict2
+27.Contacts#92.0,27.Contacts,92.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.55,연락처 선택 화면(n개 선택됨)은 기존 연락처 존재 전제,strict2
+27.Contacts#93.0,27.Contacts,93.0,REVIEW,,selection_gated,E_binding,fixture,0.68,"확인 focus는 선택된 연락처 있는 경우에만, 선택상태 binding 전제",pass1
+27.Contacts#94.0,27.Contacts,94.0,REVIEW,D4_carrier,popup_cancel,D_system_state,none,0.58,"SD 카드 삽입 전제 precondition, 미삽입 시 화면 가변",strict2
+27.Contacts#95.0,27.Contacts,95.0,REVIEW,,selection_gated,A_fixture,fixture,0.83,이동 진입 focus 관찰뿐이나 구글/휴대전화/유심 각 연락처 존재 fixture 전제,pass1
+27.Contacts#96.0,27.Contacts,96.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,방향키 focus 이동 관찰이나 이동할 연락처 선택 화면 진입 fixture 필요,pass1
+27.Contacts#97.0,27.Contacts,97.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"Down focus 이동 관찰, 연락처 존재·선택 화면 fixture 전제",pass1
+27.Contacts#98.0,27.Contacts,98.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"Down focus 이동 관찰, SIM/계정 연락처 fixture 전제",pass1
+27.Contacts#99.0,27.Contacts,99.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"Down focus 이동 관찰, 선택 화면 fixture 필요",pass1
+27.Contacts#100.0,27.Contacts,100.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"다음 버튼 ok로 선택화면 이동 관찰, 연락처 fixture 전제",pass1
+27.Contacts#101.0,27.Contacts,101.0,REVIEW,,selection_gated,A_fixture,fixture,0.8,"연락처 체크(선택 transient) 관찰, 리스트 연락처 fixture·체크 binding 필요",pass1
+27.Contacts#102.0,27.Contacts,102.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"Up focus 이동 관찰, 연락처 리스트 fixture 전제",pass1
+27.Contacts#103.0,27.Contacts,103.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,선택완료 focus 관찰이나 연락처 1개 이상 선택된 상태 fixture 전제,pass1
+27.Contacts#104.0,27.Contacts,104.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"선택완료 ok로 이동위치 화면 진입 관찰, 선택 상태 fixture 전제",pass1
+27.Contacts#105.0,27.Contacts,105.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"이동위치 화면 Up focus 관찰, 선택 fixture 전제",pass1
+27.Contacts#106.0,27.Contacts,106.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"이동위치 Down focus 관찰, 저장위치 2개 fixture 전제",pass1
+27.Contacts#107.0,27.Contacts,107.0,REVIEW,,selection_gated,A_fixture,fixture,0.8,"이동위치 선택(transient) 관찰, 저장위치 2개 fixture·선택 binding",pass1
+27.Contacts#108.0,27.Contacts,108.0,REVIEW,,selection_gated,A_fixture,fixture,0.82,"이동 버튼 focus 관찰, 저장위치 2개 fixture 전제",pass1
+27.Contacts#109.0,27.Contacts,109.0,REVIEW,,popup_cancel,A_fixture,fixture,0.8,이동 ok로 확인 팝업 노출 관찰(확인 미실행 가능)이나 선택·저장위치 fixture 전제,pass1
+27.Contacts#110.0,27.Contacts,110.0,EXCLUDE,,-,-,"mutation,fixture",0.9,확인 ok로 '연락처 이동 완료' 실제 영속 이동 mutation 결과 서술,pass1
+28.Camera#6.0,28.Camera,6.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.6,"expected '문제가 없음' 모호 문구, 모드 전환 결과 고정 assert 불가",strict2
+28.Camera#17.0,28.Camera,17.0,REVIEW,,-,A_fixture,fixture,0.65,"피사체 얼굴 위치별 토스트 검증, 실피사체 fixture 전제. 환경 구성 필요",pass1
+28.Camera#18.0,28.Camera,18.0,REVIEW,,transient_input,C_verifier,none,0.6,4:3/1:1/16:9/Full 화면비 적용 검증. 화면비 layout verifier 미실증,pass1
+28.Camera#19.0,28.Camera,19.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.55,"토스트 출력 검증은 transient, 고정 요소 presence assert 곤란",strict2
+28.Camera#20.0,28.Camera,20.0,REVIEW,D2_verifier,transient_input,C_verifier,none,0.55,"Long Tap 후 토스트 출력 검증, transient 비결정 verifier",strict2
+28.Camera#47.0,28.Camera,47.0,EXCLUDE,,-,-,"mutation,external",0.88,동영상 촬영됨 = 촬영물 생성 외부효과 결과 서술,pass1
+28.Camera#65.0,28.Camera,65.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.55,"카메라 변경 탭이 전/후면 전환 모드 변경 부작용, 단순 관찰 아님",strict2
+28.Camera#67.0,28.Camera,67.0,EXCLUDE,,-,-,"mutation,external",0.87,동영상 촬영 후 플래시 유지 = 촬영물 생성 외부효과 서술,pass1
+28.Camera#74.0,28.Camera,74.0,REVIEW,,observe_split,B_compose,mutation,0.6,"설정값별 사진·동영상 촬영 포함, 촬영물 생성 mutation 혼합. 설정 관찰과 촬영 분리 필요",pass1
+28.Camera#126.0,28.Camera,126.0,EXCLUDE,,-,-,"mutation,external",0.88,OK키로 사진 촬영되고 프리뷰 표시 = 촬영물 생성 외부효과,pass1
+28.Camera#127.0,28.Camera,127.0,REVIEW,,observe_split,D_system_state,mutation,0.72,focus 이동 관찰이나 선행 procedure에 OK키 촬영 포함 = 촬영 pre-state 혼합,pass1
+28.Camera#128.0,28.Camera,128.0,REVIEW,,observe_split,D_system_state,mutation,0.72,"focus 관찰이나 선행 OK키 사진촬영 mutation 경유, pre-state 분리 필요",pass1
+28.Camera#129.0,28.Camera,129.0,REVIEW,,observe_split,D_system_state,mutation,0.72,focus 관찰이나 선행 OK키 촬영 mutation 경유,pass1
+28.Camera#130.0,28.Camera,130.0,KEEP,none,-,-,none,0.78,"방향키 입력 시 촬영버튼 focus, 고정 요소 focus assert 가능",strict2
+28.Camera#131.0,28.Camera,131.0,KEEP,none,-,-,none,0.78,"UP 방향키로 사진 항목 focus 이동, 결정적 고정 요소",strict2
+28.Camera#132.0,28.Camera,132.0,KEEP,none,-,-,none,0.76,"UP 연속으로 1x 항목 focus, 고정 요소 focus assert",strict2
+28.Camera#133.0,28.Camera,133.0,KEEP,none,-,-,none,0.74,"전면 카메라 설정 항목 focus 이동, 고정 라벨, mutation 없음",strict2
+28.Camera#134.0,28.Camera,134.0,KEEP,none,-,-,none,0.74,"전면 Right로 타이머 focus, 결정적 고정 요소",strict2
+28.Camera#135.0,28.Camera,135.0,KEEP,none,-,-,none,0.74,"후면 UP 연속으로 타이머 focus, 고정 요소 assert 가능",strict2
+28.Camera#136.0,28.Camera,136.0,KEEP,none,-,-,none,0.74,"후면 Right로 플래시 아이콘 focus, 결정적 고정 요소",strict2
+28.Camera#137.0,28.Camera,137.0,KEEP,none,-,-,none,0.72,"후면 Down으로 2x focus 이동, 고정 요소 focus assert",strict2
+28.Camera#138.0,28.Camera,138.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.6,"OK키가 배율설정 활성화 토글, 단순 focus 아닌 모드 활성 부작용",strict2
+28.Camera#139.0,28.Camera,139.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,"Right 길게 눌러 1.9X 점진 확대, 가변 배율값 고정 assert 불가",strict2
+28.Camera#140.0,28.Camera,140.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,"2X~4X 연속 확대 점진값, 가변 배율 비결정 verifier",strict2
+28.Camera#141.0,28.Camera,141.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,"4X→2X 점진 축소 가변 배율값, 고정 텍스트 assert 불가",strict2
+28.Camera#142.0,28.Camera,142.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.62,"1.9X~1X 연속 축소 점진값, 비결정 배율 verifier",strict2
+28.Camera#143.0,28.Camera,143.0,EXCLUDE,D5_mutation,observe_split,-,none,0.86,OK키 2x활성화+Right로 2X~4X 줌 배율 변경 = 실제 카메라 줌 상태 mutation,strict2
+28.Camera#144.0,28.Camera,144.0,EXCLUDE,D5_mutation,observe_split,-,none,0.86,OK 2x활성화 후 Left로 4X->2X 줌 축소 = 줌 상태 변경 mutation,strict2
+28.Camera#145.0,28.Camera,145.0,EXCLUDE,D5_mutation,observe_split,-,none,0.85,OK 2x활성화 후 줌 1.9X~1X 축소+가변배율 verifier 불안정 = mutation,strict2
+28.Camera#146.0,28.Camera,146.0,KEEP,none,-,-,none,0.82,"precondition 공란, UP키로 사진 요소 포커스만 mutation 없음 고정 요소 assert",strict2
+28.Camera#147.0,28.Camera,147.0,KEEP,none,-,-,none,0.85,방향키로 동영상 촬영 버튼 포커스 이동만 고정 요소 검증 mutation 없음,strict2
+28.Camera#148.0,28.Camera,148.0,EXCLUDE,,-,-,"mutation,external",0.86,OK키로 동영상이 촬영되어야 함 = 촬영물 생성 외부효과 결과,pass1
+28.Camera#149.0,28.Camera,149.0,EXCLUDE,,-,-,"mutation,external",0.82,OK키로 동영상 촬영 중단(저장) = 촬영물 생성 외부효과 경유,pass1
+28.Camera#150.0,28.Camera,150.0,REVIEW,,observe_split,D_system_state,mutation,0.7,일시중단 아이콘 focus 관찰이나 선행 OK키 동영상 촬영 중 상태 pre 필요,pass1
+28.Camera#151.0,28.Camera,151.0,REVIEW,,observe_split,D_system_state,mutation,0.68,일시중단 전환 관찰이나 동영상 촬영 중 상태 전제·녹화 mutation 경유,pass1
+28.Camera#152.0,28.Camera,152.0,REVIEW,,observe_split,D_system_state,mutation,0.68,"촬영 재개 관찰이나 동영상 녹화 진행 mutation 경유, pre-state 필요",pass1
+28.Camera#153.0,28.Camera,153.0,REVIEW,,observe_split,D_system_state,mutation,0.7,photo shooting 버튼 focus 관찰이나 선행 OK키 동영상 촬영 mutation 경유,pass1
+28.Camera#154.0,28.Camera,154.0,EXCLUDE,,-,-,"mutation,external",0.8,"OK키 단발 입력으로 '사진이 촬영된다' 실제 사진파일 생성 atomic mutation. 분리 불가, 구제 불가",pass1
+28.Camera#155.0,28.Camera,155.0,EXCLUDE,D5_mutation,-,-,none,0.84,OK키로 전/후면 카메라 화면 전환 = 카메라 상태 토글 mutation,strict2
+28.Camera#156.0,28.Camera,156.0,EXCLUDE,D5_mutation,-,-,none,0.84,OK키+하드키 카메라버튼으로 전/후면 전환 = 상태 토글 mutation,strict2
+28.Camera#157.0,28.Camera,157.0,KEEP,none,-,-,none,0.84,가로모드 방향키로 사진 촬영 버튼 포커스만 고정 요소 검증 mutation 없음,strict2
+28.Camera#158.0,28.Camera,158.0,KEEP,none,-,-,none,0.84,방향키로 동영상 촬영 버튼 포커스 이동만 고정 요소 검증,strict2
+28.Camera#159.0,28.Camera,159.0,REVIEW,,observe_split,B_compose,mutation,0.55,RESCUE: 녹화 시작만(파일 저장은 중단 row #160). 형제 #160-162가 REVIEW인데 시작만 EXCLUDE는 불정합. 시작전이 assert 분리,pass1
+28.Camera#160.0,28.Camera,160.0,REVIEW,,observe_split,B_compose,mutation,0.6,OK키 촬영 중단으로 영상 저장 mutation 발생. 중단 assert와 저장효과 분리 필요,pass1
+28.Camera#161.0,28.Camera,161.0,REVIEW,,observe_split,B_compose,mutation,0.6,촬영 중 일시중단 아이콘 변경 관찰. 진행중 촬영 mutation과 아이콘 assert 분리 필요,pass1
+28.Camera#162.0,28.Camera,162.0,REVIEW,,observe_split,B_compose,mutation,0.6,"OK키 촬영 재시작, 영상 생성 진행. 촬영 mutation 분리 필요",pass1
+28.Camera#163.0,28.Camera,163.0,KEEP,none,-,-,none,0.84,Up키로 화면 전환 요소 포커스만 고정 요소 검증 mutation 없음,strict2
+28.Camera#164.0,28.Camera,164.0,KEEP,none,-,-,none,0.82,Left키로 사진 요소 포커스만 mutation 없음 고정 요소 포커스 assert,strict2
+28.Camera#165.0,28.Camera,165.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.62,Down키로 사진 미리보기 썸네일 포커스 = 기존 촬영 사진 데이터 존재 전제 가능,strict2
+28.Camera#166.0,28.Camera,166.0,KEEP,none,-,-,none,0.8,Left키로 1X 배율 라벨 포커스만 포커스 이동이며 줌 적용 아님,strict2
+28.Camera#167.0,28.Camera,167.0,KEEP,none,-,-,none,0.8,방향키로 2X 라벨 포커스만 포커스 이동이며 줌 적용 아님,strict2
+28.Camera#168.0,28.Camera,168.0,REVIEW,,transient_input,C_verifier,none,0.62,Down키 4X→2X 배율 축소 transient. 배율 값 verifier 미실증,pass1
+28.Camera#169.0,28.Camera,169.0,REVIEW,,transient_input,C_verifier,none,0.62,Down키 1.9X~1X 축소 transient. 배율 값 verifier 미실증,pass1
+28.Camera#170.0,28.Camera,170.0,REVIEW,,transient_input,C_verifier,none,0.62,UP키 1X→1.9X 확대 transient. 배율 값 verifier 미실증,pass1
+28.Camera#171.0,28.Camera,171.0,REVIEW,,transient_input,C_verifier,none,0.62,UP키 1.9X→4X 확대 transient. 배율 값 verifier 미실증,pass1
+28.Camera#172.0,28.Camera,172.0,REVIEW,,transient_input,C_verifier,none,0.62,Down키 4X→2X 축소 transient. 배율 값 verifier 미실증,pass1
+28.Camera#173.0,28.Camera,173.0,REVIEW,,transient_input,C_verifier,none,0.62,Down키 2X→1X 배율 축소 transient. 배율 값 verifier 미실증,pass1
+28.Camera#174.0,28.Camera,174.0,KEEP,none,-,-,none,0.84,방향키로 타이머 요소 포커스만 고정 요소 검증 mutation 없음,strict2
+28.Camera#175.0,28.Camera,175.0,KEEP,none,-,-,none,0.84,방향키로 설정 요소 포커스만 고정 요소 검증 mutation 없음,strict2
+29.Clock#1.0,29.Clock,1.0,KEEP,none,-,-,none,0.9,"알람 없음 명시, 방향키로 '+' 아이콘 포커스만 고정 요소 검증",strict2
+29.Clock#2.0,29.Clock,2.0,KEEP,none,-,-,none,0.88,"알람 없음 명시, Up으로 '+' 포커스 후 무변화 고정 요소 검증",strict2
+29.Clock#3.0,29.Clock,3.0,KEEP,none,-,-,none,0.9,"알람 없음 명시, Down으로 '알람 추가' 문구 포커스만 고정 텍스트 검증",strict2
+29.Clock#4.0,29.Clock,4.0,KEEP,none,-,-,none,0.89,Down 2회로 하단 '알람' 탭 포커스만 고정 탭 요소 검증,strict2
+29.Clock#5.0,29.Clock,5.0,KEEP,none,-,-,none,0.88,Right로 세계시각/타이머/스톱워치 탭 포커스 이동만 고정 탭 라벨 검증,strict2
+29.Clock#6.0,29.Clock,6.0,REVIEW,,-,A_fixture,fixture,0.7,precondition '설정된 알람 존재' fixture 전제. focus 관찰이나 알람 fixture 필요,pass1
+29.Clock#7.0,29.Clock,7.0,REVIEW,,-,A_fixture,fixture,0.7,설정된 알람 fixture 전제. 라벨/토글/날짜 focus 관찰이나 fixture 필요,pass1
+29.Clock#8.0,29.Clock,8.0,REVIEW,,-,A_fixture,fixture,0.68,설정된 알람 fixture 전제. OK로 상세 열림/닫힘 토글 관찰이나 fixture 필요,pass1
+29.Clock#9.0,29.Clock,9.0,KEEP,none,-,-,none,0.88,세계시각 탭에서 방향키로 '+' 아이콘 포커스만 고정 요소 검증,strict2
+29.Clock#10.0,29.Clock,10.0,KEEP,none,-,-,none,0.76,"OK로 도시 선택창 이동+뒤로가기 버튼 포커스, 화면 전환·포커스만 데이터 mutation 아님",strict2
+29.Clock#11.0,29.Clock,11.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,"precondition 도시 선택창 진입 상태 전제, procedure에 진입 단계 없음 선행 셋업 필요",strict2
+29.Clock#12.0,29.Clock,12.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,도시 선택창 진입 상태 precondition만 있고 procedure에 진입 단계 없음,strict2
+29.Clock#13.0,29.Clock,13.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.6,"도시 선택창 진입 상태 precondition 전제, procedure에 화면 진입 단계 누락",strict2
+29.Clock#14.0,29.Clock,14.0,REVIEW,D4_carrier,observe_split,C_verifier,none,0.7,"expected가 '이미 선택된 위치' 유무에 분기, 결정적 단일 결과 assert 불가",strict2
+29.Clock#15.0,29.Clock,15.0,KEEP,none,-,-,none,0.88,"타이머 없음 명시, 방향키로 '00분' 영역 포커스만 고정 요소 검증",strict2
+29.Clock#16.0,29.Clock,16.0,REVIEW,,transient_input,C_verifier,input,0.65,숫자 입력으로 '00분' 영역 입력 검증. transient input 검증 재설계 필요,pass1
+29.Clock#17.0,29.Clock,17.0,KEEP,none,-,-,none,0.87,"타이머 없음, Right/Left로 '00초'/'00시' 영역 포커스 이동만 고정 요소 검증",strict2
+29.Clock#18.0,29.Clock,18.0,KEEP,none,-,-,none,0.86,"타이머 없음, Right 2회로 스톱워치 탭 이동만 고정 탭 검증 포커스 이동",strict2
+29.Clock#19.0,29.Clock,19.0,KEEP,none,-,-,none,0.85,"타이머 없음, Keep Down/Up으로 알람 탭/더보기 아이콘 포커스 한계 고정 요소 검증",strict2
+29.Clock#20.0,29.Clock,20.0,REVIEW,,-,A_fixture,fixture,0.68,precondition '설정된 타이머 존재' fixture 전제. focus·추가버튼 관찰이나 fixture 필요,pass1
+29.Clock#21.0,29.Clock,21.0,REVIEW,,-,A_fixture,fixture,0.7,precondition '설정된 타이머 존재' fixture 전제. 재생 아이콘 focus 관찰이나 fixture 필요,pass1
+29.Clock#22.0,29.Clock,22.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.7,"precondition '설정된 타이머 존재' = 기존 타이머 데이터 fixture 전제, 라벨 영역 포커스",strict2
+29.Clock#24.0,29.Clock,24.0,REVIEW,,observe_split,F_misc,none,0.6,OK로 타이머 재생=transient 상태변화. 관찰+effect 혼합 assert 분리 필요,pass1
+29.Clock#25.0,29.Clock,25.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.7,"precondition '설정된 타이머 존재' = 기존 타이머 fixture 전제, 삭제버튼 포커스",strict2
+29.Clock#26.0,29.Clock,26.0,KEEP,none,-,-,none,0.88,스톱워치 진입 후 방향키로 재생버튼 최초 포커스만 고정 요소 검증,strict2
+29.Clock#27.0,29.Clock,27.0,REVIEW,,observe_split,F_misc,none,0.62,OK로 스톱워치 재생=transient 동작. 관찰+실행 혼합,pass1
+29.Clock#28.0,29.Clock,28.0,REVIEW,,observe_split,F_misc,none,0.58,OK 재생 선행+포커스 관찰. 실행상태 전제 혼합,pass1
+29.Clock#29.0,29.Clock,29.0,REVIEW,,selection_gated,E_binding,fixture,0.62,구간기록 누적 유무로 포커스 분기. 기록 fixture·바인딩 미결,pass1
+29.Clock#30.0,29.Clock,30.0,REVIEW,,observe_split,F_misc,none,0.55,재생 상태 전제 후 타이머탭 이동 관찰. 실행상태 전제 혼합,pass1
+29.Clock#31.0,29.Clock,31.0,REVIEW,,observe_split,F_misc,none,0.55,재생 상태 전제 후 더보기 포커스 이동. 실행상태 전제 혼합,pass1
+29.Clock#32.0,29.Clock,32.0,REVIEW,,selection_gated,E_binding,fixture,0.6,추가 타이머 유무로 포커스 분기. 타이머 fixture 바인딩 미결,pass1
+29.Clock#109.0,29.Clock,109.0,REVIEW,,transient_input,C_verifier,input,0.66,볼륨 Bar 조절·소리 변화·무음 아이콘 검증. 값 입력+verifier 필요,pass1
+29.Clock#110.0,29.Clock,110.0,REVIEW,,transient_input,D_system_state,mutation,0.6,점점 크게 On/Off 토글 검증. 영속 설정 토글 조작·verifier 필요,pass1
+29.Clock#116.0,29.Clock,116.0,REVIEW,,transient_input,C_verifier,input,0.62,빈 영역 없음+볼륨 최소화 음소거 검증. 값 입력+layout verifier,pass1
+3.Sub LCD#5.0,3.Sub LCD,5.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.8,"Sub LCD 별도 디스플레이 화면 표시 검증, 단말 UI dump로 결정적 assert 불가",strict2
+3.Sub LCD#6.0,3.Sub LCD,6.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.8,"Sub LCD 자동 화면 전환 안됨 검증, 별도 디스플레이로 결정적 assert 불가",strict2
+3.Sub LCD#7.0,3.Sub LCD,7.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.82,"Sub LCD 8초 후 꺼짐 시간기반 가변+별도 디스플레이 검증, 결정적 assert 불가",strict2
+3.Sub LCD#16.0,3.Sub LCD,16.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.8,"Sub LCD 배터리·시계·날짜 표시 검증, 가변값+별도 LCD 결정적 assert 불가",strict2
+3.Sub LCD#17.0,3.Sub LCD,17.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.8,"Sub LCD 만보기 걸음수 등 표시 검증, 별도 디스플레이+가변값 결정적 assert 불가",strict2
+3.Sub LCD#18.0,3.Sub LCD,18.0,REVIEW,,-,D_system_state,"fixture,external",0.58,"일정시간 걷기로 걸음수 실시간 증가 검증 = 물리 센서 상태 전제, 자동화 불가 입력",pass1
+3.Sub LCD#39.0,3.Sub LCD,39.0,REVIEW,,-,D_system_state,fixture,0.55,"라디오 재생중 상태 pre fixture 전제, 폴더 닫힘 후 8초 Sub LCD Off 관찰",pass1
+3.Sub LCD#47.0,3.Sub LCD,47.0,REVIEW,,-,D_system_state,external,0.55,"충전기 장착/탈착 물리 외부효과 전제, Sub LCD 충전 표시 노출 검증",pass1
+3.Sub LCD#48.0,3.Sub LCD,48.0,REVIEW,,-,D_system_state,"fixture,external",0.52,"배터리 방전·Phone Off·충전기 장착 물리 상태 전제, 폰 켜짐/충전 노출 검증",pass1
+3.Sub LCD#49.0,3.Sub LCD,49.0,REVIEW,,-,D_system_state,"fixture,external",0.52,"배터리 완충·충전기 장탈착 물리 상태 fixture 전제, 밝기/아이콘 노출 검증",pass1
+3.Sub LCD#50.0,3.Sub LCD,50.0,REVIEW,,-,D_system_state,"fixture,external",0.55,"배터리 20/10% 부족 상태 fixture 전제, 부족 알림·LCD 노출 검증",pass1
+3.Sub LCD#52.0,3.Sub LCD,52.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.83,"배터리 초록·번개아이콘 색상 표시, Sub LCD 색상/8초 가변 결정적 assert 불가",strict2
+3.Sub LCD#54.0,3.Sub LCD,54.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.84,"완충·8초·아이콘 색상·번개 표시 Sub LCD 시간기반 가변값 검증, 결정적 assert 불가",strict2
+3.Sub LCD#55.0,3.Sub LCD,55.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.83,"배터리 초록·번개아이콘 색상 표시, Sub LCD 색상 검증 결정적 assert 불가",strict2
+3.Sub LCD#59.0,3.Sub LCD,59.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.84,"충전 AOD·만보기 화면 전환·아이콘 색상·8초 Sub LCD 가변값 검증, 결정적 assert 불가",strict2
+3.Sub LCD#60.0,3.Sub LCD,60.0,REVIEW,,-,A_fixture,fixture,0.7,"precondition '실행중 앱 있음' 전제, 실행앱 화면전환 검증 위해 앱 사전실행 fixture 필요",pass1
+3.Sub LCD#62.0,3.Sub LCD,62.0,REVIEW,D5_mutation,observe_split,C_verifier,none,0.72,볼륨 Up/Down Key로 실제 볼륨 변경 mutation + 볼륨바 미표시 Sub LCD 검증,strict2
+3.Sub LCD#63.0,3.Sub LCD,63.0,REVIEW,,-,A_fixture,fixture,0.68,"라디오/음악 재생 전제 후 볼륨업 검증, 미디어 재생 fixture 필요",pass1
+3.Sub LCD#64.0,3.Sub LCD,64.0,REVIEW,,-,A_fixture,fixture,0.68,"라디오/음악 재생 전제 후 볼륨다운 검증, 미디어 재생 fixture 필요",pass1
+3.Sub LCD#66.0,3.Sub LCD,66.0,EXCLUDE,,-,-,external,0.85,"전원키로 실제 단말 종료 후 종료 애니메이션 검증, 실 종료=외부효과(라벨 아님)",pass1
+30.Voice Recorder#1.0,30.Voice Recorder,1.0,KEEP,none,-,-,none,0.9,하드키 입력으로 '녹음 시작' 아이콘 포커스만 녹음 미시작 고정 요소 검증,strict2
+30.Voice Recorder#2.0,30.Voice Recorder,2.0,REVIEW,,observe_split,F_misc,external,0.55,OK로 녹음 시작=transient mic 캡처(파일 미저장). 외부효과 transient·관찰 혼합→구제,pass1
+30.Voice Recorder#3.0,30.Voice Recorder,3.0,REVIEW,,observe_split,F_misc,external,0.55,녹음 진행 중 일시정지 버튼 포커스. 녹음 외부효과 선행 전제,pass1
+30.Voice Recorder#4.0,30.Voice Recorder,4.0,REVIEW,,observe_split,F_misc,external,0.55,OK로 녹음 일시정지=UI 아이콘 변경(파일 미생성). transient 상태변경·관찰 혼합→구제,pass1
+30.Voice Recorder#5.0,30.Voice Recorder,5.0,REVIEW,,popup_cancel,F_misc,external,0.55,"OK OK로 중지·저장팝업, 파일명 포커스. 저장 미확정·녹음 전제",pass1
+30.Voice Recorder#6.0,30.Voice Recorder,6.0,REVIEW,,popup_cancel,F_misc,external,0.6,저장팝업 내 취소 버튼 포커스 이동. 녹음 전제·저장 미실행,pass1
+30.Voice Recorder#7.0,30.Voice Recorder,7.0,EXCLUDE,,-,-,external,0.82,expected '녹음 파일 저장됨'=영속 파일 생성 실제 결과 서술. 구제 불가,pass1
+30.Voice Recorder#8.0,30.Voice Recorder,8.0,REVIEW,,popup_cancel,F_misc,external,0.6,저장팝업 Back로 취소·녹음화면 복귀 관찰. 녹음 진행상태 전제,pass1
+30.Voice Recorder#9.0,30.Voice Recorder,9.0,REVIEW,,selection_gated,A_fixture,fixture,0.7,저장 녹음 파일 fixture 전제 후 모든 녹음 영역 포커스,pass1
+30.Voice Recorder#10.0,30.Voice Recorder,10.0,REVIEW,,selection_gated,A_fixture,fixture,0.66,녹음 목록 포커스 이동. 저장 녹음 목록 fixture 전제,pass1
+30.Voice Recorder#11.0,30.Voice Recorder,11.0,REVIEW,,selection_gated,A_fixture,fixture,0.68,모든녹음 리스트 활성·카테고리 나열. 녹음 파일 fixture 전제,pass1
+30.Voice Recorder#12.0,30.Voice Recorder,12.0,REVIEW,,selection_gated,A_fixture,fixture,0.64,리스트 이동 후 해당 녹음 리스트로 이동. 녹음 fixture 전제,pass1
+30.Voice Recorder#13.0,30.Voice Recorder,13.0,REVIEW,,selection_gated,A_fixture,fixture,0.66,녹음파일 열려 재생버튼 포커스. 저장 녹음 fixture 전제,pass1
+30.Voice Recorder#14.0,30.Voice Recorder,14.0,REVIEW,,observe_split,A_fixture,fixture,0.58,10초 앞으로 감기·재생음 송출 검증. 녹음 fixture+재생 transient 검증,pass1
+30.Voice Recorder#15.0,30.Voice Recorder,15.0,REVIEW,,observe_split,A_fixture,fixture,0.58,10초 뒤로 감기·재생음 송출 검증. 녹음 fixture+재생 transient 검증,pass1
+30.Voice Recorder#16.0,30.Voice Recorder,16.0,REVIEW,,popup_cancel,A_fixture,fixture,0.6,이름변경 아이콘 포커스·OK로 이름변경 팝업 노출. 녹음 fixture 전제,pass1
+30.Voice Recorder#17.0,30.Voice Recorder,17.0,REVIEW,,observe_split,A_fixture,fixture,0.6,열린 파일 외 영역 포커스·OK시 닫힘 관찰. 녹음 fixture 전제,pass1
+30.Voice Recorder#18.0,30.Voice Recorder,18.0,REVIEW,,selection_gated,A_fixture,fixture,0.66,녹음 파일 편집 화면 재생버튼 포커스. 녹음 fixture 전제,pass1
+30.Voice Recorder#19.0,30.Voice Recorder,19.0,REVIEW,,selection_gated,A_fixture,fixture,0.62,편집화면 파동 시작부분 포커스. 녹음 편집 fixture 전제,pass1
+30.Voice Recorder#20.0,30.Voice Recorder,20.0,REVIEW,,selection_gated,A_fixture,fixture,0.6,현재 재생중 시간바 포커스. 녹음 편집 fixture+재생 상태 전제,pass1
+30.Voice Recorder#21.0,30.Voice Recorder,21.0,REVIEW,,selection_gated,A_fixture,fixture,0.62,우측 파일 편집바 포커스 관찰. 녹음 편집 fixture 전제,pass1
+30.Voice Recorder#22.0,30.Voice Recorder,22.0,REVIEW,,observe_split,A_fixture,fixture,0.55,OK 후 좌측 편집바 이동. 편집바 위치 변경 동작·녹음 fixture 전제,pass1
+30.Voice Recorder#23.0,30.Voice Recorder,23.0,REVIEW,,roundtrip_restore,A_fixture,fixture,0.55,파동 편집 중 취소로 원본 복원·포커스. 편집 fixture·복원 전제,pass1
+30.Voice Recorder#28.0,30.Voice Recorder,28.0,EXCLUDE,,-,-,external,0.85,expected '녹음 저장 후 종료'=영속 파일 생성 실제 서술+1시간 BLOCKED. 구제 불가,pass1
+31.Radio#2.0,31.Radio,2.0,REVIEW,,observe_split,D_system_state,"fixture,external",0.55,이어폰+라디오 재생 전제 후 홈 복귀·재생지속 관찰. HW fixture·재생 전제,pass1
+31.Radio#3.0,31.Radio,3.0,REVIEW,,selection_gated,D_system_state,fixture,0.6,이어폰 연결 전제 후 재생/정지 버튼 포커스. HW fixture 전제,pass1
+31.Radio#4.0,31.Radio,4.0,REVIEW,,observe_split,D_system_state,"fixture,mutation",0.55,OK로 즐겨찾기 활성·리스트 추가=영속 상태변경. 이어폰 fixture·관찰+추가 혼합,pass1
+31.Radio#5.0,31.Radio,5.0,REVIEW,,selection_gated,D_system_state,fixture,0.6,좌우키 포커스 이동 없음 관찰. 이어폰 연결 HW fixture 전제,pass1
+31.Radio#6.0,31.Radio,6.0,REVIEW,,selection_gated,D_system_state,fixture,0.6,채널 리스트 아이콘 이동·리스트 화면 진입. 이어폰 HW fixture 전제,pass1
+31.Radio#7.0,31.Radio,7.0,REVIEW,,selection_gated,D_system_state,fixture,0.6,재생/정지 버튼 포커스 이동 관찰. 이어폰 HW fixture 전제,pass1
+31.Radio#8.0,31.Radio,8.0,REVIEW,,selection_gated,A_fixture,fixture,0.6,즐겨찾기 첫 채널 포커스 이동. 이어폰+즐겨찾기 채널 fixture 전제,pass1
+31.Radio#9.0,31.Radio,9.0,REVIEW,,selection_gated,D_system_state,fixture,0.58,Right 반복 주파수/채널 포커스 경계 관찰. 이어폰 HW fixture 전제,pass1
+31.Radio#10.0,31.Radio,10.0,REVIEW,,selection_gated,D_system_state,fixture,0.58,Left 반복 주파수/채널 포커스 경계 관찰. 이어폰 HW fixture 전제,pass1
+31.Radio#11.0,31.Radio,11.0,REVIEW,,observe_split,A_fixture,"fixture,external",0.55,OK로 채널 송출·포커스 관찰. 이어폰+즐겨찾기 fixture·송출 transient 혼합,pass1
+31.Radio#12.0,31.Radio,12.0,REVIEW,,selection_gated,A_fixture,fixture,0.6,즐겨찾기 아이콘↔채널 포커스 이동. 이어폰+즐겨찾기 채널 fixture 전제,pass1
+31.Radio#13.0,31.Radio,13.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.7,"precondition 즐겨찾기 채널 존재+이어폰 연결 전제, OK로 삭제 팝업 노출 fixture 의존",strict2
+31.Radio#14.0,31.Radio,14.0,EXCLUDE,,-,-,mutation,0.92,확인 OK로 즐겨찾기 영속 해제·목록서 사라짐. 삭제는 라벨/이동/취소 아닌 실제 mutation 결과 서술 → 구제 불가,pass1
+31.Radio#15.0,31.Radio,15.0,REVIEW,D1_fixture,popup_cancel,A_fixture,none,0.7,"즐겨찾기 채널·삭제 팝업 노출 상태 전제, 이어폰 연결+기존 즐겨찾기 fixture 의존",strict2
+31.Radio#16.0,31.Radio,16.0,REVIEW,D3_prestate,observe_split,D_system_state,none,0.68,"이어폰 연결+채널 리스트 화면 진입 전제, 라디오 채널 존재·이어폰 선행 셋업 필요",strict2
+31.Radio#17.0,31.Radio,17.0,KEEP,none,-,-,none,0.83,"채널 리스트서 Right→즐겨찾기 아이콘(고정 UI 요소) 포커스. mutation·input 없음, 요소 presence assert 가능.",strict2
+31.Radio#18.0,31.Radio,18.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.68,"Down→하단 라디오 채널 이동 전제. 현재 아래 등록·스캔된 채널 존재해야 동작, precond 미보장.",strict2
+32.Calculator#20.0,32.Calculator,20.0,REVIEW,,transient_input,C_verifier,input,0.78,하드키 숫자 입력 후 정상 입력 검증. transient input 표시 확인 필요,pass1
+32.Calculator#21.0,32.Calculator,21.0,REVIEW,,transient_input,C_verifier,input,0.72,숫자 입력 후 최초 포커스 AC 확인. 입력 포함 포커스 검증,pass1
+32.Calculator#22.0,32.Calculator,22.0,REVIEW,,transient_input,C_verifier,input,0.72,숫자 입력 후 좌우 포커스 이동·loop 미동작. 입력 전제 포커스 검증,pass1
+32.Calculator#23.0,32.Calculator,23.0,REVIEW,,transient_input,C_verifier,input,0.72,숫자 입력 후 공학용 전환·재입력 검증. input 검증 혼합,pass1
+32.Calculator#24.0,32.Calculator,24.0,REVIEW,,transient_input,C_verifier,input,0.72,공학용 숫자 입력 후 최초 포커스 INV 확인. 입력 전제 포커스,pass1
+32.Calculator#25.0,32.Calculator,25.0,KEEP,none,-,-,none,0.84,"공학 계산기 좌우키 행 포커스 이동, 끝 loop 미동작. 고정 버튼, 결정적 포커스 assert.",strict2
+32.Calculator#26.0,32.Calculator,26.0,KEEP,none,-,-,none,0.84,"상하키 열 포커스 이동, 끝 loop 미동작. 고정 버튼 포커스 assert, 변형 없음.",strict2
+32.Calculator#27.0,32.Calculator,27.0,REVIEW,D5_mutation,selection_gated,E_binding,none,0.7,뒤로가기 focus서 OK→일반 숫자패드 노출+패널 전환. 단순 노출 아닌 모드 전환 부작용.,strict2
+32.Calculator#28.0,32.Calculator,28.0,REVIEW,,transient_input,C_verifier,input,0.72,숫자 입력 후 상하 포커스 이동·loop 미동작. 입력 전제 포커스 검증,pass1
+32.Calculator#29.0,32.Calculator,29.0,REVIEW,,transient_input,A_fixture,"input,fixture",0.7,계산기록 존재 pre + 숫자 입력 후 UP. 기록 fixture 전제,pass1
+32.Calculator#30.0,32.Calculator,30.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"계산기록 존재 pre, 히스토리bar OK로 전체 히스토리 노출. 기록 fixture 전제",pass1
+32.Calculator#31.0,32.Calculator,31.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"계산기록 fixture 전제, 취소로 수식·패드 복귀 관찰. fixture 필요",pass1
+32.Calculator#32.0,32.Calculator,32.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"계산기록 fixture 전제, 좌우 이동으로 긴 수식 노출 확인. fixture 필요",pass1
+32.Calculator#33.0,32.Calculator,33.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"계산기록 fixture 전제, 상단 기록서 UP으로 더보기 포커스. fixture 필요",pass1
+32.Calculator#34.0,32.Calculator,34.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"계산기록 fixture 전제, 더보기서 left로 뒤로가기 포커스. fixture 필요",pass1
+32.Calculator#35.0,32.Calculator,35.0,REVIEW,,selection_gated,A_fixture,fixture,0.72,"계산기록 fixture 전제, 더보기 OK로 기록/라이선스 메뉴 노출. fixture 필요",pass1
+33.Near Medi#1.0,33.Near Medi,1.0,REVIEW,,-,D_system_state,none,0.68,병원찾기 탭 진입이나 위치기반 진료중 병원 리스트·거리순 검증. 위치/실시간 상태 의존,pass1
+33.Near Medi#3.0,33.Near Medi,3.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.74,임의 병원 포커스+전화 OK→다이얼 진입. 병원 데이터 로딩 전제+외부 다이얼 효과.,strict2
+33.Near Medi#9.0,33.Near Medi,9.0,REVIEW,,-,D_system_state,none,0.68,약국찾기 확인으로 위치기반 약국 리스트 노출 검증. 위치/실시간 데이터 의존,pass1
+33.Near Medi#10.0,33.Near Medi,10.0,REVIEW,,-,D_system_state,none,0.68,더보기 탭으로 약국 10개 추가 노출. 위치기반 리스트 데이터 의존,pass1
+4.Voice notification (TTS)#14.0,4.Voice notification (TTS),14.0,REVIEW,,-,D_system_state,fixture,0.66,"정각 음성알림 송출중 전제 후 볼륨키 중지 검증, 정각 알림 트리거 시스템상태 필요",pass1
+4.Voice notification (TTS)#15.0,4.Voice notification (TTS),15.0,REVIEW,,-,D_system_state,fixture,0.66,"정각 알림 송출중 전제 후 종료키 중지 검증, 정각 알림 트리거 시스템상태 필요",pass1
+4.Voice notification (TTS)#16.0,4.Voice notification (TTS),16.0,REVIEW,,-,D_system_state,fixture,0.66,"폴더닫힘 정각 알림 송출중 전제 후 볼륨키 중지 검증, 알림 트리거 시스템상태 필요",pass1
+5.Magnifying glasses#1.0,5.Magnifying glasses,1.0,KEEP,none,-,-,none,0.82,"돋보기 진입 후 방향키/OK→줌 슬라이더 핸들(고정) 포커스. presence assert 가능, mutation 없음.",strict2
+5.Magnifying glasses#2.0,5.Magnifying glasses,2.0,KEEP,none,-,-,none,0.82,"하드키 돋보기 진입 후 줌 슬라이더 핸들 포커스 확인. 고정 요소 assert, 변형 없음.",strict2
+5.Magnifying glasses#3.0,5.Magnifying glasses,3.0,EXCLUDE,,-,-,external,0.86,expected에 실제 사진 촬영·썸네일 생성·갤러리 저장 명시=진짜 mutation 결과 서술,pass1
+5.Magnifying glasses#4.0,5.Magnifying glasses,4.0,REVIEW,,observe_split,C_verifier,external,0.62,"포커스이동 관찰과 손전등 ON/OFF 토글(영속 하드웨어) 혼합, assert 분리 필요",pass1
+5.Magnifying glasses#5.0,5.Magnifying glasses,5.0,KEEP,none,-,-,none,0.81,손전등 버튼 focus서 위키→확대/축소 그래프(고정 요소) 포커스 이동. mutation 없음.,strict2
+5.Magnifying glasses#6.0,5.Magnifying glasses,6.0,KEEP,none,-,-,none,0.8,촬영 버튼 focus서 왼쪽키→썸네일 버튼(고정 UI) 포커스 이동. 사진 데이터 아닌 버튼 assert.,strict2
+5.Magnifying glasses#7.0,5.Magnifying glasses,7.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.72,썸네일 버튼서 OK→구글 갤러리 외부 앱 이동. 화면 이동 넘어 외부 앱 실행 효과.,strict2
+5.Magnifying glasses#8.0,5.Magnifying glasses,8.0,REVIEW,,-,E_binding,fixture,0.62,"썸네일탭→갤러리앱 진입 전제 후 방향키 선택불가 확인, 갤러리 진입 사전상태/binding 필요",pass1
+5.Magnifying glasses#9.0,5.Magnifying glasses,9.0,REVIEW,,roundtrip_restore,E_binding,fixture,0.62,"갤러리앱 진입 전제 후 취소키로 돋보기 복귀·썸네일 포커스 검증, 진입상태 전제 필요",pass1
+5.Magnifying glasses#10.0,5.Magnifying glasses,10.0,KEEP,none,-,-,none,0.82,"최초 포커스서 위키→포커스 이동 안함. 포커스 부동 assert 가능, mutation 없음.",strict2
+5.Magnifying glasses#11.0,5.Magnifying glasses,11.0,REVIEW,D5_mutation,observe_split,F_misc,none,0.7,"Long-tab으로 초점 변경 선행→상태 변형 후 위키. 초점 변경 부작용 포함, 단순 포커스 아님.",strict2
+5.Magnifying glasses#12.0,5.Magnifying glasses,12.0,REVIEW,D2_verifier,observe_split,C_verifier,none,0.74,빛조절바로 화면 조명 어두워짐/밝아짐. 밝기 가변값으로 고정 텍스트 assert 불가.,strict2
+5.Magnifying glasses#13.0,5.Magnifying glasses,13.0,REVIEW,,-,D_system_state,fixture,0.62,"precondition AE/AF 잠금상태 전제 후 컨트롤바 조명검증, 잠금 사전상태 조작 필요",pass1
+5.Magnifying glasses#14.0,5.Magnifying glasses,14.0,REVIEW,,-,D_system_state,fixture,0.62,"AE/AF 잠금상태 전제 후 다른화면 탭시 잠금해제·초점이동 검증, 잠금 사전상태 필요",pass1
+5.Magnifying glasses#15.0,5.Magnifying glasses,15.0,REVIEW,,-,D_system_state,fixture,0.58,"AE/AF 잠금상태 전제+기기 물리회전 동작, 잠금 사전상태·센서 조작 필요",pass1
+5.Magnifying glasses#16.0,5.Magnifying glasses,16.0,REVIEW,,-,D_system_state,fixture,0.56,"AE/AF 잠금 전제+기기 기울기 물리동작으로 텍스트UI 이동 검증, 센서·잠금상태 필요",pass1
+5.Magnifying glasses#17.0,5.Magnifying glasses,17.0,REVIEW,,-,D_system_state,fixture,0.6,"AE/AF 잠금+슬라이더 포커스 전제 후 하드키 확대 검증, 잠금 사전상태 조작 필요",pass1
+5.Magnifying glasses#18.0,5.Magnifying glasses,18.0,REVIEW,,-,D_system_state,fixture,0.6,"AE/AF 잠금+슬라이더 포커스 전제 후 하드키 축소 검증, 잠금 사전상태 조작 필요",pass1
+5.Magnifying glasses#19.0,5.Magnifying glasses,19.0,EXCLUDE,,-,-,external,0.8,expected에 실제 촬영·썸네일 생성 명시=진짜 mutation 결과(AE/AF 잠금 촬영),pass1
+5.Magnifying glasses#20.0,5.Magnifying glasses,20.0,EXCLUDE,,-,-,external,0.8,expected에 터치 촬영·썸네일 생성 명시=진짜 촬영물 생성 mutation,pass1
+5.Magnifying glasses#21.0,5.Magnifying glasses,21.0,REVIEW,D5_mutation,transient_input,F_misc,none,0.62,"짧게 Tap이 초점 포인트 상태 변경 선행 후 위키. 화면 탭=입력 mutation, 순수 포커스 아님.",strict2
+5.Magnifying glasses#22.0,5.Magnifying glasses,22.0,REVIEW,D5_mutation,observe_split,F_misc,none,0.66,길게 Tap으로 AE/AF 잠금 설정 선행→상태 변형. 잠금 상태 만드는 부작용 포함.,strict2
+5.Magnifying glasses#26.0,5.Magnifying glasses,26.0,REVIEW,D5_mutation,observe_split,C_verifier,none,0.72,+버튼으로 배율 0.1x씩 크게 변경. 줌 배율 실제 변경 mutation+가변 배율값 검증.,strict2
+5.Magnifying glasses#27.0,5.Magnifying glasses,27.0,REVIEW,D5_mutation,observe_split,C_verifier,none,0.72,-버튼으로 배율 0.1x씩 작게 변경. 줌 배율 실제 변경 mutation+가변 배율값 검증.,strict2
+5.Magnifying glasses#35.0,5.Magnifying glasses,35.0,REVIEW,,-,D_system_state,"fixture,external",0.58,"AE/AF 잠금 전제+플래시ON(하드웨어 토글), 잠금 사전상태 조작 필요",pass1
+5.Magnifying glasses#36.0,5.Magnifying glasses,36.0,REVIEW,,-,D_system_state,"fixture,external",0.58,"AE/AF 잠금 전제+플래시OFF(하드웨어 토글), 잠금 사전상태 조작 필요",pass1
+5.Magnifying glasses#37.0,5.Magnifying glasses,37.0,REVIEW,,observe_split,D_system_state,"fixture,external",0.55,"AE/AF 잠금 전제, 포커스이동 관찰과 플래시 ON/OFF 토글 혼합, assert 분리·잠금상태 필요",pass1
+5.Magnifying glasses#43.0,5.Magnifying glasses,43.0,REVIEW,D2_verifier,-,C_verifier,none,0.7,"카메라·돋보기 앱 번갈아 전환, ANR 미발생. 외부 앱 전환+부재 검증으로 고정 assert 곤란.",strict2
+6.Pedometer app#40.0,6.Pedometer app,40.0,KEEP,none,-,-,none,0.84,최초 실행 시 최초 focus 뒤로가기 버튼(고정) 위치 확인. presence assert 가능.,strict2
+6.Pedometer app#41.0,6.Pedometer app,41.0,KEEP,none,-,-,none,0.84,"뒤로가기 focus서 Down→키 항목(고정) 포커스. 포커스 이동만, mutation 없음.",strict2
+6.Pedometer app#42.0,6.Pedometer app,42.0,KEEP,none,-,-,none,0.84,"키 focus서 Down→몸무게(고정 항목) 포커스. assert 가능, 입력 없음.",strict2
+6.Pedometer app#43.0,6.Pedometer app,43.0,KEEP,none,-,-,none,0.84,"몸무게 focus서 Down→성별(고정 항목) 포커스. 포커스 이동만, mutation 없음.",strict2
+6.Pedometer app#44.0,6.Pedometer app,44.0,KEEP,none,-,-,none,0.84,성별 focus서 Down→목표 걸음수(고정 항목) 포커스. assert 가능.,strict2
+6.Pedometer app#45.0,6.Pedometer app,45.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.74,성별 focus서 OK→남/여 선택 POPUP 노출. OK가 선택 팝업 여는 모드 진입.,strict2
+6.Pedometer app#46.0,6.Pedometer app,46.0,REVIEW,D5_mutation,popup_cancel,E_binding,none,0.73,목표 걸음수 OK→선택 POPUP 노출. OK로 선택 팝업 여는 부작용.,strict2
+6.Pedometer app#47.0,6.Pedometer app,47.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.68,뒤로가기 OK→메인 전환+최초 focus 미노출(상태 의존). 화면 전환 부작용 경로.,strict2
+6.Pedometer app#48.0,6.Pedometer app,48.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.68,뒤로가기 OK로 메인 전환 선행→이후 방향키 포커스. 화면 전환 부작용 선행 포함.,strict2
+6.Pedometer app#49.0,6.Pedometer app,49.0,REVIEW,D3_prestate,roundtrip_restore,D_system_state,none,0.72,두번째 앱 실행 시 최초 focus 미노출 확인. 1회 실행 이력 선행 상태 전제(precond 공란).,strict2
+6.Pedometer app#50.0,6.Pedometer app,50.0,REVIEW,D3_prestate,roundtrip_restore,D_system_state,none,0.62,실행 후 내 정보 버튼 포커스 expected는 설정 완료된 메인 화면 전제(최초 실행 setup 화면 아님). precond 공란.,strict2
+6.Pedometer app#51.0,6.Pedometer app,51.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.68,내 정보 버튼 OK→내 정보 화면 진입. OK가 화면 진입 일으키는 부작용 경로.,strict2
+8. Picture Frame widget#9.0,8. Picture Frame widget,9.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.66,포토 슬라이드쇼에 OK→포커싱 활성화. 슬라이드쇼 사진 데이터 존재 전제.,strict2
+8. Picture Frame widget#10.0,8. Picture Frame widget,10.0,KEEP,none,-,-,none,0.77,슬라이드쇼서 좌우/위키→화살표·편집 아이콘(고정 chrome) 포커스. 사진 아닌 위젯 UI assert.,strict2
+8. Picture Frame widget#11.0,8. Picture Frame widget,11.0,KEEP,none,-,-,none,0.8,화살표 포커스서 방향키→아무 일 없음 또는 설정 아이콘 포커스. 포커스 경계 assert 가능.,strict2
+8. Picture Frame widget#12.0,8. Picture Frame widget,12.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.68,설정 아이콘 OK→설정 메뉴 진입. OK가 설정 메뉴 진입 일으키는 부작용 경로.,strict2
+8. Picture Frame widget#13.0,8. Picture Frame widget,13.0,KEEP,none,-,-,none,0.78,"슬라이드쇼서 OK→편집(고정 chrome)에 포커스 위치. 메뉴 진입 아닌 포커스 land, assert 가능.",strict2
+8. Picture Frame widget#14.0,8. Picture Frame widget,14.0,KEEP,none,-,-,none,0.8,"OK 후 Down→< 화살표(고정) 포커스. 포커스 이동만, mutation 없음.",strict2
+8. Picture Frame widget#15.0,8. Picture Frame widget,15.0,KEEP,none,-,-,none,0.8,"OK·Down·Right→> 화살표(고정) 포커스. 포커스 이동만, 입력·변형 없음.",strict2
+8. Picture Frame widget#16.0,8. Picture Frame widget,16.0,REVIEW,,-,A_fixture,fixture,0.82,"사진 3개 이상 설정 전제 fixture 필요, 다음 사진 페이지 이동 검증",pass1
+8. Picture Frame widget#17.0,8. Picture Frame widget,17.0,REVIEW,,-,A_fixture,fixture,0.82,"사진 3개 이상 전제 fixture 필요, 이전 사진 페이지 이동 검증",pass1
+8. Picture Frame widget#18.0,8. Picture Frame widget,18.0,REVIEW,,-,A_fixture,fixture,0.8,"사진 3개 이상 fixture 전제, back/clear로 UI 사라짐·사진 focus 관찰",pass1
+8. Picture Frame widget#19.0,8. Picture Frame widget,19.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.66,편집 화면서 OK→좌측 최상단 사진 포커스. 편집 그리드 사진 데이터 존재 전제.,strict2
+8. Picture Frame widget#20.0,8. Picture Frame widget,20.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.66,편집서 OK·Right→1줄2번째 사진 포커스. 다수 사진 그리드 존재 전제 필요.,strict2
+8. Picture Frame widget#21.0,8. Picture Frame widget,21.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.64,편집 사진 포커스서 Up→뒤로가기 포커스. 포커스 출발이 사용자 사진 데이터.,strict2
+8. Picture Frame widget#22.0,8. Picture Frame widget,22.0,KEEP,none,-,-,none,0.78,편집 뒤로가기 포커스서 Right→저장(고정 chrome) 포커스. 사진 데이터 무관 버튼간 이동.,strict2
+8. Picture Frame widget#23.0,8. Picture Frame widget,23.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.64,뒤로가기 포커스서 Right·Down→좌측상단 3번째 사진 포커스. 사진 그리드 데이터 전제.,strict2
+8. Picture Frame widget#24.0,8. Picture Frame widget,24.0,REVIEW,D1_fixture,observe_split,A_fixture,none,0.64,좌측상단 사진 포커스서 Up→뒤로가기 포커스. 포커스 출발이 사용자 사진 데이터.,strict2
+9.Simple settings#8.0,9.Simple settings,8.0,KEEP,none,-,-,none,0.84,"쉬운 설정서 방향키/OK→소리및진동(고정 메뉴) 포커스. assert 가능, 변형 없음.",strict2
+9.Simple settings#9.0,9.Simple settings,9.0,KEEP,none,-,-,none,0.84,"좌우키→포커스 이동·변화 없음. 포커스 부동 assert 가능, mutation 없음.",strict2
+9.Simple settings#10.0,9.Simple settings,10.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.68,Simple setting 포커스서 OK→메뉴 진입. OK가 설정 메뉴 진입 일으키는 부작용.,strict2
+9.Simple settings#11.0,9.Simple settings,11.0,REVIEW,D5_mutation,observe_split,E_binding,none,0.68,소리및진동 tap→설정 소리및진동 메뉴 진입. tap이 메뉴 진입 일으키는 부작용 경로.,strict2
+9.Simple settings#12.0,9.Simple settings,12.0,KEEP,none,-,-,none,0.88,"방향키 네비게이션으로 WiFi 설정 메뉴 진입, expected는 고정 메뉴 진입 assert, fixture·입력·mutation 0",strict2
+9.Simple settings#13.0,9.Simple settings,13.0,KEEP,none,-,-,none,0.88,"테마및배경화면 메뉴 진입만, 고정 라벨 presence assert 가능, 사용자데이터·toggle 없음",strict2
+9.Simple settings#14.0,9.Simple settings,14.0,KEEP,none,-,-,none,0.9,"디스플레이 메뉴 진입만, 입력·부작용 없고 고정 메뉴 진입 결정적",strict2
+9.Simple settings#15.0,9.Simple settings,15.0,KEEP,none,-,-,none,0.89,"안심기능 메뉴 진입 검증, fixture·toggle 없음 고정 라벨 assert 가능",strict2
+9.Simple settings#16.0,9.Simple settings,16.0,KEEP,none,-,-,none,0.85,"Emergency 메뉴 진입만, expected는 메뉴 진입 자체로 carrier 비가변, mutation 없음",strict2
+9.Simple settings#19.0,9.Simple settings,19.0,REVIEW,,-,D_system_state,fixture,0.8,"글꼴 X0.85 pre 시스템상태 설정 필요, 버튼 비활성 관찰",pass1
+9.Simple settings#20.0,9.Simple settings,20.0,REVIEW,,-,D_system_state,fixture,0.8,"글꼴 X1.0 pre 시스템상태 설정 필요, 보통 포커스 관찰",pass1
+9.Simple settings#21.0,9.Simple settings,21.0,REVIEW,,-,D_system_state,fixture,0.8,"글꼴 X1.3 pre 시스템상태 설정 필요, 크게 포커스 관찰",pass1
+9.Simple settings#22.0,9.Simple settings,22.0,REVIEW,,-,D_system_state,fixture,0.8,"글꼴 X1.6 pre 시스템상태 설정 필요, 더크게 포커스 관찰",pass1
+9.Simple settings#23.0,9.Simple settings,23.0,REVIEW,,-,D_system_state,fixture,0.8,"글꼴 X2.0 pre 시스템상태 설정 필요, 버튼 비활성 관찰",pass1
+9.Simple settings#24.0,9.Simple settings,24.0,REVIEW,,observe_split,D_system_state,"mutation,fixture",0.78,"X2.0 pre+더크기 tap, expected에 글꼴크기 영속+토스트 서술, mutation 분리 필요",pass1
+스팸 메시지 및 번호 차단 확인 TC#18.0,스팸 메시지 및 번호 차단 확인 TC,18.0,REVIEW,,transient_input,C_verifier,"input,mutation",0.65,"차단된 문구에 임의 문구 추가·추가됨 검증. 입력+영속 추가 혼합, assert 분리 필요",pass1

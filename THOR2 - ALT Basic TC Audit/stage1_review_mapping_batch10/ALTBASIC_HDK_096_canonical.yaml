@@ -1,0 +1,55 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_HDK_096
+title: "심플 설정 소리&진동에서 Navi ↓ — 하단 한단계 이동·최하단 정지 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "96.0"
+preconditions:
+  - { text: "THOR2 폴더 열었을 때", normalized: "THOR2 폴더(단말) 열림 상태", blocking: true }
+  - { text: "심플 설정 앱을 통해 설정 시스템으로 이동한다.", normalized: "심플 설정 시스템 진입 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "Navi 키( ↓ ) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키( ↓ ) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "소리&진동", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키( ↓ ) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "초점 포인트가 소리&진동에서 아래로 초점포인트가 한단계씩 내려기며 맨 하단에 있을땐 해당 버튼을 눌러도 더 아래로 초점 포인트가 맞춰지진 않는다."
+expected_texts_candidate:
+  - "소리&진동"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "하단 초점 이동·최하단 정지 노출 확인만, 항목 실행 금지. transient 초점 원복."
+  cleanup_candidate: "뒤로가기로 설정 종료 후 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

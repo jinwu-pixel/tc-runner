@@ -1,0 +1,73 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_HDK_053
+title: "기기 종료 팝업에서 Navi ← — 역방향 초점 순환 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "53.0"
+preconditions:
+  - { text: "THOR2 폴더 열었을때", normalized: "THOR2 폴더(단말) 열림 상태", blocking: true }
+  - { text: "홈화면으로 진입", normalized: "홈 화면 진입 상태", blocking: true }
+  - { text: "통화종료 버튼을 길게 누르기", normalized: null, blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "기기 종료 팝업창이 노출된다."
+    normalized_intent:
+      type: wait
+      target: "기기 종료 팝업창 노출"
+      value: null
+    expected:
+      []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "기기 종료 팝업창이 노출된다.", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "Navi 키( ←) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키( ←) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "응급전화", value: null }
+      - { type: verify_text, target: "재시작", value: null }
+      - { type: verify_text, target: "기기종료", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키( ←) 버튼을 누른다.", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "기본값은 응급전화에서 초점 포인트가 활성화된다. 응급전화/ 재시작 / 기기종료 버튼으로 초점 포인트가 활성화된다."
+expected_texts_candidate:
+  - "응급전화"
+  - "재시작"
+  - "기기종료"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "역방향 초점 순환 노출 확인만 — 기기종료/재시작 실행(OK) 절대 금지. 팝업은 취소로 원복."
+  cleanup_candidate: "뒤로가기로 팝업 닫고 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15

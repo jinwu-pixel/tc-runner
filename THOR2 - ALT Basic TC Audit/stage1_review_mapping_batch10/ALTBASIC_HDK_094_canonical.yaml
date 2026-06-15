@@ -1,0 +1,67 @@
+# STAGE1 CTF draft — static synthesis only. NOT device-validated. NOT runnable.
+# REVIEW_MAPPING rejudge batch10 (2026-06-15). 2-pass KEEP_CONFIRMED — false-KEEP QA 통과.
+# app/launcher-domain: menu-tree baseline 비적용(anchor_state=MISSING), 패키지/component 미확정 — 발명 0.
+tc_id: ALTBASIC_HDK_094
+title: "홈 심플 설정 앱 초점에서 Navi OK — 심플 설정 페이지 진입·항목 확인"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "94.0"
+preconditions:
+  - { text: "THOR2 폴더 열었을 때", normalized: "THOR2 폴더(단말) 열림 상태", blocking: true }
+  - { text: "홈화면에서 심플 설정 앱에 초점 포인트가 있다.", normalized: "홈 화면에서 심플 설정 앱에 초점 활성 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "Navi 키(OK) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 키(OK) 버튼"
+      value: null
+    expected:
+      - { type: verify_text, target: "소리 및 진동", value: null }
+      - { type: verify_text, target: "텍스트 크기", value: null }
+      - { type: verify_text, target: "Wifi", value: null }
+      - { type: verify_text, target: "디스플레이", value: null }
+      - { type: verify_text, target: "배경화면 및 스타일", value: null }
+      - { type: verify_text, target: "안심기능", value: null }
+      - { type: verify_text, target: "안전 및 긴급 상황", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Navi 키(OK) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "심플 설정 페이지로 이동한다. 소리 및 진동 / 텍스트 크기 / Wifi / 디스플레이 / 배경화면 및 스타일 /안심기능 / 안전 및 긴급 상황 으로 이뤄져있다."
+expected_texts_candidate:
+  - "소리 및 진동"
+  - "텍스트 크기"
+  - "Wifi"
+  - "디스플레이"
+  - "배경화면 및 스타일"
+  - "안심기능"
+  - "안전 및 긴급 상황"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: READ_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "심플 설정 항목 목록 노출 확인만, 항목 진입/값 변경 금지. transient 페이지 뒤로가기 원복."
+  cleanup_candidate: "뒤로가기로 설정 종료 후 HOME 복귀"
+  carrier_fit: not_applicable
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: review_mapping_strict2_2026-06-15
