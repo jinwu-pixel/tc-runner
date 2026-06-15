@@ -1,5 +1,10 @@
 # qa-suite 모노리포 — 아키텍처 (v2, 2026-06-12 형제 repo 확정)
 
+> **개정 이력**
+> - 2026-06-15 (v2.1, staging): 인벤토리 결정 반영 — contracts/ 정의를 "트랙 간 입력·결과·증거
+>   인터페이스"로 확장(+ tc-step/appium/repo-policy 서브) · `tools/` 신규 최상위(repo-ops) ·
+>   `synthesis/examples/` 신설. 근거 = MIGRATION.md §4.3 결정 로그. 파일이동·코드수정 없음.
+
 ## 0. 배치 (확정)
 
 - 최종 위치 = **별도 형제 repo `C:\Users\momen\Projects\qa-suite`**.
@@ -21,8 +26,12 @@
 
 ```text
 qa-suite/
-  contracts/                 # 결과·증거 계약: summary schema v1, run bundle(run_id),
-                             #   어휘 4축, redaction 정책. ※ 본문 작성은 후속 (§6)
+  contracts/                 # 트랙 간 입력·결과·증거 인터페이스 (2026-06-15 확장):
+                             #   결과·증거 = summary schema v1, run bundle(run_id), 어휘 4축, redaction
+    tc-step/                 #   입력: tc_step_schema.json (validate_tc·tc_loader 공통 소비 스키마)
+    appium/                  #   입력: tc_standard_format.md (FocusRule 트랙 TC 포맷, prose)
+    repo-policy/             #   커밋 경로 정책 (redaction 과 같은 커밋표면 계약 — push audit 소비)
+                             #   ※ 본문 작성은 후속 (§6)
   analysis/
     bugs/                    # 버그 재현 입력 SoT (TEMPLATE 강제) — bug-repro 트랙 전용
     tc-catalog/              # **정적 TC 파생물** (엑셀 기원 파서·분류 산출물, v1 유지)
@@ -36,7 +45,8 @@ qa-suite/
     stage2/                  # STAGE2_COMPILE·OPERATIONAL_RULES 지시문 + 프로파일 + 컴파일
     validators/              # validate_tc 등 GATE 2 정적 검증 도구
     export/                  # 실행 TC 산출 세트
-    golden/                  # 골든 reference TC set
+    golden/                  # 골든 reference TC set (권위 — 검증된 기준)
+    examples/                # 비권위 샘플 TC (folder/kids nav 등 — golden 아님) [2026-06-15]
   automation/
     bug-repro/               # BaseTest + bash 하니스 래퍼 (패키지명 modules/ — §5)
     tc-step/                 # tc-runner step executor (src/ 계열 + reporter)
@@ -49,6 +59,7 @@ qa-suite/
     manifests/               # 캠페인 계약 (TWO_RUN_GREEN / DEVICE_FIT_SKIP / INFRA_FAILURE 등)
     results/                 # redacted 결과만 커밋
   var/                       # local-only: logs / report / raw / keymap — 커밋 영구 금지
+  tools/                     # repo-ops 도구 (push audit 등 — QA 도메인 아닌 repo 관리) [2026-06-15]
   docs/                      # 지침/보고서/사내 통합 자료 (v1 동일)
   archive/                   # 격리 보관 (삭제 금지, v1 동일)
   _inbox/                    # 미분류 유입물 (주 1회 트리아지, v1 동일)
@@ -58,7 +69,7 @@ qa-suite/
 
 | 분류 | 대상 | 정책 |
 |---|---|---|
-| tracked code | learning/engine, synthesis, automation | 일반 |
+| tracked code | learning/engine, synthesis, automation, tools | 일반 |
 | tracked data (append-only) | learning/catalogs | **재생성물 아님** — audit 류 도구가 generated 로 오분류 금지 (tc-runner §8.2 2026-05-22 교훈) |
 | tracked docs | contracts, analysis, docs | 일반 |
 | tracked docs (redaction 게이트) | campaigns/** 전체 | 모든 커밋 후보 residual-scan PASS 필수 — 게이트 구현 전 = local carry only |
@@ -88,7 +99,9 @@ qa-suite/
 
 ## 6. 후속 (이번 개정 범위 밖 — 각각 별도 티켓)
 
-- contracts/ 본문 작성: 어휘 4축 계약 / redaction 정책 이식 / run bundle 명세
+- contracts/ 본문 작성: 어휘 4축 계약 / redaction 정책 이식 / run bundle 명세 /
+  입력 포맷(tc-step/tc_step_schema.json · appium/tc_standard_format.md) / repo-policy(경로 게이트)
 - appium 결과의 schema v1 정렬
 - campaigns/** 의 residual-scan 게이트 도구 구현 (구현 전 = local carry only)
+- tools/ git_safe_push_audit planned-port: 엔진·테스트 보존 + 정책 → contracts/repo-policy/ 교체 (MIGRATION §4.3-2)
 - 형제 repo 생성·git init·이주 개시 (사용자 명시 승인 게이트)

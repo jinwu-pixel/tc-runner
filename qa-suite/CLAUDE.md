@@ -24,12 +24,14 @@ analysis/CLAUDE.md, automation/CLAUDE.md 를 추가로 읽는다.
 | 만들려는 것 | 위치 (목표 구조) |
 |---|---|
 | 결과·증거 계약 (summary schema, 어휘 4축, redaction) | contracts/ |
+| TC 입력 포맷 계약 (tc-step 스키마 / appium 포맷) | contracts/tc-step/ · contracts/appium/ [2026-06-15] |
+| 커밋 경로 정책 (push audit 소비) | contracts/repo-policy/ [2026-06-15] |
 | 버그 분석 문서 | analysis/bugs/BUG-XXXXX.md (TEMPLATE.md 복사) |
 | 정적 TC 파생물 (엑셀 기원 파서·분류 산출물) | analysis/tc-catalog/ — 단말 관측 데이터(learning/catalogs)와 경계 상이 |
 | 원천자료 (Figma 추출물, 스펙 PDF, 엑셀 원본) | analysis/sources/ |
 | 탐색·anchor·delta 코드 | learning/engine/ |
 | 화면·selector·실패원인 카탈로그 (append-only **커밋 데이터**) | learning/catalogs/<단말명 - 앱명>/ |
-| STAGE 지시문·프로파일·정적검증·실행 TC·golden | synthesis/{stage1,stage2,validators,export,golden}/ |
+| STAGE 지시문·프로파일·정적검증·실행 TC·golden·비권위 샘플 | synthesis/{stage1,stage2,validators,export,golden,examples}/ |
 | 버그 재현 모듈·하니스 래퍼 | automation/bug-repro/ |
 | TC step 실행기 | automation/tc-step/ |
 | Appium 캠페인 코드 | automation/appium/ |
@@ -38,6 +40,7 @@ analysis/CLAUDE.md, automation/CLAUDE.md 를 추가로 읽는다.
 | redacted 검증 결과 | campaigns/results/ |
 | — campaigns/** 공통 | **모든 커밋 후보 residual-scan PASS 필수** (게이트 구현 전 = local carry only) |
 | 실행 산출물 (logs/report/raw/keymap) | var/ — **local-only, 커밋 영구 금지** |
+| repo-ops 도구 (push audit 등 — QA 도메인 아님) | tools/ [2026-06-15] |
 | 지침서·보고서 양식·사내 통합 자료 | docs/ |
 | 용도 불명/구버전 | archive/ (삭제 금지, 격리만) |
 | 분류 애매한 신규 유입물 | _inbox/ (주기 트리아지 대상) |
