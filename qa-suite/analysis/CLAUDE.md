@@ -1,5 +1,8 @@
 # CLAUDE.md — analysis/ 영역 규약 (분석·자산)
 
+> ⚠️ **DEPRECATED (2026-06-15)** — 형제 repo 로 이주 완료. SoT = `qa-suite/analysis/CLAUDE.md`
+> (`C:\Users\momen\Projects\qa-suite`). 본 staging 본 편집 금지 (provenance: source-deprecated).
+
 루트 CLAUDE.md 를 먼저 따른다. 이 영역은 "무엇을 검증할지"를 다룬다.
 
 ## 버그 분석 (bugs/)

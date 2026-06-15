@@ -1,5 +1,8 @@
 # MIGRATION.md — 기존 자산 이주 체크리스트 (v2, 형제 repo 확정)
 
+> ⚠️ **DEPRECATED (2026-06-15)** — 형제 repo 로 이주 완료. SoT = `qa-suite/MIGRATION.md`
+> (`C:\Users\momen\Projects\qa-suite`). 본 staging 본 편집 금지 (provenance: source-deprecated).
+
 목표: tc-runner / thor2j-tc-appium 의 기존 자산을 **형제 repo
 `C:\Users\momen\Projects\qa-suite`** 골격(ARCHITECTURE.md §2)으로 단계 이주.
 빅뱅 금지 — "신규는 새 위치, 기존은 손댈 때 이주". 현 `tc-runner/qa-suite/` 는

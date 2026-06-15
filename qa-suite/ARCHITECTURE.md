@@ -1,5 +1,8 @@
 # qa-suite 모노리포 — 아키텍처 (v2, 2026-06-12 형제 repo 확정)
 
+> ⚠️ **DEPRECATED (2026-06-15)** — 형제 repo 로 이주 완료. SoT = `qa-suite/ARCHITECTURE.md`
+> (`C:\Users\momen\Projects\qa-suite`). 본 staging 본 편집 금지 (provenance: source-deprecated).
+
 > **개정 이력**
 > - 2026-06-15 (v2.1, staging): 인벤토리 결정 반영 — contracts/ 정의를 "트랙 간 입력·결과·증거
 >   인터페이스"로 확장(+ tc-step/appium/repo-policy 서브) · `tools/` 신규 최상위(repo-ops) ·

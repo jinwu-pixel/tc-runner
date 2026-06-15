@@ -1,5 +1,8 @@
 # CLAUDE.md — qa-suite 모노리포 공통 규약 (v2, 형제 repo 확정)
 
+> ⚠️ **DEPRECATED (2026-06-15)** — 형제 repo 로 이주 완료. SoT = `qa-suite/CLAUDE.md`
+> (`C:\Users\momen\Projects\qa-suite`). 본 staging 본 편집 금지 (provenance: source-deprecated).
+
 이 저장소에서 Claude Code 는 아래 규약을 따른다. 영역별 세부 규약은
 analysis/CLAUDE.md, automation/CLAUDE.md 를 추가로 읽는다.
 규약과 사용자 지시가 충돌하면 사용자에게 확인을 요청한다.
