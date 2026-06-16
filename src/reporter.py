@@ -28,6 +28,18 @@ class TCResult:
     def total_duration(self) -> float:
         return sum(s.duration for s in self.steps)
 
+    @property
+    def status(self) -> str:
+        has_failed = any(
+            (not s.passed) and getattr(s, "manual_action", "") != "skip"
+            for s in self.steps
+        )
+        if has_failed:
+            return "failed"
+        if any(getattr(s, "manual_action", "") == "skip" for s in self.steps):
+            return "skipped"
+        return "passed"
+
 
 class Reporter:
     def __init__(self, report_dir: Path, run_id: Optional[str] = None):
@@ -87,12 +99,9 @@ class Reporter:
 
     def get_summary(self) -> dict:
         total = len(self.results)
-        passed = sum(1 for r in self.results if r.is_pass)
-        skipped = sum(
-            1 for r in self.results
-            if any(getattr(s, "manual_action", "") == "skip" for s in r.steps)
-        )
-        failed = total - passed - skipped
+        passed = sum(1 for r in self.results if r.status == "passed")
+        failed = sum(1 for r in self.results if r.status == "failed")
+        skipped = sum(1 for r in self.results if r.status == "skipped")
         return {"total": total, "passed": passed, "skipped": skipped, "failed": failed}
 
     def generate_html(self) -> Path:

@@ -125,7 +125,7 @@ def test_reporter_bundle_mode_summary_json_shape(tmp_path):
         TCResult(name="TC_B", description="beta", steps=[
             StepResult(
                 action="manual_step",
-                passed=True,
+                passed=False,
                 duration=0.0,
                 manual_action="skip",
                 skip_reason="user requested",
@@ -142,7 +142,7 @@ def test_reporter_bundle_mode_summary_json_shape(tmp_path):
     assert data["run_id"] == run_id
     assert data["generated_at"].endswith("Z")
     assert data["device"]["model"] == "AT-M140"
-    assert data["summary"] == {"total": 2, "passed": 1, "skipped": 1, "failed": 0}
+    assert data["summary"] == {"total": 2, "passed": 0, "skipped": 1, "failed": 1}
 
     assert len(data["results"]) == 2
     tc_a = data["results"][0]
@@ -200,3 +200,68 @@ def test_reporter_bundle_screenshot_outside_bundle_keeps_path(tmp_path):
     sp = data["results"][0]["steps"][0]["screenshot_path"]
     assert sp is not None
     assert sp.endswith("shot.png")
+
+
+# ─── disjoint status 분류 (fail > skip > pass) ───
+
+
+def test_tc_status_skip_only():
+    tc = TCResult(name="skip", description="", steps=[
+        StepResult(action="manual_step", passed=False, duration=0.0,
+                   manual_action="skip", skip_reason="no device"),
+    ])
+    assert tc.status == "skipped"
+
+
+def test_tc_status_fail_only():
+    tc = TCResult(name="fail", description="", steps=[
+        StepResult(action="verify_text", passed=False, duration=0.1),
+    ])
+    assert tc.status == "failed"
+
+
+def test_tc_status_pass_only():
+    tc = TCResult(name="pass", description="", steps=[
+        StepResult(action="wait", passed=True, duration=0.1),
+    ])
+    assert tc.status == "passed"
+
+
+def test_tc_status_fail_and_skip_is_failed():
+    """fail step + skip step 동시 → failed (skip 이 fail 을 가리지 않음)."""
+    tc = TCResult(name="failskip", description="", steps=[
+        StepResult(action="verify_text", passed=False, duration=0.1),
+        StepResult(action="manual_step", passed=False, duration=0.0, manual_action="skip"),
+    ])
+    assert tc.status == "failed"
+
+
+def test_get_summary_fail_plus_skip_in_one_tc():
+    """핵심 RED: 한 TC 의 fail 이 skipped 에 먹혀 failed=0 이 되면 안 된다."""
+    reporter = Reporter(report_dir=Path("/tmp"))
+    reporter.results = [
+        TCResult(name="TC_C", description="", steps=[
+            StepResult(action="verify_text", passed=False, duration=0.1),
+            StepResult(action="manual_step", passed=False, duration=0.0, manual_action="skip"),
+        ]),
+    ]
+    assert reporter.get_summary() == {"total": 1, "passed": 0, "skipped": 0, "failed": 1}
+
+
+def test_get_summary_disjoint_invariant():
+    """passed + failed + skipped == total, 각 TC 정확히 한 버킷."""
+    reporter = Reporter(report_dir=Path("/tmp"))
+    reporter.results = [
+        TCResult(name="p", description="", steps=[
+            StepResult(action="wait", passed=True, duration=0.1)]),
+        TCResult(name="f", description="", steps=[
+            StepResult(action="verify", passed=False, duration=0.1)]),
+        TCResult(name="s", description="", steps=[
+            StepResult(action="manual_step", passed=False, duration=0.0, manual_action="skip")]),
+        TCResult(name="fs", description="", steps=[
+            StepResult(action="verify", passed=False, duration=0.1),
+            StepResult(action="manual_step", passed=False, duration=0.0, manual_action="skip")]),
+    ]
+    s = reporter.get_summary()
+    assert s["passed"] + s["failed"] + s["skipped"] == s["total"]
+    assert s == {"total": 4, "passed": 1, "skipped": 1, "failed": 2}
