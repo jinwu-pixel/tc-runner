@@ -42,7 +42,7 @@ audit_meta:
     assert: focus_move
     expectation: "포커스가 왼쪽으로 빠르게 이동된다 (Left 롱키)"
     method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
-    device_value: PENDING_F0
+    device_value: "RY07260601S TWO_RUN_GREEN(20260617) launcher=com.hnlens.simplemode focus_move left_long: rl_home_app -> rl_first"
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

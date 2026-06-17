@@ -44,7 +44,7 @@ audit_meta:
     assert: focus_move
     expectation: "두번째 홈에서 ↓ 길게 시 중간/좌측 앱을 경유하며 초점 변경"
     method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
-    device_value: PENDING_F0
+    device_value: "RY07260601S TWO_RUN_GREEN(20260617) launcher=com.hnlens.simplemode focus_move 2ndhome_down_long: rl_first -> dial_view"
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

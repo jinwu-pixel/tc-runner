@@ -45,7 +45,7 @@ audit_meta:
     assert: focus_move
     expectation: "세번째 우측앱에서 ↑ 길게 시 상단 좌측 앱까지 대각선으로 초점 변경"
     method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
-    device_value: PENDING_F0
+    device_value: "RY07260601S TWO_RUN_GREEN(20260617) launcher=com.hnlens.simplemode focus_move 2ndhome_up_long: dial_view -> tv_edit"
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

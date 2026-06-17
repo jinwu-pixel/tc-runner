@@ -57,7 +57,7 @@ audit_meta:
     assert: focus_move
     expectation: "최하단 초점에서 ↑ 연속 입력 시 한 단계씩 위로 초점 이동"
     method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
-    device_value: PENDING_F0
+    device_value: "RY07260601S TWO_RUN_GREEN(20260617) launcher=com.hnlens.simplemode focus_move bottom_up2: ViewGroup [0,252]->[0,55]"
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null
