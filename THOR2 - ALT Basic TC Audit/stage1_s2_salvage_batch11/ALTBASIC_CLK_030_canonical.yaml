@@ -1,0 +1,60 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: observe_split.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CLK_030
+title: "시계 스톱워치 — 좌 키 시 타이머 탭 이동 확인 (포커스만)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "30.0"
+preconditions:
+  - { text: "재생버튼에 최초 포커스 된 상태", normalized: "재생버튼에 최초 포커스 된 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "Press Left"
+    normalized_intent:
+      type: press_key
+      target: "좌 방향 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Press Left", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "타이머탭으로 이동됨"
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_move
+    expectation: "Left 후 타이머 탭 element(PENDING_F0)가 selected/focused 상태임을 assert"
+    method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "타이머 탭 포커스 이동만 확인. 탭 내 항목 선택/타이머 시작/스톱워치 실행 금지."
+  cleanup_candidate: "back/HOME 복귀"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: observe_split
+  redesign_removed: "비결정 verifier(이동됨 시각)를 타이머 탭 focus/selected 계약으로 고정."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

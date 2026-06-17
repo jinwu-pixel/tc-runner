@@ -1,0 +1,61 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: observe_split.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CAL_360
+title: "전화 키패드 — 위 하드키 시 연락처 추가 버튼 포커스 이동 확인 (가역 입력, 발신 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "360.0"
+preconditions:
+  - { text: "전화 > 키패드 버튼 탭", normalized: "전화 > 키패드 버튼 탭", blocking: true }
+  - { text: "숫자를 입력한 상태", normalized: "숫자를 입력한 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 위 하드키를 누른다."
+    normalized_intent:
+      type: press_key
+      target: "위 방향 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 위 하드키를 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 포커스 연락처 추가 버튼으로 이동한다. 2. 입력된 전화번호 맨 앞으로 커서 이동된다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_move
+    expectation: "F0 dump: assert focused=true element is the '연락처 추가' button after typing digits and pressing Up (focus_move)."
+    method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "'연락처 추가' 버튼 포커스 이동만 핵심 verify. '커서 맨 앞 이동' 보강 axis는 강등(커서 위치 단말 의존). 연락처 추가 확정/저장/발신 금지. 입력은 가역."
+  cleanup_candidate: "back/지움으로 입력 비우고 키패드 닫은 뒤 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: observe_split
+  redesign_removed: "보강 axis(커서 맨 앞 이동)를 강등 — focus_move 핵심만 verify."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

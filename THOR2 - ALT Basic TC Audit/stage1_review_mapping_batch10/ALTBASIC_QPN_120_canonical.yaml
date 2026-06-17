@@ -37,7 +37,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_absent
+    expectation: "간편 모드 홈화면 진입 직후 최초 Focus 미표시"
+    method: "F0 dump: 진입 직후 focused=true 요소 부재 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

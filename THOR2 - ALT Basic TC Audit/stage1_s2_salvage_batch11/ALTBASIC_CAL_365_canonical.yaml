@@ -1,0 +1,62 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CAL_365
+title: "전화 검색창 — 지움/취소 하드키 시 한자리씩 삭제 확인 (가역, 발신 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "365.0"
+preconditions:
+  - { text: "전화 > 키패드 버튼 탭", normalized: "전화 > 키패드 버튼 탭", blocking: true }
+  - { text: "숫자를 입력한 상태", normalized: "숫자를 입력한 상태", blocking: true }
+  - { text: "초점 포인트가 전화번호 검색창에 있다", normalized: "초점 포인트가 전화번호 검색창에 있다", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 지움/ 취소 버튼 하드키를 누른다."
+    normalized_intent:
+      type: press_key
+      target: "지움/취소 하드키 (N회)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 지움/ 취소 버튼 하드키를 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 입력되었던 번호가 버튼을 누름에 따라 한자리씩 사라진다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_invariant
+    expectation: "After typing a known digit string and N delete presses, assert dialer input field text == original minus last N digits."
+    method: "F0 dump: 입력 전/후 focused=true 요소 채록 → 동일(불변) 확인"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "한자리씩 삭제(가역) 관찰만. 발신/통화/저장 금지. 입력값은 가역(clear)이며 검색창 외 이동 없음."
+  cleanup_candidate: "지움 반복으로 입력 비우고 키패드 닫은 뒤 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "비결정 verifier(번호 사라짐 시각)를 input field text == original minus last N digits 계약으로 고정."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

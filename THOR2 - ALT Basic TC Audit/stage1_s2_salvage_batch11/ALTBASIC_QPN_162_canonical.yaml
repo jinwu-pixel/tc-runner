@@ -1,0 +1,69 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: popup_cancel.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_QPN_162
+title: "화면 전송 — OK 시 전송 팝업 노출·설정 포커스 확인 (popup presence만, 취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "14.Quick panel"
+  row: "162.0"
+preconditions:
+  - { text: "퀵 패널 펼쳐진 상태", normalized: "퀵 패널 펼쳐진 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "화면 전송 focus > Press Ok"
+    normalized_intent:
+      type: press_key
+      target: "OK 버튼 (화면 전송 focus 상태)"
+      value: null
+    expected:
+      - { type: verify_text, target: "기기로 화면 전송", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "화면 전송 focus > Press Ok", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "전송 팝업을 '취소'/back으로 이탈 (전송 미개시)"
+    normalized_intent:
+      type: press_key
+      target: "취소 / Back 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "전송 팝업을 '취소'/back으로 이탈 (전송 미개시)", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "기기로 화면 전송 팝업 노출되며 , 설정에 focus 된다."
+expected_texts_candidate:
+  - "기기로 화면 전송"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "전송 팝업 고정 literal presence만 핵심 verify. '설정 버튼 focused' 보강 axis는 risk_note 강등(단말 의존). 전송 대상 선택/연결 확정 금지 = 전송 미개시. 반드시 취소/back으로 이탈."
+  cleanup_candidate: "취소/back으로 팝업 닫고 퀵패널 접은 뒤 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: popup_cancel
+  redesign_removed: "mutation(화면 전송 개시) 제거 + 보강 axis(설정 버튼 focus)를 핵심 popup presence에서 강등."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

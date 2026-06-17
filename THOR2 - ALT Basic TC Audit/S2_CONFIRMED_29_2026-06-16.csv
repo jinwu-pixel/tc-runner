@@ -1,0 +1,30 @@
+﻿index,tc_id,sheet,salvage_pattern,verifier_sketch
+16,18.0,11.Hard Key,observe_split,"After Home press, assert launcher/home-screen root element present (presence contract, selectors PENDING_F0)."
+20,49.0,11.Hard Key,selection_gated,"After arrow press assert focus shifted in pressed direction; after OK on expand assert full-panel element present (focus + presence contract, selectors PENDING_F0)."
+24,66.0,11.Hard Key,selection_gated,"After OK assert search-field element present; after left-arrow assert back-button element/focus active (presence/focus contract, selectors PENDING_F0)."
+37,148.0,14.Quick panel,popup_cancel,'화면 터치 잠금 켜기' confirm 팝업 고정 literal presence assert 후 취소(터치잠금 미적용)
+38,152.0,14.Quick panel,popup_cancel,'데이터 절약 모드를 사용 설정 하시겠습니까?' confirm 팝업 고정 literal presence assert 후 취소(절약모드 미적용)
+39,161.0,14.Quick panel,popup_cancel,'녹화를 시작 하겠습니까?' confirm 팝업 고정 literal presence assert 후 취소(녹화 미개시)
+40,162.0,14.Quick panel,popup_cancel,"'기기로 화면 전송' 팝업 presence + 설정 버튼 focused=true(focus_state, PENDING_F0) assert 후 취소(전송 미개시)"
+49,2.0,23.Settings,transient_input,"검색 필드 focus 후 하드키 전용 IME 입력 윈도우 노드 presence=true assert (selector PENDING_F0), 입력/저장 없음."
+64,14.0,24.Launcher,popup_cancel,"focus_state(focus_move): focused element index advances on down-key then regresses on up-key within app-edit list; cancel/back returns to home, no item deleted."
+65,15.0,24.Launcher,popup_cancel,"focus_state(focus_retained): after Back, app-menu node absent and focused element == the originating app tile."
+66,25.0,24.Launcher,popup_cancel,element-presence: speed-dial registration dialog node present after OK; cancel dismisses it with no entry written.
+73,292.0,25.Call,transient_input,"focus_state(focus_position): after OK, focused element == contacts search EditText (input field active); IME pixels not asserted."
+79,359.0,25.Call,transient_input,"focus_state(focus_position/retained) + element-text: after cancel key, dialer input EditText text is empty and remains the focused element."
+80,360.0,25.Call,observe_split,F0 dump: assert focused=true element is the '연락처 추가' button after typing digits and pressing Up (focus_move).
+85,365.0,25.Call,transient_input,"After typing a known digit string and N delete presses, assert dialer input field text == original minus last N digits."
+86,366.0,25.Call,transient_input,"After typing letters, assert focused=true element is still the search box (focus_invariant) AND '검색 결과가 없습니다' literal is present."
+87,369.0,25.Call,popup_cancel,"After Up+Right, assert overflow menu shows the 5 fixed labels and focused=true element is '메시지 보내기'; then back out (no item selected)."
+132,16.0,29.Clock,transient_input,키 입력 직후 분 입력 필드(PENDING_F0)의 element text가 입력 숫자를 포함함을 assert
+137,30.0,29.Clock,observe_split,Left 후 타이머 탭 element(PENDING_F0)가 selected/focused 상태임을 assert
+138,31.0,29.Clock,observe_split,Right 후 더보기 버튼 element(PENDING_F0)가 focus_state=focused임을 assert
+158,20.0,32.Calculator,transient_input,하드키 숫자 입력 후 계산기 디스플레이 element 텍스트가 입력 숫자 literal과 일치하는지 assert(selector PENDING_F0).
+159,21.0,32.Calculator,transient_input,숫자 입력 후 방향키/OK 진입 시 focused element가 AC 버튼인지 focus_state 계약으로 assert(selector PENDING_F0).
+160,22.0,32.Calculator,transient_input,F0 dump로 좌우 입력 시퀀스 후 focused=true 요소 좌표 이동 + 행 끝단에서 focused 불변(비루프) assert (selector PENDING_F0).
+161,23.0,32.Calculator,transient_input,right→더보기 focus→OK 후 공학용 패널 element-presence + known 하드키 입력 시 display 고정 literal assert (selector PENDING_F0).
+162,24.0,32.Calculator,transient_input,공학용 진입 후 하드키 숫자 입력→방향/OK 시 focused=true 요소가 INV element인지 assert (selector PENDING_F0).
+163,27.0,32.Calculator,selection_gated,뒤로가기 focused 요소서 OK 후 일반 숫자패드 패널 presence + focused='숫자패드 더보기' assert (selector PENDING_F0).
+164,28.0,32.Calculator,transient_input,상하 입력 후 focused=true 요소 열 이동 + 열 끝단 focused 불변(비루프) assert (selector PENDING_F0).
+180,10.0,9.Simple settings,observe_split,"Assert focus on Simple-setting item, then after OK assert Simple-setting menu present (PENDING_F0 selector)."
+181,11.0,9.Simple settings,observe_split,"After tapping 소리 및 진동, assert sound&vibration menu screen present (PENDING_F0 selector)."

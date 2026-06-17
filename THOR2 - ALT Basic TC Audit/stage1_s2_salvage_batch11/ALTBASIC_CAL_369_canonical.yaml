@@ -1,0 +1,74 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: popup_cancel.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CAL_369
+title: "전화 입력창 — 위·우 시 더보기 메뉴 노출·메시지보내기 포커스 확인 (선택 없이 back 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "369.0"
+preconditions:
+  - { text: "전화 > 키패드 버튼 탭", normalized: "전화 > 키패드 버튼 탭", blocking: true }
+  - { text: "초점 포인트가 전화번호 입력창에 있다", normalized: "초점 포인트가 전화번호 입력창에 있다", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Press Up > Press right"
+    normalized_intent:
+      type: press_key
+      target: "위 하드키 → 우 하드키 (더보기 아이콘 이동·열기)"
+      value: null
+    expected:
+      - { type: verify_text, target: "메시지 보내기", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Press Up > Press right", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "더보기 리스트를 항목 선택 없이 back으로 이탈"
+    normalized_intent:
+      type: press_key
+      target: "Back 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "더보기 리스트를 항목 선택 없이 back으로 이탈", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 더보기 아이콘으로 초점 포인트가 이동한다. 2. 더보기 리스트가 열리며 메시지 보내기 /2초간 일시중지 추가 / 대기 시간 추가 / 단축다이얼 / 설정 리스트가 노출된다. 3. 초점 포인트는 메시지보내기 에 활성화 되어 있다."
+expected_texts_candidate:
+  - "메시지 보내기"
+  - "2초간 일시중지 추가"
+  - "대기 시간 추가"
+  - "단축다이얼"
+  - "설정"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "더보기 리스트 5개 고정 라벨 presence + '메시지 보내기' 포커스만 확인. 어떤 항목도 선택/실행 금지. 반드시 back으로 메뉴 이탈."
+  cleanup_candidate: "back으로 더보기 닫고 키패드 닫은 뒤 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: popup_cancel
+  redesign_removed: "mutation(메뉴 항목 선택 실행) 제거 — 5 라벨 presence + focus position 관찰 후 back 이탈."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

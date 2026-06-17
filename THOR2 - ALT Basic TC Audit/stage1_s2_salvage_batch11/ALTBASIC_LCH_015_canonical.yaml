@@ -1,0 +1,72 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: popup_cancel.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_LCH_015
+title: "런처 Focus — Back 시 앱 메뉴 사라지고 원 앱 포커스 유지 확인 (항목 미삭제)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "15.0"
+preconditions:
+  - { text: "홈 화면 포커스되지 않은 상태", normalized: "홈 화면 포커스되지 않은 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈 메인화면 페이지 > 네비키 또는 OK키 입력 > 하방향키 입력 > 하방향키 입력 > OK키 길게 입력"
+    normalized_intent:
+      type: press_key
+      target: "하방향 이동 후 OK키 길게 (앱 메뉴 진입)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈 메인화면 페이지 > 네비키 또는 OK키 입력 > 하방향키 입력 > 하방향키 입력 > OK키 길게 입력", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. Back 또는 지움/취소 하드키 입력한다"
+    normalized_intent:
+      type: press_key
+      target: "Back / 지움·취소 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. Back 또는 지움/취소 하드키 입력한다", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 앱 메뉴화면 사라지고 해당 앱에 포커스 위치 된다"
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_retained
+    expectation: "focus_state(focus_retained): after Back, app-menu node absent and focused element == the originating app tile."
+    method: "F0 dump: 팝업/드롭박스 전 focused 요소 채록 → 취소/back/OK 후 동일 요소 focused 확인"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "Back 후 앱 메뉴 부재 + 원 앱 타일 포커스 유지만 확인. 앱 편집 항목 삭제/이동 금지. Back 자체가 이탈 경로."
+  cleanup_candidate: "HOME 복귀"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: popup_cancel
+  redesign_removed: "mutation 위험(앱 메뉴 항목 조작) 제거 — back 이탈 후 focus retained 관찰만."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

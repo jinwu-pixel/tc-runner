@@ -38,7 +38,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_invariant
+    expectation: "돋보기 최초 포커스 위치에서 Up 시 포커스 미이동"
+    method: "F0 dump: 입력 전/후 focused=true 요소 채록 → 동일(불변) 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

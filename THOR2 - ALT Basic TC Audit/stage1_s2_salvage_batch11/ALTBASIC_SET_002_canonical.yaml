@@ -1,0 +1,60 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_SET_002
+title: "설정 검색 — 검색 TAP 시 하드키 전용 IME 노출 확인 (입력/저장 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "23.Settings"
+  row: "2.0"
+preconditions:
+  - { text: "설정 화면 진입 (entry app_launch_unresolved)", normalized: "설정 화면 진입 (entry app_launch_unresolved)", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 설정 > 검색 TAP 하드키"
+    normalized_intent:
+      type: navigate
+      target: "launcher > 설정 > 검색"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 설정 > 검색 TAP 하드키", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 검색 란 활성화 되면서 하드키 전용 IME 표시 확인"
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: element_presence
+  verifier_contract:
+    assert: element_presence
+    expectation: "검색 필드 focus 후 하드키 전용 IME 입력 윈도우 노드 presence=true assert (selector PENDING_F0), 입력/저장 없음."
+    method: "F0 dump: 대상 요소 presence(존재) 확인 — resource-id·text 채록"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "검색 필드 focus + IME 윈도우 노드 presence만 확인. 검색어 입력/저장/실행 없음. 입력 시 back으로 IME 닫음."
+  cleanup_candidate: "back으로 IME·검색 닫고 설정 메인 복귀 후 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "암묵 입력 동작 제거 — 실제 텍스트 입력 없이 IME 노드 presence만 관찰."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

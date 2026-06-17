@@ -1,0 +1,73 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: selection_gated.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_HDK_049
+title: "Navi 방향키 — 포커스 이동 후 펼치기 패널 확인 (선택 gated, 확정 실행 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "49.0"
+preconditions:
+  - { text: "THOR2 폴더 열린 상태", normalized: "THOR2 폴더 열린 상태", blocking: true }
+  - { text: "퀵패널 진입한 상태", normalized: "퀵패널 진입한 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Navi 키(방향키) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 방향키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Navi 키(방향키) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. 퀵패널에서 펼치기에 포커스를 맞추고 OK버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "OK 버튼 (펼치기 focus 상태)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 퀵패널에서 펼치기에 포커스를 맞추고 OK버튼을 누른다.", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 퀵패널 진입 이후 Navi 키(방향키)를 누를 시 누르는 버튼과 같은 방향으로 초점 포인트가 활성화되며 이동한다. 2. 펼치기버튼이 활성화고 퀵패널 전체 메뉴가 보여진다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: SELECTION_GATED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_move
+    expectation: "After arrow press assert focus shifted in pressed direction; after OK on expand assert full-panel element present (focus + presence contract, selectors PENDING_F0)."
+    method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "방향 포커스 이동 + 펼치기 패널 노출만 확인. OK는 패널 펼치기(가역 표시 전환)에 한정 — 토글/설정 변경/실행 확정 금지."
+  cleanup_candidate: "back으로 퀵패널 접기 후 HOME 복귀"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: selection_gated
+  redesign_removed: "비결정 verifier(전체 메뉴 시각 확인)를 panel element presence 계약으로 고정, OK 확정 실행을 패널 펼치기로 한정."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

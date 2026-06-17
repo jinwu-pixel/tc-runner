@@ -1,0 +1,85 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: popup_cancel.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_LCH_025
+title: "런처 단축다이얼 — OK 시 등록 팝업 노출 확인 (popup presence만, 취소 이탈)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "25.0"
+preconditions:
+  - { text: "포커스 되지 않은 상태", normalized: "포커스 되지 않은 상태", blocking: true }
+  - { text: "단축 다이얼 등록되지 않은 상태", normalized: "단축 다이얼 등록되지 않은 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈화면 > 네비키 또는 OK키 입력 > 하방향키 입력"
+    normalized_intent:
+      type: press_key
+      target: "하방향키 (단축다이얼 화면 이동)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈화면 > 네비키 또는 OK키 입력 > 하방향키 입력", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "2. 단축다이얼 화면에서 OK키 입력"
+    normalized_intent:
+      type: press_key
+      target: "OK키 (단축다이얼 슬롯 focus 상태)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 단축다이얼 화면에서 OK키 입력", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "등록 팝업을 '취소'/back으로 이탈 (항목 미작성)"
+    normalized_intent:
+      type: press_key
+      target: "취소 / Back 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "등록 팝업을 '취소'/back으로 이탈 (항목 미작성)", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "1. 단축 다이얼 등록 팝업 발생한다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: element_presence
+  verifier_contract:
+    assert: element_presence
+    expectation: "element-presence: speed-dial registration dialog node present after OK; cancel dismisses it with no entry written."
+    method: "F0 dump: 대상 요소 presence(존재) 확인 — resource-id·text 채록"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "등록 팝업 presence만 확인. 단축다이얼 항목 작성/연락처 선택/저장 확정 금지 = entry written 0. 반드시 취소/back으로 이탈."
+  cleanup_candidate: "취소/back으로 팝업 닫고 HOME 복귀"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: popup_cancel
+  redesign_removed: "mutation(단축다이얼 등록 작성) 제거 — popup presence 관찰 후 취소 이탈."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

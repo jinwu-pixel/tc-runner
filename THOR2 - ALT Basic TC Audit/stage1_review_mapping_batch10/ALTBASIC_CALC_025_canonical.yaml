@@ -37,7 +37,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_boundary_stop
+    expectation: "공학용 계산기에서 left/right 시 focus 가 행을 따라 이동, 끝단 도달 후 비루프"
+    method: "F0 dump: 연속 입력 중 focused=true 요소 추적 → 끝단 도달 후 불변(정지·비루프) 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

@@ -37,7 +37,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_position
+    expectation: "방향/OK 하드키 입력 시 하단 숫자 입력 박스에 초점 위치"
+    method: "F0 dump: focused=true 요소가 대상 입력 필드인지 resource-id·class 대조"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

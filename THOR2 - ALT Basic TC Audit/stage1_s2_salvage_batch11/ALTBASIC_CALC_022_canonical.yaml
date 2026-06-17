@@ -1,0 +1,72 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CALC_022
+title: "계산기 — 좌우 반복 시 행 포커스 이동·끝단 비루프 확인 (가역, 선택 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "22.0"
+preconditions:
+  - { text: "계산기 진입 (entry app_launch_unresolved)", normalized: "계산기 진입 (entry app_launch_unresolved)", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 계산기 > 숫자 입력 > Press any direction or OK"
+    normalized_intent:
+      type: press_key
+      target: "숫자 입력 후 방향/OK 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 계산기 > 숫자 입력 > Press any direction or OK", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. Press right /left 반복"
+    normalized_intent:
+      type: press_key
+      target: "우/좌 방향 하드키 반복"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. Press right /left 반복", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. Focus가 행에 따라 이동한다. 2. 끝에 도착 시 Loop 동작하지 않는다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_boundary_stop
+    expectation: "F0 dump로 좌우 입력 시퀀스 후 focused=true 요소 좌표 이동 + 행 끝단에서 focused 불변(비루프) assert (selector PENDING_F0)."
+    method: "F0 dump: 연속 입력 중 focused=true 요소 추적 → 끝단 도달 후 불변(정지·비루프) 확인"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "행 포커스 이동 + 끝단 비루프(boundary stop)만 확인. 버튼 확정 tap/연산 금지. 입력은 가역(AC/clear)."
+  cleanup_candidate: "AC/clear로 디스플레이 비우고 HOME 복귀"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "비결정 verifier(이동·루프 시각)를 focus 좌표 이동 + boundary_stop 불변 계약으로 고정."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

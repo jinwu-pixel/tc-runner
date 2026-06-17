@@ -1,0 +1,59 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CAL_366
+title: "전화 검색창 — 문자 입력 시 포커스 유지·결과 없음 노출 확인 (가역, 발신 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "366.0"
+preconditions:
+  - { text: "전화 > 키패드 버튼 탭", normalized: "전화 > 키패드 버튼 탭", blocking: true }
+  - { text: "숫자를 입력한 상태", normalized: "숫자를 입력한 상태", blocking: true }
+  - { text: "초점 포인트가 전화번호 검색창에 있다", normalized: "초점 포인트가 전화번호 검색창에 있다", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 영어나 문자를 입력한다."
+    normalized_intent:
+      type: press_key
+      target: "영문/문자 입력"
+      value: null
+    expected:
+      - { type: verify_text, target: "검색 결과가 없습니다", value: null }
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 영어나 문자를 입력한다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 초점포인트는 여전히 전화번호 검색창에 있다. 2. 검색 결과가 없습니다. 화면이 전화번호 리스트 대신 노출된다."
+expected_texts_candidate:
+  - "검색 결과가 없습니다"
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: verify_text
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "검색창 포커스 불변 + '검색 결과가 없습니다' 고정 literal만 확인. 입력은 가역(clear)이며 발신/연락처 선택 금지."
+  cleanup_candidate: "지움/back으로 입력 비우고 키패드 닫은 뒤 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "비결정 verifier 일부를 focus_invariant + 고정 literal presence로 고정, 가역 입력으로 mutation 0."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

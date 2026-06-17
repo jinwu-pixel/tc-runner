@@ -1,0 +1,61 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: observe_split.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_HDK_018
+title: "홈 버튼 하드키 — 앱 닫고 홈 화면 이동 확인 (홈 root presence 관찰만)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "18.0"
+preconditions:
+  - { text: "THOR2 폴더 열고 홈 화면으로 진입", normalized: "THOR2 폴더 열고 홈 화면으로 진입", blocking: true }
+  - { text: "임의의 앱을 실행한 상태", normalized: "임의의 앱을 실행한 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "홈 버튼"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 기존에 보고 있던 앱이 닫히며 홈 화면으로 이동한다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: element_presence
+  verifier_contract:
+    assert: element_presence
+    expectation: "After Home press, assert launcher/home-screen root element present (presence contract, selectors PENDING_F0)."
+    method: "F0 dump: 대상 요소 presence(존재) 확인 — resource-id·text 채록"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "홈 화면 root 노출만 확인. 닫힌 앱의 상태 변경/재실행/항목 접촉 금지. 확정 tap 없음."
+  cleanup_candidate: "이미 홈 화면 — HOME 유지"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: observe_split
+  redesign_removed: "보강 axis(어느 앱이 닫혔는지/직전 앱 식별) 강등하고 홈 root presence 핵심 axis만 verify."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

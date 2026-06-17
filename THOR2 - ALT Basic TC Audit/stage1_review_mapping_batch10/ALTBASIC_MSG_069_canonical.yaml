@@ -50,7 +50,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_move
+    expectation: "차단 및 스팸관리 뒤로가기 focus 에서 Down/Up 에 따라 focus 이동"
+    method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

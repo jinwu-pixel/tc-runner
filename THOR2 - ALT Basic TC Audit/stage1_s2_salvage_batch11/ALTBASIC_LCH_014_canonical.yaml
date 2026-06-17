@@ -1,0 +1,84 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: popup_cancel.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_LCH_014
+title: "런처 Focus — 앱 메뉴 리스트 상하 포커스 이동 확인 (back 이탈, 항목 미삭제)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "24.Launcher"
+  row: "14.0"
+preconditions:
+  - { text: "홈 화면 포커스되지 않은 상태", normalized: "홈 화면 포커스되지 않은 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 홈 메인화면 페이지 > 네비키 또는 OK키 입력 > OK키 길게 입력"
+    normalized_intent:
+      type: press_key
+      target: "OK키 길게 (앱 편집/메뉴 진입)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 홈 메인화면 페이지 > 네비키 또는 OK키 입력 > OK키 길게 입력", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "2. 하방향키 입력 > 하방향키 입력 > 상방향키 입력 > 상방향키 입력"
+    normalized_intent:
+      type: press_key
+      target: "하방향키/상방향키 시퀀스"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. 하방향키 입력 > 하방향키 입력 > 상방향키 입력 > 상방향키 입력", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "back/지움·취소 하드키로 이탈 (항목 미삭제)"
+    normalized_intent:
+      type: press_key
+      target: "Back / 취소 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "back/지움·취소 하드키로 이탈 (항목 미삭제)", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "1. 앱 메뉴 리스트에서 하방향으로 포커스 이동된다 2. 하단 리스트에서 상방향으로 포커스 이동된다"
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: NAVIGATION_ONLY
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_move
+    expectation: "focus_state(focus_move): focused element index advances on down-key then regresses on up-key within app-edit list; cancel/back returns to home, no item deleted."
+    method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "앱 편집 리스트 내 상하 포커스 이동만 확인. 항목 이동/삭제/배치 변경 확정 금지. 반드시 back/취소로 편집 모드 이탈."
+  cleanup_candidate: "back/취소로 편집 모드 닫고 HOME 복귀"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: popup_cancel
+  redesign_removed: "mutation 위험(앱 편집 모드 내 항목 조작) 제거 — 포커스 이동만 관찰, back 이탈로 변경 0."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

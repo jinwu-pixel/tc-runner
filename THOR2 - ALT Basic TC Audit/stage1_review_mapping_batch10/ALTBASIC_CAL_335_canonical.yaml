@@ -63,7 +63,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_boundary_stop
+    expectation: "소리 및 진동 focus 에서 아래키 연속 시 focus 아래로 이동, 최하단에서 정지(더 이동 없음)"
+    method: "F0 dump: 연속 입력 중 focused=true 요소 추적 → 끝단 도달 후 불변(정지·비루프) 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

@@ -1,0 +1,60 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CAL_292
+title: "연락처 검색 — OK 시 검색창 포커스·키패드 노출 확인 (입력 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "292.0"
+preconditions:
+  - { text: "즐겨찾기된 연락처 없는 상태", normalized: "즐겨찾기된 연락처 없는 상태", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 연락처 검색 focus > press ok"
+    normalized_intent:
+      type: press_key
+      target: "OK 버튼 (연락처 검색 focus 상태)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 연락처 검색 focus > press ok", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 연락처 검색창 활성화되며, 키패드 올라온다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_position
+    expectation: "focus_state(focus_position): after OK, focused element == contacts search EditText (input field active); IME pixels not asserted."
+    method: "F0 dump: focused=true 요소가 대상 입력 필드인지 resource-id·class 대조"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "검색 EditText 포커스(입력 필드 활성)만 핵심 verify. '키패드 픽셀' 보강 axis는 강등. 검색어 입력/연락처 선택/발신 없음."
+  cleanup_candidate: "back으로 검색 닫고 연락처 메인 복귀 후 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "보강 axis(IME 픽셀 노출)를 강등 — focus position 계약으로 핵심만 verify, 입력 동작 제거."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

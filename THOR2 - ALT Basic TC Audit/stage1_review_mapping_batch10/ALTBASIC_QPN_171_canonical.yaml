@@ -38,7 +38,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_retained
+    expectation: "퀵 패널 수정화면 뒤로가기 focus 후 OK 시 펼친 화면 복귀, 최초 focus 첫 번째"
+    method: "F0 dump: 팝업/드롭박스 전 focused 요소 채록 → 취소/back/OK 후 동일 요소 focused 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

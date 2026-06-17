@@ -1,0 +1,74 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: selection_gated.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_HDK_066
+title: "Navi 키 OK/좌 — 검색창·뒤로가기 활성화 확인 (선택 gated)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "11.Hard Key"
+  row: "66.0"
+preconditions:
+  - { text: "THOR2 폴더 열린 상태", normalized: "THOR2 폴더 열린 상태", blocking: true }
+  - { text: "연락처 앱으로 진입한 상태", normalized: "연락처 앱으로 진입한 상태", blocking: true }
+  - { text: "돋보기 버튼이 활성화되어 있다", normalized: "돋보기 버튼이 활성화되어 있다", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. Navi 키(OK) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi OK 버튼 (돋보기 focus 상태)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. Navi 키(OK) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "2. Navi 키( ←) 버튼을 누른다."
+    normalized_intent:
+      type: press_key
+      target: "Navi 좌방향키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. Navi 키( ←) 버튼을 누른다.", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 검색창이 활성화된다. 2. 뒤로가기 버튼이 활성화된다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: SELECTION_GATED
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: element_presence
+  verifier_contract:
+    assert: element_presence
+    expectation: "After OK assert search-field element present; after left-arrow assert back-button element/focus active (presence/focus contract, selectors PENDING_F0)."
+    method: "F0 dump: 대상 요소 presence(존재) 확인 — resource-id·text 채록"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "검색창/뒤로가기 활성화 노출만 확인. 검색어 입력·연락처 선택·발신 금지. OK는 돋보기 활성화에 한정."
+  cleanup_candidate: "back으로 연락처 메인 복귀 후 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: selection_gated
+  redesign_removed: "비결정 verifier(활성화됨 시각)를 element presence 계약으로 고정."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

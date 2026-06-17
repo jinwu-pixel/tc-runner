@@ -1,0 +1,84 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CALC_023
+title: "계산기 — 더보기 OK 시 공학용 전환·입력 확인 (선택 gated 표시 전환, 계산 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "32.Calculator"
+  row: "23.0"
+preconditions:
+  - { text: "계산기 진입 (entry app_launch_unresolved)", normalized: "계산기 진입 (entry app_launch_unresolved)", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 계산기 > 숫자 입력 > Press any direction or OK"
+    normalized_intent:
+      type: press_key
+      target: "숫자 입력 후 방향/OK 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 계산기 > 숫자 입력 > Press any direction or OK", source_phase: procedure, position: 1, total_segments: 3 }
+  - step_no: 2
+    raw_text: "2. Press right > 숫재패드 더보기 focus"
+    normalized_intent:
+      type: press_key
+      target: "우 방향 하드키 (숫자패드 더보기 focus)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "2. Press right > 숫재패드 더보기 focus", source_phase: procedure, position: 2, total_segments: 3 }
+  - step_no: 3
+    raw_text: "3. Press OK"
+    normalized_intent:
+      type: press_key
+      target: "OK (공학용 전환)"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "3. Press OK", source_phase: procedure, position: 3, total_segments: 3 }
+expected_result_raw: "1. 숫자패드가 공학용 계산기로 전환된다. 2. 하드키로 숫자 입력 시 정상적으로 입력된다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 3
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 3
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: element_presence
+  verifier_contract:
+    assert: element_presence
+    expectation: "right→더보기 focus→OK 후 공학용 패널 element-presence + known 하드키 입력 시 display 고정 literal assert (selector PENDING_F0)."
+    method: "F0 dump: 대상 요소 presence(존재) 확인 — resource-id·text 채록"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "공학용 패널 전환(가역 표시) + display 입력 literal만 확인. OK는 패널 전환에 한정 — 연산/= 실행 금지. 입력은 가역(AC)."
+  cleanup_candidate: "AC/clear 후 더보기로 일반 패널 복귀, HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "비결정 verifier(전환·입력 시각)를 panel presence + display literal 계약으로 고정, 연산 mutation 제거."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

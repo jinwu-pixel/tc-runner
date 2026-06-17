@@ -1,0 +1,72 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CLK_016
+title: "시계 타이머 — 숫자 키 입력 시 분 영역 표시 확인 (가역, 저장 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "29.Clock"
+  row: "16.0"
+preconditions:
+  - { text: "설정된 타이머 없음", normalized: "설정된 타이머 없음", blocking: false }
+procedure_steps:
+  - step_no: 1
+    raw_text: "시계 > 타이머 > Press Any numeric"
+    normalized_intent:
+      type: navigate
+      target: "launcher > 시계 > 타이머"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "시계 > 타이머 > Press Any numeric", source_phase: procedure, position: 1, total_segments: 2 }
+  - step_no: 2
+    raw_text: "Press Any numeric (분 영역 입력)"
+    normalized_intent:
+      type: press_key
+      target: "숫자 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "Press Any numeric (분 영역 입력)", source_phase: procedure, position: 2, total_segments: 2 }
+expected_result_raw: "1. 00분 영역에 숫자 입력된다. 2. 숫자 입력은 시간 표기법에 맞게 입력 가능하다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 2
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 2
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: element_presence
+  verifier_contract:
+    assert: element_presence
+    expectation: "키 입력 직후 분 입력 필드(PENDING_F0)의 element text가 입력 숫자를 포함함을 assert"
+    method: "F0 dump: 대상 요소 presence(존재) 확인 — resource-id·text 채록"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "분 필드 text가 입력 숫자 포함만 핵심 확인. '시간 표기법 준수' 보강 axis는 강등. 타이머 시작/저장 금지, 입력은 가역(clear/back)."
+  cleanup_candidate: "back/clear로 입력 비우고 시계 메인 복귀 후 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "보강 axis(시간 표기법 검증)를 강등 — field text 포함 계약으로 핵심만 verify, 타이머 시작 mutation 제거."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16

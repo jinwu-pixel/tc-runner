@@ -1,0 +1,61 @@
+# STAGE1 CTF draft — REVIEW device-free salvage batch11 (2026-06-16). static synthesis only. NOT device-validated. NOT runnable.
+# 원분류: REVIEW_MAPPING(strict2) → device-free 구제 직독 SALVAGE_CONFIRMED. 재설계 패턴: transient_input.
+# app/launcher-domain: anchor MISSING, 패키지/component 미확정 — 발명 0. verifier 구체 selector PENDING_F0.
+tc_id: ALTBASIC_CAL_359
+title: "전화 키패드 — 지움/취소 하드키 시 입력 비우고 포커스 유지 확인 (가역, 발신 없음)"
+source_type: excel
+source_trace:
+  file: "doc/[THOR 2] ALT Basic Test Case_FULL.xlsx"
+  sheet: "25.Call"
+  row: "359.0"
+preconditions:
+  - { text: "전화 > 키패드 버튼 탭", normalized: "전화 > 키패드 버튼 탭", blocking: true }
+  - { text: "숫자를 입력한 상태", normalized: "숫자를 입력한 상태", blocking: true }
+procedure_steps:
+  - step_no: 1
+    raw_text: "1. 지움/취소 하드키를 누른다."
+    normalized_intent:
+      type: press_key
+      target: "지움/취소 하드키"
+      value: null
+    expected: []
+    execution_candidate: { mode: UI_AUTO, role: ACTION }
+    ambiguity: true
+    ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
+    confidence: 0.5
+    source_trace: { raw_segment: "1. 지움/취소 하드키를 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
+expected_result_raw: "1. 입력했던 숫자가 사라지며 초점포인트는 여전히 전화번호 입력칸에 유지된다."
+expected_texts_candidate: []
+automation_summary:
+  tc_class: SEMI_AUTO
+  total_steps: 1
+  auto_steps: 0
+  manual_steps: 0
+  ambiguous_steps: 1
+audit_meta:
+  automation_class: SEMI_AUTO_CANDIDATE
+  safety_class: INPUT_TRANSIENT
+  recovery_likelihood: HIGH
+  entry_type: app_launch_unresolved
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_position
+    expectation: "focus_state(focus_position/retained) + element-text: after cancel key, dialer input EditText text is empty and remains the focused element."
+    method: "F0 dump: focused=true 요소가 대상 입력 필드인지 resource-id·class 대조"
+    device_value: PENDING_F0
+  anchor_state: MISSING
+  menu_tree_anchor: none
+  matched_screen_id: null
+  deepen_anchor_link: none
+  risk_note: "입력 비움(가역)·포커스 유지만 확인. 발신/통화/저장 금지. 입력은 가역(clear)이며 잔존 시 back으로 키패드 이탈."
+  cleanup_candidate: "back/지움으로 입력 비우고 키패드 닫은 뒤 HOME"
+  carrier_fit: not_applicable
+  redesign_source: REVIEW_MAPPING_strict2_2026-06-15
+  redesign_pattern: transient_input
+  redesign_removed: "비결정 verifier(숫자 사라짐 시각)를 input field text empty + focus retained 계약으로 고정, 발신 mutation 제거."
+  export_status: STAGE1_DRAFT
+  evidence_level: STATIC_ONLY
+  validation_required: device_2run_green
+  target_repo: thor2j-tc-appium
+  focusrule_evidence_transfer: false
+  rejudge_pass: s2_salvage_rejudge_2026-06-16
