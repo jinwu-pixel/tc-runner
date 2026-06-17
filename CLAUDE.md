@@ -452,6 +452,9 @@ planned 항목을 implemented 인 척 보고하지 않는다 (§2.4).
 | 2026-05-28 | diagnostic verification | BTS18697 2차 검증에서 DebugScreen/dumpsys/ip 3-way 정합, scope NOTE, RESULT 시리즈 운영을 일반 패턴으로 승격 | §2.2/§4/§6 + memory | applied |
 | 2026-06-01 | diagnostic / QXDM | BUG-25796 추가검증: QXDM offline diag workflow(reference memory 신규) + REF negative-control(단말특이성) + 모뎀분석은 실패 discriminator + 정상경로 병행 판정 + 대용량 파생로그 digest-only | §4/§2.4 후보 (2차 사례 시 본문 승격) | proposed |
 | 2026-06-12 | §2.5 통합 | tc-runner×thor2j-tc-appium 통합 qa-suite 확정: staging(`qa-suite/` — Track A/B-1 fail-closed 러너 selftest 111) + 설계 v2(형제 repo `C:\Users\momen\Projects\qa-suite`, learning/synthesis/contracts/campaigns 책임 구조, provenance manifest, bugs 유일입력 bug-repro 한정). 이주 개시 시 §2.5 cross-commit 분기 정책 supersede 필요 | §2.5 (supersede 예정) · qa-suite/ARCHITECTURE.md v2 | proposed |
+| 2026-06-16 | workflow agent 안전 | ALT batch11 합성 중 워크플로 agent가 구조화 반환 대신 yaml 4개를 batch10 dir 직접 기록(file side-effect) + 슬라이스 over-read(53/29 반환). git 추적 검증으로 phantom(untracked·`fc56cf8` 미포함) 확정·삭제·정정. → 합성 agent read-only/return-only 제약 + 실행 후 untracked 오염 스캔 필요 | §5 (도구·workflow 운영 규칙) | proposed |
+| 2026-06-16 | tc_id 무결성 | tc_id `ALTBASIC_<PREFIX>_<excel_row3>` 비단사 + Excel sheet 내 중복 TC ID(감사 Safety/Launcher/Call/Camera 4 sheet·83건)로 cross-batch tc_id 충돌(batch11 4건, prep 사전검사 누락→gate 포착). 도구화 `scratch/altbasic_tcid_collision_check.py`(prep 선행 cross-batch 검사) | §5 (합성 prep) | proposed |
+| 2026-06-16 | diagnostic / IMS 검증 | ODIN2 Engineer IMS 복합 기능 TC 검증: AP logcat reg-state·callProfile(`audioCodecAttribute=null`)은 IMS 등록/코덱 **비권위** — 모뎀 `.qmdl` SIP(log `0x156E`) REGISTER↔resp **Call-ID 매칭**이 ground truth. TC1 임의값(bare Domain `sktelecom2`→req-URI `sip:sktelecom2`)→`404`×3 등록실패 관찰(누락 신호 0). + "복합 시험" = 필드격리 아닌 기능 시나리오(임의값 동시→실호/재등록→신호 반영) | §4.2 (3-way 보강) + memory([[reference_ims_sip_qcat_verification]]·[[feedback_combined_test_functional_scenario]]) | proposed |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
