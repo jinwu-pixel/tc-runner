@@ -51,8 +51,9 @@ audit_meta:
   verifier_type: focus_state
   verifier_contract:
     assert: focus_retained
+    focus_model: list
     expectation: "focus_state(focus_retained): after Back, app-menu node absent and focused element == the originating app tile."
-    method: "F0 dump: 팝업/드롭박스 전 focused 요소 채록 → 취소/back/OK 후 동일 요소 focused 확인"
+    method: "F0 dump: 이탈 전 selected=true 자식 채록 → back/취소 후 동일 자식 selected 복귀 확인"
     device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none

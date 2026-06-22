@@ -66,8 +66,9 @@ audit_meta:
   verifier_type: focus_state
   verifier_contract:
     assert: focus_boundary_stop
+    focus_model: list
     expectation: "소리 및 진동 focus 에서 아래키 연속 시 focus 아래로 이동, 최하단에서 정지(더 이동 없음)"
-    method: "F0 dump: 연속 입력 중 focused=true 요소 추적 → 끝단 도달 후 불변(정지·비루프) 확인"
+    method: "F0 dump: 연속 입력 중 selected=true 자식+scroll index 추적 → 끝단(최하단/최상단 자식) 도달 후 선택·scroll 불변(비루프) 확인"
     device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none

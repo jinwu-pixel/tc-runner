@@ -53,8 +53,9 @@ audit_meta:
   verifier_type: focus_state
   verifier_contract:
     assert: focus_move
+    focus_model: list
     expectation: "메시지 설정 뒤로가기 focus 에서 Up/Down 에 따라 focus 이동"
-    method: "F0 dump: 키 입력 전/후 focused=true 요소(resource-id·text·bounds) 채록 → 변경(이동) 대조"
+    method: "F0 dump: 키 입력 전/후 selected=true 자식 항목(resource-id·text·bounds)+리스트 scroll index 채록 → 선택 항목 이동 또는 scroll 델타로 이동 판정 (focused=컨테이너 불변 정상)"
     device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
