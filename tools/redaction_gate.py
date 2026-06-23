@@ -6,7 +6,10 @@ each explicitly-given path it runs:
   - path gate: `redaction.path_policy_findings` blocks local-carry-only paths
     (a raw/ capture dir, a `_redaction_keymap.json`, a raw `*_raw_*.xml`)
     regardless of content.
-  - content gate: `redaction.residual_scan` over JSON / MD / TXT content.
+  - content gate: `redaction.residual_scan` over JSON / MD / TXT / CSV content.
+  - a binary image (.png/.jpg/...) FAILs with BINARY_IMAGE — it cannot be
+    content-scanned for residual PII (screenshots are local-carry only;
+    only redacted text artifacts are commit candidates).
   - a missing path or an unsupported extension is a FAILURE, never silently
     skipped (the gate refuses to pass files it cannot prove clean).
 
@@ -30,7 +33,11 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(_HERE, ".."))   # repo root -> enables `from src...`
 from src import redaction as rd               # noqa: E402
 
-SUPPORTED_CONTENT_EXTS = (".json", ".md", ".txt")
+SUPPORTED_CONTENT_EXTS = (".json", ".md", ".txt", ".csv")
+# Image binaries cannot be content-scanned for residual PII. A commit-candidate
+# image FAILs with a dedicated kind (screenshots are local-carry only per the
+# redaction policy — only redacted text artifacts are commit candidates).
+IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp")
 TOOL_VERSION = "redaction-gate-v1"
 
 
@@ -85,6 +92,11 @@ def scan_path(path: str) -> List[dict]:
 
     # 3. extension support — unsupported (e.g. binary) is a failure, not a skip.
     ext = os.path.splitext(path)[1].lower()
+    if ext in IMAGE_EXTS:
+        return [_finding(path, "BINARY_IMAGE",
+                         f"binary image ({ext}) cannot be content-scanned for residual "
+                         f"PII; screenshots are local-carry only — commit forbidden "
+                         f"(redacted text artifacts only)")]
     if ext not in SUPPORTED_CONTENT_EXTS:
         return [_finding(path, "UNSUPPORTED_EXT",
                          f"unsupported extension {ext!r}; cannot content-scan "

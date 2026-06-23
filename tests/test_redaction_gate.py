@@ -82,7 +82,9 @@ def test_missing_path_fails_safely(tmp_path):
 
 
 def test_unsupported_extension_not_silently_skipped(tmp_path):
-    p = _write(tmp_path / "shot.png", "not really png")
+    # a genuinely unsupported, non-image binary type stays UNSUPPORTED_EXT
+    # (image binaries get their own BINARY_IMAGE kind — see below)
+    p = _write(tmp_path / "blob.bin", "not scannable")
     result = rg.run_gate([p])
     assert result["verdict"] == "FAIL"
     assert any(f["kind"] == "UNSUPPORTED_EXT" for f in result["findings"])
@@ -148,3 +150,40 @@ def test_raw_directory_input_is_path_policy(tmp_path):
     result = rg.run_gate([str(d)])
     assert result["verdict"] == "FAIL"
     assert any(f["kind"] == "PATH_POLICY" for f in result["findings"])
+
+
+# --- .csv content support + binary-image policy (gate extension) ------------
+# .csv is text → content-scannable (same residual_scan as MD/TXT). Image
+# binaries (.png/.jpg/...) cannot be content-scanned for residual PII, so a
+# commit-candidate image FAILs with a dedicated BINARY_IMAGE kind (screenshots
+# are local-carry only per the redaction policy — committed text artifacts only).
+
+def test_clean_redacted_csv_passes(tmp_path):
+    p = _write(tmp_path / "probes" / "clean.csv",
+               "id,ip,mac\n1,<IPV4_1>,<MAC_1>\n2,<IPV4_2>,<MAC_2>\n")
+    result = rg.run_gate([p])
+    assert result["verdict"] == "PASS"
+    assert result["findings"] == []
+
+
+def test_plaintext_pii_csv_fails(tmp_path):
+    p = _write(tmp_path / "leak.csv", "id,ip\n1,192.0.0.4\n")
+    result = rg.run_gate([p])
+    assert result["verdict"] == "FAIL"
+    assert any(f["kind"] == "IPV4" for f in result["findings"])
+
+
+def test_png_image_fails_as_binary_local_only(tmp_path):
+    p = tmp_path / "shot.png"
+    p.write_bytes(b"\x89PNG\r\n\x1a\n fake png bytes")
+    result = rg.run_gate([str(p)])
+    assert result["verdict"] == "FAIL"
+    assert any(f["kind"] == "BINARY_IMAGE" for f in result["findings"])
+
+
+def test_jpg_image_fails_as_binary_local_only(tmp_path):
+    p = tmp_path / "shot.jpg"
+    p.write_bytes(b"\xff\xd8\xff fake jpg")
+    result = rg.run_gate([str(p)])
+    assert result["verdict"] == "FAIL"
+    assert any(f["kind"] == "BINARY_IMAGE" for f in result["findings"])
