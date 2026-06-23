@@ -32,7 +32,8 @@ QCAT `OpenLog`는 파일의 **모든 패킷을 인덱싱**한다 → 이것이 f
 | `0xB15B` | LTE LL1 RX Antenna Info | per-antenna 정보 |
 | `0xB0EC` | LTE NAS EMM State | 등록/이탈 |
 | `0xB0C0` | LTE RRC OTA | RRC/RAT |
-| `0x156E` | IMS/SIP | SIP REGISTER↔resp Call-ID 매칭 (IMS 검증) |
+| `0x156E` | IMS/SIP | SIP REGISTER↔resp Call-ID 매칭 (IMS 검증). **online QXDM 캡처에만 존재** (USER 빌드 offline 마스크엔 없음) |
+| `0x1FEB` / `0x1FFB` | QShrink4 Extended Debug | RILQ `imsRadiolog: onRegistrationChanged` = 등록 state/errorCode (offline에서 IMS 등록결과 살리기). 동반 `.qdb`+`diag_qsr4_guid_list.xml` 필요 |
 | `0x7001` / `0x4179` | UMTS Call Flow / WCDMA PN Search | WCDMA 전환 |
 
 ## 사용
@@ -42,6 +43,40 @@ scripts\qcat_fast_extract.ps1 -Qmdl <q.qmdl> -Isf <cache.isf> -MakeIsf -Codes 0x
 # 이후 같은 캡처 재질의 (sub-second): ISF만 지정
 scripts\qcat_fast_extract.ps1 -Isf <cache.isf> -Codes 0xB0EC -Out emm.txt
 ```
+
+## IMS 검증 — capture triage + 2-path 추출 + digest
+IMS override(등록·호)를 모뎀 ground truth로 검증할 때 **캡처 형식이 추출 경로를 결정**한다 (2026-06-23 ODIN2 V2 확정).
+
+### 1) capture triage (무료, 파싱 전 분류)
+| 캡처 | 형식 | mask | 0x156E(on-wire SIP) |
+|---|---|---|---|
+| online QXDM | `Test_*.hdf`/`.isf` | full | **있음** — REGISTER/INVITE/SDP 전부 (권위) |
+| offline LS (단말 자체 로깅) | `ls_log/modem/*.qmdl` | narrow (USER 빌드) | **없음** ("No Visible Packets") — 단 QShrink 0x1FEB는 있음 |
+
+→ USER 빌드(`ro.build.type=user`)의 offline qmdl은 0x156E 미포함. **offline을 QXDM에 다시 import해도 SIP는 안 생긴다** (마스크는 *캡처 시점*에 적용 — 파일에 없는 패킷은 QCAT·QXDM 어느 파서로도 복구 불가). on-wire SIP가 필요하면 **online QXDM 캡처가 유일**.
+
+### 2) 두 추출 경로
+- **on-wire SIP (full SDP)** — online `.hdf`/`.isf`:
+  `qcat_fast_extract.ps1 -Qmdl <hdf> -Codes 0x156E -Out <name>_sip.txt`
+  → REGISTER req-URI/Expires/User-Agent/Authorization(username=PRID, realm=Domain), INVITE Session-Expires/refresher/m=audio port·codec·mode-set/m=video codec·res·fps.
+- **등록 결과 (offline 살리기)** — offline qmdl QShrink:
+  `... -Codes 0x1FEB,0x1FFB -Out <name>_qsh.txt` (동반 `.qdb`+`diag_qsr4_guid_list.xml` 필수, 자동 로드)
+  → RILQ `imsRadiolog: onRegistrationChanged: RegistrationInfo{state, errorCode, radioTech, pAssociatedUris}` = 등록 state 전이 + SIP errorCode. **대량은 단일 COM 세션 루프**(OpenLog→Set(0x1FEB,0x1FFB)→SaveAsText→closeFile, 런치 1회) — 9개 ~63 s (warm session은 cold first-open보다 빠름).
+
+### 3) digest 도구 `scripts/ims_sip_digest.py` (stdlib, 토큰 0)
+QCAT 텍스트 → KB markdown digest. 모드 auto-detect (0x156E=SIP 표 / 0x1FEB=QShrink 등록 타임라인). 타임스탬프 KST 환산. `--expected <json>`로 의도 입력값 자동 PASS/MISMATCH. → 무거운 디코드는 토큰-0 배치, 검토는 KB digest만.
+```powershell
+venv\Scripts\python.exe scripts\ims_sip_digest.py *_sip.txt           # on-wire 표
+venv\Scripts\python.exe scripts\ims_sip_digest.py *_qsh.txt           # 등록 타임라인
+```
+
+### 4) recover / not-recover (offline QShrink 기준)
+| 검증 대상 | offline QShrink | 안 되면 |
+|---|---|---|
+| 등록 성공/실패 + SIP errorCode (등록·reset TC) | ✅ onRegistrationChanged 타임라인 | — |
+| on-wire override 리터럴값 (Session-Expires·port·UA·Auth·codec rtpmap) | ❌ (AMR/EVS/H26x/`sip:`/User-Agent = 0건) | **online QXDM 재캡처** |
+
+errorCode 해석: `999`=teardown/dereg에 반복 출현(비판별), `0`=clean dereg, **`400`/`404` 등 = 실제 등록 거부(판별자)**. 등록 거부의 override 귀속은 engineer write/reboot 시점과 대조 필요(단말 UI hook은 USER 빌드 마스킹).
 
 ## 향후 개선 후보
 - DirectPlay 1회 설치 후 백그라운드/headless 파싱 가능해지면 워크플로 agent에서 qmdl 파싱 위임.
