@@ -55,6 +55,7 @@ audit_meta:
     expectation: "focus_state(focus_retained): after Back, app-menu node absent and focused element == the originating app tile."
     method: "F0 dump: 이탈 전 selected=true 자식 채록 → back/취소 후 동일 자식 selected 복귀 확인"
     device_value: PENDING_F0
+    model_confidence: device_confirm
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

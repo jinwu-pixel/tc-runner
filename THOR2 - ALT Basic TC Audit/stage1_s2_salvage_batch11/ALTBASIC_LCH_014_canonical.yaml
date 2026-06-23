@@ -67,6 +67,7 @@ audit_meta:
     expectation: "focus_state(focus_move): focused element index advances on down-key then regresses on up-key within app-edit list; cancel/back returns to home, no item deleted."
     method: "F0 dump: 키 입력 전/후 selected=true 자식 항목(resource-id·text·bounds)+리스트 scroll index 채록 → 선택 항목 이동 또는 scroll 델타로 이동 판정 (focused=컨테이너 불변 정상)"
     device_value: PENDING_F0
+    model_confidence: device_confirm
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

@@ -36,14 +36,16 @@
 - 2026-06-11 batch4: literal 8 (LIT-027~034) / structure 4 (STR-005~008) / device_fit 5 (FIT-006~010) = 17 — build_id `RY07260600S` 직접 기재
 - 누적 **57 entries**
 
-## STAGE2 반영 제안 → ✅ 별도 무단말 TDD 트랙 승인 (사용자 2026-06-11)
+## STAGE2 반영 제안 → ✅ 별도 무단말 TDD 트랙 승인 (사용자 2026-06-11) → ✅ APPLIED 2026-06-23
 
 **결정**: 아래 5건은 **별도 무단말 TDD 트랙**으로 진행 (STAGE2_COMPILE 규칙 추가 = 정의→코드→테스트 동기, §2.3 source-of-truth). 단말 불필요 — golden_tc_set 회귀 기반. tc_prompts 편집은 §2.1 승인 게이트 이미 충족 (본 결정). 착수 시점은 별도 (batch4 commit 마감 후).
 
-| # | 제안 | 근거 entry |
-|---|---|---|
-| 1 | STAGE2_COMPILE verifier 규칙에 "display/필드 판독 = resource-id 한정" 추가 | PAT-004 |
-| 2 | "mutation 인접 버튼 = 정확 literal 매칭(partial 금지)" 규칙 추가 | PAT-005 |
-| 3 | "화면 도달 판정 = parent-marker 소멸 게이트" 표준화 | PAT-001 |
-| 4 | "토글 상태 검증 = dump checked 속성 (무접촉)" 표준화 | PAT-003 |
-| 5 | status bar 텍스트류 = screenshot axis 명시 (dump 비포함) | STR-001, LIT-016 |
+**적용 (2026-06-23)**: `tc_prompts/STAGE2_COMPILE.md` v1.1.0 — "단말 실증 기반 verifier/selector 규칙" 섹션 R1~R5 추가 (5건 1:1 매핑). golden_tc_set 회귀 3/3 PASS (편집 전/후 동일), golden 위반 0. **drift note**: 규칙은 LLM-compiler authoring 지침 — `validate_tc.py` 정적 강제는 범위 외(verifier 의미 규칙, 현 action 스키마 정적 매핑 없음·휴리스틱 강제는 drift 위험). 정적 강제 필요 시 별도 티켓.
+
+| # | 제안 | 근거 entry | 적용 |
+|---|---|---|---|
+| 1 | STAGE2_COMPILE verifier 규칙에 "display/필드 판독 = resource-id 한정" 추가 | PAT-004 | R1 |
+| 2 | "mutation 인접 버튼 = 정확 literal 매칭(partial 금지)" 규칙 추가 | PAT-005 | R2 |
+| 3 | "화면 도달 판정 = parent-marker 소멸 게이트" 표준화 | PAT-001 | R3 |
+| 4 | "토글 상태 검증 = dump checked 속성 (무접촉)" 표준화 | PAT-003 | R4 |
+| 5 | status bar 텍스트류 = screenshot axis 명시 (dump 비포함) | STR-001, LIT-016 | R5 |
