@@ -2,8 +2,9 @@
 # 2단계 지시문: CTF → 실행 가능 TC 컴파일
 # ============================================================
 # 이 파일을 CLAUDE.md 또는 프롬프트 앞에 포함하세요.
-# 버전: 1.0.0
-# 최종 수정: 2025-06
+# 버전: 1.1.0
+# 최종 수정: 2026-06
+# 변경: 1.1.0 — "단말 실증 기반 verifier/selector 규칙" 5건 추가 (ALT Basic F0 카탈로그 환류, R1~R5)
 # ============================================================
 
 너는 Canonical TC Format(CTF)을 받아서 **단말/러너 환경을 반영한 실행 가능한 TC 초안**으로 컴파일하는 역할만 수행한다.
@@ -349,6 +350,42 @@ steps:
 5. compiled step 수가 CTF step 수보다 줄어들면 반드시 report에 사유를 남길 것
 6. CTF step을 조용히 삭제하지 말 것
 7. shell command에 사용자 입력값을 넣을 때 특수문자/injection 방지 처리할 것
+
+# 단말 실증 기반 verifier/selector 규칙 (ALT Basic F0 카탈로그 환류)
+
+아래 R1~R5는 ALT Basic F0(`B06201249E0002F0`, AT-M140, build `RY07260600S`, ko-KR) 검증에서 **단말 실증으로 확정된** verifier·selector 패턴이다. 출처 = `THOR2 - ALT Basic TC Audit/catalog/f0_literal_catalog.csv` (발명 0 — 각 규칙은 카탈로그 entry 근거). verifier·selector 컴파일 시 적용한다.
+
+**스코프 주의**: 모든 규칙은 device_profile × build_id 관측값이다 — 타 단말 적용 시 재확인 대상, 빌드 변경 시 재검. 본 규칙은 컴파일러(STAGE2)·검증 runner의 authoring 지침이며 `validate_tc.py` 정적 강제 대상은 아니다(의미 규칙 — action 스키마 정적 매핑 없음).
+
+## R1. 필드 값 판독 = resource-id 한정 (전역 substring 금지) — 근거 PAT-004 / LIT-019
+* **적용**: 표시부/입력 필드의 **값**을 읽는 verifier (계산기 display, 수식/결과 등)
+* **규칙**: 값 판독은 resource-id로 노드를 한정한 뒤 그 노드 text를 대조한다. 화면 전역 substring 매칭은 키패드 라벨 등과 위양성 충돌하므로 금지.
+* **근거**: 계산기 formula/result는 전역 substring 시 키패드 숫자 라벨과 위양성 충돌 (F0 실증).
+* DO: `com.hnlens.calculator:id/display` 노드 text == 기대값 / DON'T: 화면 전체 "12" substring presence
+
+## R2. mutation 인접 버튼 = 정확 literal 매칭 (partial 금지) — 근거 PAT-005 / LIT-021
+* **적용**: 삭제/저장/정지 등 상태 변경(mutation)을 일으키는 버튼 selector
+* **규칙**: mutation 버튼은 exact literal로 매칭한다. partial/substring 금지. `tap_text`는 substring 허용이므로 mutation 인접 selector는 정확 매칭 수단(정확 text 비교 / resource-id / `tap_content_desc` exact)으로 컴파일.
+* **근거**: '정지'가 '일시중지'의 substring으로 오매칭되어 의도와 다른 버튼 탭 사고 1회 (F0, VRC 녹음).
+* DO: text == '정지' (exact) / DON'T: text contains '정지' (→ '일시중지' 오매칭)
+
+## R3. 화면 도달 판정 = parent-marker 소멸 게이트 — 근거 PAT-001
+* **적용**: 네비게이션 후 leaf 화면 도달을 증명하는 verifier
+* **규칙**: leaf marker presence만으로 도달을 단정하지 말고 **부모 화면 marker 소멸**을 함께 확인한다 (부모 marker 잔존 = 전환 미완료 = 위양성).
+* **근거**: leaf-only presence는 부모 화면 잔존 시 위양성 (F0 SET_143).
+* DO: `verify_gone`(부모 marker) + `verify_text`/presence(leaf marker) / DON'T: leaf marker presence만으로 도달 인정
+
+## R4. 토글 상태 검증 = dump checked 속성 (무접촉) — 근거 PAT-003
+* **적용**: 스위치/토글 On/Off 상태를 UI 경유로 확인하는 verifier
+* **규칙**: 토글 상태는 dump의 `checked="true|false"` 속성으로 판정한다. 시각(색상/위치) 판정 금지, 상태 확인용 토글 탭(접촉) 금지. shell로 상태를 읽을 수 있으면(`settings get`/`dumpsys`) shell 검증이 더 권위 있음 — UI 토글 verifier가 불가피할 때 본 규칙 적용.
+* **근거**: Default On/Off는 checked 속성이 ground truth, 시각 판정은 위양성 (F0 DSP_001).
+* DO: 노드 `checked` 속성 대조 (무접촉) / DON'T: 토글 시각 위치 판독 · 상태 확인용 탭
+
+## R5. status bar 텍스트류 = screenshot axis (dump 비포함) — 근거 STR-001 / LIT-016
+* **적용**: status bar 표기(캐리어 'U+', 시간 등) verifier
+* **규칙**: launcher uiautomator dump에는 systemui(status bar)가 포함되지 않는다. status bar 텍스트 검증은 screenshot axis로 명시하고 dump 기반 `verify_text`로 컴파일하지 말 것 (dump에 노드 없어 항상 FAIL).
+* **근거**: F0 launcher dump에 'U+'·status bar 노드 부재 — screenshot으로만 확인 가능.
+* DO: `screenshot` + screenshot axis 명시 / DON'T: `verify_text`(status bar 문자열)
 
 # dry-run 우선 원칙
 
