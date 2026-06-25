@@ -51,7 +51,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_retained
+    expectation: "포커스는 더보기 아이콘에 유지"
+    method: "F0 dump: 팝업/드롭박스 전 focused 요소 채록 → 취소/back/OK 후 동일 요소 focused 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null

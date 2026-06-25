@@ -39,7 +39,12 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: focus_state
+  verifier_contract:
+    assert: focus_absent
+    expectation: "포커스된 첫번째 항목이 포커스가 사라진다"
+    method: "F0 dump: back 전 focused=true 첫 항목 채록 → back 후 해당 요소 focused 부재 확인"
+    device_value: PENDING_F0
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null
