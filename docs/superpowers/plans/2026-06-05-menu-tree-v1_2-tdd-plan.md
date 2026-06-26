@@ -1,6 +1,6 @@
 # Menu-Tree v1.2 — TDD 구현 Plan
 
-> Status: **DRAFT (plan), 구현/단말/commit 없음** (2026-06-05).
+> Status: **무단말 Task 1·2·3·5·6 구현 完 + Task 4 선결(I1·I2) DONE** (2026-06-05; 2026-06-08 I1 access probe `d9a3809`). Task 4 잔여 = APN read-only 단말 probe (device-gated).
 > source spec = [../specs/2026-06-05-menu-tree-v1_2-tc-anchor-design.md](../specs/2026-06-05-menu-tree-v1_2-tc-anchor-design.md).
 > §2.3 source-of-truth 준수(정의→코드→테스트 동일 PR). 본 plan 은 spec 을 실행 task 로 분해만 한다.
 
@@ -146,7 +146,7 @@
 | 1 ActionSafety derive (+ manual_pause) | **done** | `78279a4` (manual_pause → `SELECTION_GATED`) |
 | 2 TCAnchorMapping extract/join + adapter | **done** | `78279a4` (expected/observed 분리, deeplink 0.9 / settings-comp 0.8 / 미매칭 0.3) |
 | 3 corpus anchor audit + golden | **done** | `78279a4` (SeniorShield 39 / baseline 직접매핑 2 / APN gap / DEVICE_INFO method-mismatch gap) |
-| 4 APN/DebugScreen accessibility probe | **pending (gated)** | 단말 승인 + I1(DebugScreen 접근성)·I2(APN redaction 필드 lock) 선결 |
+| 4 APN/DebugScreen accessibility probe | **partial** | I1 DebugScreen 접근성 = **DONE** (`d9a3809` Tier A access probe, F0 REACHED·87 dump nodes) · I2 APN redaction 필드 lock = **DONE** (redaction_gate.py). **잔여 = APN read-only 단말 probe (device-gated)** |
 | 5 IssueProbePoint + privacy 1호 | **done** | `cffa61c` (ledger 요약값만, raw bundle 미의존) |
 | 6 failure_reason 분류 | **done** | `cffa61c` (`no_device_observation` ↔ `text_missing` 분리, closest_menu_node=stub) |
 | 7 docs/self-review/commit gate | **done** | 본 커밋 |
@@ -160,4 +160,4 @@
 - **expected(source) ↔ observed(device) 분리** 유지 — extract는 `source_expected_texts`까지만, join에서 `device_observed_texts` 보강.
 - **`no_device_observation` ↔ `text_missing` 분리** — "baseline 부재"와 "텍스트 누락"을 issue-probe 판정에서 가름.
 - raw/probe/catalog 실 sidecar는 **아직 미생성**(`--out`/`write_*` 준비만) — repo sidecar 쓰기는 후반 승인 게이트.
-- **다음 게이트**: I2 APN redaction 필드 lock(IMSI/MSISDN/ICCID/operator numeric/APN credential) → I1 DebugScreen 접근성 read-only 확인 → Task 4 단말 probe.
+- **다음 게이트**: I2 APN redaction 필드 lock = **DONE**(redaction_gate.py) · I1 DebugScreen 접근성 read-only 확인 = **DONE**(2026-06-08 `d9a3809` Tier A access probe). **잔여 = APN read-only 단말 probe (device-gated)** — 단말 승인 후 별도 트랙.

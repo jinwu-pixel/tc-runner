@@ -19,8 +19,11 @@ commit/push 단위와 분리한다. (Tier D: `catalog_schema.md` §1.)
 | 20260604T085840Z | subset(3) | google·device_info·wellbeing | vs 074020Z (per-screen) | ee59ac7 | 2/0 | 1 | 0 | 0 | 0 | `catalog/v1_1_verify/…085840Z.{json,md}` |
 | 20260604T102316Z | full | 17 | vs 074020Z (full↔full) | 3a84b41† | 14/1 | 2 | 0 | 0 | 0 | `catalog/…102316Z.{json,md}` |
 | 20260605T0130–0139Z (×20) | targeted exp | privacy ×20 (A/B settle-probe) | vs 102316Z privacy | 7c6cd3f† | 20/0 | 0 | 0 | 0 | 0 | `catalog/privacy_settle_probe/` |
+| 20260608T073843Z | access probe (Tier A) | DebugScreen (I1) `com.android.phone/.settings.DebugScreen` | vs 102316Z baseline (out-of-scope screen) | local-carry‡ | 1/0 | 0 | 0 | 0 | 0 | `catalog/probes/debugscreen_access_20260608T073843Z.json` (evidence `d9a3809`) |
 
 † explorer behavior == ee59ac7 (3a84b41=tc_loader drift fix, 7c6cd3f=docs/ledger; explorer 무영향). ⚠ run 102316Z 의 예상 밖 privacy REACHED→FOCUS_MISMATCH 1회 → **privacy settle-probe 실험에서 20/20 REACHED·미재현** → OBSERVED 1-회성 anomaly 유지(regression 아님). 실험 상세 블록 참조.
+
+‡ access probe = menu-tree explorer run 아님 (Tier A 단일 화면 접근성 read-only probe, spec §2 NOTE / I1). `reached/ext`=probe reach 1건(REACHED)·`fm/unreach/dump_rej/viol` 컬럼은 explorer 의미 미적용(probe 단위 = 1 화면). `out-of-scope screen` = DebugScreen 은 17-screen Settings baseline 범위 밖(`com.android.phone`) → full↔full total 비교 대상 아님. **귀인 분리**(컬럼 정의 line 13 = 도구 코드 commit): `tool_commit` = `local-carry`(access-probe driver 코드 미커밋, raw/keymap 과 함께 Task 4 raw-carry 정책) · **evidence/digest commit** = `d9a3809`(probe JSON digest = artifact 컬럼, committed). driver 미커밋이므로 d9a3809 를 tool_commit 으로 동일시하지 않음. 접근성 probe 상세 블록 참조.
 
 ---
 
@@ -95,6 +98,23 @@ commit/push 단위와 분리한다. (Tier D: `catalog_schema.md` §1.)
 - **판정(§4.4)**: B 가 confirmed warm device_info 상태에서도 0/5 mismatch → **H1(residual-window) 미지지**. settle 1.2 에서도 0/20 → 102316Z 는 **미재현 1-회성 anomaly = regression 아님**. (B 는 device_info 가 *foreground* 인 강한 warm 이라 102316Z 의 residual-in-stack 보다 더 강한 조건인데도 미재현.)
 - **Phase 2(settle 2.0) 불필요**: B 미재현 + 결과 명확(애매하지 않음) → C/D 미확장(승인 조건 부합).
 - **disposition**: 102316Z privacy = **OBSERVED 1-회성 anomaly, NOT regression**. ledger 에 NOTE 보존. 향후 full run 에서 재출현 시에만 재조사.
+
+---
+
+## Probe 20260608T073843Z — DebugScreen Tier A accessibility (I1)
+- **type / scope**: access probe (Tier A) / 단일 화면 DebugScreen (menu-tree explorer run 아님)
+- **base_run_id / diff_against**: 20260604T102316Z baseline (**비교 대상 아님** — DebugScreen 은 17-screen Settings baseline 범위 밖 `com.android.phone`)
+- **tool_commit**: `local-carry` (access-probe driver 코드 미커밋 = raw/keymap 과 함께 local carry, Task 4 raw-carry 정책, 단말 게이트)
+- **evidence_commit**: `d9a3809` (probe JSON digest 를 담은 commit = artifact_path). source/evidence ↔ tool 분리 표기 — driver 미커밋이므로 tool_commit 과 동일시 금지.
+- **tool_code_state**: dirty-code (probe driver = local carry, repo commit 아님)
+- **device**: serial `B06201249E0002F0` (F0 고정) / sim LG U+ (`<MSISDN_1>` redaction token 으로 기록). B27 미접촉.
+- **issue / anchor**: I1-DEBUGSCREEN-ACCESS · entry_component `com.android.phone/.settings.DebugScreen` · screen_id `phone_debugscreen` · domain `app:com.android.phone`
+- **summary**: reach 1/1 (REACHED) · `am start` Status=ok · dump nodes 87 · mismatch 0/1
+- **hypothesis/result**: "DebugScreen shell-launchable + dumpable on F0 → Tier A read-only probe anchor" → **확인됨** (REACHED·dump 가능 → Tier A 분류). verdict `not_regression`.
+- **artifact_path**: `catalog/probes/debugscreen_access_20260608T073843Z.json` (committed digest, `d9a3809`)
+- **raw_policy**: raw `catalog/raw/20260608T073843Z/debugscreen.xml` + `_redaction_keymap.json` = **local carry (미커밋)**. probe JSON digest 만 commit 후보.
+- **redaction**: `observed_condition` = `<MSISDN_1>` (per-run token, raw MSISDN 미노출). I2 redaction 필드 lock 정책 준수.
+- **scope note**: 이 probe 는 spec §2 NOTE / open issue I1 (DebugScreen 접근성 read-only 확인) 의 산출물 — Task 4 단말 probe 전체가 아닌 I1 선결 단계. APN read-only probe (I2) 는 단말 게이트로 미수행 (remaining).
 
 ---
 

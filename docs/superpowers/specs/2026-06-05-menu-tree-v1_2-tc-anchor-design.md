@@ -1,9 +1,9 @@
 # Menu-Tree v1.2 — Settings/phone Issue-Probe Coordinate System (Design Spec)
 
-> Status: **implementation-partial** (2026-06-05). 무단말 Task 1~6 구현 완료
+> Status: **implementation-partial** (2026-06-05; 2026-06-08 I1·I2 갱신). 무단말 Task 1~6 구현 완료
 > (`78279a4` ActionSafety+TCAnchorMapping+corpus audit, `cffa61c` IssueProbePoint+failure_reason).
-> **Task 4 (APN/DebugScreen 단말 probe) = gated/pending** — I1·I2 선결 + 단말 승인 후 별도 트랙.
-> 근거 = 2026-06-05 TC anchor read-only audit. 본 spec 의 단일 source = 본 문서; 구현 시 §2.3(source-of-truth) 준수.
+> **Task 4 선결 = I1 DebugScreen 접근성 = DONE** (`d9a3809` Tier A access probe, F0 REACHED·87 dump nodes) · **I2 APN redaction 필드 lock = DONE** ([[project_redaction_policy_task41]], `redaction_gate.py`). **잔여 = APN read-only 단말 probe (device-gated)** — 단말 승인 후 별도 트랙.
+> 근거 = 2026-06-05 TC anchor read-only audit + 2026-06-08 I1 access probe. 본 spec 의 단일 source = 본 문서; 구현 시 §2.3(source-of-truth) 준수.
 
 ## 0. Decision (Path 1 only)
 - v1.2 = **Settings/phone 이슈 탐색 좌표계 단일 범위.**
@@ -156,8 +156,8 @@
 - 다음 구현 task 를 TDD 순서로 분해 가능(§8).
 
 ## 10. Open issues (spec 후속)
-- I1. DebugScreen 실제 deep-link/권한 게이트 — P1 시작 시 read-only 확인 필요(§2 NOTE).
-- I2. APN read-only dump 시 민감정보(IMS/IMSI/operator 비밀) 노출 가능 → raw carry 정책 + redaction 여부 검토.
+- I1. DebugScreen 실제 deep-link/권한 게이트 — **DONE (2026-06-08)**: F0 Tier A access probe (`com.android.phone/.settings.DebugScreen`, REACHED·`am start` Status=ok·87 dump nodes) → Tier A 분류. digest `catalog/probes/debugscreen_access_20260608T073843Z.json` (`d9a3809`), raw/keymap local carry.
+- I2. APN read-only dump 시 민감정보(IMS/IMSI/operator 비밀) 노출 가능 → raw carry 정책 + redaction — **DONE (필드 lock)**: redaction 정책 lock([[project_redaction_policy_task41]]) + `tools/redaction_gate.py` residual-scan 게이트. APN read-only dump **단말 probe 자체는 device-gated (잔여)**.
 - I3. `closest_menu_node` 산출 알고리즘(fingerprint/text 거리) — plan 단계 상세화.
 - I4. SeniorShield package-track 트리거 정량 기준(O4) — 후속.
 
