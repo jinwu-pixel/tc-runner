@@ -18,7 +18,7 @@ procedure_steps:
       target: "Camera 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "카메라 앱 실행 초기 화면", value: null }
+      - { type: verify_text, target: "사진", value: null }   # backfill 2026-06-26 run1 실측(F0 kc27): "카메라 앱 실행 초기 화면"→"사진"
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -26,7 +26,7 @@ procedure_steps:
     source_trace: { raw_segment: "1. Camera 버튼 누른다", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "1. 카메라 앱 실행 초기 화면으로 전환된다"
 expected_texts_candidate:
-  - "카메라 앱 실행 초기 화면"
+  - "사진"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

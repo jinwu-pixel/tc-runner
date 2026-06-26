@@ -18,7 +18,7 @@ procedure_steps:
       target: "Recent App 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "최근앱 리스트 화면", value: null }
+      - { type: verify_text, target: "모두 닫기", value: null }   # backfill 2026-06-26 run1 실측(F0 RY07260601S kc187): "최근앱 리스트 화면"→"모두 닫기"
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -26,7 +26,7 @@ procedure_steps:
     source_trace: { raw_segment: "1. Recent App 버튼 누른다", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "1. 최근앱 리스트 화면으로 전환된다"
 expected_texts_candidate:
-  - "최근앱 리스트 화면"
+  - "모두 닫기"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1
