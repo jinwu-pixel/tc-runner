@@ -1,0 +1,29 @@
+{
+  "manifest": [
+    {"tc_id": "ALTBASIC_BSC_014", "source_file": "x.xlsx", "entry_detail": "press_key:1. Recent App 버튼 누른다"},
+    {"tc_id": "ALTBASIC_BSC_120", "source_file": "x.xlsx", "entry_detail": "tap:1. 더보기 Tap > press_key:하드키 돌아가기 버튼 누른다"},
+    {"tc_id": "ALTBASIC_BSC_018", "source_file": "x.xlsx", "entry_detail": "press_key:1. Message 버튼 누른다"},
+    {"tc_id": "ALTBASIC_BSC_025", "source_file": "x.xlsx", "entry_detail": "press_key:1. 종료 버튼 길게 누른다"},
+    {"tc_id": "ALTBASIC_BSC_071", "source_file": "x.xlsx", "entry_detail": "press_key:1. 홈화면에서 Navi U/D/L/R/OK 키 입력한다"},
+    {"tc_id": "ALTBASIC_DIR_DN",  "source_file": "x.xlsx", "entry_detail": "press_key:1. Home 버튼 누른다 > Press Down"},
+    {"tc_id": "ALTBASIC_ADJ_OK",  "source_file": "x.xlsx", "entry_detail": "press_key:1. 네비키 또는 OK키 입력"},
+    {"tc_id": "ALTBASIC_NAK_WIFI","source_file": "x.xlsx", "entry_detail": "press_key:1. wifi focus"},
+    {"tc_id": "ALTBASIC_CANCEL",  "source_file": "x.xlsx", "entry_detail": "press_key:1. 지우기/취소 버튼"},
+    {"tc_id": "ALTBASIC_MIX_OBS", "source_file": "x.xlsx", "entry_detail": "press_key:1. Press Down > 기본 항목 확인한다"}
+  ],
+  "expected_ledger": [
+    {"tc_id": "ALTBASIC_BSC_014", "extracted_token": "Recent App 버튼 누른다",           "disposition": "NOW_RESOLVABLE",    "proposed_keycode": 187, "required_decision": "",                          "device_pilot_eligible": true,  "executable": true},
+    {"tc_id": "ALTBASIC_BSC_120", "extracted_token": "더보기 Tap",                       "disposition": "FREE_TEXT_DISCOVERY","proposed_keycode": "",  "required_decision": "device_selector_discovery", "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_BSC_120", "extracted_token": "하드키 돌아가기 버튼 누른다",        "disposition": "NOW_RESOLVABLE",    "proposed_keycode": 4,   "required_decision": "",                          "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_BSC_018", "extracted_token": "Message 버튼 누른다",               "disposition": "FREE_TEXT_DISCOVERY","proposed_keycode": "",  "required_decision": "device_keycode_discovery",  "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_BSC_025", "extracted_token": "종료 버튼 길게 누른다",              "disposition": "FREE_TEXT_DISCOVERY","proposed_keycode": "",  "required_decision": "device_keycode_discovery",  "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_BSC_071", "extracted_token": "홈화면에서 Navi U/D/L/R/OK 키 입력한다", "disposition": "AMBIGUOUS_NOGUESS","proposed_keycode": "", "required_decision": "spec_clarification",        "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_DIR_DN",  "extracted_token": "Home 버튼 누른다",                  "disposition": "NOW_RESOLVABLE",    "proposed_keycode": 3,   "required_decision": "",                          "device_pilot_eligible": true,  "executable": true},
+    {"tc_id": "ALTBASIC_DIR_DN",  "extracted_token": "Press Down",                       "disposition": "NOW_RESOLVABLE",    "proposed_keycode": 20,  "required_decision": "",                          "device_pilot_eligible": true,  "executable": true},
+    {"tc_id": "ALTBASIC_ADJ_OK",  "extracted_token": "네비키 또는 OK키 입력",              "disposition": "ADJUDICATE",        "proposed_keycode": 23,  "required_decision": "intent_choice",             "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_NAK_WIFI","extracted_token": "wifi focus",                        "disposition": "NOT_A_KEY",         "proposed_keycode": "",  "required_decision": "reclassify_verifier_or_navigate", "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_CANCEL",  "extracted_token": "지우기/취소 버튼",                   "disposition": "FREE_TEXT_DISCOVERY","proposed_keycode": "",  "required_decision": "device_keycode_discovery",  "device_pilot_eligible": false, "executable": true},
+    {"tc_id": "ALTBASIC_MIX_OBS", "extracted_token": "Press Down",                       "disposition": "NOW_RESOLVABLE",    "proposed_keycode": 20,  "required_decision": "",                          "device_pilot_eligible": true,  "executable": true},
+    {"tc_id": "ALTBASIC_MIX_OBS", "extracted_token": "기본 항목 확인한다",                 "disposition": "FREE_TEXT_DISCOVERY","proposed_keycode": "",  "required_decision": "",                          "device_pilot_eligible": true,  "executable": false}
+  ]
+}
