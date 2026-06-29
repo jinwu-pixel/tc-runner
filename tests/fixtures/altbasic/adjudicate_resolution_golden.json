@@ -1,0 +1,28 @@
+{
+  "manifest_rows": [
+    {"tc_id": "G_HIGH_DIR", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:Navi 키( ↓) 버튼을 누른다."},
+    {"tc_id": "G_HIGH_OK", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:Navi 키(OK) 버튼을 누른다."},
+    {"tc_id": "G_DISJ", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:네비키 또는 OK키 입력"},
+    {"tc_id": "G_AMBIG", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:Navi 키(전체) 버튼을 누른다."}
+  ],
+  "expected_class_counts": {
+    "RESOLVABLE_HIGH": 2,
+    "DISJUNCTION_CHOICE": 1,
+    "AMBIGUOUS_RETAIN": 1
+  },
+  "expected_adjudicate_total": 4,
+  "expected_eligible": {
+    "baseline": 0,
+    "tier0": 0,
+    "tier0_adj_high": 2,
+    "tier0_adj_high_disj": 3,
+    "tier0_all_adjudicate": 4
+  },
+  "expected_adjudicated_delta": 2,
+  "expected_disjunction_delta": 1,
+  "expected_prior_adjudicate_delta": 4
+}

@@ -1,0 +1,30 @@
+{
+  "manifest_rows": [
+    {"tc_id": "G_NAV_QPN", "source_file": "g.xlsx",
+     "entry_detail": "press_key:wifi focus > Press down",
+     "verifier_candidates": "literal: 모바일 데이터"},
+    {"tc_id": "G_NAV_BACK", "source_file": "g.xlsx",
+     "entry_detail": "press_key:wifi focus > Press back 또는 cancel",
+     "verifier_candidates": "퀵패널 / 알림창 / wifi"},
+    {"tc_id": "G_VERIFY", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:블루투스 focus",
+     "verifier_candidates": "literal: 블루투스"},
+    {"tc_id": "G_AMBIG", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:집중 모드 focus",
+     "verifier_candidates": "literal: 전혀다른값"}
+  ],
+  "expected_class_counts": {
+    "VERIFY_POINT_HIGH": 1,
+    "NAVIGATE_TO_FOCUS": 2,
+    "AMBIGUOUS_RETAIN": 1
+  },
+  "expected_focus_candidate_total": 4,
+  "expected_eligible": {
+    "baseline": 0,
+    "tier0": 0,
+    "tier0_verify_high": 1,
+    "tier0_all_candidate": 3
+  },
+  "expected_adjudicated_delta": 1,
+  "expected_prior_focus_candidate_delta": 3
+}
