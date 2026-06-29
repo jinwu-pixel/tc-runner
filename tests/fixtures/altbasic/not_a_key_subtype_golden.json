@@ -1,0 +1,38 @@
+{
+  "manifest_rows": [
+    {"tc_id": "G_FOCUS_STATE", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:앱 서랍 포커스 되지 않은 상태"},
+    {"tc_id": "G_FOCUS_CAND", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:전원 버튼 focus"},
+    {"tc_id": "G_SCREEN", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:간편 설정 페이지"},
+    {"tc_id": "G_MANUAL", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:긴급 전화"},
+    {"tc_id": "G_KEYCODE", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:뒤로가기"},
+    {"tc_id": "G_SELECTOR", "source_file": "g.xlsx",
+     "entry_detail": "press_key:Home 버튼 누른다 > press_key:사진"},
+    {"tc_id": "G_MIXED", "source_file": "g.xlsx",
+     "entry_detail": "press_key:wifi focus > tap:더보기 Tap"}
+  ],
+  "expected_subtype_counts": {
+    "VERIFIER_FOCUS_STATE": 1,
+    "VERIFIER_FOCUS_CANDIDATE": 2,
+    "VERIFIER_SCREEN_PRESENT": 1,
+    "MANUAL_RETAIN": 1,
+    "KEYCODE_DISCOVERY": 1,
+    "SELECTOR_DISCOVERY": 1
+  },
+  "expected_eligible": {
+    "baseline": 0,
+    "tier0": 1,
+    "tier1": 2,
+    "tier2": 3,
+    "tier0_screen": 2,
+    "tier0_focus_candidate": 2,
+    "tier0_adjudicate": 1,
+    "optimistic_upper_bound": 6
+  },
+  "expected_headline_now_unlock": 1,
+  "screen_present_only_tc": "G_SCREEN"
+}
