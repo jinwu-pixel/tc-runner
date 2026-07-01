@@ -31,7 +31,8 @@ procedure_steps:
       target: "Press down(하드키)"
       value: null
     expected:
-      - { type: verify_text, target: "목표 걸음수", value: null }
+      # backfill: run1 f0_c11_nav_2026-07-01 실측 — 소스 '목표 걸음수'(무공백)는 단말 실 text '목표 걸음 수'(공백). expected_result_raw 는 소스 보존.
+      - { type: verify_text, target: "목표 걸음 수", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -39,7 +40,7 @@ procedure_steps:
     source_trace: { raw_segment: "2. Press down(하드키)", source_phase: procedure, position: 2, total_segments: 2 }
 expected_result_raw: "1. Focus가 목표 걸음수에 정상적으로 위치하는지 확인한다."
 expected_texts_candidate:
-  - "목표 걸음수"
+  - "목표 걸음 수"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 2
