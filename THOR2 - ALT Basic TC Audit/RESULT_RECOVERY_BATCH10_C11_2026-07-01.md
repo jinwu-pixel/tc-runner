@@ -23,6 +23,7 @@
 - 실행: Appium 3.4.0(base-path /, MSYS_NO_PATHCONV=1 로 Git Bash `/` mangle 회피) + thor2j_appium venv. **helper 3종 설치→uninstall Success · 잔존 0 · pre 219 == post 219 (mutation 0)**. F0 sole-device(B27 미접촉).
 - evidence: `thor2j-tc-appium/evidence/altbasic_batch10_c11_v2_20260701/{run1,run2}/{tc_id}/` + `results_run{1,2}.csv`.
 - **RUNNABLE_NOW +4** (PDM_041~044). 잔여 C11: SST_008/013/014/015 · MGN_001/PDM_040(verifier-model) · SST_012(re-scope) · MGN_002(fail-closed) · gap-9 = 후속 slice.
+- **2026-07-01 무단말 스테이징 (device HELD, F0 sole 불가)**: SST_008/013/014(scroll+tap·OK-retire) + MGN_001(element-verifier `id/scale_bar`) host-TDD **23/23 GREEN** + MGN tc-runner backfill(canonical element_presence/generator/manifest, diff=MGN_001 행만). PDM_040(back 요소 0)·SST_015(안심기능 부재)·SST_012(WiFi) = spec-device 불일치 **defer**. device 2-run 즉시실행 절차 = **`RUNSHEET_C11_SST_MGN_2026-07-01.md`** (잠재 +4 RUNNABLE). ★SST verify literal은 목적지 title device 미확인 → PENDING 시 backfill.
 
 ---
 

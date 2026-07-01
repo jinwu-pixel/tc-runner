@@ -31,7 +31,9 @@ procedure_steps:
       target: "Press 방향키 or OK"
       value: null
     expected:
-      - { type: verify_text, target: "줌 슬라이더 핸들", value: null }
+      # backfill: run1 f0_c11_nav 2026-07-01 실측 — "줌 슬라이더 핸들"은 텍스트 아닌 요소(zoom slider).
+      # element-presence verifier 로 전환. expected_result_raw 는 소스 보존.
+      - { type: element_presence, target: "com.hnlens.magnifying:id/scale_bar", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -51,7 +53,7 @@ audit_meta:
   safety_class: NAVIGATION_ONLY
   recovery_likelihood: HIGH
   entry_type: app_launch_unresolved
-  verifier_type: verify_text
+  verifier_type: element_presence
   anchor_state: MISSING
   menu_tree_anchor: none
   matched_screen_id: null
