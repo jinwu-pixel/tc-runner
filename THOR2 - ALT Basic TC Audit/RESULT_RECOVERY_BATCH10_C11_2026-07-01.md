@@ -79,6 +79,20 @@ PROCESS_REVIEW R1·R2를 host-TDD(RED→GREEN)로 driver에 반영 + SST_015 백
 - evidence: `thor2j-tc-appium/evidence/altbasic_batch10_c11_v2_20260701/{run1,run2}/ALTBASIC_SST_012/` + `results_run{1,2}.csv` append.
 - **C11 잔여**: MGN_002(fail-closed 유지) · gap-9(authoring 큐). PDM_040 = spec-gap 종결. SST 5/5 전건 회수 완료.
 
+### v3 후속 2 — gap-9 discovery + SST_016 회수 (2026-07-02, C11 누적 11)
+
+**gap-9 discovery (non-mutating adb-only, sonnet 위임·21 dump → `catalog/f0_c11_nav_2026-07-01/discovery_gap9_2026-07-02/`)**: ①SST_016 — 목적지 title `안전 및 긴급 상황`(collapsing_toolbar desc)·영문 `Emergency` 0건 = divergence 확정, ⑤유형 stale resume 1회 재관찰(BACK 복구, R1 근거 3호) ②MGN_005/006 — `id/flash_light`·`id/scale_bar`(SeekBar)·`id/shutter_button` 실존·썸네일 노드 미발견(빈 갤러리 추정)·dpad DOWN 후 scale_bar focus 고착(keyevent 3회 한정 — 판정 보류) ③PFW — 진입 표면 = 홈 4페이지 중 p3 사진 액자 위젯 페이지(`simplemode:id/frame_bg`·`cl_vp2`) 확정·모든 앱 35 전면 채록 관련 앱 부재·현재 빈 앨범(`사진 추가하기`). **MGN_006·PFW 6 공통 게이트 = 사진 세팅 precondition(mutating·별도 승인)**. 금지 행위 위반 0·단말 HOME 복귀.
+
+**SST_016 백필+회수 (ledger decision=literal_backfill)**: canonical `Emergency→안전 및 긴급 상황`(`expected_result_raw` 소스 보존)+manifest faithfulness(diff=SST_016 verifier 셀만)+driver `C11_V1` 편입(기존 SST_TAPNAV 경로 재사용·신규 로직 0). host-TDD **43/43 GREEN**(RED=C11_V1 포함 검사 1건 — 분류·nav는 기존 로직이 즉시 커버).
+
+| tc_id | verifier | run1 | run2 | 판정 |
+|---|---|---|---|---|
+| SST_016 | literal `안전 및 긴급 상황`(backfill) | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+
+- 양 run R1 게이트 1차 통과(`root_gate_stale` 미발동). helper 3종 uninstall Success·잔존 0·pre 219==post 219(mutation 0)·4723 free. after dump: title 1건·`설정 검색` 0건(R2 정합).
+- evidence: `{run1,run2}/ALTBASIC_SST_016/` + `results_run{1,2}.csv` append.
+- **C11 최종 잔여**: MGN_005/006·PFW 6(사진 세팅 게이트 공통) · MGN_002(fail-closed) · PDM_040(spec-gap). 결과 분포 = TWO_RUN_GREEN **11** / NOTE 2 / NOT_STARTED 8.
+
 **동일 창 A-확장 discovery (non-mutating: dump/back/home + navigation tap만, toggle 0)** → `catalog/f0_c11_nav_2026-07-01/discovery_2026-07-02/` 10 dump:
 - **SST_015 정정**: 설정 root top-level에 **`안심 기능` 존재** (nav 카탈로그 "안심기능 부재"는 오판 — stale 스크롤/부분 캡처 추정). `안전 및 긴급 상황`은 **별개 항목**(긴급 SOS/의료 정보)으로 공존 = 기존 후보 매핑은 오매핑. `안심 기능` 진입 = `com.hnlens.safetyfeature/.ui.MainActivity`, title literal `안심 기능`, 항목 SOS 버튼/보호자 등록/안심 메시지/수신 차단 → **backfill 근거 확보, 무단말 재설계 가능**.
 - **SST_012**: Quick Panel(swipe, com.android.systemui)에 Wi-Fi 타일 실존(text `Wi-Fi`/`Wi-Fi, 켜짐`) — re-scope 경로 grounded. tap 0회(토글 변이 방지).

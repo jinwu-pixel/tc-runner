@@ -50,7 +50,7 @@
 
 - **TWO_RUN_GREEN 8** (PDM_041~044 + SST_008/013/014 + MGN_001) — C11 RUNNABLE_NOW 누적 8. 상세: `RESULT_RECOVERY_BATCH10_C11_2026-07-01.md` v2 회수 1·2차 섹션.
 - **NOTE 4** (deferred): SST_012(**2026-07-02 Quick Panel re-scope 백필+fresh 2-run TWO_RUN_GREEN 회수**), SST_015(백필 staged — **2026-07-02 driver slice에서 백필+fresh 2-run TWO_RUN_GREEN 회수**) → **C11 누적 10**, PDM_040(**2026-07-02 spec-gap 확정** — oracle 술어 양쪽 단말 부재·의도보존 재정의 불가, ledger 갱신), MGN_002(fail-closed 유지 — false-progress 방지 실사례 1).
-- **NOT_STARTED 9** (gap-9): PFW 6(위젯 진입 표면 자체 미채록) + MGN_005/006(요소 묘사형 위험 동형) + SST_016(영문 literal 위험).
+- **NOT_STARTED 9** (gap-9): PFW 6(위젯 진입 표면 자체 미채록) + MGN_005/006(요소 묘사형 위험 동형) + SST_016(영문 literal 위험). **2026-07-02 gap-9 discovery(21 dump, non-mutating)**: SST_016 divergence 확정→백필+2-run **TWO_RUN_GREEN 회수(NOT_STARTED 9→8)** / MGN_005/006 요소 실존·썸네일 미발견·dpad는 scale_bar 고착(판정 보류) / PFW 표면=홈 p3 위젯 페이지 확정·빈 앨범 — **MGN_006·PFW 6은 사진 세팅 precondition(mutating·승인 필요)이 공통 게이트**.
 - **⑤유형 실사례**: 초회 run1 SST 3건 ENTRY_FAILED — driver·oracle 무결 상태에서 stale task로 실패. BACK-루프 수동 복구 후 전건 PASS. LIT_ABSENT/LIT_PENDING 경계 오분류 1건(SST_013 — 도달+로드 상태의 title 상이를 VERIFIER_FAILED로 보고)도 driver 분류 gap으로 확인.
 
 ## 5. 개선 지표 계층 (ledger 기계 집계)
@@ -67,7 +67,7 @@
 | fail-closed false-progress 방지 사례 | **1** (MGN_002 — 미상 hardkey 추측 실행 차단, v1·v2 일관) | primary=fail_closed |
 | 결과 분포 (chunk-21) | TWO_RUN_GREEN **8** / NOTE **4** / NOT_STARTED **9** (=21) | result count |
 
-**2026-07-02 후속 결정 반영**: PDM_040 primary `re_scope→spec_gap`·secondary `element_verifier→—`(ledger 갱신) — 재집계 시 re-scope 필요 6→5·element verifier 전환 2→1. SST_015 백필+2-run·SST_012 Quick Panel re-scope 백필+2-run 모두 TWO_RUN_GREEN — 결과 분포 재집계 시 TWO_RUN_GREEN 8→**10**·NOTE 4→**2**(잔여 PDM_040 spec-gap·MGN_002 fail-closed), literal backfill 3→4(SST_012 secondary 추가). 위 표는 리뷰 시점 스냅샷 — 불일치 시 ledger 우선(문서 서두 규약).
+**2026-07-02 후속 결정 반영**: PDM_040 primary `re_scope→spec_gap`·secondary `element_verifier→—`(ledger 갱신) — 재집계 시 re-scope 필요 6→5·element verifier 전환 2→1. SST_015 백필+2-run·SST_012 Quick Panel re-scope 백필+2-run·SST_016 gap-9 백필+2-run 모두 TWO_RUN_GREEN — 결과 분포 재집계 시 TWO_RUN_GREEN 8→**11**·NOTE 4→**2**(PDM_040 spec-gap·MGN_002 fail-closed)·NOT_STARTED 9→**8**, literal backfill 3→5(SST_012 secondary·SST_016 추가). 위 표는 리뷰 시점 스냅샷 — 불일치 시 ledger 우선(문서 서두 규약).
 
 ### 다음 batch(Part B 236) 작성 시 사전 개선 규칙
 

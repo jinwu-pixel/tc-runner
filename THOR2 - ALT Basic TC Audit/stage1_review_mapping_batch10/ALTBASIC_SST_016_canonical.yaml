@@ -18,7 +18,10 @@ procedure_steps:
       target: "방향키로 Simple setting > 안전 및 긴급 상황 tap"
       value: null
     expected:
-      - { type: verify_text, target: "Emergency", value: null }
+      # backfill: discovery_gap9_2026-07-02 실측(sst016_safety_dest.xml) — 소스 영문 'Emergency'는 단말
+      # 실물 root 항목·목적지 title '안전 및 긴급 상황'(collapsing_toolbar content-desc, Emergency dump 0건).
+      # expected_result_raw 는 소스 보존.
+      - { type: verify_text, target: "안전 및 긴급 상황", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -26,7 +29,7 @@ procedure_steps:
     source_trace: { raw_segment: "방향키로 Simple setting > 안전 및 긴급 상황 tap", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "Settings > Emergency 메뉴에 진입할 것"
 expected_texts_candidate:
-  - "Emergency"
+  - "안전 및 긴급 상황"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1
