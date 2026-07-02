@@ -49,26 +49,30 @@
 ## 4. 실행 결과 계층 — 2026-07-02 회수 + 잔여 gap
 
 - **TWO_RUN_GREEN 8** (PDM_041~044 + SST_008/013/014 + MGN_001) — C11 RUNNABLE_NOW 누적 8. 상세: `RESULT_RECOVERY_BATCH10_C11_2026-07-01.md` v2 회수 1·2차 섹션.
-- **NOTE 4** (deferred): SST_012(Quick Panel re-scope 초안 대기), SST_015(백필 staged — discovery로 무단말 완결 가능), PDM_040(re-scope vs spec-gap 사용자 결정 대기), MGN_002(fail-closed 유지 — false-progress 방지 실사례 1).
+- **NOTE 4** (deferred): SST_012(**2026-07-02 Quick Panel re-scope 백필+fresh 2-run TWO_RUN_GREEN 회수**), SST_015(백필 staged — **2026-07-02 driver slice에서 백필+fresh 2-run TWO_RUN_GREEN 회수**) → **C11 누적 10**, PDM_040(**2026-07-02 spec-gap 확정** — oracle 술어 양쪽 단말 부재·의도보존 재정의 불가, ledger 갱신), MGN_002(fail-closed 유지 — false-progress 방지 실사례 1).
 - **NOT_STARTED 9** (gap-9): PFW 6(위젯 진입 표면 자체 미채록) + MGN_005/006(요소 묘사형 위험 동형) + SST_016(영문 literal 위험).
 - **⑤유형 실사례**: 초회 run1 SST 3건 ENTRY_FAILED — driver·oracle 무결 상태에서 stale task로 실패. BACK-루프 수동 복구 후 전건 PASS. LIT_ABSENT/LIT_PENDING 경계 오분류 1건(SST_013 — 도달+로드 상태의 title 상이를 VERIFIER_FAILED로 보고)도 driver 분류 gap으로 확인.
 
-## 5. 개선 지표 계층 (분모 = chunk 21 / 시도 12, ledger 기계 집계)
+## 5. 개선 지표 계층 (ledger 기계 집계)
+
+**분모 표기 규약**: `chunk-21` = C11 전행(ledger 21행) / **`non-gap 12`** = gap-9(NOT_STARTED) 제외, 실측·판단이 이뤄진 시도분. 비율 지표의 분모는 **non-gap 12** — gap-9는 판단 자체가 없어 divergence 여부를 셀 수 없으므로 분모에 넣으면 지표가 희석·왜곡된다. 결과 분포만 chunk-21 기준.
 
 | 지표 | 값 | 산식(ledger) |
 |---|---|---|
-| oracle divergence 발생률 | **10/12 (83%)** | attempted ∧ primary≠verbatim |
-| literal backfill 발생률 | **3/12 (25%)** — 실행 2(SST_013·PDM_044)+staged 1(SST_015) | any(literal_backfill) |
-| re-scope 필요 TC 수 | **6/12** (PDM_040~043·SST_012 + PDM_044 secondary) | any(re_scope) |
-| selector discovery 필요 TC 수 | **10/12 (83%)** | any(selector_discovery) |
-| element verifier 전환 TC 수 | **2/12** — 확정 1(MGN_001)+후보 1(PDM_040) | any(element_verifier) |
+| oracle divergence 발생률 | **10/non-gap 12 (83%)** | attempted ∧ primary≠verbatim |
+| literal backfill 발생률 | **3/non-gap 12 (25%)** — 실행 2(SST_013·PDM_044)+staged 1(SST_015) | any(literal_backfill) |
+| re-scope 필요 TC 수 | **6/non-gap 12** (PDM_040~043·SST_012 + PDM_044 secondary) | any(re_scope) |
+| selector discovery 필요 TC 수 | **10/non-gap 12 (83%)** | any(selector_discovery) |
+| element verifier 전환 TC 수 | **2/non-gap 12** — 확정 1(MGN_001)+후보 1(PDM_040) | any(element_verifier) |
 | fail-closed false-progress 방지 사례 | **1** (MGN_002 — 미상 hardkey 추측 실행 차단, v1·v2 일관) | primary=fail_closed |
-| 결과 분포 | TWO_RUN_GREEN **8** / NOTE **4** / NOT_STARTED **9** (=21) | result count |
+| 결과 분포 (chunk-21) | TWO_RUN_GREEN **8** / NOTE **4** / NOT_STARTED **9** (=21) | result count |
+
+**2026-07-02 후속 결정 반영**: PDM_040 primary `re_scope→spec_gap`·secondary `element_verifier→—`(ledger 갱신) — 재집계 시 re-scope 필요 6→5·element verifier 전환 2→1. SST_015 백필+2-run·SST_012 Quick Panel re-scope 백필+2-run 모두 TWO_RUN_GREEN — 결과 분포 재집계 시 TWO_RUN_GREEN 8→**10**·NOTE 4→**2**(잔여 PDM_040 spec-gap·MGN_002 fail-closed), literal backfill 3→4(SST_012 secondary 추가). 위 표는 리뷰 시점 스냅샷 — 불일치 시 ledger 우선(문서 서두 규약).
 
 ### 다음 batch(Part B 236) 작성 시 사전 개선 규칙
 
-- **R1 (launch 게이트, ⑤유형 차단)**: driver launch 후 "기대 화면 도달 게이트"(activity명 ∧ marker 요소) 필수 — 미충족 시 BACK-루프 self-heal 후 1회 재시도. 간편모드 타일은 task-resume 방식이므로 **stale 상태를 정상 입력으로 간주**하고 설계. [driver slice 필요]
-- **R2 (PENDING/ABSENT 경계)**: 목적지 도달+화면 로드 상태에서 expected literal 부재 = `LITERAL_PENDING`(백필 트리거), 도달 실패/화면 미로드 = `VERIFIER_FAILED`. 현 driver는 전자를 후자로 보고 — 재정의. [driver slice 필요]
+- **R1 (launch 게이트, ⑤유형 차단)**: driver launch 후 "기대 화면 도달 게이트"(activity명 ∧ marker 요소) 필수 — 미충족 시 BACK-루프 self-heal 후 1회 재시도. 간편모드 타일은 task-resume 방식이므로 **stale 상태를 정상 입력으로 간주**하고 설계. **[구현 2026-07-02 — thor2j driver v3: `sst_root_gate`(activity `.Settings` ∧ `설정 검색`) + `_sst_back_heal`(max 8)+1회 재시도, host-TDD]**
+- **R2 (PENDING/ABSENT 경계)**: 목적지 도달+화면 로드 상태에서 expected literal 부재 = `LITERAL_PENDING`(백필 트리거), 도달 실패/화면 미로드 = `VERIFIER_FAILED`. 현 driver는 전자를 후자로 보고 — 재정의. **[구현 2026-07-02 — driver v3: `literal_outcome` — 부수 효과로 root 잔존 시 literal 우연일치 false-PASS도 차단(미도달=PASS 승격 금지), host-TDD]**
 - **R3 (oracle 작성 규율)**: focus-이동형·요소 묘사형·영문 literal·공백 변형은 **discovery 선행 없이 oracle 승격 금지** — 15/21이 focus-이동형인 Part B 유사 chunk에서 divergence 83%가 재현될 것. 작성 순서 = 진입 표면 채록 → 위젯/포커스 모델 판별([[reference_alt_focus_widget_model]]) → literal/element 실측 → oracle 고정.
 - **R4 (부정 판단 금지)**: "항목 부재" 류 카탈로그 판단은 전체 스크롤 채록으로만 확정 (SST_015 '안심기능 부재' 오판 재발 방지 — 부분 캡처로 단정한 것이 오매핑 SST_016 후보까지 오염시켰음).
 - **R5 (nav label=title 동일군 우선)**: nav label과 목적지 title이 동일한 TC(SST_014형)는 divergence 저위험 — Part B 착수 시 이 군을 선행 실행해 창 수확을 조기 확보.

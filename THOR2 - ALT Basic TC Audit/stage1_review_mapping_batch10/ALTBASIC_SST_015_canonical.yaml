@@ -18,7 +18,9 @@ procedure_steps:
       target: "방향키로 Simple setting > 안심기능 tap"
       value: null
     expected:
-      - { type: verify_text, target: "안심기능", value: null }
+      # backfill: discovery_2026-07-02 실측(sst015_ansim_dest.xml) — 소스 '안심기능'(무공백)은 단말 실물
+      # root 항목·목적지 title '안심 기능'(공백, com.hnlens.safetyfeature/.ui.MainActivity). expected_result_raw 는 소스 보존.
+      - { type: verify_text, target: "안심 기능", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -26,7 +28,7 @@ procedure_steps:
     source_trace: { raw_segment: "방향키로 Simple setting > 안심기능 tap", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "Setting > 안심기능 메뉴에 진입할 것"
 expected_texts_candidate:
-  - "안심기능"
+  - "안심 기능"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

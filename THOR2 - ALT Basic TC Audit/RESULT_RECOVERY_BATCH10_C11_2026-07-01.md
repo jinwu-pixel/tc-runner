@@ -43,6 +43,42 @@ F0 sole 창 확보 → `RUNSHEET_C11_SST_MGN_2026-07-01.md` 절차대로 실행.
 - 실행: Appium 3.4.0(MSYS_NO_PATHCONV=1) + thor2j_appium venv. **helper 3종 설치→uninstall Success·잔존 0·pre 219 == post 219 (mutation 0)**. Appium 정지(4723 free). F0 sole 유지(B27 미접촉).
 - evidence: `thor2j-tc-appium/evidence/altbasic_batch10_c11_v2_20260701/{run1,run2}/{tc_id}/` + `results_run{1,2}.csv` (2026-07-02 행 append).
 
+## ★ v3 driver slice (2026-07-02 후속) — R1/R2 구현 + SST_015 회수 (C11 누적 9)
+
+PROCESS_REVIEW R1·R2를 host-TDD(RED→GREEN)로 driver에 반영 + SST_015 백필·fresh 2-run + PDM_040 결정.
+
+**R1 (launch root 게이트+self-heal, ⑤유형 차단)**: `altbasic_c11.sst_root_gate`(activity `.Settings` suffix ∧ `설정 검색` marker — sst_root_top.xml 실측) + driver `_sst_launch_root`(미충족 시 `_sst_back_heal` BACK-루프 max 8 → HOME → 재launch 1회 재시도, 재실패 = ENTRY_FAILED 사유 명시 + `root_gate_stale` 증거 dump). HOME 단독은 task 미종료(resume 동일 stale)라 BACK 종료 필수.
+
+**R2 (PENDING/ABSENT 경계 재정의)**: `altbasic_c11.literal_outcome` — 도달+로드 ∧ 전 literal = PASS / 도달+로드 ∧ 부재·일부 = `LITERAL_PENDING`(백필 트리거) / 미도달·미로드 = `VERIFIER_FAILED`. SST 도달판정 = `sst_dest_loaded`(dump 존재 ∧ root marker 이탈), APP gear 경로 = 기존 PersonalInfo 도달 게이트. **부수 수정: root 잔존 상태에서 literal 우연 일치 시 PASS 승격되던 잠재 false-PASS 차단**(host-TDD로 기존 결함 재현 후 수정). SST_013 유형(도달+로드 title 상이)은 이제 `LITERAL_PENDING`으로 정분류.
+
+**SST_015 백필+회수**: canonical `expected[].target`+`expected_texts_candidate` `안심기능→안심 기능`(discovery sst015_ansim_dest.xml 실측, `expected_result_raw` 소스 보존) + manifest 재생성(faithfulness 사전검증: 무편집 재생성 byte-identical → 편집 후 diff = SST_015 `verifier_candidates` 셀만) + nav label은 driver 정규화(`SST_NAV_BACKFILL` 안심기능→안심 기능, sst_root_p1.xml 실측). fresh 2-run:
+
+| tc_id | verifier | run1 | run2 | 판정 |
+|---|---|---|---|---|
+| SST_015 | literal `안심 기능`(backfill) | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+
+두 run 모두 R1 게이트 1차 통과(`root_gate_stale` 미발생 = fresh task 상태) — self-heal 경로는 host-TDD fake로 검증.
+
+**PDM_040 결정 = spec-gap 확정**: cold-launch 전체 dump(pdm040_main.xml) 실측 — `뒤로/back` 요소 0건 ∧ `focused="true"` 0건. oracle "최초 focus가 뒤로가기 버튼"의 두 술어(요소 존재·초기 focus) 모두 단말 대응물 부재 → PDM_041~044과 달리 보존할 의도 잔여 없음(타 요소로의 element_verifier 전환 = 발명) → **re-scope 기각, spec-gap**. driver `C11_SPEC_GAP` registry로 분류 시 `SPEC_GAP` 기록·단말 미접촉. ledger primary `re_scope→spec_gap` 갱신.
+
+- host-TDD: `tests/test_altbasic_c11.py` **36/36 GREEN** (신규 14: R1 게이트 5·R2 경계 4·SST_015 2·PDM_040 1·driver wiring fake 5 — RED 확인 후 구현). thor2j 전체 host suite에서 C11 외 실패는 본 변경 무관(altbasic_c11 참조 테스트 = test_altbasic_c11.py 유일).
+- 실행: Appium 3.4.0(MSYS_NO_PATHCONV=1) + thor2j_appium venv. **helper 3종 uninstall Success·잔존 0·pre 219 == post 219 (mutation 0)**. Appium 정지(4723 free). F0 sole(단독 연결 확인).
+- evidence: `thor2j-tc-appium/evidence/altbasic_batch10_c11_v2_20260701/{run1,run2}/ALTBASIC_SST_015/` + `results_run{1,2}.csv` append.
+
+### v3 후속 — SST_012 Quick Panel re-scope 회수 (2026-07-02, C11 누적 10)
+
+**위임 실행 모드**: 구현·단말 실행을 sonnet 서브에이전트 runbook 위임으로 수행(설계 잠금·grounded 값 사전 확정·결과 직접 재검증은 오케스트레이터). host-TDD RED 7(전건 의도 사유)→GREEN **41/41**.
+
+**re-scope (ledger decision=re_scope·literal_backfill)**: 소스 oracle(설정 내 WiFi tap→네트워크 및 인터넷/WiFi)의 F0 대응물 부재 확정 → 검증모델 = **Quick Panel(com.android.systemui) 열기 → Wi-Fi 타일 literal 노출 확인**(읽기 전용·토글 tap 0회). verifier literal 백필 `네트워크 및 인터넷 / WiFi → Wi-Fi`(실측 sst012_quickpanel_1.xml; 상태의존 `Wi-Fi, 켜짐` 제외 — 비단정 규칙). canonical `expected_result_raw` 보존, manifest faithfulness(무편집 byte-identical → diff=SST_012 verifier 셀만). driver = `SST_QUICKPANEL` disposition(`C11_QUICKPANEL_RESCOPE` registry) + `_run_sst_quickpanel`(`open_notifications()` 우선·좌표 swipe fallback·R2 `quickpanel_loaded` 게이트).
+
+| tc_id | verifier | run1 | run2 | 판정 |
+|---|---|---|---|---|
+| SST_012 | literal `Wi-Fi`(backfill·Quick Panel) | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+
+- pre-flight F0 sole·helper 0·pre 219 → run1/run2 → **helper 3종 uninstall Success·잔존 0·pre==post 219(mutation 0)**·4723 free. run dump 검증: `02_quickpanel.xml` systemui 133 노드·`text="Wi-Fi"` 존재.
+- evidence: `thor2j-tc-appium/evidence/altbasic_batch10_c11_v2_20260701/{run1,run2}/ALTBASIC_SST_012/` + `results_run{1,2}.csv` append.
+- **C11 잔여**: MGN_002(fail-closed 유지) · gap-9(authoring 큐). PDM_040 = spec-gap 종결. SST 5/5 전건 회수 완료.
+
 **동일 창 A-확장 discovery (non-mutating: dump/back/home + navigation tap만, toggle 0)** → `catalog/f0_c11_nav_2026-07-01/discovery_2026-07-02/` 10 dump:
 - **SST_015 정정**: 설정 root top-level에 **`안심 기능` 존재** (nav 카탈로그 "안심기능 부재"는 오판 — stale 스크롤/부분 캡처 추정). `안전 및 긴급 상황`은 **별개 항목**(긴급 SOS/의료 정보)으로 공존 = 기존 후보 매핑은 오매핑. `안심 기능` 진입 = `com.hnlens.safetyfeature/.ui.MainActivity`, title literal `안심 기능`, 항목 SOS 버튼/보호자 등록/안심 메시지/수신 차단 → **backfill 근거 확보, 무단말 재설계 가능**.
 - **SST_012**: Quick Panel(swipe, com.android.systemui)에 Wi-Fi 타일 실존(text `Wi-Fi`/`Wi-Fi, 켜짐`) — re-scope 경로 grounded. tap 0회(토글 변이 방지).

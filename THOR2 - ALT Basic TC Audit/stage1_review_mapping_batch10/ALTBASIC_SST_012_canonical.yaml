@@ -18,8 +18,12 @@ procedure_steps:
       target: "방향키로 Simple setting > WiFi tap"
       value: null
     expected:
-      - { type: verify_text, target: "네트워크 및 인터넷", value: null }
-      - { type: verify_text, target: "WiFi", value: null }
+      # re-scope 백필(2026-07-02): discovery_2026-07-02/sst012_quickpanel_1.xml 실측 —
+      # F0 설정 root에 WiFi 항목 부재 확정. Quick Panel(com.android.systemui)에 Wi-Fi 타일 실존.
+      # 검증표면을 "Quick Panel 열기 → Wi-Fi 타일 literal 노출 확인"으로 재정의(읽기전용, 토글 미접촉).
+      # "Wi-Fi, 켜짐"은 상태의존(토글 on/off에 따라 문구 변동)이라 verifier 제외 — "Wi-Fi" 단독만 사용.
+      # expected_result_raw 는 소스 원문 보존(재정의 사유는 본 주석 및 registry에 기록).
+      - { type: verify_text, target: "Wi-Fi", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -27,8 +31,7 @@ procedure_steps:
     source_trace: { raw_segment: "방향키로 Simple setting > WiFi tap", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "Setting > 네트워크 및 인터넷 > WiFi 메뉴에 진입할 것"
 expected_texts_candidate:
-  - "네트워크 및 인터넷"
-  - "WiFi"
+  - "Wi-Fi"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1
