@@ -1,0 +1,1644 @@
+{
+ "ALTBASIC_QPN_161": [
+  {
+   "tc_id": "ALTBASIC_QPN_161",
+   "title": "퀵 패널 화면 녹화 — OK 입력 시 시작 확인 팝업 노출 확인 (확정 미tap·취소 이탈)",
+   "preconditions": [
+    {
+     "text": "퀵 패널이 펼쳐진 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "퀵 패널 펼쳐진 상태로 진입",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 퀵 패널 (app_launch_unresolved)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "화면 녹화 항목에 focus 이동",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키 (화면 녹화 focus, anchor PENDING_F0)",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "화면 녹화 (focused, PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "Press Ok",
+     "intent": {
+      "type": "press_key",
+      "target": "OK 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "verify_text",
+      "target": "녹화를 시작 하겠습니까?"
+     }
+    },
+    {
+     "raw_text": "취소로 이탈 (녹화 미개시 = mutation 0)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로 하드키 (취소 이탈)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "녹화를 시작 하겠습니까? 팝업 노출된다.",
+   "expected_texts": [
+    "녹화를 시작 하겠습니까?"
+   ],
+   "verifier_type": "verify_text",
+   "focus_assert": "focus_position",
+   "safety_class": "NAVIGATION_ONLY",
+   "risk_note": "확인 팝업의 '시작' 확정 tap 금지 — presence·고정 literal만 관찰. 녹화 개시는 mutation이므로 마지막 step에서 back으로 반드시 이탈. 팝업 미이탈 시 잔류 위험.",
+   "cleanup_candidate": "back으로 팝업 취소 후 HOME 원복",
+   "redesign_removed": "원 REVIEW의 녹화 확정(mutation) 경로를 제거하고 popup presence 관찰 + 취소 이탈로 강등"
+  }
+ ],
+ "ALTBASIC_QPN_162": [
+  {
+   "tc_id": "ALTBASIC_QPN_162",
+   "title": "퀵 패널 화면 전송 — OK 입력 시 전송 팝업·설정 focus 노출 확인 (확정 미tap·취소 이탈)",
+   "preconditions": [
+    {
+     "text": "퀵 패널이 펼쳐진 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "퀵 패널 펼쳐진 상태로 진입",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 퀵 패널 (app_launch_unresolved)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "화면 전송 항목에 focus 이동",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키 (화면 전송 focus, anchor PENDING_F0)",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "화면 전송 (focused, PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "Press Ok",
+     "intent": {
+      "type": "press_key",
+      "target": "OK 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "verify_text",
+      "target": "기기로 화면 전송"
+     }
+    },
+    {
+     "raw_text": "취소로 이탈 (전송 미개시 = mutation 0)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로 하드키 (취소 이탈)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "기기로 화면 전송 팝업 노출되며 , 설정에 focus 된다.",
+   "expected_texts": [
+    "기기로 화면 전송"
+   ],
+   "verifier_type": "verify_text",
+   "focus_assert": "focus_position",
+   "safety_class": "NAVIGATION_ONLY",
+   "risk_note": "전송 '시작' 확정 tap 금지 — 팝업 presence 고정 literal만 관찰. '설정 버튼 focused' 보강 axis는 단말 의존·PENDING_F0이라 핵심 verify에서 제외(강등). 전송 개시 mutation 방지 위해 back 이탈 필수.",
+   "cleanup_candidate": "back으로 팝업 취소 후 HOME 원복",
+   "redesign_removed": "원 REVIEW의 '설정 focus' 보강 axis를 핵심 verify에서 강등하고 전송 확정(mutation) 경로 제거 — popup presence + 취소 이탈만 남김"
+  }
+ ],
+ "ALTBASIC_SET_002": [
+  {
+   "tc_id": "ALTBASIC_SET_002",
+   "title": "설정 검색 — 검색 TAP 시 필드 활성·하드키 IME 노출 확인 (입력 무·가역)",
+   "preconditions": [
+    {
+     "text": "설정 진입 가능 상태",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "설정 진입",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 설정 (app_launch_unresolved)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "1. 설정 > 검색 TAP 하드키",
+     "intent": {
+      "type": "tap",
+      "target": "검색 (anchor PENDING_F0)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "하드키 전용 IME 입력 윈도우 노드 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "검색 필드 활성·IME 노출 관찰 후 이탈 (입력/저장 없음)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로 하드키 (IME 닫고 이탈)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 검색 란 활성화 되면서 하드키 전용 IME 표시 확인",
+   "expected_texts": [],
+   "verifier_type": "element_presence",
+   "focus_assert": "none",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "검색 필드 활성화·IME 윈도우 presence만 관찰. 어떤 검색어도 입력·저장·발신 금지. IME 노출 자체가 기대 결과이므로 텍스트 주입 없이 노드 presence로 확인하고 back으로 가역 이탈.",
+   "cleanup_candidate": "back으로 IME 닫고 설정 메인 복귀 후 HOME 원복",
+   "redesign_removed": "원 REVIEW의 검색어 입력(비가역 input) 가정을 제거하고 IME 윈도우 노드 presence 관찰로 강등 — 입력/저장 0"
+  }
+ ],
+ "ALTBASIC_LCH_014": [
+  {
+   "tc_id": "ALTBASIC_LCH_014",
+   "title": "런처 Focus — 앱 메뉴 리스트 상/하 방향키 포커스 이동 확인 (선택만·삭제 금지)",
+   "preconditions": [
+    {
+     "text": "홈 화면 포커스되지 않은 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "홈 메인화면 페이지 진입",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 홈 메인화면 (app_launch_unresolved)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "1. 홈 메인화면 페이지 > 네비키 또는 OK키 입력 > OK키 길게 입력",
+     "intent": {
+      "type": "press_key",
+      "target": "OK 하드키 (앱 메뉴 리스트 진입, 길게)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "앱 메뉴 리스트 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "2. 하방향키 입력 > 하방향키 입력 (하방향 포커스 이동)",
+     "intent": {
+      "type": "press_key",
+      "target": "하방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "앱 메뉴 리스트 (하방향 focus advance, PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "상방향키 입력 > 상방향키 입력 (상방향 포커스 이동)",
+     "intent": {
+      "type": "press_key",
+      "target": "상방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "앱 메뉴 리스트 (상방향 focus regress, PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "취소/back으로 홈 복귀 (항목 미삭제)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로 하드키 (취소 이탈)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 앱 메뉴 리스트에서 하방향으로 포커스 이동된다\n2. 하단 리스트에서 상방향으로 포커스 이동된다",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_move",
+   "safety_class": "SELECTION_GATED",
+   "risk_note": "방향키 focus 이동만 관찰 — OK 확정·앱 편집(이동/삭제) 금지. OK 길게 입력이 편집 모드 진입이면 항목 위치 변경 위험이므로 어떤 항목도 tap·드롭 금지하고 back으로 이탈. 항목 미삭제 보장.",
+   "cleanup_candidate": "back으로 편집/메뉴 종료 후 HOME 원복 (항목 위치 불변 확인)",
+   "redesign_removed": "원 REVIEW의 OK 확정 후 앱 편집(이동/삭제 mutation) 경로를 제거하고 focus_move 관찰 + 취소 이탈로 강등"
+  }
+ ],
+ "ALTBASIC_LCH_015": [
+  {
+   "tc_id": "ALTBASIC_LCH_015",
+   "title": "런처 Focus — 앱 선택 후 Back 시 메뉴 닫힘·앱 포커스 유지 확인 (선택만·이탈 가역)",
+   "preconditions": [
+    {
+     "text": "홈 화면 포커스되지 않은 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "홈 메인화면 페이지 진입",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 홈 메인화면 (app_launch_unresolved)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "1. 네비키 또는 OK키 입력 > 하방향키 입력 > 하방향키 입력 (앱 메뉴 진입·포커스 이동)",
+     "intent": {
+      "type": "press_key",
+      "target": "하방향키 (앱 메뉴 focus 이동)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "앱 메뉴 화면 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "OK키 길게 입력 (대상 앱 선택)",
+     "intent": {
+      "type": "press_key",
+      "target": "OK 하드키 (길게, 대상 앱 focus)",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "대상 앱 타일 (focused, PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "2. Back 또는 지움/취소 하드키 입력한다",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로 하드키 (취소 이탈)",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "원 출발 앱 타일 (focus_retained, 앱 메뉴 화면 absent, PENDING_F0)"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 앱 메뉴화면 사라지고 해당 앱에 포커스 위치 된다",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_retained",
+   "safety_class": "SELECTION_GATED",
+   "risk_note": "Back 후 앱 메뉴 화면 absent + 출발 앱 타일 focus 유지만 관찰. OK 길게 입력이 편집/실행 모드면 어떤 확정도 금지 — focus 유지 관찰 후 즉시 back 이탈로 가역 보장. 앱 이동/삭제 mutation 0.",
+   "cleanup_candidate": "back으로 메뉴 종료 후 HOME 원복 (앱 위치·포커스 불변 확인)",
+   "redesign_removed": "원 REVIEW의 OK 확정 후 앱 실행/편집(mutation) 경로를 제거하고 Back 후 focus_retained·메뉴 absent 관찰로 강등"
+  }
+ ],
+ "ALTBASIC_LCH_025": [
+  {
+   "tc_id": "ALTBASIC_LCH_025",
+   "title": "단축다이얼 Focus — OK 입력 시 등록 팝업 발생 확인 (팝업 presence만 관찰·취소 이탈, 등록 mutation 0)",
+   "preconditions": [
+    {
+     "text": "포커스 되지 않은 상태",
+     "blocking": false
+    },
+    {
+     "text": "단축 다이얼 등록되지 않은 상태",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "홈화면 진입 (app-domain anchor MISSING — entry app_launch_unresolved)",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 홈화면",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "네비키 또는 OK키 입력",
+     "intent": {
+      "type": "press_key",
+      "target": "OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "하방향키 입력 → 단축다이얼 화면 도달",
+     "intent": {
+      "type": "press_key",
+      "target": "DOWN",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "단축다이얼 화면에서 OK키 입력 → 단축 다이얼 등록 팝업 발생",
+     "intent": {
+      "type": "press_key",
+      "target": "OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "PENDING_F0 (단축 다이얼 등록 팝업 node)"
+     }
+    },
+    {
+     "raw_text": "등록 팝업을 취소/back으로 이탈 (확정 tap 금지 = 등록 mutation 0)",
+     "intent": {
+      "type": "press_key",
+      "target": "BACK",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "PENDING_F0 (단축 다이얼 등록 팝업 부재 — 이탈 확인)"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 단축 다이얼 등록 팝업 발생한다.",
+   "expected_texts": [
+    "단축 다이얼 등록 팝업"
+   ],
+   "verifier_type": "element_presence",
+   "focus_assert": "none",
+   "safety_class": "NAVIGATION_ONLY",
+   "risk_note": "등록 팝업의 확정(OK) tap 금지 — presence만 관찰하고 BACK으로 이탈한다. 팝업을 확정하면 단축 다이얼 항목이 실제 등록(mutation)되므로 절대 진행 금지. 이탈 누락 시 다음 TC 상태 오염 경고.",
+   "cleanup_candidate": "BACK으로 팝업 dismiss → 필요 시 HOME 원복 (등록 항목 미생성 확인)",
+   "redesign_removed": "원 REVIEW의 mutation 위험(등록 확정 가능성)을 제거 — presence-only + 취소 이탈로 강등, 등록 written 0 보장"
+  }
+ ],
+ "ALTBASIC_CAL_292": [
+  {
+   "tc_id": "ALTBASIC_CAL_292",
+   "title": "연락처 검색 하드키 — OK 입력 시 검색창 focus 활성 확인 (focus_position만 관찰, IME 픽셀 미주장)",
+   "preconditions": [
+    {
+     "text": "즐겨찾기된 연락처 없는 상태",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "전화/연락처 앱 진입 (app-domain anchor MISSING — entry app_launch_unresolved)",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 전화 > 연락처",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "연락처 검색 focus",
+     "intent": {
+      "type": "navigate",
+      "target": "연락처 검색창",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "press ok → 연락처 검색창 활성화 (focus = 검색 EditText)",
+     "intent": {
+      "type": "press_key",
+      "target": "OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "PENDING_F0 (연락처 검색 EditText — focused/active)"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 연락처 검색창 활성화되며, 키패드 올라온다.",
+   "expected_texts": [
+    "연락처 검색창 활성화"
+   ],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_position",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "검색창 활성 후 텍스트 입력·저장·발신 금지 — focus 활성 상태만 관찰한다. IME(키패드 픽셀)는 단말 의존 보강 axis이므로 verify 대상 아님. 이탈 시 BACK으로 검색창/IME 닫음.",
+   "cleanup_candidate": "BACK으로 검색창/키패드 닫기 → HOME 원복",
+   "redesign_removed": "원 expected의 비결정 verifier(IME 키패드 픽셀 관찰)를 보강 axis로 강등 — 핵심 focus_position만 verify"
+  }
+ ],
+ "ALTBASIC_CAL_359": [
+  {
+   "tc_id": "ALTBASIC_CAL_359",
+   "title": "다이얼 하드키 — 지움/취소 키로 입력 숫자 삭제·focus 유지 확인 (가역 입력·발신 금지)",
+   "preconditions": [
+    {
+     "text": "전화 > 키패드 버튼 탭",
+     "blocking": false
+    },
+    {
+     "text": "숫자를 입력한다 (가역·비저장 transient 입력)",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "전화 앱 진입 후 키패드 진입 (app-domain anchor MISSING — entry app_launch_unresolved)",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 전화 > 키패드",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "전화번호 입력칸에 숫자 입력 (transient — 발신·저장 금지)",
+     "intent": {
+      "type": "tap",
+      "target": "PENDING_F0 (키패드 숫자)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "PENDING_F0 (전화번호 입력칸 text 비어있지 않음)"
+     }
+    },
+    {
+     "raw_text": "지움/취소 하드키를 누른다 → 입력 숫자 사라지고 초점은 입력칸 유지",
+     "intent": {
+      "type": "press_key",
+      "target": "BACK",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "PENDING_F0 (전화번호 입력칸 EditText — text empty & 여전히 focused)"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 입력했던 숫자가 사라지며 초점포인트는 여전히 전화번호 입력칸에 유지된다.",
+   "expected_texts": [
+    "입력했던 숫자가 사라지며",
+    "전화번호 입력칸에 유지"
+   ],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_retained",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "숫자 입력은 가역(지움/취소로 clear)·비저장 — 통화키/발신 금지. 입력 후 display·field text 관찰만. 통화 발신 시 단말 상태 오염. 이탈 시 입력칸 비우고 BACK.",
+   "cleanup_candidate": "지움/취소로 입력칸 clear → BACK → HOME 원복",
+   "redesign_removed": "원 REVIEW의 비저장 보장 부재 위험을 제거 — transient 입력+지움 가역성 명시, 발신 mutation 0"
+  }
+ ],
+ "ALTBASIC_CAL_360": [
+  {
+   "tc_id": "ALTBASIC_CAL_360",
+   "title": "다이얼 하드키 — 위 방향키로 연락처 추가 버튼 focus 이동 확인 (핵심 focus_move만 verify, 커서 위치는 보강 강등)",
+   "preconditions": [
+    {
+     "text": "전화 > 키패드 버튼 탭",
+     "blocking": false
+    },
+    {
+     "text": "숫자를 입력한다 (가역·비저장 transient 입력)",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "전화 앱 진입 후 키패드 진입 (app-domain anchor MISSING — entry app_launch_unresolved)",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 전화 > 키패드",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "전화번호 입력칸에 숫자 입력 (transient — 발신·저장 금지)",
+     "intent": {
+      "type": "tap",
+      "target": "PENDING_F0 (키패드 숫자)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "PENDING_F0 (전화번호 입력칸 text 비어있지 않음)"
+     }
+    },
+    {
+     "raw_text": "위 하드키를 누른다 → 포커스 '연락처 추가' 버튼으로 이동 (핵심 axis)",
+     "intent": {
+      "type": "press_key",
+      "target": "UP",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "PENDING_F0 ('연락처 추가' 버튼 — focused=true)"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 포커스 연락처 추가 버튼으로 이동한다.\n2. 입력된 전화번호 맨 앞으로 커서 이동된다.",
+   "expected_texts": [
+    "연락처 추가"
+   ],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_move",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "'연락처 추가' 버튼 OK 확정 금지 — 포커스 이동만 관찰한다(확정 시 연락처 추가 화면 진입/저장 mutation). 숫자는 transient·발신 금지. 이탈 시 입력칸 clear 후 BACK.",
+   "cleanup_candidate": "입력칸 clear → BACK → HOME 원복",
+   "redesign_removed": "원 expected 2번(전화번호 맨 앞 커서 이동)을 단말 의존 보강 axis로 강등 — 핵심 axis(연락처 추가 버튼 focus_move)만 verify"
+  }
+ ],
+ "ALTBASIC_CAL_365": [
+  {
+   "tc_id": "ALTBASIC_CAL_365",
+   "title": "다이얼 하드키 — 지움/취소 버튼으로 숫자 한자리씩 삭제 확인 (가역 입력·발신 금지)",
+   "preconditions": [
+    {
+     "text": "전화 > 키패드 버튼 탭",
+     "blocking": false
+    },
+    {
+     "text": "숫자를 입력한다 (가역·비저장 transient 입력)",
+     "blocking": false
+    },
+    {
+     "text": "초점 포인트가 전화번호 검색창에 있다",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "전화 앱 진입 후 키패드 진입 (app-domain anchor MISSING — entry app_launch_unresolved)",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 전화 > 키패드",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "전화번호 검색창에 알려진 숫자열 입력 (transient — 발신·저장 금지)",
+     "intent": {
+      "type": "tap",
+      "target": "PENDING_F0 (키패드 숫자)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "PENDING_F0 (전화번호 입력칸 text == 입력 숫자열)"
+     }
+    },
+    {
+     "raw_text": "지움/취소 버튼 하드키를 누른다 → 입력 번호가 한자리씩 사라짐 (N회 → 원본 minus 마지막 N자리)",
+     "intent": {
+      "type": "press_key",
+      "target": "BACK",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "PENDING_F0 (전화번호 입력칸 text == 원본 minus 마지막 N자리)"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 입력되었던 번호가 버튼을 누름에 따라 한자리씩 사라진다.",
+   "expected_texts": [
+    "한자리씩 사라진다"
+   ],
+   "verifier_type": "element_presence",
+   "focus_assert": "none",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "숫자 입력·삭제는 가역·비저장 — 통화키/발신 금지. 지움 키마다 field text 한자리 감소 관찰만. 발신 시 단말 상태 오염. 이탈 시 입력칸 완전 clear 후 BACK.",
+   "cleanup_candidate": "지움 키 반복으로 입력칸 완전 clear → BACK → HOME 원복",
+   "redesign_removed": "원 REVIEW의 비결정 verifier(한자리씩 사라짐 서술)를 결정적 field-text 비교(원본 minus 마지막 N자리)로 고정 — transient·비발신 명시"
+  }
+ ],
+ "ALTBASIC_CAL_366": [
+  {
+   "tc_id": "ALTBASIC_CAL_366",
+   "title": "전화 키패드 하드키 입력 — 영문/문자 입력 시 검색창 포커스 유지 확인 (가역 입력·저장/발신 금지)",
+   "preconditions": [
+    {
+     "text": "전화 > 키패드 버튼 탭하여 키패드 진입",
+     "blocking": true
+    },
+    {
+     "text": "숫자를 입력하여 초점 포인트가 전화번호 검색창에 있는 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 전화 앱 키패드로 진입한다.",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 전화 > 키패드",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "2. 숫자를 입력하여 초점 포인트를 전화번호 검색창에 둔다.",
+     "intent": {
+      "type": "press_key",
+      "target": "전화번호 검색창 (PENDING_F0)",
+      "value": "numeric"
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "전화번호 검색창 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "1. 영어나 문자를 입력한다.",
+     "intent": {
+      "type": "press_key",
+      "target": "전화번호 검색창 (PENDING_F0)",
+      "value": "letter"
+     },
+     "verify": {
+      "kind": "verify_text",
+      "target": "검색 결과가 없습니다"
+     }
+    },
+    {
+     "raw_text": "입력 가역 원복 — 입력값 clear / back 이탈 (저장·발신 금지).",
+     "intent": {
+      "type": "press_key",
+      "target": "전화번호 검색창 (PENDING_F0)",
+      "value": "clear"
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 초점포인트는 여전히 전화번호 검색창에 있다.\n2. 검색 결과가 없습니다. 화면이 전화번호 리스트 대신 노출된다.",
+   "expected_texts": [
+    "검색 결과가 없습니다"
+   ],
+   "verifier_type": "verify_text",
+   "focus_assert": "focus_invariant",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "입력은 가역(clear/back)·비저장. 확정/발신/저장 금지. 검색창 포커스 불변(focus_invariant)이 핵심 axis, '검색 결과가 없습니다' literal은 고정 verify. 종료 시 입력 clear 후 이탈.",
+   "cleanup_candidate": "입력값 clear → back → HOME 원복",
+   "redesign_removed": "원 REVIEW의 mutation 위험(영문 입력 후 발신/저장 가능성)을 가역 clear step으로 제거하고 비결정 검색결과 verifier를 고정 literal '검색 결과가 없습니다'로 강등"
+  }
+ ],
+ "ALTBASIC_CAL_369": [
+  {
+   "tc_id": "ALTBASIC_CAL_369",
+   "title": "전화 키패드 하드키 동작 — Up+Right 더보기 메뉴 포커스 이동 확인 (항목 선택 금지·취소 이탈)",
+   "preconditions": [
+    {
+     "text": "전화 > 키패드 버튼 탭하여 키패드 진입",
+     "blocking": true
+    },
+    {
+     "text": "초점 포인트가 전화번호 입력창에 있는 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 전화 앱 키패드로 진입하고 초점을 전화번호 입력창에 둔다.",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 전화 > 키패드",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "전화번호 입력창 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "1. Press Up",
+     "intent": {
+      "type": "press_key",
+      "target": "더보기 아이콘 (PENDING_F0)",
+      "value": "up"
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "1. Press right",
+     "intent": {
+      "type": "press_key",
+      "target": "더보기 메뉴 (PENDING_F0)",
+      "value": "right"
+     },
+     "verify": {
+      "kind": "verify_text",
+      "target": "메시지 보내기"
+     }
+    },
+    {
+     "raw_text": "더보기 리스트 노출 및 '메시지 보내기' 포커스 확인 (항목 tap 금지).",
+     "intent": {
+      "type": "wait",
+      "target": "더보기 리스트 (PENDING_F0)",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "메시지 보내기 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "메뉴 항목 확정 없이 back 으로 이탈 (mutation 0).",
+     "intent": {
+      "type": "press_key",
+      "target": "더보기 리스트 (PENDING_F0)",
+      "value": "back"
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 더보기 아이콘으로 초점 포인트가 이동한다.\n2. 더보기 리스트가 열리며 메시지 보내기 /2초간 일시중지 추가 / 대기 시간 추가 / 단축다이얼 / 설정 리스트가 노출된다.\n3. 초점 포인트는 메시지보내기 에 활성화 되어 있다.",
+   "expected_texts": [
+    "메시지 보내기",
+    "2초간 일시중지 추가",
+    "대기 시간 추가",
+    "단축다이얼",
+    "설정"
+   ],
+   "verifier_type": "verify_text",
+   "focus_assert": "focus_move",
+   "safety_class": "SELECTION_GATED",
+   "risk_note": "더보기 리스트는 presence·고정 literal만 관찰. 어떤 항목도 tap/확정 금지(mutation 0). 포커스 이동(메시지 보내기 활성)과 5개 고정 라벨 노출이 핵심 axis. 종료 시 항목 미선택 back 이탈.",
+   "cleanup_candidate": "back → HOME 원복",
+   "redesign_removed": "원 REVIEW의 메뉴 항목 선택 mutation 위험을 마지막 취소(back) step으로 제거 — 더보기 리스트는 presence/literal 관찰만 수행"
+  }
+ ],
+ "ALTBASIC_CLK_016": [
+  {
+   "tc_id": "ALTBASIC_CLK_016",
+   "title": "시계 타이머 하드키 입력 — 숫자 입력 시 분 영역 반영 확인 (가역 입력·타이머 시작 금지)",
+   "preconditions": [
+    {
+     "text": "설정된 타이머 없음",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "시계 > 타이머 로 진입한다.",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 시계 > 타이머",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "분 입력 필드 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "Press Any numeric — 숫자를 입력한다.",
+     "intent": {
+      "type": "press_key",
+      "target": "분 입력 필드 (PENDING_F0)",
+      "value": "numeric"
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "분 입력 필드 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "입력 가역 원복 — 입력값 clear / back 이탈 (타이머 시작 금지).",
+     "intent": {
+      "type": "press_key",
+      "target": "분 입력 필드 (PENDING_F0)",
+      "value": "clear"
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 00분 영역에 숫자 입력된다.\n2. 숫자 입력은 시간 표기법에 맞게 입력 가능하다.",
+   "expected_texts": [],
+   "verifier_type": "element_presence",
+   "focus_assert": "none",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "숫자 입력은 가역(clear/back)·비저장. 타이머 시작/저장 금지. 입력 직후 분 입력 필드 element text가 입력 숫자를 포함함을 관찰만(핵심 axis). 종료 시 입력 clear 후 이탈.",
+   "cleanup_candidate": "입력값 clear → back → HOME 원복",
+   "redesign_removed": "원 REVIEW의 타이머 시작 mutation 위험을 가역 clear step으로 제거하고 입력값 verify를 필드 element 관찰(presence)로 강등 — 구체 입력 숫자는 PENDING_F0 발명 금지"
+  }
+ ],
+ "ALTBASIC_CLK_030": [
+  {
+   "tc_id": "ALTBASIC_CLK_030",
+   "title": "시계 스톱워치 하드키 동작 — Press Left 타이머 탭 이동 확인 (포커스/선택만·실행 금지)",
+   "preconditions": [
+    {
+     "text": "스톱워치에서 재생버튼에 최초 포커스 된 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "시계 > 스톱워치 로 진입하여 재생버튼에 최초 포커스를 둔다.",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 시계 > 스톱워치",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "재생버튼 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "Press Left",
+     "intent": {
+      "type": "press_key",
+      "target": "타이머 탭 (PENDING_F0)",
+      "value": "left"
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "타이머 탭 (PENDING_F0)"
+     }
+    }
+   ],
+   "expected_result_raw": "타이머탭으로 이동됨",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_move",
+   "safety_class": "SELECTION_GATED",
+   "risk_note": "Left 후 타이머 탭이 selected/focused 상태임만 관찰(핵심 axis). 탭 확정/실행 금지. 보강 관찰(탭 내용 전환 등 단말 의존)은 risk_note 강등. 종료 시 back 이탈.",
+   "cleanup_candidate": "back → HOME 원복",
+   "redesign_removed": "원 REVIEW의 비결정 화면전환 verifier를 핵심 axis(타이머 탭 focus_state)만 verify로 한정하고 보강 axis(탭 콘텐츠 전환)는 risk_note로 강등"
+  }
+ ],
+ "ALTBASIC_CLK_031": [
+  {
+   "tc_id": "ALTBASIC_CLK_031",
+   "title": "시계 스톱워치 하드키 동작 — Press Right 더보기 버튼 포커스 이동 확인 (포커스/선택만·실행 금지)",
+   "preconditions": [
+    {
+     "text": "스톱워치에서 재생버튼에 최초 포커스 된 상태",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "시계 > 스톱워치 로 진입하여 재생버튼에 최초 포커스를 둔다.",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 시계 > 스톱워치",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "재생버튼 (PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "Press Right",
+     "intent": {
+      "type": "press_key",
+      "target": "더보기 버튼 (PENDING_F0)",
+      "value": "right"
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "더보기 버튼 (PENDING_F0)"
+     }
+    }
+   ],
+   "expected_result_raw": "더보기 버튼으로 포커스 이동",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_move",
+   "safety_class": "SELECTION_GATED",
+   "risk_note": "Right 후 더보기 버튼이 focus_state=focused 상태임만 관찰(핵심 axis). 버튼 tap/확정/실행 금지(더보기 메뉴 열기 mutation 회피). 보강 관찰은 risk_note 강등. 종료 시 back 이탈.",
+   "cleanup_candidate": "back → HOME 원복",
+   "redesign_removed": "원 REVIEW의 비결정 화면전환 verifier를 핵심 axis(더보기 버튼 focus_state)만 verify로 한정하고 버튼 확정(더보기 열기) mutation을 selection-gated로 제거"
+  }
+ ],
+ "ALTBASIC_CALC_020": [
+  {
+   "tc_id": "ALTBASIC_CALC_020",
+   "title": "계산기 하드키 숫자 입력 — 디스플레이 텍스트 확인 (입력은 가역·비저장, 발신/저장 금지)",
+   "preconditions": [
+    {
+     "text": "계산기 앱 진입 (launcher 경로, anchor MISSING — app_launch_unresolved)",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 계산기 > 하드키로 숫자 입력",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "하드키로 숫자 입력",
+     "intent": {
+      "type": "press_key",
+      "target": "숫자 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "verify_text",
+      "target": "계산기 디스플레이 (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "입력 원복 (clear/back 가역)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 숫자 정상적으로 입력된다.",
+   "expected_texts": [],
+   "verifier_type": "verify_text",
+   "focus_assert": "none",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "하드키 숫자 입력만 — '=' 확정·발신·저장 금지(mutation 0). 입력 후 디스플레이 텍스트 관찰만 하고 back/clear로 가역 이탈. 디스플레이 selector·literal 발명 금지(PENDING_F0).",
+   "cleanup_candidate": "back/clear로 입력 원복 후 HOME",
+   "redesign_removed": "원 REVIEW의 암묵 fixture(계산기 진입 anchor)와 selector 미상 verifier를 PENDING_F0로 명시 강등, 비가역 확정(=) 제거"
+  }
+ ],
+ "ALTBASIC_CALC_021": [
+  {
+   "tc_id": "ALTBASIC_CALC_021",
+   "title": "계산기 하드키 focus — 최초 focus AC 버튼 위치 확인 (선택만, OK 확정 금지)",
+   "preconditions": [
+    {
+     "text": "계산기 앱 진입 (launcher 경로, anchor MISSING — app_launch_unresolved)",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 계산기 > 숫자 입력 > Press any direction or OK",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "숫자 입력",
+     "intent": {
+      "type": "press_key",
+      "target": "숫자 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "Press any direction or OK",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "AC 버튼 (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "입력 원복 (back 가역)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 최초 focus AC버튼에 위치한다.",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_position",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "방향키 진입은 focus 위치 관찰만 — OK로 AC 확정 실행 금지(mutation 0). 숫자 입력은 가역, 발신/저장 금지. AC 버튼 selector 발명 금지(PENDING_F0). focus 위치 확인 후 back 이탈.",
+   "cleanup_candidate": "back으로 입력 원복 후 HOME",
+   "redesign_removed": "원 REVIEW의 비결정 focus verifier를 focus_position+PENDING_F0로 명시화, OK 확정 실행 제거(선택만)"
+  }
+ ],
+ "ALTBASIC_CALC_022": [
+  {
+   "tc_id": "ALTBASIC_CALC_022",
+   "title": "계산기 하드키 focus — 행 끝단 비루프(경계 정지) 확인 (선택만, 경계서 focus 불변)",
+   "preconditions": [
+    {
+     "text": "계산기 앱 진입 (launcher 경로, anchor MISSING — app_launch_unresolved)",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 계산기 > 숫자 입력 > Press any direction or OK",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "숫자 입력",
+     "intent": {
+      "type": "press_key",
+      "target": "숫자 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "Press any direction or OK (focus 진입)",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "focused 요소 (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "2. Press right /left 반복 (행 끝단 도달)",
+     "intent": {
+      "type": "press_key",
+      "target": "오른쪽 방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "행 끝단 focused 요소 비루프 불변 (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "입력 원복 (back 가역)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. Focus가 행에 따라 이동한다.\n2. 끝에 도착 시 Loop 동작하지 않는다.",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_boundary_stop",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "핵심 axis = 행 끝단 비루프(focus_boundary_stop) 자동 검증. '행에 따라 이동' 보강 axis는 단말 행 레이아웃 의존 — risk_note 강등(PASS blocker 아님). 좌우 방향키는 focus 이동 관찰만, OK 확정 금지(mutation 0). 끝단 도달 좌표 selector 발명 금지(PENDING_F0).",
+   "cleanup_candidate": "back으로 입력 원복 후 HOME",
+   "redesign_removed": "원 expected 다중 관찰을 핵심(경계 비루프)/보강(행별 이동) axis로 split하여 단말 의존 보강 axis를 강등, 좌표 매칭 verifier를 PENDING_F0로 명시"
+  }
+ ],
+ "ALTBASIC_CALC_023": [
+  {
+   "tc_id": "ALTBASIC_CALC_023",
+   "title": "계산기 하드키 focus — 더보기 선택 후 공학용 계산기 전환 확인 (패널 presence 핵심, 입력은 가역)",
+   "preconditions": [
+    {
+     "text": "계산기 앱 진입 (launcher 경로, anchor MISSING — app_launch_unresolved)",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 계산기 > 숫자 입력 > Press any direction or OK",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "숫자 입력",
+     "intent": {
+      "type": "press_key",
+      "target": "숫자 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "Press any direction or OK (focus 진입)",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "2. Press right > 숫자패드 더보기 focus",
+     "intent": {
+      "type": "press_key",
+      "target": "오른쪽 방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "더보기 (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "3. Press OK (공학용 전환)",
+     "intent": {
+      "type": "press_key",
+      "target": "OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "공학용 계산기 패널 (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "입력 원복 (back 가역)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 숫자패드가 공학용 계산기로 전환된다.\n2. 하드키로 숫자 입력 시 정상적으로 입력된다.",
+   "expected_texts": [],
+   "verifier_type": "element_presence",
+   "focus_assert": "focus_position",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "핵심 axis = 공학용 패널 전환 element-presence 자동 검증. '하드키 숫자 입력 정상' 보강 axis는 추가 입력 관찰 의존 — risk_note 강등. 여기서 OK는 모드 전환(더보기) 진입용 한정, 계산 확정/발신/저장 아님(mutation 0). 패널·더보기 selector 발명 금지(PENDING_F0). 확인 후 back 이탈.",
+   "cleanup_candidate": "back으로 기본 계산기 복귀 후 입력 원복·HOME",
+   "redesign_removed": "원 expected 2축을 핵심(공학용 패널 presence)/보강(입력 정상) split, 보강축 강등 + 더보기/패널 verifier를 PENDING_F0로 명시"
+  }
+ ],
+ "ALTBASIC_CALC_024": [
+  {
+   "tc_id": "ALTBASIC_CALC_024",
+   "title": "공학용 계산기 하드키 focus — 최초 focus INV 위치 확인 (선택만, OK 확정 금지)",
+   "preconditions": [
+    {
+     "text": "계산기 앱 진입 + 공학용 계산기 전환 (launcher 경로, anchor MISSING — app_launch_unresolved)",
+     "blocking": true
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 공학용 계산기 > 하드키 숫자 누름 > Press any direction or OK",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기 > 공학용 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "하드키 숫자 누름",
+     "intent": {
+      "type": "press_key",
+      "target": "숫자 하드키",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "Press any direction or OK",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "INV (selector PENDING_F0)"
+     }
+    },
+    {
+     "raw_text": "입력 원복 (back 가역)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. 최초 focus INV에 위치한다.",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_position",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "방향키 진입 후 INV 요소 focus 위치 관찰만 — OK로 INV 확정 실행 금지(mutation 0). 공학용 전환·숫자 입력 모두 가역, 발신/저장 금지. INV selector 발명 금지(PENDING_F0). 확인 후 back 이탈.",
+   "cleanup_candidate": "back으로 입력 원복·기본 계산기 복귀 후 HOME",
+   "redesign_removed": "원 REVIEW의 암묵 fixture(공학용 전환 선행 상태)를 precondition으로 명시, 비결정 focus verifier를 focus_position+PENDING_F0로 명시, OK 확정 제거"
+  }
+ ],
+ "ALTBASIC_CALC_027": [
+  {
+   "tc_id": "ALTBASIC_CALC_027",
+   "title": "공학용 계산기 하드키 focus — 뒤로가기 focus서 OK 시 일반 숫자패드·더보기 focus 확인 (focus/presence 관찰만·확정 tap 금지)",
+   "preconditions": [
+    {
+     "text": "—",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 공학용 계산기 > 뒤로가기 focus > Press Ok",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기 > 공학용 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "뒤로가기 focused 요소서 OK 입력 (selection_gated — 일반 숫자패드 전환만, 확정 tap 금지)",
+     "intent": {
+      "type": "press_key",
+      "target": "OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "숫자패드 더보기"
+     }
+    },
+    {
+     "raw_text": "일반 숫자패드 패널 presence + focused='숫자패드 더보기' 관찰 후 Back 이탈 (mutation 0)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로(Back)",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "일반 숫자패드"
+     }
+    }
+   ],
+   "expected_result_raw": "1. 일반 숫자패드 노출되며, focus 숫자패드 더보기에 노출된다.",
+   "expected_texts": [
+    "숫자패드 더보기",
+    "일반 숫자패드"
+   ],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_created",
+   "safety_class": "SELECTION_GATED",
+   "risk_note": "뒤로가기 focus서 OK로 일반 숫자패드 노출·더보기 focus 관찰만 — 패널 내 버튼 확정 tap/계산 실행 금지, focus 상태 비단정. 관찰 후 Back 이탈. selector 값 발명 금지(PENDING_F0).",
+   "cleanup_candidate": "Back으로 일반 숫자패드 이탈→계산기 종료 후 HOME 복귀",
+   "redesign_removed": "원 REVIEW의 OK 후 확정 tap/계산 mutation 위험을 제거 — OK는 숫자패드 전환만(selection_gated), focus_created + presence 관찰로 한정."
+  }
+ ],
+ "ALTBASIC_CALC_028": [
+  {
+   "tc_id": "ALTBASIC_CALC_028",
+   "title": "공학용 계산기 하드키 focus — 숫자 입력 후 상하 반복 시 열 focus 이동·끝단 비루프 확인 (가역 입력·저장/발신 금지)",
+   "preconditions": [
+    {
+     "text": "—",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "1. 계산기 >  숫자 입력 > Press any direction or OK",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 계산기",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "숫자 입력(가역·비저장) 후 방향키 또는 OK 진입 (transient_input — clear/back 가역, 등호/계산 실행 금지)",
+     "intent": {
+      "type": "press_key",
+      "target": "숫자 입력 후 방향키/OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "focused=true 요소(열 이동)"
+     }
+    },
+    {
+     "raw_text": "2. Press down / up 반복 — focused=true 요소 열 이동 + 열 끝단 도달 후 focused 불변(비루프) 관찰",
+     "intent": {
+      "type": "press_key",
+      "target": "down/up 반복",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "열 끝단 focused 불변(비루프)"
+     }
+    },
+    {
+     "raw_text": "입력값 clear(또는 Back)로 가역 원복 — 저장/발신/통화 금지",
+     "intent": {
+      "type": "press_key",
+      "target": "clear/Back",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "1. Focus가 열에 따라 이동한다. / 2. 끝에 도착 시 Loop 동작하지 않는다.",
+   "expected_texts": [],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_boundary_stop",
+   "safety_class": "INPUT_TRANSIENT",
+   "risk_note": "하드키 숫자 입력은 가역(clear/back)·비저장 — 등호/계산 실행·결과 저장·발신·통화 금지. focused 요소 열 이동·끝단 비루프 관찰만, focus 상태 비단정. 입력은 관찰 후 clear. selector 발명 금지(PENDING_F0).",
+   "cleanup_candidate": "입력값 clear(또는 Back)→계산기 종료 후 HOME 복귀",
+   "redesign_removed": "원 REVIEW의 숫자 입력 잔존(저장·계산 부작용) 위험을 제거 — 입력을 가역 transient_input으로 격하하고 끝단 focus_boundary_stop 비루프 axis만 verify."
+  }
+ ],
+ "ALTBASIC_SST_010": [
+  {
+   "tc_id": "ALTBASIC_SST_010",
+   "title": "쉬운 설정 — 방향키로 Simple setting 포커스 후 OK 시 focus·메뉴 진입 확인 (핵심=focus 관찰·진입은 보강 axis 강등)",
+   "preconditions": [
+    {
+     "text": "—",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "방향키로 방향키로 Simple setting 포커스 (방향키 이동 — 핵심 axis: focused 요소 = Simple setting 항목)",
+     "intent": {
+      "type": "press_key",
+      "target": "방향키(Simple setting로 이동)",
+      "value": null
+     },
+     "verify": {
+      "kind": "focus_state",
+      "target": "Simple setting"
+     }
+    },
+    {
+     "raw_text": "OK 입력 (observe_split — 메뉴 진입은 단말 의존 보강 axis로 강등, 설정 변경 금지)",
+     "intent": {
+      "type": "press_key",
+      "target": "OK",
+      "value": null
+     },
+     "verify": {
+      "kind": "element_presence",
+      "target": "Simple setting"
+     }
+    },
+    {
+     "raw_text": "관찰 후 Back으로 이탈 (mutation 0)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로(Back)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "Simple setting 메뉴에 진입할 것",
+   "expected_texts": [
+    "Simple setting"
+   ],
+   "verifier_type": "focus_state",
+   "focus_assert": "focus_position",
+   "safety_class": "NAVIGATION_ONLY",
+   "risk_note": "핵심 axis = Simple setting 항목 focus 관찰만 — OK 후 '메뉴 진입'(Simple setting 메뉴 presence)은 단말 의존 보강 axis로 강등(PASS blocker 아님). 설정 항목 변경/토글 금지, focus 상태 비단정. 관찰 후 Back 이탈. selector 발명 금지(PENDING_F0).",
+   "cleanup_candidate": "Back으로 쉬운 설정 이탈 후 HOME 복귀",
+   "redesign_removed": "원 REVIEW의 단일 '메뉴 진입' 비결정 verifier를 observe_split — 핵심=Simple setting focus_position, 진입 화면 완전성은 보강 axis로 강등."
+  }
+ ],
+ "ALTBASIC_SST_011": [
+  {
+   "tc_id": "ALTBASIC_SST_011",
+   "title": "쉬운 설정 — 소리 및 진동 tap 시 메뉴 진입 확인 (핵심=고정 literal presence·진입 화면은 보강 axis 강등)",
+   "preconditions": [
+    {
+     "text": "—",
+     "blocking": false
+    }
+   ],
+   "steps": [
+    {
+     "raw_text": "방향키로 Simple setting (쉬운 설정 진입)",
+     "intent": {
+      "type": "navigate",
+      "target": "launcher > 쉬운 설정 > Simple setting",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    },
+    {
+     "raw_text": "소리 및 진동 tap — 고정 literal '소리 및 진동' presence 관찰 (observe_split: 진입 화면 완전성은 보강 axis 강등, 설정값 변경 금지)",
+     "intent": {
+      "type": "tap",
+      "target": "소리 및 진동",
+      "value": null
+     },
+     "verify": {
+      "kind": "verify_text",
+      "target": "소리 및 진동"
+     }
+    },
+    {
+     "raw_text": "관찰 후 Back으로 이탈 (mutation 0)",
+     "intent": {
+      "type": "press_key",
+      "target": "뒤로(Back)",
+      "value": null
+     },
+     "verify": {
+      "kind": "none",
+      "target": null
+     }
+    }
+   ],
+   "expected_result_raw": "Setting의 소리 및 진동 메뉴에 진입할 것",
+   "expected_texts": [
+    "소리 및 진동"
+   ],
+   "verifier_type": "verify_text",
+   "focus_assert": "none",
+   "safety_class": "NAVIGATION_ONLY",
+   "risk_note": "핵심 axis = 소리 및 진동 고정 literal presence 관찰만 — tap 후 '소리 및 진동 메뉴 화면 진입' 완전성은 단말 의존 보강 axis로 강등(PASS blocker 아님). 소리/진동 설정값 변경·토글 금지. 관찰 후 Back 이탈. selector 발명 금지(PENDING_F0).",
+   "cleanup_candidate": "Back으로 소리 및 진동 이탈→쉬운 설정 이탈 후 HOME 복귀",
+   "redesign_removed": "원 REVIEW의 '메뉴 진입' 비결정 verifier를 observe_split — 핵심=고정 literal '소리 및 진동' verify_text presence, 진입 화면 완전성은 보강 axis로 강등."
+  }
+ ]
+}
