@@ -25,6 +25,30 @@
 - **RUNNABLE_NOW +4** (PDM_041~044). 잔여 C11: SST_008/013/014/015 · MGN_001/PDM_040(verifier-model) · SST_012(re-scope) · MGN_002(fail-closed) · gap-9 = 후속 slice.
 - **2026-07-01 무단말 스테이징 (device HELD, F0 sole 불가)**: SST_008/013/014(scroll+tap·OK-retire) + MGN_001(element-verifier `id/scale_bar`) host-TDD **23/23 GREEN** + MGN tc-runner backfill(canonical element_presence/generator/manifest, diff=MGN_001 행만). PDM_040(back 요소 0)·SST_015(안심기능 부재)·SST_012(WiFi) = spec-device 불일치 **defer**. device 2-run 즉시실행 절차 = **`RUNSHEET_C11_SST_MGN_2026-07-01.md`** (잠재 +4 RUNNABLE). ★SST verify literal은 목적지 title device 미확인 → PENDING 시 backfill.
 
+## ★ v2 회수 2차 (2026-07-02) — SST_008/013/014 + MGN_001 RUNNABLE_NOW +4 (C11 누적 8)
+
+F0 sole 창 확보 → `RUNSHEET_C11_SST_MGN_2026-07-01.md` 절차대로 실행. pre-flight(F0 단독·helper 0·pre 스냅샷 219) + host-TDD 23/23 재확인 + dry-run disposition 4건 일치 후 fresh 2-run.
+
+| tc_id | verifier | run1 | run2 | 판정 |
+|---|---|---|---|---|
+| SST_008 | literal `소리 및 진동` | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+| SST_013 | literal `배경화면 및 스타일`(backfill) | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+| SST_014 | literal `디스플레이` | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+| MGN_001 | element `com.hnlens.magnifying:id/scale_bar` | SINGLE_RUN_PASS | RUN2_PASS | **TWO_RUN_GREEN** |
+
+**초회 run1 ENTRY_FAILED 3건(SST) 원인 = 단말 stale task 상태 (driver 결함 아님·환경 오염)**: 간편모드 홈 `설정` 타일은 기존 `com.android.settings` task(t156)를 **상태 그대로 resume** — 이전 세션 잔존 스택(`GoogleSettingsActivity`→`.Settings`(하단 스크롤)→`SubSettings` 다층) 위에 도달해 scroll+tap 미발견. manual evidence observed: `dumpsys activity` topResumed + run1 dump(`02_settings.xml`=`com.google.android.gms`). BACK-루프로 task 완전 종료 후 재launch = fresh task root 정상 도달 → 재run 전건 PASS. **개선 규칙: driver launch 후 "설정 root 도달 게이트"(activity=.Settings ∧ `설정 검색` 존재, 미충족 시 BACK-루프 self-heal) 필요 — 차기 driver slice.**
+
+**SST_013 literal backfill (본 세션 1사이클, 사전 승인 범위 내)**: 소스 oracle `테마 및 배경화면`(paraphrase) vs 실측 목적지 title `배경화면 및 스타일`(하위: 배경화면 변경/잠금 화면/홈 화면). canonical `expected[].target`+`expected_texts_candidate`만 변경, `expected_result_raw`·title verbatim 보존. manifest 재생성(faithfulness 사전검증: 무편집 재생성 byte-identical → 편집 후 diff=SST_013 `verifier_candidates` 셀만). 백필 후 fresh run1+run2. **분류 note**: driver는 이를 `VERIFIER_FAILED`(LIT_ABSENT)로 보고 — 목적지 도달+화면 로드 상태의 title 상이는 `LITERAL_PENDING` 취급이 의도(runsheet caveat)와 정합. LIT_ABSENT/LIT_PENDING 경계 재정의 = 차기 driver slice.
+
+- 실행: Appium 3.4.0(MSYS_NO_PATHCONV=1) + thor2j_appium venv. **helper 3종 설치→uninstall Success·잔존 0·pre 219 == post 219 (mutation 0)**. Appium 정지(4723 free). F0 sole 유지(B27 미접촉).
+- evidence: `thor2j-tc-appium/evidence/altbasic_batch10_c11_v2_20260701/{run1,run2}/{tc_id}/` + `results_run{1,2}.csv` (2026-07-02 행 append).
+
+**동일 창 A-확장 discovery (non-mutating: dump/back/home + navigation tap만, toggle 0)** → `catalog/f0_c11_nav_2026-07-01/discovery_2026-07-02/` 10 dump:
+- **SST_015 정정**: 설정 root top-level에 **`안심 기능` 존재** (nav 카탈로그 "안심기능 부재"는 오판 — stale 스크롤/부분 캡처 추정). `안전 및 긴급 상황`은 **별개 항목**(긴급 SOS/의료 정보)으로 공존 = 기존 후보 매핑은 오매핑. `안심 기능` 진입 = `com.hnlens.safetyfeature/.ui.MainActivity`, title literal `안심 기능`, 항목 SOS 버튼/보호자 등록/안심 메시지/수신 차단 → **backfill 근거 확보, 무단말 재설계 가능**.
+- **SST_012**: Quick Panel(swipe, com.android.systemui)에 Wi-Fi 타일 실존(text `Wi-Fi`/`Wi-Fi, 켜짐`) — re-scope 경로 grounded. tap 0회(토글 변이 방지).
+- **PDM_040**: 만보기 cold launch 실측 = **focused 요소 0·back 요소 0**, gear(`id/imageView`) clickable/focusable·focused=false·bounds[408,44][474,110]. "최초 focus 뒤로가기 버튼" spec은 단말 실물과 불일치 확정 → ①gear/element verifier re-scope ②spec-gap 판정 중 결정 필요.
+- **설정 root 전체 리스트 채록**(p1~p4): 네트워크및인터넷/연결된기기/앱/안심 기능/해외 로밍 → 소리및진동/디스플레이/배경화면및스타일/배터리/저장용량 → 안전및긴급상황/위치/개인정보보호/비밀번호및계정/디지털웰빙 → Google/시스템/휴대전화 정보/DuraSpeed.
+
 ---
 
 ## run1 결과 — TWO_RUN_GREEN 0 / RUNNABLE_NOW 0 (v1 discovery, 아래는 재설계 근거 기록)
@@ -98,6 +122,5 @@ STEP0:
 - gap-9(PFW×6·MGN_005/006·SST_016) = 별도 authoring 큐(불변).
 
 ## commit/push
-- **0** (staged 0). 명시 승인 전 commit 금지(§7). v2 회수분 미커밋 파일:
-  - tc-runner (tracked, untracked 혼재): `ALTBASIC_PDM_044_canonical.yaml`(M) · `VALIDATION_MANIFEST_BATCH10_2026-06-25.csv`(M) · 본 리포트(untracked) · nav 카탈로그·dump(untracked) · v2 evidence(thor2j gitignore local).
-  - thor2j (M, remote 없음 local): `runner/altbasic_c11.py` · `runner/altbasic_c11_driver.py` · `tests/test_altbasic_c11.py`.
+- (2026-07-02 현행화) v2 1차 회수분은 커밋 완료: tc-runner `f124db2`(PDM_044+manifest+본 리포트)·`f682bcf`(MGN_001+runsheet) — **origin push 완료(`0008555..f682bcf` ff)**. thor2j `7415d5f`·`cd9e057`(driver+tests, remote 없음 → bundle 백업 `C:\Users\momen\Backups\thor2j-tc-appium\thor2j_2026-07-02.bundle`).
+- 2차 회수(2026-07-02)분 미커밋: `ALTBASIC_SST_013_canonical.yaml`(M) · `VALIDATION_MANIFEST_BATCH10_2026-06-25.csv`(M) · 본 리포트 v2-2차 섹션(M) · `catalog/f0_c11_nav_2026-07-01/`+`discovery_2026-07-02/`(untracked) · PROCESS_REVIEW·LEDGER(untracked 신규). 명시 승인 전 commit 금지(§7) — 당일 말 배치커밋 스코핑에 합류.
