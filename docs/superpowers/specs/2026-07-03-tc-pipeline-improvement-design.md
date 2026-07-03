@@ -211,6 +211,23 @@ STAGE1의 `expected[].type`에는 **focus_state가 없고**, `preconditions`에�
 
 **정확성 경계(honest)**: 소비 판정은 STAGE2 프롬프트(LLM) 행위 — 단위 테스트 불가. validate는 **재도출이 아니라 내부 정합만** 감사(CTF 입력 없음). 강제 코드 표면 = schema + validate 3-e 가드(TDD GREEN). **Defer**: compiled preconditions string→object 재구조화(validate가 fixture/mutation 게이트를 재도출하게)는 blast radius 커서 후속 — 현재는 runnable_reason 기록 정합까지.
 
-**잔여 트랙 B**: P-1(충돌검사 게이트)·P-2(agent 오염스캔)·P-3(단일원장)·P-4(manifest result) · (deferred: preconditions object 재구조화).
+**잔여 트랙 B**: P-1~4 (아래 §12) · (deferred: preconditions object 재구조화).
 
-*생성: 2026-07-03. 입력 taxonomy = workflow `wf_8c990ba1-181`. 검토 = `wf_f567f082-5c3`. B-6 이해 = `wf_b158693f-d6a`. 트랙 A = Option C 반영 완료(커밋 `6ba591f`). 트랙 C = `31a1d64`. 트랙 B = B-5(`f2daf00`) + B-6(커밋 미실행·승인 대기).*
+## 12. 트랙 B 진행 — P-1~4 도구 완료 (2026-07-03, TDD)
+
+4종 prep/게이트 도구를 TDD로 구현(순수 함수 + lazy-IO wrapper + CLI gate). 커밋 미실행.
+
+| # | 도구 | 순수 함수(테스트) | 검증 |
+|---|---|---|---|
+| P-1 | `scripts/altbasic_tcid_collision_check.py` (scratch→scripts 승격) | `find_collisions`·`resolve_collisions_with_suffix`(결정적 suffix)·`audit_sheet_tcid_dups` | test 12 |
+| P-2 | `tools/untracked_contamination_scan.py` (agent 오염 스캔) | `scan_contamination`(보호 prefix·경계 매칭·allow glob) | test 7 |
+| P-3 | `scripts/ledger_recompute.py` (단일 원장 재집계) | `tally`·`cross_tally`·`recompute_ledger_summary`(total/judged 분모 명명·auto/human 분리) | test 7 |
+| P-4 | `scripts/manifest_result_reconcile.py` (result/join) | `reconcile_by_tcid`(manifest×구현×결과 tc_id 조인·4종 불일치) | test 6 |
+
+전체 pytest **1070 passed**(+32) · 회귀 0.
+
+**P-2 본문 규칙 잔여**: "합성 agent read-only/return-only + 실행 후 오염 스캔 필수"의 **CLAUDE.md §5 운영 규칙 신설**은 본문 수정이라 §8.3 승인 게이트 — 도구는 완료, 규칙 텍스트는 별도 제시·승인 대기.
+**§5.3 도구표 등록**(신규 4 도구): CLAUDE.md 본문 → §8.3 승인 대기.
+**Deferred**: compiled preconditions string→object 재구조화(B-6 validate 재도출용).
+
+*생성: 2026-07-03. 입력 taxonomy = `wf_8c990ba1-181`. 검토 = `wf_f567f082-5c3`. B-6 이해 = `wf_b158693f-d6a`. 트랙 A = `6ba591f`. 트랙 C = `31a1d64`. 트랙 B = B-5(`f2daf00`)·B-6(`ed11299`)·P-1~4(커밋 미실행·승인 대기).*
