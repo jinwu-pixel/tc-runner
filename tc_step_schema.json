@@ -51,6 +51,14 @@
         "source": {
           "type": "string",
           "description": "원본 TC 출처 (예: 'TC_1.xlsx / Sheet1 / Row 5')"
+        },
+        "runnable_reason": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["FIXTURE_REQUIRED", "MUTATION_UNMANAGED", "INFEASIBLE_VERIFIER", "UNRESOLVED_PARAMS", "MANUAL_FALLBACK"]
+          },
+          "description": "runnable:false 게이트 사유 기록 (B-6, STAGE1 신호 소비). 비어있지 않으면 runnable=false 이어야 함. FIXTURE_REQUIRED=blocking 암묵 fixture(HUMAN_REQUIRED) · MUTATION_UNMANAGED=mutation_risk true인데 TEARDOWN 부재 · INFEASIBLE_VERIFIER=feasibility infeasible · UNRESOLVED_PARAMS/MANUAL_FALLBACK=컴파일 기계 사유"
         }
       }
     },
@@ -93,6 +101,11 @@
           "type": "string",
           "enum": ["ACTION", "ASSERT", "SETUP", "TEARDOWN"],
           "description": "이 스텝의 역할"
+        },
+        "compile_status": {
+          "type": "string",
+          "enum": ["OK", "UNRESOLVED_PARAMS", "MANUAL_FALLBACK", "UNSUPPORTED"],
+          "description": "이 스텝의 컴파일 상태 (STAGE2). UNRESOLVED_PARAMS는 runnable:false를 유발"
         },
         "target": {
           "type": "string",

@@ -231,6 +231,49 @@ CASES = [
         False,
         "step 분석 결과",
     ),
+    # ── B-6: runnable_reason 정합 (runnable_reason 있을 때만 검사, legacy 무영향) ──
+    (
+        # runnable_reason 비어있지 않음 + runnable=false → 정합 PASS
+        "14_runnable_reason_consistent_false",
+        lambda: _base_tc(metadata={"runnable": False, "runnable_reason": ["FIXTURE_REQUIRED"]}),
+        True,
+        None,
+    ),
+    (
+        # runnable_reason 있는데 runnable=true → 불일치 FAIL
+        "15_runnable_reason_present_but_runnable_true",
+        lambda: _base_tc(metadata={"runnable": True, "runnable_reason": ["FIXTURE_REQUIRED"]}),
+        False,
+        "runnable_reason",
+    ),
+    (
+        # 허용되지 않는 사유 토큰 → FAIL
+        "16_runnable_reason_invalid_token",
+        lambda: _base_tc(metadata={"runnable": False, "runnable_reason": ["BOGUS"]}),
+        False,
+        "runnable_reason 토큰",
+    ),
+    (
+        # 빈 배열 + runnable=true → 게이트 없음 PASS
+        "17_runnable_reason_empty_list_ok",
+        lambda: _base_tc(metadata={"runnable": True, "runnable_reason": []}),
+        True,
+        None,
+    ),
+    (
+        # legacy: runnable=false인데 runnable_reason 없음 → 무영향 PASS (backward-compat)
+        "18_no_runnable_reason_legacy_false_ok",
+        lambda: _base_tc(metadata={"runnable": False}),
+        True,
+        None,
+    ),
+    (
+        # runnable_reason이 배열 아님 → 형식 FAIL
+        "19_runnable_reason_not_a_list",
+        lambda: _base_tc(metadata={"runnable": False, "runnable_reason": "FIXTURE_REQUIRED"}),
+        False,
+        "runnable_reason 형식",
+    ),
 ]
 
 

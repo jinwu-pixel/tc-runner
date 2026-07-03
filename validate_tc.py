@@ -126,6 +126,33 @@ def validate_tc(tc: dict, schema: dict) -> list[str]:
                 f"이어야 하나, metadata에 '{exec_type}' 으로 설정됨"
             )
 
+    # 3-e. runnable_reason 정합 (B-6 — STAGE1 신호 소비 기록의 내부 정합만 감사)
+    #   runnable_reason이 존재할 때만 검사 → legacy TC(필드 없음)는 무영향(backward-compat).
+    #   validate는 CTF/fixture 입력이 없어 게이트를 재도출하지 못한다 — STAGE2가 판정 producer,
+    #   본 가드는 기록된 사유가 runnable=false와 정합하고 enum에 속하는지만 확인한다.
+    VALID_RUNNABLE_REASONS = {
+        "FIXTURE_REQUIRED", "MUTATION_UNMANAGED", "INFEASIBLE_VERIFIER",
+        "UNRESOLVED_PARAMS", "MANUAL_FALLBACK",
+    }
+    runnable_reason = meta.get("runnable_reason")
+    if runnable_reason is not None:
+        if not isinstance(runnable_reason, list):
+            errors.append(
+                f"runnable_reason 형식 오류: 배열이어야 함 (현재: {type(runnable_reason).__name__})"
+            )
+        else:
+            for reason in runnable_reason:
+                if reason not in VALID_RUNNABLE_REASONS:
+                    errors.append(
+                        f"runnable_reason 토큰 불일치: '{reason}' "
+                        f"(허용: {sorted(VALID_RUNNABLE_REASONS)})"
+                    )
+            if runnable_reason and meta.get("runnable") is True:
+                errors.append(
+                    "일관성 오류: runnable_reason이 비어있지 않으면 runnable=false "
+                    "이어야 함 (현재 runnable=True)"
+                )
+
     # 4. steps 검증
     steps = tc.get("steps", [])
     if not steps:

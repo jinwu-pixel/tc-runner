@@ -2,7 +2,7 @@
 # 2단계 지시문: CTF → 실행 가능 TC 컴파일
 # ============================================================
 # 이 파일을 CLAUDE.md 또는 프롬프트 앞에 포함하세요.
-# 버전: 1.3.0
+# 버전: 1.4.0
 # 최종 수정: 2026-07
 # 변경: 1.1.0 — "단말 실증 기반 verifier/selector 규칙" 5건 추가 (ALT Basic F0 카탈로그 환류, R1~R5)
 #       1.2.0 — R6 미실측 승격 금지 · R7 focus verifier node 확정/list 보류 (ALT Basic F0 taxonomy 환류) ·
@@ -10,6 +10,9 @@
 #               STAGE1 fixture/mutation/feasibility 신호는 본 트랙 advisory (runnable 소비 = 트랙 B)
 #       1.3.0 — B-5: focus verifier list 모델 런너 지원(focus_model: node|list) — R7 list 확정 컴파일 전환
 #               (runnable 허용 + device-confirm-once). runner_capability 1.4.0 · tc_step_schema focus_model 정합
+#       1.4.0 — B-6: STAGE1 신호(feasibility·implicit_fixture+blocking·mutation_risk) runnable gate 소비
+#               (Step 5) + metadata.runnable_reason 기록 · validate_tc 3-e 정합 가드 · compile_status schema drift 수정.
+#               ★carve-out: auto-seed 가능 암묵 fixture는 runnable:true 유지(과잉 게이트 금지)
 # ============================================================
 
 너는 Canonical TC Format(CTF)을 받아서 **단말/러너 환경을 반영한 실행 가능한 TC 초안**으로 컴파일하는 역할만 수행한다.
@@ -116,7 +119,7 @@ shell_actions_available:
 | MANUAL_FALLBACK | 자동화 불가 → manual_pause 전환 |
 | UNSUPPORTED | runner가 지원하지 않는 action |
 
-> **STAGE1 신호 소비 범위 (본 트랙 advisory)**: CTF의 `mutation_risk` · `implicit_fixture_suspected` · `feasibility`는 STAGE1이 부여하는 판정 신호다. **본 트랙에서는 advisory로만 취급**하며 runnable 판정을 직접 좌우하지 않는다(현재 STAGE2 소비 규칙 부재). 이 신호를 runnable gate에 반영(예: implicit_fixture+blocking → SETUP 필수/runnable:false, mutation → fixture 정리 사이클 강제)하는 것은 pipeline semantics 변경이므로 **트랙 B**(별도 설계·TDD)다. advisory 신호는 warnings/report에 보존하라.
+> **STAGE1 신호 소비 (B-6)**: CTF의 `mutation_risk` · `implicit_fixture_suspected` · `feasibility`는 STAGE1이 부여하는 판정 신호이며, **B-6부터 runnable 판정에 소비**한다 — 소비 규칙과 과잉 게이트 방지 carve-out은 **Step 5** 참조. 소비되지 않은 잔여 신호(`mutation_risk: ambiguous` 등)는 advisory로 warnings/report에 보존하라.
 
 ## Step 2. step 컴파일
 
@@ -239,17 +242,25 @@ metadata:
   has_manual_steps: false
 ```
 
-## Step 5. runnable 판정
+## Step 5. runnable 판정 + 사유 기록 (B-6)
 
-TC 전체에 대해 `runnable: true | false`를 판단하라.
+TC 전체에 대해 `runnable: true | false`를 판단하고, false면 `metadata.runnable_reason`(배열)에 사유 토큰을 기록하라.
 
-다음 중 하나라도 있으면 `runnable: false`:
+**기계 사유** (다음 중 하나라도 있으면 `runnable: false`):
 
-* `compile_status: UNRESOLVED_PARAMS`인 step 존재
-* shell command에 `{placeholder}` 잔존
-* `shell_mapping_missing` warning
-* CTF step 대비 compiled step이 비정상 누락
-* `manual_pause`에 `description` 누락
+* `compile_status: UNRESOLVED_PARAMS`인 step 존재 → `runnable_reason`에 `UNRESOLVED_PARAMS`
+* shell command에 `{placeholder}` 잔존 → `UNRESOLVED_PARAMS`
+* `shell_mapping_missing` warning → `UNRESOLVED_PARAMS`
+* CTF step 대비 compiled step이 비정상 누락 (사유 report)
+* `manual_pause`에 `description` 누락 → `MANUAL_FALLBACK`
+
+**STAGE1 신호 소비** (advisory → 소비):
+
+* **feasibility**: CTF expected `feasibility: infeasible` → 해당 verifier step을 `execution_mode: UNSUPPORTED` + `compile_status: UNSUPPORTED`로 조기 분기(기존 enum 재사용 — 별도 step 필드 없음). TC가 이 verifier에 의존하면 `runnable: false` + `runnable_reason` `INFEASIBLE_VERIFIER`.
+* **implicit_fixture + blocking**: CTF precondition이 `blocking: true` **그리고** harness safe-seed 불가(사람 필요)면 → `runnable: false` + `runnable_reason` `FIXTURE_REQUIRED` + SETUP 요구를 report에 명시. **★과잉 게이트 금지 carve-out**: auto-seed 가능(`blocking: false`, SETUP으로 확립 가능)한 암묵 fixture는 **runnable:true 유지** + SETUP step 생성 — `implicit_fixture_suspected: true` **단독**으로 runnable:false 만들지 말 것.
+* **mutation_risk**: step `mutation_risk: true`인데 상태 환원(cleanup) `step_role: TEARDOWN` step이 없으면 → `runnable: false` + `runnable_reason` `MUTATION_UNMANAGED`. TEARDOWN로 fixture 정리 사이클이 있으면 runnable 유지. `mutation_risk: ambiguous`는 게이트하지 말 것(advisory/WARN만).
+
+**정합**: `runnable_reason`이 비어있지 않으면 `runnable: false`여야 한다(validate_tc.py 3-e 강제). 소비되지 않은 신호는 warnings에 보존.
 
 # execution_plan.yaml 스키마
 
@@ -285,6 +296,8 @@ metadata:
   source_row: string | null
   tc_class: FULL_AUTO | SEMI_AUTO | MANUAL_REQUIRED | AMBIGUOUS_NL
   runnable: true | false
+  runnable_reason:                    # runnable:false 게이트 사유 (B-6, Step 5). 비어있지 않으면 runnable=false
+    - FIXTURE_REQUIRED | MUTATION_UNMANAGED | INFEASIBLE_VERIFIER | UNRESOLVED_PARAMS | MANUAL_FALLBACK
   has_manual_steps: true | false
   has_shell_actions: true | false
   has_unresolved_params: true | false

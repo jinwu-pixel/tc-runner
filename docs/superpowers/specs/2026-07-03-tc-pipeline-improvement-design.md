@@ -194,6 +194,23 @@ STAGE1의 `expected[].type`에는 **focus_state가 없고**, `preconditions`에�
 
 **정확성 경계(honest)**: 런너 로직은 unit-test GREEN(합성 dump)이고 list 모델(컨테이너 focused 고정 + selected 자식)은 `reference_alt_focus_widget_model`의 F0 실측 근거. 그러나 **실기 list TC의 runtime PASS는 미수행** — 커스텀 어댑터가 `selected`를 dump에 미노출할 가능성 때문에 R7이 **device-confirm-once**(첫 실기 selected 확인)를 요구한다. 즉 list는 runnable-eligible이나 첫 회차 확인 전까지 PENDING backfill 대상.
 
-**잔여 트랙 B**: B-6(runnable gate 신호 소비, G3 미해소 — mutation/fixture/feasibility는 여전히 advisory) · P-1~4 · D-1(트랙 C).
+## 11. 트랙 B 진행 — B-6 반영 완료 (2026-07-03, TDD + 이해 워크플로)
 
-*생성: 2026-07-03. 입력 taxonomy = workflow `wf_8c990ba1-181`. 검토 = `wf_f567f082-5c3`. 트랙 A = Option C 반영 완료(커밋 `6ba591f`). 트랙 B = B-5 반영 완료(커밋 미실행·승인 대기).*
+**B-6. STAGE2 runnable gate에 STAGE1 신호 소비** — G3 해소. 이해 워크플로(`wf_b158693f-d6a`, read-only 4 reader→synthesize·agent 5·오류 0)로 소비 표면 매핑 후 TDD. 커밋 미실행.
+
+**map 핵심(워크플로 근거)**: runnable 판정 producer = STAGE2 프롬프트 Step 5(ALT 파이프라인) + 별개 `src/mmi_converter/exporter.py::check_runnable`(MMI 경로, CTF 입력 없음). validate_tc.py는 runnable **값 미검사**(존재만) + CTF/fixture 입력 없음 → **내부 정합만** 감사 가능(재도출 불가, STAGE2가 판정 producer).
+
+| 층위 | 변경 | 검증 |
+|---|---|---|
+| 프롬프트 | STAGE2 Step 5 = 기계 사유 + STAGE1 신호 소비 3규칙(feasibility→UNSUPPORTED/INFEASIBLE_VERIFIER · implicit_fixture+blocking[사람]→FIXTURE_REQUIRED · mutation_risk true+TEARDOWN 부재→MUTATION_UNMANAGED) + `runnable_reason` 기록 · advisory note 전환 · 버전 1.4.0 | golden 3/3 PASS |
+| schema | `metadata.runnable_reason`(enum array) 추가 + `compile_status` step drift 수정(기존 §2.3 drift) | 전체 pytest 1038 passed |
+| validate | `validate_tc.py` 3-e 정합 가드(runnable_reason 있을 때만: 토큰 enum ∧ runnable=false ∧ 배열 형식) — legacy 무영향 | TDD RED(15·16·19)→GREEN, CASES 14~19 |
+| STAGE1 | "신호 소비 범위" note 전환(트랙 B → B-6 소비) + line 95 · 버전 1.3.0 | 잔여 소비-대기 hedge 0 |
+
+**과잉 게이트 금지 carve-out(핵심)**: `implicit_fixture_suspected: true` **단독**으로 runnable:false 금지 — 게이트는 `blocking:true ∧ 사람 필요(HUMAN_REQUIRED)` 결합만. auto-seed 가능(blocking:false)은 **runnable:true 유지** + SETUP. `mutation_risk: ambiguous`는 advisory(게이트 X). (워크플로 risk #1 반영.)
+
+**정확성 경계(honest)**: 소비 판정은 STAGE2 프롬프트(LLM) 행위 — 단위 테스트 불가. validate는 **재도출이 아니라 내부 정합만** 감사(CTF 입력 없음). 강제 코드 표면 = schema + validate 3-e 가드(TDD GREEN). **Defer**: compiled preconditions string→object 재구조화(validate가 fixture/mutation 게이트를 재도출하게)는 blast radius 커서 후속 — 현재는 runnable_reason 기록 정합까지.
+
+**잔여 트랙 B**: P-1(충돌검사 게이트)·P-2(agent 오염스캔)·P-3(단일원장)·P-4(manifest result) · (deferred: preconditions object 재구조화).
+
+*생성: 2026-07-03. 입력 taxonomy = workflow `wf_8c990ba1-181`. 검토 = `wf_f567f082-5c3`. B-6 이해 = `wf_b158693f-d6a`. 트랙 A = Option C 반영 완료(커밋 `6ba591f`). 트랙 C = `31a1d64`. 트랙 B = B-5(`f2daf00`) + B-6(커밋 미실행·승인 대기).*
