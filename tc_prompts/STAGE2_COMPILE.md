@@ -2,9 +2,12 @@
 # 2단계 지시문: CTF → 실행 가능 TC 컴파일
 # ============================================================
 # 이 파일을 CLAUDE.md 또는 프롬프트 앞에 포함하세요.
-# 버전: 1.1.0
-# 최종 수정: 2026-06
+# 버전: 1.2.0
+# 최종 수정: 2026-07
 # 변경: 1.1.0 — "단말 실증 기반 verifier/selector 규칙" 5건 추가 (ALT Basic F0 카탈로그 환류, R1~R5)
+#       1.2.0 — R6 미실측 승격 금지 · R7 focus verifier node 확정/list 보류 (ALT Basic F0 taxonomy 환류) ·
+#               verify_focus_moved action 어휘 정렬(기존 schema/runner drift 복구) ·
+#               STAGE1 fixture/mutation/feasibility 신호는 본 트랙 advisory (runnable 소비 = 트랙 B)
 # ============================================================
 
 너는 Canonical TC Format(CTF)을 받아서 **단말/러너 환경을 반영한 실행 가능한 TC 초안**으로 컴파일하는 역할만 수행한다.
@@ -111,13 +114,15 @@ shell_actions_available:
 | MANUAL_FALLBACK | 자동화 불가 → manual_pause 전환 |
 | UNSUPPORTED | runner가 지원하지 않는 action |
 
+> **STAGE1 신호 소비 범위 (본 트랙 advisory)**: CTF의 `mutation_risk` · `implicit_fixture_suspected` · `feasibility`는 STAGE1이 부여하는 판정 신호다. **본 트랙에서는 advisory로만 취급**하며 runnable 판정을 직접 좌우하지 않는다(현재 STAGE2 소비 규칙 부재). 이 신호를 runnable gate에 반영(예: implicit_fixture+blocking → SETUP 필수/runnable:false, mutation → fixture 정리 사이클 강제)하는 것은 pipeline semantics 변경이므로 **트랙 B**(별도 설계·TDD)다. advisory 신호는 warnings/report에 보존하라.
+
 ## Step 2. step 컴파일
 
 각 CTF step을 아래 action 중 하나로 변환하라.
 
 `tap_text`, `tap_id`, `tap_xy`, `tap_content_desc`, `key`, `shell`, `wait`,
 `verify_text`, `verify_shell`, `verify_gone`, `verify_content_desc`,
-`input_text`, `manual_pause`
+`verify_focus_moved`, `input_text`, `manual_pause`
 
 **`tap_content_desc` / `verify_content_desc` 사용 가이드:**
 * content-desc 한정 식별이 필요한 icon-only button (text="") 에 사용
@@ -293,7 +298,7 @@ steps:
   - action: string                 # tap_text | tap_id | tap_xy | tap_content_desc | key | shell
                                    # | input_text | swipe | wait | screenshot
                                    # | manual_pause | verify_text | verify_shell | verify_gone
-                                   # | verify_content_desc
+                                   # | verify_content_desc | verify_focus_moved
     execution_mode: string         # UI_AUTO | SHELL_AUTO | MANUAL_REQUIRED | EXTERNAL_EVENT | UNSUPPORTED
     step_role: string              # ACTION | ASSERT | SETUP | TEARDOWN
     compile_status: string         # OK | UNRESOLVED_PARAMS | MANUAL_FALLBACK | UNSUPPORTED
@@ -304,6 +309,8 @@ steps:
     expected: string | null        # verify_shell
     text: string | null            # input_text
     key: string | null             # key (예: KEYCODE_HOME)
+    trigger_action: string | null  # verify_focus_moved — 포커스 이동을 일으키는 선행 action
+    trigger_step: object | null    # verify_focus_moved — 선행 action의 스텝 인자
     x: integer | null              # tap_xy, swipe
     y: integer | null              # tap_xy, swipe
     x2: integer | null             # swipe
@@ -387,6 +394,22 @@ steps:
 * **근거**: F0 launcher dump에 'U+'·status bar 노드 부재 — screenshot으로만 확인 가능.
 * DO: `screenshot` + screenshot axis 명시 / DON'T: `verify_text`(status bar 문자열)
 
+## R6. verifier literal·selector·navigation 목적지 = 단말 실측만 확정 (paraphrase 승격 금지) — 근거 C11 divergence taxonomy
+* **적용**: verifier literal, selector text, navigation 목적지 요소명 컴파일
+* **규칙**: 소스의 paraphrase(기대문 표현)를 literal verifier로 승격 금지. verifier literal·selector·nav 목적지는 **단말 run1 discovery로 실측 확정된 값만** 확정 컴파일한다. 미실측 값은 compiled step의 `warnings`에 `device_value: PENDING_F0` / `literal_outcome: LITERAL_PENDING` 표기를 남기고 validation_report의 backfill 목록에 등재한다(두 표기는 STAGE2 소유 report-level 신호 — compiled step 스키마 신규 필드가 아니며 STAGE1 CTF에도 없음). 미실측 step은 실측 backfill 전까지 runnable 승격 금지. 화면 도달 판정도 단말 대조 전에는 nav 목적지 보류(PENDING) + R3 parent-marker 소멸 게이트를 병용한다.
+* **근거**: C11 v1 run1에서 paraphrase→literal·nav 가설 승격이 device-touch divergence 10/12 (83%); run1 전건 탈락은 11/12(divergence 10 + fail-closed 1). 컴파일 시점 단말 대조 부재가 원인 (F0 실증).
+* DO: 실측 literal만 확정 · 미실측은 PENDING_F0 backfill / DON'T: 소스 기대문을 literal로 승격
+
+## R7. focus verifier = 위젯 클래스로 판별하되 런너 능력 경계 준수 (node 확정 / list 보류) — 근거 reference_alt_focus_widget_model
+* **적용**: CTF `expected[].type: focus_state`의 컴파일
+* **컴파일 타깃**: focus_state는 `verify_focus_moved` action으로 컴파일한다. 포커스를 이동시키는 선행 action은 `trigger_action`/`trigger_step`에 싣는다. `focus_assert`(focus_move·boundary_stop 등)는 verify_focus_moved의 pre/post 대조로 매핑.
+* **규칙 — 런너 능력 경계**: 현 런너의 `verify_focus_moved`는 **node 모델(focused 노드 bounds 이동)만** 지원한다. 위젯 클래스로 focus_model을 판별하되:
+  * **node** — scroll 컨테이너(RecyclerView·ScrollView, focused 행 이동) = `verify_focus_moved` 확정 컴파일.
+  * **list** — AdapterView 계열(ListView `android:id/list`·GridView·Spinner, 컨테이너 focused 고정 + `selected` 자식 이동) = **런너 미지원** → `warnings`에 `device_value: PENDING` 표기(R6 규약) + `device_confirm` hedge. **runnable 승격 금지**(컨테이너 bounds 불변이라 verify_focus_moved에서 항상 위음성 FAIL). list 모델 verifier는 트랙 B(런너 신규 action).
+  * 클래스 미확인 = `device_confirm` hedge.
+* **근거**: node 일률 가정 시 list 화면 위음성(batch11 cycle1 5/64). com.android.mms=list, com.android.settings·clock=node (F0 실증). verify_focus_moved는 focused 노드 bounds만 비교하므로 컨테이너 불변인 list는 실행 불가.
+* DO: node=verify_focus_moved 확정 / list=PENDING 보류(트랙 B) / DON'T: list를 verify_focus_moved로 확정 컴파일 · 전 화면 node 일률 가정
+
 # dry-run 우선 원칙
 
 기본 출력은 항상 dry-run 검토 기준이어야 한다.
@@ -420,6 +443,8 @@ steps:
 * [ ] execution_type == AUTO 이면 manual_detail == "NONE" 인가?
 * [ ] has_manual_steps가 execution_type과 일관되는가?
 * [ ] compiled_tc.yaml이 tc_step_schema.json을 준수하는가?
+* [ ] verifier literal·selector·nav 목적지가 단말 실측값인가? 미실측은 PENDING_F0로 표기되었는가? (paraphrase 승격 없음)
+* [ ] focus_state가 verify_focus_moved(node)로 컴파일되었는가? list 모델은 PENDING 보류(runnable 승격 금지)인가?
 
 하나라도 실패하면 수정 후 재출력하라.
 

@@ -22,6 +22,7 @@ supported_actions:
   - verify_shell
   - verify_gone
   - verify_content_desc
+  - verify_focus_moved            # node 모델(focused 노드 bounds 이동)만 지원 — list 모델(컨테이너 focused + selected 자식) 미지원 (트랙 B)
 
 supports_content_desc: true
 
