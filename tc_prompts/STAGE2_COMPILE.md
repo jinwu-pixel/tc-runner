@@ -2,12 +2,14 @@
 # 2단계 지시문: CTF → 실행 가능 TC 컴파일
 # ============================================================
 # 이 파일을 CLAUDE.md 또는 프롬프트 앞에 포함하세요.
-# 버전: 1.2.0
+# 버전: 1.3.0
 # 최종 수정: 2026-07
 # 변경: 1.1.0 — "단말 실증 기반 verifier/selector 규칙" 5건 추가 (ALT Basic F0 카탈로그 환류, R1~R5)
 #       1.2.0 — R6 미실측 승격 금지 · R7 focus verifier node 확정/list 보류 (ALT Basic F0 taxonomy 환류) ·
 #               verify_focus_moved action 어휘 정렬(기존 schema/runner drift 복구) ·
 #               STAGE1 fixture/mutation/feasibility 신호는 본 트랙 advisory (runnable 소비 = 트랙 B)
+#       1.3.0 — B-5: focus verifier list 모델 런너 지원(focus_model: node|list) — R7 list 확정 컴파일 전환
+#               (runnable 허용 + device-confirm-once). runner_capability 1.4.0 · tc_step_schema focus_model 정합
 # ============================================================
 
 너는 Canonical TC Format(CTF)을 받아서 **단말/러너 환경을 반영한 실행 가능한 TC 초안**으로 컴파일하는 역할만 수행한다.
@@ -311,6 +313,7 @@ steps:
     key: string | null             # key (예: KEYCODE_HOME)
     trigger_action: string | null  # verify_focus_moved — 포커스 이동을 일으키는 선행 action
     trigger_step: object | null    # verify_focus_moved — 선행 action의 스텝 인자
+    focus_model: node | list | null # verify_focus_moved — 포커스 위젯 모델 (기본 node · list=AdapterView 계열, R7)
     x: integer | null              # tap_xy, swipe
     y: integer | null              # tap_xy, swipe
     x2: integer | null             # swipe
@@ -400,15 +403,15 @@ steps:
 * **근거**: C11 v1 run1에서 paraphrase→literal·nav 가설 승격이 device-touch divergence 10/12 (83%); run1 전건 탈락은 11/12(divergence 10 + fail-closed 1). 컴파일 시점 단말 대조 부재가 원인 (F0 실증).
 * DO: 실측 literal만 확정 · 미실측은 PENDING_F0 backfill / DON'T: 소스 기대문을 literal로 승격
 
-## R7. focus verifier = 위젯 클래스로 판별하되 런너 능력 경계 준수 (node 확정 / list 보류) — 근거 reference_alt_focus_widget_model
+## R7. focus verifier = 위젯 클래스로 focus_model 판별 (node·list 양 모델 컴파일) — 근거 reference_alt_focus_widget_model / B-5
 * **적용**: CTF `expected[].type: focus_state`의 컴파일
-* **컴파일 타깃**: focus_state는 `verify_focus_moved` action으로 컴파일한다. 포커스를 이동시키는 선행 action은 `trigger_action`/`trigger_step`에 싣는다. `focus_assert`(focus_move·boundary_stop 등)는 verify_focus_moved의 pre/post 대조로 매핑.
-* **규칙 — 런너 능력 경계**: 현 런너의 `verify_focus_moved`는 **node 모델(focused 노드 bounds 이동)만** 지원한다. 위젯 클래스로 focus_model을 판별하되:
-  * **node** — scroll 컨테이너(RecyclerView·ScrollView, focused 행 이동) = `verify_focus_moved` 확정 컴파일.
-  * **list** — AdapterView 계열(ListView `android:id/list`·GridView·Spinner, 컨테이너 focused 고정 + `selected` 자식 이동) = **런너 미지원** → `warnings`에 `device_value: PENDING` 표기(R6 규약) + `device_confirm` hedge. **runnable 승격 금지**(컨테이너 bounds 불변이라 verify_focus_moved에서 항상 위음성 FAIL). list 모델 verifier는 트랙 B(런너 신규 action).
-  * 클래스 미확인 = `device_confirm` hedge.
-* **근거**: node 일률 가정 시 list 화면 위음성(batch11 cycle1 5/64). com.android.mms=list, com.android.settings·clock=node (F0 실증). verify_focus_moved는 focused 노드 bounds만 비교하므로 컨테이너 불변인 list는 실행 불가.
-* DO: node=verify_focus_moved 확정 / list=PENDING 보류(트랙 B) / DON'T: list를 verify_focus_moved로 확정 컴파일 · 전 화면 node 일률 가정
+* **컴파일 타깃**: focus_state는 `verify_focus_moved` action + `focus_model` 필드로 컴파일한다. 포커스를 이동시키는 선행 action은 `trigger_action`/`trigger_step`에 싣는다. `focus_assert`(focus_move·boundary_stop 등)는 verify_focus_moved의 pre/post 대조로 매핑.
+* **규칙 — focus_model 판별**: 위젯 클래스로 `focus_model`을 판별해 컴파일한다 (B-5로 런너가 양 모델 지원):
+  * **node** — scroll 컨테이너(RecyclerView·ScrollView, focused 노드 자체 이동) = `focus_model: node`(기본). focused 노드 bounds 이동 대조.
+  * **list** — AdapterView 계열(ListView `android:id/list`·GridView·Spinner, 컨테이너 focused 고정 + `selected` 자식 이동) = `focus_model: list`. 런너가 `selected` 자식 bounds를 추적한다. runnable 허용. **단 device-confirm-once**: 커스텀 어댑터가 `selected`를 dump에 미노출할 수 있으므로 첫 실기 회차에서 selected 신호 존재를 확인하고, 미확인이면 `warnings`에 `device_value: PENDING`(R6 규약) 등재 후 backfill.
+  * 클래스 미확인 = `focus_model` 보류 + `device_confirm` hedge(PENDING).
+* **근거**: node 일률 가정 시 list 화면 위음성(batch11 cycle1 5/64) — B-5에서 `find_selected_node` + `focus_model: list` 분기로 해소(test_ui_parser·test_action_runner GREEN). com.android.mms=list, com.android.settings·clock=node (F0 실증).
+* DO: 위젯 클래스로 focus_model 판별(node·list 각각 컴파일)·list는 첫 실기 selected 확인 / DON'T: 전 화면 node 일률 가정 · 클래스 미확인인데 list 확정
 
 # dry-run 우선 원칙
 

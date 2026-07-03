@@ -49,6 +49,20 @@ def find_focused_node(xml_str: str) -> Optional[dict]:
     return None
 
 
+def find_selected_node(xml_str: str) -> Optional[dict]:
+    # list 모델(AdapterView 계열): 컨테이너가 focused="true" 고정이고 하이라이트된
+    # 항목이 selected="true"로 이동한다. focus 이동 검증 시 이 selected 자식의
+    # bounds 변화를 추적한다 (reference_alt_focus_widget_model, F0 실측).
+    try:
+        root = ET.fromstring(xml_str)
+    except ET.ParseError:
+        return None
+    for node in root.iter("node"):
+        if node.get("selected") == "true":
+            return node.attrib
+    return None
+
+
 def _bounds_center(bounds_str: str) -> Optional[tuple[int, int]]:
     match = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds_str or "")
     if not match:

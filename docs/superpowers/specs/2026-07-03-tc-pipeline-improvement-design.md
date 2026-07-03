@@ -180,4 +180,20 @@ STAGE1의 `expected[].type`에는 **focus_state가 없고**, `preconditions`에�
 - **B-6. STAGE2 runnable gate에 STAGE1 신호 소비** — implicit_fixture_suspected+blocking → SETUP 필수/runnable:false, mutation_risk → fixture 정리 사이클 강제, feasibility infeasible → 조기 UNSUPPORTED. compiled_tc.yaml preconditions/step 스키마에 소비 필드 추가. (G3)
 - 기존 P-1~4(§4)와 함께 트랙 B 항목별 승인.
 
-*생성: 2026-07-03. 입력 taxonomy = workflow `wf_8c990ba1-181`. 검토 = `wf_f567f082-5c3`. 트랙 A = Option C 반영 완료(커밋 미실행·승인 대기).*
+## 10. 트랙 B 진행 — B-5 반영 완료 (2026-07-03, TDD)
+
+**B-5. list focus verifier 런너 구현** — G2 해소. TDD(RED→GREEN)로 반영, 커밋 미실행·승인 대기.
+
+| 층위 | 변경 | 검증 |
+|---|---|---|
+| 런너 | `src/ui_parser.py` `find_selected_node` 추가 · `src/action_runner.py` `_verify_focus_moved`에 `focus_model` 분기(list=selected 자식 bounds, 기본 node) | test_ui_parser 3 RED→GREEN · test_action_runner 4 RED→GREEN(2 회귀 문서 포함) |
+| schema | `tc_step_schema.json` step에 `focus_model` enum[node,list] 등록 | 전체 pytest 1032 passed |
+| 프롬프트 | STAGE2 R7 = list 확정 컴파일 전환(미지원/트랙 B → focus_model:list, runnable 허용 + device-confirm-once) · compiled enum `focus_model` · 버전 1.3.0 | golden 3/3 PASS |
+| 프로파일 | `runner_capability.yaml` verify_focus_moved 양 모델 지원 표기 · runner_version 1.4.0 | 잔여 list-미지원 hedge grep 0 |
+| STAGE1 | list hedge 전환(미지원/트랙 B → 지원 + device-confirm-once) · 버전 1.2.0 | focus_model 5층위 정합 |
+
+**정확성 경계(honest)**: 런너 로직은 unit-test GREEN(합성 dump)이고 list 모델(컨테이너 focused 고정 + selected 자식)은 `reference_alt_focus_widget_model`의 F0 실측 근거. 그러나 **실기 list TC의 runtime PASS는 미수행** — 커스텀 어댑터가 `selected`를 dump에 미노출할 가능성 때문에 R7이 **device-confirm-once**(첫 실기 selected 확인)를 요구한다. 즉 list는 runnable-eligible이나 첫 회차 확인 전까지 PENDING backfill 대상.
+
+**잔여 트랙 B**: B-6(runnable gate 신호 소비, G3 미해소 — mutation/fixture/feasibility는 여전히 advisory) · P-1~4 · D-1(트랙 C).
+
+*생성: 2026-07-03. 입력 taxonomy = workflow `wf_8c990ba1-181`. 검토 = `wf_f567f082-5c3`. 트랙 A = Option C 반영 완료(커밋 `6ba591f`). 트랙 B = B-5 반영 완료(커밋 미실행·승인 대기).*

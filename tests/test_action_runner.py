@@ -548,3 +548,113 @@ def test_verify_focus_moved_does_not_mutate_trigger_step():
         })
     # caller's trigger_step dict must not be mutated with 'action' key
     assert "action" not in trigger_step
+
+
+# ─── verify_focus_moved: list 모델 (컨테이너 focused 고정 + selected 자식 이동) ───
+# ListView 계열은 컨테이너가 focused="true"로 고정이고 하이라이트 항목이
+# selected="true"로 이동한다. 컨테이너 bounds는 pre/post 동일 — selected 자식
+# bounds만 이동한다 (reference_alt_focus_widget_model, F0 실측 com.android.mms=list).
+
+LIST_PRE_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.ListView" resource-id="android:id/list"
+        focused="true" bounds="[0,0][720,1560]">
+    <node text="A" selected="false" bounds="[0,0][720,200]" />
+    <node text="B" selected="true" bounds="[0,200][720,400]" />
+    <node text="C" selected="false" bounds="[0,400][720,600]" />
+  </node>
+</hierarchy>"""
+
+LIST_POST_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.ListView" resource-id="android:id/list"
+        focused="true" bounds="[0,0][720,1560]">
+    <node text="A" selected="false" bounds="[0,0][720,200]" />
+    <node text="B" selected="false" bounds="[0,200][720,400]" />
+    <node text="C" selected="true" bounds="[0,400][720,600]" />
+  </node>
+</hierarchy>"""
+
+LIST_NO_SELECTION_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.ListView" focused="true" bounds="[0,0][720,1560]">
+    <node text="A" selected="false" bounds="[0,0][720,200]" />
+    <node text="B" selected="false" bounds="[0,200][720,400]" />
+  </node>
+</hierarchy>"""
+
+
+def test_verify_focus_moved_list_passes_when_selection_bounds_differ():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [LIST_PRE_XML, LIST_POST_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "focus_model": "list",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_DPAD_DOWN"},
+        })
+    assert result.passed
+    adb.key.assert_called_once_with("KEYCODE_DPAD_DOWN")
+
+
+def test_verify_focus_moved_list_fails_when_selection_bounds_same():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [LIST_PRE_XML, LIST_PRE_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "focus_model": "list",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_DPAD_DOWN"},
+        })
+    assert not result.passed
+    assert "did not move" in result.message
+
+
+def test_verify_focus_moved_list_fails_when_pre_selection_missing():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [LIST_NO_SELECTION_XML, LIST_POST_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "focus_model": "list",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_DPAD_DOWN"},
+        })
+    assert not result.passed
+    assert "before trigger" in result.message
+
+
+def test_verify_focus_moved_list_fails_when_post_selection_missing():
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [LIST_PRE_XML, LIST_NO_SELECTION_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "focus_model": "list",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_DPAD_DOWN"},
+        })
+    assert not result.passed
+    assert "after trigger" in result.message
+
+
+def test_verify_focus_moved_node_model_on_list_fails_because_container_fixed():
+    # 설계 근거 회귀: list 화면을 node 모델(기본)로 검증하면 컨테이너 focused가
+    # 고정이라 위음성 FAIL — focus_model: list 가 필요한 이유 (batch11 cycle1 5/64).
+    adb = MagicMock()
+    adb.dump_ui.side_effect = [LIST_PRE_XML, LIST_POST_XML]
+    runner = ActionRunner(adb=adb, screenshot_dir=Path("/tmp"), retry_interval=0)
+    with patch.object(time, "sleep"):
+        result = runner.run_step({
+            "action": "verify_focus_moved",
+            "trigger_action": "key",
+            "trigger_step": {"key": "KEYCODE_DPAD_DOWN"},
+        })
+    assert not result.passed
+    assert "did not move" in result.message

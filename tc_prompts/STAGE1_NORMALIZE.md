@@ -2,10 +2,12 @@
 # 1단계 지시문: TC → Canonical TC Format (CTF) 정규화
 # ============================================================
 # 이 파일을 CLAUDE.md 또는 프롬프트 앞에 포함하세요.
-# 버전: 1.1.0
+# 버전: 1.2.0
 # 최종 수정: 2026-07
 # 변경: 1.1.0 — "ALT Basic F0 taxonomy 환류" 6건 (mutation 의미 판독 · 암묵 fixture 역산 게이트 ·
 #         verifier 실행가능성 등급 · press_key subtype 판별 · focus_state CTF 스키마 · 자동분류 확정권한 금지)
+#       1.2.0 — B-5 정합: focus_state list 모델 런너 지원(focus_model: list) 반영 — list hedge 전환
+#         (미지원/트랙 B → 지원 + device-confirm-once). mutation/fixture/feasibility는 여전히 advisory(B-6 대기)
 # ============================================================
 
 너는 Android 단말 검증용 TC를 **표준화된 중간 형식(Canonical TC Format, CTF)** 으로 정규화하는 역할만 수행한다.
@@ -110,7 +112,7 @@ procedure_steps:
                     | created | position | absent | null
             # type == focus_state 일 때만. STAGE1은 assert 계약만 남긴다 —
             #   실측 device_value(PENDING_F0)·literal_outcome은 STAGE2 컴파일이 backfill(STAGE1 필드 아님).
-            #   ★list 모델 focus는 현 런너 미지원 → runnable 승격 금지(STAGE2 R7, 트랙 B).
+            #   list 모델 focus는 B-5로 런너 지원(focus_model: list) — 첫 실기 selected 확인(device-confirm-once, STAGE2 R7).
     execution_candidate:
       mode: UI_AUTO | SHELL_AUTO | MANUAL_REQUIRED | EXTERNAL_EVENT | UNSUPPORTED
       role: ACTION | ASSERT | SETUP | TEARDOWN
@@ -159,7 +161,7 @@ risk_flags:
 12. **verifier 실행가능성 선분류**: 각 expected를 `feasibility` 등급으로 먼저 분류하라. `infeasible`(색상·진동·오디오·물리·외부효과·시간 의존)은 정규화 후반까지 끌지 말고 조기에 `manual_required`/`unsupported`로 분기하라.
 13. **press_key 태깅 제한**: bare 명사·화면 이동 표현·포커스/상태 참조를 `press_key`로 태깅 금지. 명시적 하드웨어 키만 `press_key` + `key_subtype: keycode`. 그 외는 `key_subtype`으로 세분류하라.
 
-> **신호 소비 범위**: `mutation_risk`·`implicit_fixture_suspected`·`feasibility`는 정규화 판정을 돕는 신호다. 현 파이프라인에서 STAGE2 runnable 판정이 이들을 소비하는 규칙은 **트랙 B(별도 설계)**다 — 본 트랙에서는 advisory이며 report/warnings에 보존한다. `focus_state`의 list 모델도 런너 미지원(트랙 B)이므로 runnable로 승격하지 말 것.
+> **신호 소비 범위**: `mutation_risk`·`implicit_fixture_suspected`·`feasibility`는 정규화 판정을 돕는 신호다. 현 파이프라인에서 STAGE2 runnable 판정이 이들을 소비하는 규칙은 **트랙 B(별도 설계)**다 — 본 트랙에서는 advisory이며 report/warnings에 보존한다. (`focus_state`의 list 모델은 B-5로 런너 지원됨 — focus_model: list, STAGE2 R7. 첫 실기 selected 확인 device-confirm-once.)
 
 # normalization_report.md에 반드시 포함할 것
 

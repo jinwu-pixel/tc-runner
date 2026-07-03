@@ -4,6 +4,7 @@ from src.ui_parser import (
     find_element_by_id,
     find_element_by_text,
     find_focused_node,
+    find_selected_node,
 )
 
 SAMPLE_XML = """<?xml version="1.0" encoding="UTF-8"?>
@@ -173,3 +174,44 @@ def test_find_focused_node_returns_none_on_parse_error():
     # use clearly broken structure
     assert find_focused_node("<hierarchy><node unclosed") is None
     assert find_focused_node("") is None
+
+
+# ─── find_selected_node (list model: container focused + selected 자식) ───
+# ListView(android:id/list) 계열은 컨테이너가 focused="true" 고정이고,
+# 하이라이트된 항목이 selected="true"로 이동한다 (F0 실측 — com.android.mms=list).
+# reference_alt_focus_widget_model.
+
+SELECTED_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.ListView" resource-id="android:id/list"
+        focused="true" bounds="[0,0][720,1560]">
+    <node text="A" selected="false" bounds="[0,0][720,200]" />
+    <node text="B" selected="true" bounds="[0,200][720,400]" />
+    <node text="C" selected="false" bounds="[0,400][720,600]" />
+  </node>
+</hierarchy>"""
+
+NO_SELECTION_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy rotation="0">
+  <node class="android.widget.ListView" focused="true" bounds="[0,0][720,1560]">
+    <node text="A" selected="false" bounds="[0,0][720,200]" />
+    <node text="B" selected="false" bounds="[0,200][720,400]" />
+  </node>
+</hierarchy>"""
+
+
+def test_find_selected_node_returns_selected_attrib():
+    node = find_selected_node(SELECTED_XML)
+    assert node is not None
+    assert node.get("selected") == "true"
+    assert node.get("text") == "B"
+    assert node.get("bounds") == "[0,200][720,400]"
+
+
+def test_find_selected_node_returns_none_when_no_selection():
+    assert find_selected_node(NO_SELECTION_XML) is None
+
+
+def test_find_selected_node_returns_none_on_parse_error():
+    assert find_selected_node("<hierarchy><node unclosed") is None
+    assert find_selected_node("") is None

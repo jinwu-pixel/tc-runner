@@ -131,6 +131,11 @@
           "type": "object",
           "description": "verify_focus_moved 수행 전 실행할 스텝 인자"
         },
+        "focus_model": {
+          "type": "string",
+          "enum": ["node", "list"],
+          "description": "verify_focus_moved 포커스 위젯 모델. node(기본, RecyclerView·ScrollView — focused 노드 이동) | list(AdapterView 계열 — 컨테이너 focused 고정 + selected 자식 이동). 미지정 시 node."
+        },
         "x": { "type": "integer", "description": "tap_xy/swipe 좌표" },
         "y": { "type": "integer", "description": "tap_xy/swipe 좌표" },
         "x2": { "type": "integer", "description": "swipe 끝 좌표" },

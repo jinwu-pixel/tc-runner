@@ -11,6 +11,7 @@ from src.ui_parser import (
     find_element_by_id,
     find_element_by_text,
     find_focused_node,
+    find_selected_node,
 )
 
 
@@ -297,8 +298,14 @@ class ActionRunner:
         if not trigger_action:
             return False, "trigger_action is required"
 
+        # focus_model: "list" = AdapterView 계열(ListView·GridView·Spinner) — 컨테이너가
+        # focused="true"로 고정이고 하이라이트 항목이 selected="true"로 이동하므로 selected
+        # 자식 bounds를 추적한다. 기본 "node" = RecyclerView·ScrollView(focused 노드 자체 이동).
+        # reference_alt_focus_widget_model (F0 실측).
+        find_node = find_selected_node if step.get("focus_model") == "list" else find_focused_node
+
         xml_pre = self.adb.dump_ui()
-        node_pre = find_focused_node(xml_pre)
+        node_pre = find_node(xml_pre)
         bounds_pre = node_pre.get("bounds") if node_pre else None
 
         dispatch_step = {**trigger_step, "action": trigger_action}
@@ -309,7 +316,7 @@ class ActionRunner:
         time.sleep(self.retry_interval)
 
         xml_post = self.adb.dump_ui()
-        node_post = find_focused_node(xml_post)
+        node_post = find_node(xml_post)
         bounds_post = node_post.get("bounds") if node_post else None
 
         if bounds_pre is None:
