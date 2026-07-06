@@ -7,7 +7,7 @@
 #
 # 위반 2종(유예 GRACE 경과 후만):
 #   awake        : mWakefulness 가 Awake 로 남음(화면/유저액티비티/sleep키 무시)
-#   wakelock_blk : WakeLockSuspendBlocker=true 가 지속(BLK_SUSTAIN 연속) = 'suspend 차단'
+#   wakelock_block : WakeLockSuspendBlocker=true 가 지속(BLK_SUSTAIN 연속) = 'suspend 차단'
 #                  직접 신호. wakefulness=Asleep 이어도 성립(partial wakelock 이 SoC 서스펜드를
 #                  막는 가장 흔한 실제 형태 — Awake 만 보면 놓친다).
 #
@@ -70,7 +70,8 @@ echo "epoch,time,wakefulness,display_blocker,cpu_blocker,partial_wakelocks,viola
 } > "$RUN_DIR/context.txt" 2>/dev/null
 
 # 콘솔도 파일에 남긴다(무인 야간 창닫힘 대비)
-exec > >(tee -a "$RUN_DIR/console.log") 2>&1
+# -i: Ctrl-C 시 tee 가 SIGINT 로 죽어 trap summary 가 broken pipe 로 유실되는 것 방지
+exec > >(tee -ai "$RUN_DIR/console.log") 2>&1
 
 echo "[INFO] 화면 OFF 후 ${DURATION_MIN}분간 ${INTERVAL}s 간격 기록 (유예 ${GRACE}s). 산출물: $RUN_DIR"
 

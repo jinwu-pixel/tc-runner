@@ -211,7 +211,8 @@ mkdir -p "$ART_DIR"
 RESULT_CSV="$RUN_DIR/results.csv"; SUMMARY="$RUN_DIR/summary.txt"
 echo "scenario,index,level,reason,artifact_dir" > "$RESULT_CSV"
 # 콘솔 전체(회차 타이밍 프로파일 포함)를 파일에도 남긴다 — 무인 야간 창닫힘/호스트 재부팅 대비(참조 하니스 규약)
-exec > >(tee -a "$RUN_DIR/console.log") 2>&1
+# -i: Ctrl-C 시 tee 가 SIGINT 로 죽어 trap summary 가 broken pipe 로 유실되는 것 방지
+exec > >(tee -ai "$RUN_DIR/console.log") 2>&1
 
 if ! adbx get-state >/dev/null 2>&1; then echo "adb 단말 연결 확인 실패"; exit 3; fi
 detect_home
