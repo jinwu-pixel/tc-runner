@@ -1,0 +1,6 @@
+# Shell scripts must stay LF — CRLF breaks shebang / case / heredoc under Git Bash on Windows.
+# (repo runs with core.autocrlf=true, which would otherwise emit CRLF on a fresh checkout)
+*.sh text eol=lf
+
+# Windows batch files must stay CRLF (some environments fail on LF).
+*.bat text eol=crlf
