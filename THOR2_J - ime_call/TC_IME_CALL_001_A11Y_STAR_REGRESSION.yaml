@@ -1,0 +1,104 @@
+tc_name: IME_CALL_001_A11Y_STAR_REGRESSION
+description: |
+  재부팅 클린 기준선과 UiAutomation 연결 후 상태를 최소쌍으로 비교하여,
+  AT-M140 다이얼러에서 물리 키패드의 별표가 접근성 연결 뒤에도 보존되는지 검증한다.
+  표준 tc-runner/Appium 실행은 그 자체가 트리거이므로 금지하며, 정적 validate와
+  독립 수동 실행에만 사용한다. 수정 전 확인 빌드에서는 post-trigger 단계가 FAIL한다.
+
+metadata:
+  source: "IME-CALL-001 · RESULT_2026-07-07 · 3-unit confirmed matrix"
+  runnable: false
+  runnable_reason:
+    - MANUAL_FALLBACK
+  tc_class: SEMI_AUTO
+  execution_type: MANUAL_LOCAL
+  manual_detail: PHYSICAL_ACTION
+  has_manual_steps: true
+  has_shell_actions: false
+  has_unresolved_params: false
+  target_device: "AT-M140 physical-key device"
+  target_app:
+    package: "com.android.dialer"
+    version_name: "1.0.0"
+    build: "1638"
+  target_ime:
+    package: "jp.co.omronsoft.iwnnime.ml"
+    version_name: "2.23.1"
+    build: "10"
+  invocation_constraint: "DO_NOT_RUN_WITH_TC_RUNNER_APPIUM_OR_UIAUTOMATOR_EXCEPT_THE_EXPLICIT_TRIGGER_STEP"
+  current_build_expectation: "KNOWN_FAIL_AFTER_TRIGGER"
+
+preconditions:
+  - "AT-M140 물리 키패드 단말 1대만 연결"
+  - "iWnn이 기본 IME로 활성화됨"
+  - "테스트 시작 전 단말 재부팅 가능"
+  - "입력 결과는 육안으로만 판정; 필드 판독용 a11y/Appium/UiAutomator 사용 금지"
+  - "표준 tc-runner 실행 금지; 본 YAML은 validate 가능한 수동 회귀 명세"
+
+steps:
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: SETUP
+    compile_status: MANUAL_FALLBACK
+    description: |
+      클린 기준선을 만든다.
+      1) 단말을 재부팅한다.
+      2) 부팅 후 TalkBack, Appium, UiAutomator를 연결하지 않는다.
+      3) 물리키로 다이얼러를 열고 번호 필드를 비운다.
+      주의: adb shell input keyevent는 물리 키패드 경로를 재현하지 않으므로 사용하지 않는다.
+    manual_timeout: 600
+    on_timeout: fail
+
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: MANUAL_FALLBACK
+    description: |
+      클린 기준선에서 물리키로 3, *, #을 각각 한 번 누른다.
+      육안 기대값은 "3*#"이다. 다르면 BASELINE_FAIL로 기록하고 즉시 중단한다.
+      입력 뒤 필드 확인을 위해 dump/Appium/TalkBack 이벤트 스트림을 사용하지 않는다.
+    manual_timeout: 300
+    on_timeout: fail
+
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: ACTION
+    compile_status: MANUAL_FALLBACK
+    description: |
+      번호 필드를 비우고 다이얼러를 종료한다. 호스트에서 다음 명령을 정확히 한 번 실행해
+      접근성/UiAutomation 연결을 트리거한다:
+      adb -s <serial> shell uiautomator dump /sdcard/ime_call_trigger.xml
+      그 외 Appium 세션이나 추가 dump는 시작하지 않는다.
+    manual_timeout: 300
+    on_timeout: fail
+
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: MANUAL_FALLBACK
+    description: |
+      물리키로 다이얼러를 다시 열고 3, *, #을 각각 한 번 누른다.
+      회귀 PASS 기준은 접근성 연결 후에도 번호 필드가 "3*#"인 것이다.
+      "3#"이면 IME-CALL-001 재현으로 FAIL 처리한다. 육안으로만 판정한다.
+    manual_timeout: 300
+    on_timeout: fail
+
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: ASSERT
+    compile_status: MANUAL_FALLBACK
+    description: |
+      다이얼러만 종료 후 재실행하고 물리키 3, *, #을 다시 입력한다.
+      sticky 회귀 PASS 기준도 "3*#"이다. "3#"이면 FAIL 처리한다.
+    manual_timeout: 300
+    on_timeout: fail
+
+  - action: manual_pause
+    execution_mode: MANUAL_REQUIRED
+    step_role: TEARDOWN
+    compile_status: MANUAL_FALLBACK
+    description: |
+      결과와 빌드 정보를 기록한 뒤 단말을 재부팅하여 a11y-triggered sticky 상태를 해제한다.
+      /sdcard/ime_call_trigger.xml을 삭제하고 TalkBack/Appium/UiAutomator가 비활성인지 확인한다.
+    manual_timeout: 600
+    on_timeout: warn
