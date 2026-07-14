@@ -460,7 +460,7 @@ steps:
 * [ ] has_manual_steps가 execution_type과 일관되는가?
 * [ ] compiled_tc.yaml이 tc_step_schema.json을 준수하는가?
 * [ ] verifier literal·selector·nav 목적지가 단말 실측값인가? 미실측은 PENDING_F0로 표기되었는가? (paraphrase 승격 없음)
-* [ ] focus_state가 verify_focus_moved(node)로 컴파일되었는가? list 모델은 PENDING 보류(runnable 승격 금지)인가?
+* [ ] focus_state가 verify_focus_moved로 컴파일되고 focus_model이 R7 판별 규칙과 일치하는가? (node·list 각각 컴파일 — list는 device-confirm-once(첫 실기 selected 확인) 표기, 위젯 클래스 미확인은 focus_model 보류 + device_confirm hedge(PENDING))
 
 하나라도 실패하면 수정 후 재출력하라.
 

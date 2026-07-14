@@ -142,6 +142,14 @@ def validate_tc(tc: dict, schema: dict) -> list[str]:
             )
         else:
             for reason in runnable_reason:
+                # 비문자열 원소(list/dict 등 unhashable 포함)는 set 멤버십 판정 전에
+                # 형식 오류로 닫는다 — TypeError 크래시 없이 오류 목록으로 fail-closed.
+                if not isinstance(reason, str):
+                    errors.append(
+                        f"runnable_reason 원소 형식 오류: 문자열이어야 함 "
+                        f"(현재: {type(reason).__name__})"
+                    )
+                    continue
                 if reason not in VALID_RUNNABLE_REASONS:
                     errors.append(
                         f"runnable_reason 토큰 불일치: '{reason}' "

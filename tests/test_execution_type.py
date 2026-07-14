@@ -274,6 +274,27 @@ CASES = [
         False,
         "runnable_reason 형식",
     ),
+    (
+        # 원소가 list(unhashable) → TypeError 크래시 없이 형식 FAIL (fail-closed 회귀 가드)
+        "20_runnable_reason_element_list_no_crash",
+        lambda: _base_tc(metadata={"runnable": False, "runnable_reason": [["FIXTURE_REQUIRED"]]}),
+        False,
+        "runnable_reason 원소 형식",
+    ),
+    (
+        # 원소가 dict(unhashable) → 크래시 없이 형식 FAIL
+        "21_runnable_reason_element_dict_no_crash",
+        lambda: _base_tc(metadata={"runnable": False, "runnable_reason": [{"r": "FIXTURE_REQUIRED"}]}),
+        False,
+        "runnable_reason 원소 형식",
+    ),
+    (
+        # 원소가 int(비문자열 hashable) → enum 불일치가 아닌 형식 오류로 FAIL
+        "22_runnable_reason_element_int",
+        lambda: _base_tc(metadata={"runnable": False, "runnable_reason": [3]}),
+        False,
+        "runnable_reason 원소 형식",
+    ),
 ]
 
 
