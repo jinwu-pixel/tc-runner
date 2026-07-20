@@ -204,6 +204,7 @@ venv/Scripts/python.exe gen_excel.py
 
 - 단일 carrier·단일 조건 PASS = 일반화 금지
 - 정/역 재현 예: WWAN on → trigger / off → no trigger (양방향)
+- Engineer-Mode override의 Way3 반영은 **항목 × carrier × 적용 시점**별로 다르다. 검증된 applicability 매트릭스를 누적·재사용하고, 동일 조합을 재시험마다 처음부터 재판별하지 않는다 (`ODIN2 - Engineer IMS/RUNTIME_PLAYBOOK.md`).
 
 **3-way ground truth 정합 원칙**:
 단말 표시값 검증은 **단말 UI / 시스템 dump / 인터페이스 상태** 3 출처 동시 일치를 `runtime PASS` 요건으로 한다. 단일 출처는 layout 누락·stale 표시 등 위양성 가능. 적용 패턴 상세: `feedback_diagnostic_3way_ground_truth.md`.
@@ -288,6 +289,7 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 | `manifest_result_reconcile.py` | manifest×구현×결과 tc_id 조인 reconcile (커버리지 갭 가시화·4종 불일치, P-4) |
 | `qcat_fast_extract.ps1` (PowerShell) | 대용량 qmdl QCAT 파싱 단축 (filter-first + ISF 캐시 ~740× + 단일 포그라운드 COM). 상세 `docs/qcat_parsing.md` |
 | `ims_sip_digest.py` | QCAT 0x156E IMS SIP 텍스트 → override 검증용 KB digest (KST 타임스탬프) |
+| `eng_mode_runner.py` + `eng_mode_profiles.py` | 동일한 gate→tab→flat-list UI 구조의 Engineer-Mode 앱 런너 (preflight wrong-device 가드·caseset 앱-1회 batch·capture 상태-게이트·adb 0 `plan`; selector/라벨/좌표 프로파일 외부화). host-TDD/dry-run 완료, 범용 경로 device smoke pending |
 
 ### 5.4 운영 도구 (`tools/`)
 
@@ -477,7 +479,7 @@ batch10 dir 직접 기록 = phantom side-effect + 슬라이스 over-read 53/29).
 | 2026-06-16 | workflow agent 안전 | ALT batch11 합성 중 워크플로 agent가 구조화 반환 대신 yaml 4개를 batch10 dir 직접 기록(file side-effect) + 슬라이스 over-read(53/29 반환). git 추적 검증으로 phantom(untracked·`fc56cf8` 미포함) 확정·삭제·정정. → 합성 agent read-only/return-only 제약 + 실행 후 untracked 오염 스캔 필요 | §5.7·§5.4 (workflow 운영규칙+오염 스캔 도구) | applied |
 | 2026-06-16 | tc_id 무결성 | tc_id `ALTBASIC_<PREFIX>_<excel_row3>` 비단사 + Excel 4 sheet(Safety/Launcher/Call/Camera) 중복 TC ID 83건 = **잠재(latent) 구조 위험**(실발현 0). batch11 실충돌 4건(CALC_027/028·SST_010/011)의 실제 원인 = 워크플로 phantom side-effect(위 row — batch11분을 batch10 dir 오기록)이지 Excel dup 아님(근거 3중: 충돌 row_key가 KEEP_CONFIRMED 271에 부재·충돌 sheet가 dup 4 sheet 미포함·phantom 삭제 후 gate 충돌 0). gate 포착·최종 실충돌 0/29. 도구화 `scratch/altbasic_tcid_collision_check.py`(cross-batch + Excel dup 감사, prep 선행 게이트). 정정 근거: FAILURE_TAXONOMY_2026-07-03 C7 FM1 | §5.3 (collision_check 도구 등록)·§8.2 인과정정(31a1d64) | applied |
 | 2026-06-16 | diagnostic / IMS 검증 | ODIN2 Engineer IMS 복합 기능 TC 검증: AP logcat reg-state·callProfile(`audioCodecAttribute=null`)은 IMS 등록/코덱 **비권위** — 모뎀 `.qmdl` SIP(log `0x156E`) REGISTER↔resp **Call-ID 매칭**이 ground truth. TC1 임의값(bare Domain `sktelecom2`→req-URI `sip:sktelecom2`)→`404`×3 등록실패 관찰(누락 신호 0). + "복합 시험" = 필드격리 아닌 기능 시나리오(임의값 동시→실호/재등록→신호 반영) | §4.6 대표 사례 + memory([[reference_ims_sip_qcat_verification]]·[[feedback_combined_test_functional_scenario]]) | applied |
-| 2026-06-17 | 단말 런타임 효율·정확도 | Engineer IMS 8케이스 실기가 과다 소요 — 항목별 앱 cold 재기동·불필요 reboot(둘이 최대급 손실; reboot는 호 파라미터 환원까지)·조기 qmdl pull·단말정체 미확인(self-call·USIM 교체)·Way1·2≠Way3 매번 재판별. 도구화(런너 caseset/preflight+wrong-device 가드/capture 상태-게이트) + 카탈로그 RUNTIME_PLAYBOOK Override Applicability Matrix + feedback 메모리 | §5(도구: Engineer IMS 런너 등록) + §4.2(Way3 반영은 항목·캐리어별 applicability) 후보 + memory([[feedback_device_runtime_efficiency]]) | proposed |
+| 2026-06-17 | 단말 런타임 효율·정확도 | Engineer IMS 8케이스 실기가 과다 소요 — 항목별 앱 cold 재기동·불필요 reboot(둘이 최대급 손실; reboot는 호 파라미터 환원까지)·조기 qmdl pull·단말정체 미확인(self-call·USIM 교체)·Way1·2≠Way3 매번 재판별. 도구화(런너 caseset/preflight+wrong-device 가드/capture 상태-게이트) + 카탈로그 RUNTIME_PLAYBOOK Override Applicability Matrix + feedback 메모리 | §5.3 (`eng_mode_runner.py`+profile, host-TDD/dry-run) + §4.2(applicability 재사용) + `RUNTIME_PLAYBOOK.md`; 범용 경로 device smoke pending | applied |
 | 2026-06-17 | QCAT 파싱 단축 도구 | 대용량 qmdl(155M/131만p) QCAT 파싱 병목 = OpenLog 전수 인덱싱(~148s, 86%가 불요 0x1FEB debug). 단축법 정립·실측: filter-first(SaveAsText 전 SetAll(false)+Set+Commit, 564MB→KB) + ISF 캐시(SaveAsISF 1회→재오픈 0.2s, ~740×, 무손실) + 단일 포그라운드 세션(0x80080005 진짜 원인=QCAT 첫기동 DirectPlay 모달 launch 블록, 백그라운드 금지). `scripts/qcat_fast_extract.ps1` 승격 + BTS15068·40M 양 캡처 검증. 0xB193=RSRP/RSRQ per-antenna ground truth | §5.3 (qcat_fast_extract.ps1·ims_sip_digest.py)·docs/qcat_parsing.md·memory([[reference_qcat_fast_extraction]]·[[project_bts15068_antbar]]) | applied |
 | 2026-07-02 | TalkBack×하드키 검증 방법론 | THOR2_J×LINE 이슈 2건 규명(SPEC_GAP)에서 앱 무관 방법론 정립: 포커스 2축(입력≠a11y, non-speaking 컨테이너 무피드백 구간)·FocusFinder shadowing(전폭 컨테이너가 자식 가림·ViewPager 수평키 소비)·adb 함정 3종(uiautomator dump=TalkBack 일시 억제→키 시퀀스 중 dump 금지 / input tap·swipe=터치탐색 우회 즉시클릭→탐색 발화는 keyevent로 대체 / MSYS·PS5.1 깨짐)·발화 정량(TTS Synthesis+오디오포커스 세션+대조군 2종)·레이어 분리 절차·단말측 3rd-party a11y 수정 경로 부재(트리=앱 소유·RRO 무력·TalkBack=Google/Play·bare D-PAD 키맵 없음, 리서치 확정). 정적 스크리닝 S1~S8 도구화는 승인 대기 | docs/talkback_dpad_verification.md(신설 완료)·memory([[reference_talkback_hardkey_verification]]·[[project_thor2j_line_talkback]]) 반영, §4/§5 본문 등록은 갱신 대기 | proposed |
 

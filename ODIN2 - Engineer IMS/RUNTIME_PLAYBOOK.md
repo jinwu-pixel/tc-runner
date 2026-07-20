@@ -1,6 +1,6 @@
 # Engineer Mode IMS — 실기 런타임 플레이북
 
-`EXEC_RUNBOOK_복합_2026-06-16.md` 승계. 목적 = 8케이스 실기를 **빠르고 정확하게** 반복. 런너 = `run_complex_0617.py`.
+`EXEC_RUNBOOK_복합_2026-06-16.md` 승계. 목적 = 8케이스 실기를 **빠르고 정확하게** 반복. host-verified 정식 경로 = `scripts/eng_mode_runner.py` (**device smoke pending**); `run_complex_0617.py`는 2026-06-17 frozen 실기 증거.
 
 판정 = 3-Way: **Way1**(UI readback) ∧ **Way2**(write-hook log) ∧ **Way3**(.qmdl SIP/SDP/RRC = ground truth). **Way1·2 commit ≠ Way3 반영** — Way3는 항목·캐리어별로 다름(아래 매트릭스).
 
@@ -45,15 +45,28 @@
 
 ---
 
-## 3. 런너 사용 (`run_complex_0617.py`)
+## 3. 런너 사용 (`scripts/eng_mode_runner.py`)
+
+`scripts/eng_mode_runner.py`가 프로파일 기반 정식 경로다. 기존
+`run_complex_0617.py`는 2026-06-17 실기 RESULT/RUN_LEDGER가 참조하는 frozen
+증거이므로 수정하지 않는다. 기본 프로파일은 `ODIN2_ENG_V1`; 증거는 repo root의
+`ODIN2 - Engineer IMS/log/RUN_YYYYMMDD/` 아래에 누적된다.
+
+> 현재 범용 경로는 host-TDD/dry-run 완료, **device smoke pending**이다. smoke 전
+> `runtime PASS` 또는 frozen 런너와의 단말 거동 동등성을 주장하지 않는다.
 
 ```
-preflight                         # 단말ID·캐리어·IMS·boot_id·로그경로 기록 + WRONG DEVICE 가드(AT-M150·engineer app 확인)
-caseset <TCID>                    # 케이스 전 설정을 앱 1회 기동 안에서 batch (force-stop 없음). 시작 시 wrong-device ABORT 가드.
-                                  #   항목별 Way1(readback, stdout)+Way2(hook → cs_<item>_hook.log) 분리 캡처. CASES dict 인코딩
-capture <TCID> <tag> <reg|call|any> [timeout]   # 상태-게이트: 등록/통화 도달까지 폴링 후 qmdl+main pull, 캐리어/UTC. wrong-device 가드.
-reboot | pull | state | write|read|radio|mfield  # 단건/보조 (항목별 Way2가 더 정밀히 필요하면 단건 명령 사용)
+python scripts/eng_mode_runner.py plan <TCID>       # adb 0 dry-run: 순서·kind·target rid 검증
+python scripts/eng_mode_runner.py preflight         # 단말ID·캐리어·IMS·boot_id·로그경로 기록 + WRONG DEVICE 가드
+python scripts/eng_mode_runner.py caseset <TCID>    # 케이스 전 설정을 앱 1회 기동 안에서 batch (force-stop 없음)
+                                  #   항목별 Way1(readback, stdout)+Way2(hook → cs_<item>_hook.log) 분리 캡처. CASESETS는 scripts/eng_mode_profiles.py
+python scripts/eng_mode_runner.py capture <TCID> <tag> <reg|call|any> [timeout]
+                                  # 상태-게이트: 등록/통화 도달까지 폴링 후 qmdl+main pull, 캐리어/UTC
+python scripts/eng_mode_runner.py reboot
+python scripts/eng_mode_runner.py pull <TCID> [tag]
+                                  # state/write/read/radio/mfield는 단건 보조. 세부 인자는 <command> --help 참조
 ```
+- 프로파일/출력 override는 명령 앞에 둔다: `--profile ODIN2_ENG_V1 --out-root <path> --run-label <label>`. 다일 캠페인은 자정 분절 방지를 위해 고정 `--run-label`을 필수로 지정한다.
 - **caseset 증거 granularity**: 항목별 Way1=stdout `item=값`, Way2=`cs_<item>_hook.log`(항목당 logcat clear→write→hook). 단건 명령과 동급 귀속. (caseset 자체엔 reboot/call 트리거 없음 — 적용시점 매트릭스대로 등록계는 별도 reboot, 호계는 caseset 후 발신.)
 - 발신: `adb shell am start -a android.intent.action.CALL -d tel:<번호>` (영상=`--ei android.telecom.extra.START_CALL_WITH_VIDEO_STATE 3`), 종료 `input keyevent 6`. **발신 전 preflight로 자기번호·캐리어 재확인**(self-call·SIM swap 방지).
 - pull은 항상 런너(python subprocess) — bash `adb pull /sdcard/...`는 **MSYS 경로변환 버그**(`C:/Program Files/Git/sdcard/...`)로 실패.
