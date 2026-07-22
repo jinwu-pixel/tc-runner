@@ -158,6 +158,10 @@
           "minimum": 0,
           "description": "wait 대기 시간(ms) 또는 swipe 지속 시간(ms)"
         },
+        "name": {
+          "type": "string",
+          "description": "screenshot 산출물의 결정론적 이름"
+        },
         "description": {
           "type": "string",
           "description": "manual_pause에서 수동 작업자에게 보여줄 지시. manual_pause 시 필수"
@@ -177,7 +181,7 @@
         "timeout": {
           "type": "integer",
           "minimum": 0,
-          "description": "verify 계열 액션의 대기 제한(ms)"
+          "description": "verify 계열 액션의 대기 제한(ms). verify_shell 기본값은 30000ms"
         },
         "retry": {
           "type": "integer",
@@ -222,6 +226,14 @@
           "then": { "required": ["action", "target"] }
         },
         {
+          "if": { "properties": { "action": { "const": "tap_id" } } },
+          "then": { "required": ["action", "target"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "tap_xy" } } },
+          "then": { "required": ["action", "x", "y"] }
+        },
+        {
           "if": { "properties": { "action": { "const": "verify_text" } } },
           "then": { "required": ["action", "target"] }
         },
@@ -252,6 +264,10 @@
         {
           "if": { "properties": { "action": { "const": "wait" } } },
           "then": { "required": ["action", "duration"] }
+        },
+        {
+          "if": { "properties": { "action": { "const": "screenshot" } } },
+          "then": { "required": ["action", "name"] }
         },
         {
           "if": { "properties": { "action": { "const": "swipe" } } },

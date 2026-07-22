@@ -265,3 +265,95 @@ class TestSemanticIntentCompilation:
         steps, warnings = compiler.compile_classified(ci)
         assert len(steps) == 1
         assert steps[0] == {"action": "key", "keycode": "BACK"}
+
+
+def test_canonical_compiler_emits_target_key_duration():
+    compiler = TCRunnerCompiler(contract_mode="canonical")
+    classified = [
+        ClassifiedIntent(
+            intent=Intent(type="navigate", target="Settings"),
+            execution_mode="UI_AUTO",
+            step_role="ACTION",
+        ),
+        ClassifiedIntent(
+            intent=Intent(type="press_key", value="HOME"),
+            execution_mode="UI_AUTO",
+            step_role="ACTION",
+        ),
+        ClassifiedIntent(
+            intent=Intent(type="wait", value="3"),
+            execution_mode="UI_AUTO",
+            step_role="ACTION",
+        ),
+    ]
+
+    steps = []
+    for intent in classified:
+        compiled, warnings = compiler.compile_classified(intent)
+        assert warnings == []
+        steps.extend(compiled)
+
+    assert steps == [
+        {"action": "tap_text", "target": "Settings"},
+        {"action": "key", "key": "HOME"},
+        {"action": "wait", "duration": 3000},
+    ]
+
+
+def test_canonical_compiler_preserves_input_text_payload():
+    compiler = TCRunnerCompiler(contract_mode="canonical")
+    classified = ClassifiedIntent(
+        intent=Intent(
+            type="input_text",
+            target="phone number",
+            extra={"text": "01012345678"},
+        ),
+        execution_mode="UI_AUTO",
+        step_role="ACTION",
+    )
+
+    steps, warnings = compiler.compile_classified(classified)
+
+    assert warnings == []
+    assert steps == [{"action": "input_text", "text": "01012345678"}]
+
+
+def test_canonical_compiler_compile_normalizes_full_document_steps():
+    ir = _make_ir(
+        [
+            Intent(type="navigate", target="Settings"),
+            Intent(type="press_key", value="HOME"),
+            Intent(type="wait", value="3"),
+        ],
+        tc_name="MMI_CANONICAL_DOCUMENT",
+    )
+
+    document = TCRunnerCompiler(contract_mode="canonical").compile(ir)
+
+    assert document["steps"] == [
+        {"action": "tap_text", "target": "Settings"},
+        {"action": "key", "key": "HOME"},
+        {"action": "wait", "duration": 3000},
+    ]
+
+
+def test_canonical_compiler_canonicalize_steps_raises_on_blocking_conflict():
+    with pytest.raises(ValueError, match="ALIAS_CONFLICT"):
+        TCRunnerCompiler._canonicalize_steps(
+            [{"action": "wait", "duration": 2000, "seconds": 3}]
+        )
+
+
+def test_explicit_legacy_compiler_behavior_is_unchanged():
+    ir = _make_ir(
+        [
+            Intent(type="navigate", target="Settings"),
+            Intent(type="press_key", value="HOME"),
+            Intent(type="wait", value="3"),
+        ],
+        tc_name="MMI_LEGACY",
+    )
+
+    assert TCRunnerCompiler(contract_mode="legacy").compile(ir) == (
+        TCRunnerCompiler().compile(ir)
+    )

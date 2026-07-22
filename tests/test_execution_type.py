@@ -17,6 +17,7 @@
 """
 
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -26,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from validate_tc import validate_tc, load_schema  # noqa: E402
+from src.execution_contract import validate_canonical_tc  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -317,3 +319,60 @@ def test_execution_type_validation(
             assert any(expect_error_substr in e for e in errors), (
                 f"{case_id}: 예상 에러 미검출 '{expect_error_substr}'; 실제 = {errors}"
             )
+
+
+def test_validate_tc_normalizes_legacy_document_without_mutating_it(schema):
+    tc = _base_tc()
+    tc["name"] = tc.pop("tc_name")
+    tc["steps"] = [{"action": "wait", "seconds": 0}]
+    before = deepcopy(tc)
+
+    errors = validate_tc(tc, schema)
+
+    assert errors == []
+    assert tc == before
+
+
+def test_validate_tc_reports_stable_alias_conflict_code(schema):
+    tc = _base_tc()
+    tc["steps"] = [
+        {"action": "verify_text", "target": "canonical", "text": "legacy"}
+    ]
+
+    errors = validate_tc(tc, schema)
+
+    assert any("ALIAS_CONFLICT" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    "tc",
+    [
+        _base_tc(metadata={"execution_type": "BROKEN"}),
+        _base_tc(
+            metadata={
+                "runnable": False,
+                "runnable_reason": [["FIXTURE_REQUIRED"]],
+            }
+        ),
+        _base_tc(
+            steps=[
+                {
+                    "action": "shell",
+                    "command": "am start {PACKAGE}",
+                    "execution_mode": "SHELL_AUTO",
+                    "step_role": "SETUP",
+                    "compile_status": "OK",
+                }
+            ]
+        ),
+        _base_tc(steps=[{"action": "tap_id"}]),
+    ],
+    ids=[
+        "invalid_execution_type",
+        "runnable_reason_unhashable",
+        "shell_placeholder",
+        "missing_action_operand",
+    ],
+)
+def test_shared_canonical_validator_matches_compatibility_wrapper(tc, schema):
+    assert validate_canonical_tc(tc, schema) == validate_tc(tc, schema)

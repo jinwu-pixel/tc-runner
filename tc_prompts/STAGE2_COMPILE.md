@@ -294,7 +294,7 @@ metadata:
   source_file: string | null
   source_sheet: string | null
   source_row: string | null
-  tc_class: FULL_AUTO | SEMI_AUTO | MANUAL_REQUIRED | AMBIGUOUS_NL
+  tc_class: FULL_AUTO | SEMI_AUTO | AMBIGUOUS_NL
   runnable: true | false
   runnable_reason:                    # runnable:false 게이트 사유 (B-6, Step 5). 비어있지 않으면 runnable=false
     - FIXTURE_REQUIRED | MUTATION_UNMANAGED | INFEASIBLE_VERIFIER | UNRESOLVED_PARAMS | MANUAL_FALLBACK
@@ -310,7 +310,7 @@ preconditions:
   - string
 
 steps:
-  - action: string                 # tap_text | tap_id | tap_xy | tap_content_desc | key | shell
+  - action: string                 # tap_text | tap_id | tap_xy | tap_content_desc | key | key_sequence | shell
                                    # | input_text | swipe | wait | screenshot
                                    # | manual_pause | verify_text | verify_shell | verify_gone
                                    # | verify_content_desc | verify_focus_moved
@@ -318,12 +318,15 @@ steps:
     step_role: string              # ACTION | ASSERT | SETUP | TEARDOWN
     compile_status: string         # OK | UNRESOLVED_PARAMS | MANUAL_FALLBACK | UNSUPPORTED
 
-    # action별 필수 필드 (해당 action일 때만)
-    target: string | null          # tap_text, verify_text, verify_gone, tap_content_desc, verify_content_desc
+    # action별 필수 필드 source = tc_step_schema.json $defs.step.allOf
+    # validator/adapter는 src.execution_contract.derive_action_required 로 동일 규칙을 읽는다.
+    target: string | null          # tap_text, tap_id, verify_text, verify_gone, tap_content_desc, verify_content_desc
     command: string | null         # shell, verify_shell
     expected: string | null        # verify_shell
     text: string | null            # input_text
-    key: string | null             # key (예: KEYCODE_HOME)
+    key: string | integer | null   # key (예: KEYCODE_HOME 또는 3)
+    keys: array | null             # key_sequence key 배열
+    delay: number | null           # key_sequence 입력 간격(seconds) — v1 이연 단위
     trigger_action: string | null  # verify_focus_moved — 포커스 이동을 일으키는 선행 action
     trigger_step: object | null    # verify_focus_moved — 선행 action의 스텝 인자
     focus_model: node | list | null # verify_focus_moved — 포커스 위젯 모델 (기본 node · list=AdapterView 계열, R7)
@@ -332,6 +335,7 @@ steps:
     x2: integer | null             # swipe
     y2: integer | null             # swipe
     duration: integer | null       # wait(ms), swipe(ms)
+    name: string | null            # screenshot 결정론적 산출물 이름
     description: string | null     # manual_pause (필수), 기타 (권장)
     manual_timeout: integer | null # manual_pause (기본 300)
     on_timeout: fail | skip | warn | null  # manual_pause (기본 fail)

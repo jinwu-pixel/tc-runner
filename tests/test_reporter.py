@@ -137,8 +137,10 @@ def test_reporter_bundle_mode_summary_json_shape(tmp_path):
     assert out == bundle / "summary.json"
     data = json.loads(out.read_text(encoding="utf-8"))
 
-    assert data["schema_version"] == SUMMARY_SCHEMA_VERSION
+    assert data["schema_version"] == SUMMARY_SCHEMA_VERSION == 2
     assert data["tool_version"] == SUMMARY_TOOL_VERSION
+    assert data["contract_mode"] == "legacy"
+    assert data["run_status"] == "COMPLETED"
     assert data["run_id"] == run_id
     assert data["generated_at"].endswith("Z")
     assert data["device"]["model"] == "AT-M140"
@@ -166,6 +168,76 @@ def test_reporter_bundle_mode_summary_json_shape(tmp_path):
     tc_b = data["results"][1]
     assert tc_b["steps"][0]["manual_action"] == "skip"
     assert tc_b["steps"][0]["skip_reason"] == "user requested"
+
+
+def test_summary_schema_version_two_records_contract_mode(tmp_path):
+    reporter = Reporter(
+        report_dir=tmp_path,
+        run_id="20260721T020000Z",
+        contract_mode="canonical",
+    )
+
+    data = json.loads(reporter.write_summary_json().read_text(encoding="utf-8"))
+
+    assert data["schema_version"] == 2
+    assert data["contract_mode"] == "canonical"
+    assert data["run_status"] == "COMPLETED"
+
+
+def test_aborted_fail_closed_is_serialized_in_partial_summary(tmp_path):
+    reporter = Reporter(
+        report_dir=tmp_path,
+        run_id="20260721T020001Z",
+        contract_mode="canonical",
+        run_status="ABORTED_FAIL_CLOSED",
+    )
+    reporter.results = [
+        TCResult(
+            name="PARTIAL",
+            description="",
+            steps=[
+                StepResult(action="wait", passed=True, duration=0.1),
+                StepResult(
+                    action="tap_xy",
+                    passed=False,
+                    message="forced failure",
+                    duration=0.2,
+                ),
+            ],
+        )
+    ]
+
+    data = json.loads(reporter.write_summary_json().read_text(encoding="utf-8"))
+
+    assert data["contract_mode"] == "canonical"
+    assert data["run_status"] == "ABORTED_FAIL_CLOSED"
+    assert [step["action"] for step in data["results"][0]["steps"]] == [
+        "wait",
+        "tap_xy",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("contract_mode", "run_status"),
+    [
+        ("legacy", "COMPLETED"),
+        ("canonical", "ABORTED_FAIL_CLOSED"),
+    ],
+)
+def test_report_records_contract_mode_and_abort_context(
+    tmp_path, contract_mode, run_status
+):
+    reporter = Reporter(
+        report_dir=tmp_path,
+        run_id=f"20260721T02000{int(contract_mode == 'canonical') + 2}Z",
+        contract_mode=contract_mode,
+        run_status=run_status,
+    )
+
+    data = json.loads(reporter.write_summary_json().read_text(encoding="utf-8"))
+
+    assert data["contract_mode"] == contract_mode
+    assert data["run_status"] == run_status
 
 
 def test_reporter_summary_json_rejects_legacy_mode(tmp_path):

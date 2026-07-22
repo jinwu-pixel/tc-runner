@@ -1,10 +1,16 @@
 # tests/test_exporter.py
 """YAML exporter 단위 테스트."""
 import hashlib
+import json
+from datetime import datetime as RealDatetime
 import pytest
 from pathlib import Path
+import yaml
+
+import src.mmi_converter.exporter as exporter_module
 from src.mmi_converter.exporter import YAMLExporter, check_runnable
 from src.mmi_converter.models import ConversionPreview, Intent
+from src.execution_contract import validate_canonical_tc
 
 
 @pytest.fixture
@@ -165,3 +171,206 @@ class TestExportMetadata:
         assert path1 is not None
         assert path2 is not None
         assert path1.name != path2.name  # different content → different hash
+
+
+def test_canonical_exporter_emits_required_metadata(tmp_path):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+    preview = _preview(
+        name="MMI_CANONICAL",
+        steps=[{"action": "tap_text", "text": "Settings"}],
+    )
+
+    path = exporter.export_one(
+        preview,
+        source_file="mmi.xlsx",
+        source_sheet="Sheet1",
+        source_row=7,
+    )
+
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert doc["tc_name"] == "MMI_CANONICAL"
+    assert "name" not in doc
+    assert doc["steps"] == [{"action": "tap_text", "target": "Settings"}]
+    assert doc["metadata"]["runnable"] is True
+    assert doc["metadata"]["tc_class"] == "FULL_AUTO"
+    assert doc["metadata"]["execution_type"] == "AUTO"
+    assert doc["metadata"]["manual_detail"] == "NONE"
+    assert doc["metadata"]["has_manual_steps"] is False
+    assert "automation_class" not in doc["metadata"]
+    assert "exported_at" in doc["metadata"]
+    schema = json.loads(
+        (Path(__file__).parent.parent / "tc_step_schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert validate_canonical_tc(doc, schema) == []
+
+
+def test_unresolved_mmi_export_is_not_runnable(tmp_path):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+    preview = _preview(
+        name="MMI_UNRESOLVED",
+        steps=[
+            {
+                "action": "shell",
+                "command": "am start -n {package}/.MainActivity",
+                "compile_status": "UNRESOLVED_PARAMS",
+                "_unresolved_params": ["package"],
+            }
+        ],
+    )
+
+    path = exporter.export_one(
+        preview,
+        source_file="mmi.xlsx",
+        source_sheet="Sheet1",
+        source_row=8,
+    )
+
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert doc["metadata"]["runnable"] is False
+    assert doc["metadata"]["runnable_reason"] == ["UNRESOLVED_PARAMS"]
+
+
+def test_canonical_mmi_export_rejects_invalid_document_before_write(tmp_path):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+    preview = _preview(
+        name="MMI INVALID NAME",
+        steps=[{"action": "tap_text", "text": "Settings"}],
+    )
+
+    with pytest.raises(ValueError, match="canonical MMI validation failed"):
+        exporter.export_one(
+            preview,
+            source_file="mmi.xlsx",
+            source_sheet="Sheet1",
+            source_row=10,
+        )
+
+    assert not list(tmp_path.glob("*.yaml"))
+
+
+def test_canonical_exporter_composes_external_marker_derivation_and_validation(
+    tmp_path,
+):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+    preview = _preview(
+        name="MMI_CALL_RECEIVE",
+        auto_class="SEMI_AUTO",
+        steps=[
+            {
+                "action": "manual_pause",
+                "execution_mode": "MANUAL_REQUIRED",
+                "description": "보조폰에서 전화를 수신하세요",
+            }
+        ],
+    )
+
+    path = exporter.export_one(preview, "mmi.xlsx", "Sheet1", 11)
+
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert doc["metadata"]["execution_type"] == "EXTERNAL_EVENT"
+    schema = json.loads(
+        (Path(__file__).parent.parent / "tc_step_schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert validate_canonical_tc(doc, schema) == []
+
+
+def test_canonical_exporter_keeps_inbox_manual_local(tmp_path):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+    preview = _preview(
+        name="MMI_INBOX_CHECK",
+        auto_class="SEMI_AUTO",
+        steps=[
+            {
+                "action": "manual_pause",
+                "execution_mode": "MANUAL_REQUIRED",
+                "description": "문자 수신함을 확인하세요",
+            }
+        ],
+    )
+
+    path = exporter.export_one(preview, "mmi.xlsx", "Sheet1", 12)
+
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert doc["metadata"]["execution_type"] == "MANUAL_LOCAL"
+    assert doc["metadata"]["manual_detail"] == "UNKNOWN"
+    schema = json.loads(
+        (Path(__file__).parent.parent / "tc_step_schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert validate_canonical_tc(doc, schema) == []
+
+
+def test_nonrunnable_canonical_export_records_validation_errors(tmp_path):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+    preview = _preview(
+        name="MMI INVALID NAME",
+        steps=[
+            {
+                "action": "shell",
+                "command": "am start -n {package}/.MainActivity",
+                "compile_status": "UNRESOLVED_PARAMS",
+                "_unresolved_params": ["package"],
+            }
+        ],
+    )
+
+    path = exporter.export_one(preview, "mmi.xlsx", "Sheet1", 13)
+
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert any(
+        warning.startswith("canonical_validation_error: tc_name 형식 불일치")
+        for warning in doc["metadata"]["warnings"]
+    )
+
+
+def test_empty_canonical_export_has_manual_fallback_reason(tmp_path):
+    exporter = YAMLExporter(output_dir=tmp_path, contract_mode="canonical")
+
+    path = exporter.export_one(
+        _preview(name="MMI_EMPTY", steps=[]),
+        "mmi.xlsx",
+        "Sheet1",
+        14,
+    )
+
+    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert doc["metadata"]["runnable"] is False
+    assert doc["metadata"]["runnable_reason"] == ["MANUAL_FALLBACK"]
+    assert any(
+        warning == "canonical_validation_error: steps가 비어 있음"
+        for warning in doc["metadata"]["warnings"]
+    )
+
+
+def test_legacy_mmi_output_is_unchanged(tmp_path, monkeypatch):
+    class FixedDatetime:
+        @classmethod
+        def now(cls):
+            return RealDatetime(2026, 7, 21, 12, 0, 0)
+
+    monkeypatch.setattr(exporter_module, "datetime", FixedDatetime)
+    preview = _preview(
+        name="MMI_LEGACY",
+        steps=[{"action": "wait", "seconds": 2}],
+    )
+    default_exporter = YAMLExporter(output_dir=tmp_path / "default")
+    explicit_exporter = YAMLExporter(
+        output_dir=tmp_path / "explicit",
+        contract_mode="legacy",
+    )
+
+    default_path = default_exporter.export_one(preview, "mmi.xlsx", "Sheet1", 9)
+    explicit_path = explicit_exporter.export_one(preview, "mmi.xlsx", "Sheet1", 9)
+
+    assert default_path.read_bytes() == explicit_path.read_bytes()
+    doc = yaml.safe_load(default_path.read_text(encoding="utf-8"))
+    assert doc["name"] == "MMI_LEGACY"
+    assert "tc_name" not in doc
+    assert doc["metadata"]["automation_class"] == "FULL_AUTO"
+    assert "tc_class" not in doc["metadata"]
+    assert doc["steps"] == [{"action": "wait", "seconds": 2}]

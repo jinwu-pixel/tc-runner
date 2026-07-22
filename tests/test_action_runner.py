@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from pathlib import Path
 
 from src.action_runner import ActionRunner, StepResult, ManualStepAction, ManualStepContext
+from src.adb import ShellResult
 
 
 SAMPLE_XML = """<?xml version="1.0" encoding="UTF-8"?>
@@ -48,9 +49,13 @@ DUP_CD_XML = """<?xml version="1.0" encoding="UTF-8"?>
 </hierarchy>"""
 
 
-def make_runner(adb_mock=None):
+def make_runner(adb_mock=None, *, contract_mode="legacy"):
     adb = adb_mock or MagicMock()
-    return ActionRunner(adb=adb, screenshot_dir=Path("/tmp/screenshots"))
+    return ActionRunner(
+        adb=adb,
+        screenshot_dir=Path("/tmp/screenshots"),
+        contract_mode=contract_mode,
+    )
 
 
 def test_wait_action():
@@ -107,6 +112,122 @@ def test_verify_shell_fail():
         "expected": "enabled",
     })
     assert result.passed is False
+
+
+def test_canonical_shell_nonzero_is_failure():
+    adb = MagicMock()
+    adb.shell_result.return_value = ShellResult(
+        command="restricted",
+        stdout="o" * 500,
+        stderr="e" * 500,
+        returncode=13,
+    )
+    runner = make_runner(adb, contract_mode="canonical")
+
+    result = runner.run_step({"action": "shell", "command": "restricted"})
+
+    assert result.passed is False
+    assert "rc=13" in result.message
+    assert "o" * 201 not in result.message
+    assert "e" * 201 not in result.message
+    adb.shell_result.assert_called_once_with("restricted")
+    adb.shell.assert_not_called()
+
+
+def test_canonical_verify_shell_does_not_pass_on_nonzero_stdout_match():
+    adb = MagicMock()
+    adb.shell_result.return_value = ShellResult(
+        command="dumpsys wifi",
+        stdout="Wi-Fi is enabled\n",
+        stderr="permission denied\n",
+        returncode=1,
+    )
+    runner = make_runner(adb, contract_mode="canonical")
+
+    result = runner.run_step(
+        {
+            "action": "verify_shell",
+            "command": "dumpsys wifi",
+            "expected": "enabled",
+        }
+    )
+
+    assert result.passed is False
+    assert "rc=1" in result.message
+    assert "permission denied" in result.message
+    adb.shell_result.assert_called_once_with("dumpsys wifi", timeout_s=30.0)
+
+
+def test_verify_shell_converts_5000ms_to_5_seconds():
+    adb = MagicMock()
+    adb.shell_result.return_value = ShellResult(
+        command="dumpsys wifi",
+        stdout="enabled\n",
+        stderr="",
+        returncode=0,
+    )
+    runner = make_runner(adb, contract_mode="canonical")
+
+    result = runner.run_step(
+        {
+            "action": "verify_shell",
+            "command": "dumpsys wifi",
+            "expected": "enabled",
+            "timeout": 5000,
+        }
+    )
+
+    assert result.passed is True
+    adb.shell_result.assert_called_once_with("dumpsys wifi", timeout_s=5.0)
+
+
+def test_canonical_runner_consumes_target_for_tap_id():
+    adb = MagicMock()
+    adb.dump_ui.return_value = SAMPLE_XML
+    runner = make_runner(adb, contract_mode="canonical")
+
+    result = runner.run_step(
+        {"action": "tap_id", "target": "com.test:id/title"}
+    )
+
+    assert result.passed is True
+    adb.tap.assert_called_once_with(200, 300)
+
+
+def test_legacy_runner_alias_tests_are_unchanged():
+    adb = MagicMock()
+    adb.dump_ui.return_value = SAMPLE_XML
+    runner = make_runner(adb)
+
+    result = runner.run_step(
+        {
+            "action": "tap_id",
+            "id": "com.test:id/title",
+            "target": "com.test:id/canonical-other",
+        }
+    )
+
+    assert result.passed is True
+    adb.tap.assert_called_once_with(200, 300)
+
+
+def test_legacy_verify_shell_timeout_remains_seconds_passthrough():
+    adb = MagicMock()
+    adb.shell.return_value = "enabled"
+    runner = make_runner(adb)
+
+    result = runner.run_step(
+        {
+            "action": "verify_shell",
+            "command": "dumpsys wifi",
+            "expected": "enabled",
+            "timeout": 5000,
+        }
+    )
+
+    assert result.passed is True
+    adb.shell.assert_called_once_with("dumpsys wifi", timeout=5000)
+    adb.shell_result.assert_not_called()
 
 
 def test_tap_text_found():

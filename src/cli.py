@@ -5,7 +5,9 @@ import shutil
 import sys
 import tempfile
 import time
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 # Windows 콘솔 UTF-8 강제
 if sys.platform == "win32":
@@ -105,7 +107,9 @@ def _terminal_manual_handler(ctx: ManualStepContext) -> ManualStepAction:
             return ManualStepAction(decision="fail")
 
 
-def _resolve_tc_files(patterns: list[str]) -> tuple[list[Path], list[Path]]:
+def _resolve_tc_files(
+    patterns: list[str], *, strict: bool = False
+) -> tuple[list[Path], list[Path]]:
     """입력 패턴들을 YAML 파일 목록으로 변환한다.
 
     .xlsx 파일은 임시 디렉토리에 YAML로 변환한다.
@@ -116,6 +120,11 @@ def _resolve_tc_files(patterns: list[str]) -> tuple[list[Path], list[Path]]:
     tc_files = []
     temp_dirs = []
 
+    def cleanup_temp_dirs() -> None:
+        for temp_dir in temp_dirs:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        temp_dirs.clear()
+
     for pattern in patterns:
         path = Path(pattern)
 
@@ -124,83 +133,270 @@ def _resolve_tc_files(patterns: list[str]) -> tuple[list[Path], list[Path]]:
             temp_dirs.append(tmp_dir)
             try:
                 converted = convert_excel_to_yaml(path, tmp_dir)
+                if strict and not converted:
+                    raise TCValidationError(
+                        f"{path}: 엑셀에서 변환된 T/C가 없습니다."
+                    )
                 print(f"엑셀 변환: {path.name} → {len(converted)}개 T/C")
                 tc_files.extend(converted)
             except Exception as e:
+                if strict:
+                    cleanup_temp_dirs()
+                    raise TCValidationError(
+                        f"{path}: 엑셀 변환 실패 — {e}"
+                    ) from e
                 print(f"WARNING: 엑셀 변환 실패 ({path.name}) — {e}")
         elif path.is_file():
             tc_files.append(path)
         else:
-            tc_files.extend(Path(".").glob(pattern))
+            try:
+                matched = list(Path(".").glob(pattern))
+            except Exception as e:
+                if strict:
+                    cleanup_temp_dirs()
+                    raise TCValidationError(
+                        f"입력 패턴 해석 실패: {pattern} — {e}"
+                    ) from e
+                raise
+            if strict and not matched:
+                cleanup_temp_dirs()
+                raise TCValidationError(f"입력 패턴과 일치하는 파일이 없습니다: {pattern}")
+            tc_files.extend(matched)
 
     return tc_files, temp_dirs
 
 
+@dataclass(frozen=True)
+class PreflightVerdict:
+    path: Path
+    passed: bool
+    reasons: tuple[str, ...]
+    tc_data: dict | None = None
+
+
+@dataclass(frozen=True)
+class PreflightReport:
+    verdicts: tuple[PreflightVerdict, ...]
+
+    @property
+    def passed(self) -> bool:
+        return bool(self.verdicts) and all(
+            verdict.passed for verdict in self.verdicts
+        )
+
+    @property
+    def loaded_tcs(self) -> tuple[tuple[Path, dict], ...]:
+        """Return execution inputs only when the complete invocation passed."""
+        if not self.passed:
+            return ()
+        return tuple(
+            (verdict.path, verdict.tc_data)
+            for verdict in self.verdicts
+            if verdict.tc_data is not None
+        )
+
+
+def _canonical_gate_reasons(tc_data: dict) -> tuple[str, ...]:
+    reasons: list[str] = []
+    metadata = tc_data.get("metadata")
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    if metadata.get("runnable") is not True:
+        reasons.append("NOT_RUNNABLE")
+    if metadata.get("runnable_reason"):
+        reasons.append("RUNNABLE_REASON_PRESENT")
+    if metadata.get("has_unresolved_params") is True:
+        reasons.append("METADATA_UNRESOLVED_PARAMS")
+    if metadata.get("compile_status") == "UNRESOLVED_PARAMS":
+        reasons.append("METADATA_UNRESOLVED_COMPILE_STATUS")
+    if metadata.get("_unresolved_params"):
+        reasons.append("METADATA_UNRESOLVED_PARAM_DETAILS")
+
+    if tc_data.get("compile_status") == "UNRESOLVED_PARAMS":
+        reasons.append("TOPLEVEL_UNRESOLVED_COMPILE_STATUS")
+    if tc_data.get("_unresolved_params"):
+        reasons.append("TOPLEVEL_UNRESOLVED_PARAMS")
+
+    steps = tc_data.get("steps")
+    if isinstance(steps, list):
+        for index, step in enumerate(steps):
+            if not isinstance(step, dict):
+                continue
+            if step.get("compile_status") == "UNRESOLVED_PARAMS":
+                reasons.append(f"STEP_UNRESOLVED_COMPILE_STATUS:{index + 1}")
+            if step.get("_unresolved_params"):
+                reasons.append(f"STEP_UNRESOLVED_PARAMS:{index + 1}")
+
+    return tuple(reasons)
+
+
+def host_preflight(
+    tc_files: tuple[Path, ...] | list[Path],
+    contract_mode: Literal["legacy", "canonical"],
+) -> PreflightReport:
+    """Resolve loader/contract acceptance without constructing or calling ADB."""
+    if contract_mode not in ("legacy", "canonical"):
+        raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
+
+    verdicts: list[PreflightVerdict] = []
+    for source in tc_files:
+        path = Path(source)
+        try:
+            tc_data = load_tc(path, contract_mode=contract_mode)
+        except Exception as exc:
+            reason = (
+                "CANONICAL_LOAD_OR_VALIDATION_ERROR:"
+                f"{type(exc).__name__}:{exc}"
+            )
+            verdicts.append(
+                PreflightVerdict(
+                    path=path,
+                    passed=False,
+                    reasons=(reason,),
+                )
+            )
+            continue
+
+        reasons = (
+            _canonical_gate_reasons(tc_data)
+            if contract_mode == "canonical"
+            else ()
+        )
+        verdicts.append(
+            PreflightVerdict(
+                path=path,
+                passed=not reasons,
+                reasons=reasons,
+                tc_data=tc_data,
+            )
+        )
+
+    return PreflightReport(verdicts=tuple(verdicts))
+
+
 def cmd_run(args):
     """T/C 실행 커맨드."""
-    adb = ADB()
+    contract_mode = getattr(args, "contract_mode", "legacy")
+    if contract_mode not in ("legacy", "canonical"):
+        raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
 
-    if not adb.is_connected():
-        print("ERROR: ADB에 연결된 단말이 없습니다.")
-        print("USB 케이블과 USB 디버깅 설정을 확인해주세요.")
-        sys.exit(1)
-
-    report_dir = Path("reports")
-    run_id_raw = getattr(args, "run_id", None) or preflight_mod._now_run_id()
+    tc_files: list[Path] = []
+    temp_dirs: list[Path] = []
+    canonical_report: PreflightReport | None = None
     try:
-        run_id = validate_run_id_for_filename(run_id_raw)
-    except ValueError as e:
-        print(f"ERROR: --run-id 부적합: {e}", file=sys.stderr)
-        sys.exit(1)
-
-    reporter = Reporter(report_dir=report_dir, run_id=run_id)
-    reporter.device_info = adb.get_device_info()
-    screenshot_dir = reporter.screenshot_dir
-    runner = ActionRunner(adb=adb, screenshot_dir=screenshot_dir,
-                         on_manual_step=_terminal_manual_handler)
-
-    tc_files, temp_dirs = _resolve_tc_files(args.tc_files)
-
-    if not tc_files:
-        for d in temp_dirs:
-            shutil.rmtree(d, ignore_errors=True)
-        print("ERROR: T/C 파일을 찾을 수 없습니다.")
-        sys.exit(1)
-
-    print(f"Device: {reporter.device_info.get('model', '?')} "
-          f"(Android {reporter.device_info.get('android_version', '?')})")
-    print(f"T/C files: {len(tc_files)}")
-
-    try:
-        for tc_file in tc_files:
+        if contract_mode == "canonical":
             try:
-                tc_data = load_tc(tc_file)
+                tc_files, temp_dirs = _resolve_tc_files(
+                    args.tc_files, strict=True
+                )
             except TCValidationError as e:
-                print(f"\nSKIP: {tc_file} — {e}")
-                continue
+                print(f"ERROR: canonical host preflight — {e}", file=sys.stderr)
+                sys.exit(1)
 
-            reporter.print_tc_header(tc_data["name"])
+            if not tc_files:
+                print("ERROR: T/C 파일을 찾을 수 없습니다.")
+                sys.exit(1)
+
+            canonical_report = host_preflight(tc_files, contract_mode)
+            if not canonical_report.passed:
+                print("ERROR: canonical host preflight blocked:", file=sys.stderr)
+                for verdict in canonical_report.verdicts:
+                    if verdict.passed:
+                        continue
+                    print(f"  {verdict.path}:", file=sys.stderr)
+                    for reason in verdict.reasons:
+                        print(f"    - {reason}", file=sys.stderr)
+                sys.exit(1)
+
+        adb = ADB()
+        if not adb.is_connected():
+            print("ERROR: ADB에 연결된 단말이 없습니다.")
+            print("USB 케이블과 USB 디버깅 설정을 확인해주세요.")
+            sys.exit(1)
+
+        report_dir = Path("reports")
+        run_id_raw = getattr(args, "run_id", None) or preflight_mod._now_run_id()
+        try:
+            run_id = validate_run_id_for_filename(run_id_raw)
+        except ValueError as e:
+            print(f"ERROR: --run-id 부적합: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        reporter = Reporter(
+            report_dir=report_dir,
+            run_id=run_id,
+            contract_mode=contract_mode,
+        )
+        reporter.device_info = adb.get_device_info()
+        screenshot_dir = reporter.screenshot_dir
+        runner = ActionRunner(
+            adb=adb,
+            screenshot_dir=screenshot_dir,
+            on_manual_step=_terminal_manual_handler,
+            contract_mode=contract_mode,
+        )
+
+        if contract_mode == "legacy":
+            tc_files, temp_dirs = _resolve_tc_files(args.tc_files)
+            if not tc_files:
+                print("ERROR: T/C 파일을 찾을 수 없습니다.")
+                sys.exit(1)
+
+        canonical_tcs = (
+            dict(canonical_report.loaded_tcs)
+            if canonical_report is not None
+            else {}
+        )
+
+        print(f"Device: {reporter.device_info.get('model', '?')} "
+              f"(Android {reporter.device_info.get('android_version', '?')})")
+        print(f"T/C files: {len(tc_files)}")
+
+        aborted_fail_closed = False
+        for tc_file in tc_files:
+            if contract_mode == "canonical":
+                tc_data = canonical_tcs[tc_file]
+                tc_name = tc_data["tc_name"]
+            else:
+                try:
+                    tc_data = load_tc(tc_file)
+                except TCValidationError as e:
+                    print(f"\nSKIP: {tc_file} — {e}")
+                    continue
+                tc_name = tc_data["name"]
+
+            reporter.print_tc_header(tc_name)
             tc_result = TCResult(
-                name=tc_data["name"],
+                name=tc_name,
                 description=tc_data.get("description", ""),
             )
 
             for i, step in enumerate(tc_data["steps"]):
                 step_result = runner.run_step(step)
                 tc_result.steps.append(step_result)
-                reporter.print_step(tc_data["name"], i, step_result)
+                reporter.print_step(tc_name, i, step_result)
 
-                # verify action 실패 시 이 T/C 중단, 다음 T/C로
-                if not step_result.passed and step["action"].startswith("verify"):
-                    break
+                if not step_result.passed:
+                    if contract_mode == "canonical":
+                        aborted_fail_closed = True
+                        break
+                    # legacy: verify action 실패 시 이 T/C 중단, 다음 T/C로
+                    if step["action"].startswith("verify"):
+                        break
 
             reporter.print_tc_result(tc_result)
             reporter.results.append(tc_result)
+            if aborted_fail_closed:
+                break
 
         if not reporter.results:
             print("\nERROR: 실행된 T/C가 없습니다.")
             sys.exit(1)
 
+        reporter.run_status = (
+            "ABORTED_FAIL_CLOSED" if aborted_fail_closed else "COMPLETED"
+        )
         reporter.print_summary()
         print(f"\nRun bundle: {reporter.bundle_dir}")
         try:
@@ -212,7 +408,16 @@ def cmd_run(args):
             summary_path = reporter.write_summary_json()
             print(f"  Summary JSON: {summary_path}")
         except Exception as e:
+            if contract_mode == "canonical":
+                print(
+                    f"ERROR: canonical summary.json persistence failed — {e}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
             print(f"  WARNING: summary.json 생성 실패 — {e}")
+
+        if aborted_fail_closed:
+            sys.exit(1)
     finally:
         for d in temp_dirs:
             shutil.rmtree(d, ignore_errors=True)
@@ -666,6 +871,12 @@ def main():
         dest="run_id",
         default=None,
         help="run_id override (기본: 현재 UTC 타임스탬프 %%Y%%m%%dT%%H%%M%%SZ)",
+    )
+    run_parser.add_argument(
+        "--contract-mode",
+        choices=("legacy", "canonical"),
+        default="legacy",
+        help="execution contract mode (기본: legacy)",
     )
     run_parser.set_defaults(func=cmd_run)
 

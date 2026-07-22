@@ -10,8 +10,10 @@ from jinja2 import Environment, FileSystemLoader
 from src.action_runner import StepResult
 from src.catalog_delta import validate_run_id_for_filename
 
-SUMMARY_SCHEMA_VERSION = 1
-SUMMARY_TOOL_VERSION = "runtime-report-v1"
+SUMMARY_SCHEMA_VERSION = 2
+SUMMARY_TOOL_VERSION = "runtime-report-v2"
+CONTRACT_MODES = frozenset({"legacy", "canonical"})
+RUN_STATUSES = frozenset({"COMPLETED", "ABORTED_FAIL_CLOSED"})
 
 
 @dataclass
@@ -42,12 +44,33 @@ class TCResult:
 
 
 class Reporter:
-    def __init__(self, report_dir: Path, run_id: Optional[str] = None):
+    def __init__(
+        self,
+        report_dir: Path,
+        run_id: Optional[str] = None,
+        *,
+        contract_mode: str = "legacy",
+        run_status: str = "COMPLETED",
+    ):
+        if contract_mode not in CONTRACT_MODES:
+            raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
         self.report_dir = Path(report_dir)
         self.run_id = validate_run_id_for_filename(run_id) if run_id else None
+        self.contract_mode = contract_mode
+        self.run_status = run_status
         self.results: list[TCResult] = []
         self.device_info: dict = {}
         self.start_time: datetime = datetime.now()
+
+    @property
+    def run_status(self) -> str:
+        return self._run_status
+
+    @run_status.setter
+    def run_status(self, value: str) -> None:
+        if value not in RUN_STATUSES:
+            raise ValueError(f"unsupported run_status: {value!r}")
+        self._run_status = value
 
     @property
     def bundle_dir(self) -> Path:
@@ -153,6 +176,8 @@ class Reporter:
             "tool_version": SUMMARY_TOOL_VERSION,
             "run_id": self.run_id,
             "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "contract_mode": self.contract_mode,
+            "run_status": self.run_status,
             "device": dict(self.device_info or {}),
             "summary": self.get_summary(),
             "results": [self._serialize_tc(tc) for tc in self.results],

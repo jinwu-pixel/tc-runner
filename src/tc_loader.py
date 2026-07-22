@@ -1,6 +1,10 @@
+import json
 from pathlib import Path
+from typing import Literal
 
 import yaml
+
+from src.execution_contract import normalize_tc, validate_canonical_tc
 
 
 VALID_ACTIONS = {
@@ -16,14 +20,49 @@ class TCValidationError(Exception):
     pass
 
 
-def load_tc(filepath: Path) -> dict:
+def load_tc(
+    filepath: Path,
+    contract_mode: Literal["legacy", "canonical"] = "legacy",
+) -> dict:
     with open(filepath, "r", encoding="utf-8") as f:
         tc = yaml.safe_load(f)
-    # tc_name → name 정규화 (MiniFile TC 포맷 호환)
-    if isinstance(tc, dict) and "name" not in tc and "tc_name" in tc:
-        tc["name"] = tc["tc_name"]
-    validate_tc(tc, filepath)
-    return tc
+
+    if contract_mode == "legacy":
+        # tc_name → name 정규화 (MiniFile TC 포맷 호환)
+        if isinstance(tc, dict) and "name" not in tc and "tc_name" in tc:
+            tc["name"] = tc["tc_name"]
+        validate_tc(tc, filepath)
+        return tc
+
+    if contract_mode != "canonical":
+        raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
+    if not isinstance(tc, dict):
+        raise TCValidationError(f"{filepath}: T/C must be a YAML mapping")
+
+    normalized = normalize_tc(tc, source=str(filepath))
+    blocking = tuple(
+        finding
+        for finding in normalized.findings
+        if finding.severity == "ERROR"
+    )
+    if blocking:
+        detail = "; ".join(
+            f"{finding.code} {finding.path}: {finding.detail}"
+            for finding in blocking
+        )
+        raise TCValidationError(
+            f"{filepath}: canonical normalization blocked: {detail}"
+        )
+
+    schema_path = Path(__file__).parent.parent / "tc_step_schema.json"
+    with open(schema_path, encoding="utf-8") as f:
+        schema = json.load(f)
+    errors = validate_canonical_tc(normalized.value, schema)
+    if errors:
+        raise TCValidationError(
+            f"{filepath}: canonical validation failed: {'; '.join(errors)}"
+        )
+    return normalized.value
 
 
 def validate_tc(tc: dict, filepath: Path | None = None) -> None:

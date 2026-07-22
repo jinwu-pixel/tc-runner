@@ -110,3 +110,97 @@ def test_action_runner_dispatch_supports_all_valid_actions(tmp_path):
         assert not message.startswith("Unknown action"), (
             f"VALID_ACTIONS contains '{action}' but ActionRunner._dispatch does not handle it"
         )
+
+
+def test_canonical_loader_returns_tc_name_without_name_duplicate(tmp_path):
+    tc_file = tmp_path / "canonical.yaml"
+    tc_file.write_text(
+        """
+name: CANONICAL_LOADER
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+steps:
+  - action: wait
+    seconds: 0.25
+""",
+        encoding="utf-8",
+    )
+
+    tc = load_tc(tc_file, contract_mode="canonical")
+
+    assert tc["tc_name"] == "CANONICAL_LOADER"
+    assert "name" not in tc
+    assert tc["steps"] == [{"action": "wait", "duration": 250}]
+
+
+def test_canonical_loader_rejects_alias_conflict(tmp_path):
+    tc_file = tmp_path / "conflict.yaml"
+    tc_file.write_text(
+        """
+tc_name: CANONICAL
+name: LEGACY
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+steps:
+  - action: wait
+    duration: 1
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TCValidationError, match="ALIAS_CONFLICT"):
+        load_tc(tc_file, contract_mode="canonical")
+
+
+def test_canonical_loader_rejects_canonical_validation_error(tmp_path):
+    tc_file = tmp_path / "invalid-canonical.yaml"
+    tc_file.write_text(
+        """
+tc_name: INVALID_CANONICAL
+metadata:
+  runnable: true
+  tc_class: FULL_AUTO
+  execution_type: AUTO
+  manual_detail: NONE
+steps:
+  - action: tap_id
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TCValidationError, match="target"):
+        load_tc(tc_file, contract_mode="canonical")
+
+
+def test_legacy_loader_behavior_is_unchanged(tmp_path):
+    tc_file = tmp_path / "legacy.yaml"
+    tc_file.write_text(
+        """
+tc_name: LEGACY_LOADER
+steps:
+  - action: tap_text
+    text: 설정
+  - action: wait
+    seconds: 2
+""",
+        encoding="utf-8",
+    )
+
+    default_result = load_tc(tc_file)
+    explicit_legacy_result = load_tc(tc_file, contract_mode="legacy")
+
+    assert explicit_legacy_result == default_result
+    assert explicit_legacy_result == {
+        "tc_name": "LEGACY_LOADER",
+        "name": "LEGACY_LOADER",
+        "steps": [
+            {"action": "tap_text", "text": "설정"},
+            {"action": "wait", "seconds": 2},
+        ],
+    }

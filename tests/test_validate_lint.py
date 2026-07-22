@@ -63,6 +63,58 @@ def test_long_fixed_wait_normalizes_ms_duration():
     assert findings[0]["evidence"]["normalized_seconds"] == 15.0
 
 
+def test_validator_and_lint_share_normalized_wait():
+    from validate_tc import load_schema, validate_tc
+
+    tc = {
+        "name": "LEGACY_WAIT",
+        "metadata": {
+            "runnable": True,
+            "tc_class": "FULL_AUTO",
+            "execution_type": "AUTO",
+            "manual_detail": "NONE",
+        },
+        "steps": [{"action": "wait", "seconds": 10}],
+    }
+
+    errors = validate_tc(tc, load_schema())
+    findings, dsl_errors = lint_tc(tc, Path("legacy_wait.yaml"), "LEGACY_WAIT")
+
+    assert errors == []
+    assert dsl_errors == []
+    assert findings[0]["rule_id"] == "LONG_FIXED_WAIT"
+    assert findings[0]["evidence"]["normalized_seconds"] == 10.0
+
+
+def test_lint_normalizes_document_once_without_renormalizing_wait(monkeypatch):
+    import validate_tc as validator_module
+
+    calls = {"tc": 0, "step": 0}
+    original_normalize_tc = validator_module.normalize_tc
+    original_normalize_step = validator_module.normalize_step
+
+    def count_tc(*args, **kwargs):
+        calls["tc"] += 1
+        return original_normalize_tc(*args, **kwargs)
+
+    def count_step(*args, **kwargs):
+        calls["step"] += 1
+        return original_normalize_step(*args, **kwargs)
+
+    monkeypatch.setattr(validator_module, "normalize_tc", count_tc)
+    monkeypatch.setattr(validator_module, "normalize_step", count_step)
+
+    findings, errors = validator_module.lint_tc(
+        {"tc_name": "T1", "steps": [{"action": "wait", "seconds": 10}]},
+        Path("once.yaml"),
+        "T1",
+    )
+
+    assert errors == []
+    assert findings[0]["rule_id"] == "LONG_FIXED_WAIT"
+    assert calls == {"tc": 1, "step": 0}
+
+
 def test_long_fixed_wait_below_threshold_no_finding():
     tc = {"tc_name": "T1", "steps": [{"action": "wait", "seconds": 5}]}
     findings, _ = lint_tc(tc, Path("a.yaml"), "T1")
@@ -191,8 +243,8 @@ steps:
 def test_normalize_wait_seconds_handles_both_units():
     assert _normalize_wait_seconds({"seconds": 3}) == 3.0
     assert _normalize_wait_seconds({"duration": 2500}) == 2.5
-    # seconds 우선순위
-    assert _normalize_wait_seconds({"seconds": 1, "duration": 9999}) == 1.0
+    # canonical/alias 충돌은 어느 쪽도 추측하지 않는다.
+    assert _normalize_wait_seconds({"seconds": 1, "duration": 9999}) is None
     # 둘 다 없으면 None
     assert _normalize_wait_seconds({"action": "wait"}) is None
 

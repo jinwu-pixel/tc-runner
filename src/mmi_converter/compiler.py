@@ -1,12 +1,24 @@
 from __future__ import annotations
 
+from typing import Literal
+
+from src.execution_contract import normalize_step
+
 from .models import Intent, TCIR, ClassifiedIntent
 from .shell_action_map import ShellActionMap, APP_ALIAS_REGISTRY, PERMISSION_ALIAS_REGISTRY
 
 
 class TCRunnerCompiler:
-    def __init__(self, shell_action_map=None):
+    def __init__(
+        self,
+        shell_action_map=None,
+        *,
+        contract_mode: Literal["legacy", "canonical"] = "legacy",
+    ):
+        if contract_mode not in ("legacy", "canonical"):
+            raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
         self._shell_map = shell_action_map or ShellActionMap()
+        self._contract_mode = contract_mode
 
     def compile(self, ir: TCIR, automation_class: str = "FULL_AUTO") -> dict:
         steps: list[dict] = []
@@ -22,7 +34,7 @@ class TCRunnerCompiler:
             if compiled:
                 steps.extend(compiled)
 
-        return {
+        document = {
             "name": ir.tc_name,
             "description": ir.description,
             "preconditions": ir.preconditions,
@@ -34,6 +46,9 @@ class TCRunnerCompiler:
             },
             "steps": steps,
         }
+        if self._contract_mode == "canonical":
+            document["steps"] = self._canonicalize_steps(steps)
+        return document
 
     def _compile_intent(
         self,
@@ -96,6 +111,15 @@ class TCRunnerCompiler:
         return []
 
     def compile_classified(self, ci: ClassifiedIntent) -> tuple[list[dict], list[str]]:
+        steps, warnings = self._compile_classified_legacy(ci)
+        if self._contract_mode == "canonical":
+            steps = self._canonicalize_steps(steps)
+        return steps, warnings
+
+    def _compile_classified_legacy(
+        self,
+        ci: ClassifiedIntent,
+    ) -> tuple[list[dict], list[str]]:
         """ClassifiedIntent → (steps, warnings)."""
         warnings: list[str] = []
         intent = ci.intent
@@ -156,6 +180,21 @@ class TCRunnerCompiler:
         # Default: use existing intent compilation
         compiled = self._compile_intent(intent, warnings)
         return compiled, warnings
+
+    @staticmethod
+    def _canonicalize_steps(steps: list[dict]) -> list[dict]:
+        canonical: list[dict] = []
+        for index, step in enumerate(steps):
+            result = normalize_step(step, path=f"mmi.steps[{index}]")
+            if result.blocking:
+                codes = ", ".join(
+                    finding.code
+                    for finding in result.findings
+                    if finding.severity == "ERROR"
+                )
+                raise ValueError(f"canonical MMI compilation blocked: {codes}")
+            canonical.append(result.value)
+        return canonical
 
     def _compile_app_launch(self, intent: Intent, ci: ClassifiedIntent,
                              warnings: list[str]) -> tuple[list[dict], list[str]]:

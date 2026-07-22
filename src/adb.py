@@ -1,6 +1,19 @@
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List
+
+
+@dataclass(frozen=True)
+class ShellResult:
+    command: str
+    stdout: str
+    stderr: str
+    returncode: int
+
+    @property
+    def ok(self) -> bool:
+        return self.returncode == 0
 
 
 class ADB:
@@ -22,6 +35,33 @@ class ADB:
             return result.stdout
         except subprocess.TimeoutExpired:
             raise TimeoutError(f"ADB shell timeout ({timeout}s): {command}")
+
+    def shell_result(
+        self,
+        command: str,
+        *,
+        timeout_s: float = 10.0,
+    ) -> ShellResult:
+        """ADB shell 명령의 stdout, stderr, 종료 코드를 함께 반환한다."""
+        try:
+            result = subprocess.run(
+                self._base_cmd + ["shell", command],
+                capture_output=True,
+                text=True,
+                timeout=timeout_s,
+                encoding="utf-8",
+                errors="replace",
+            )
+            return ShellResult(
+                command=command,
+                stdout=result.stdout,
+                stderr=result.stderr,
+                returncode=result.returncode,
+            )
+        except subprocess.TimeoutExpired:
+            raise TimeoutError(
+                f"ADB shell timeout ({timeout_s}s): {command}"
+            )
 
     def tap(self, x: int, y: int) -> None:
         self.shell(f"input tap {x} {y}")

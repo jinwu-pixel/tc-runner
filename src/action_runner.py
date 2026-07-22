@@ -48,12 +48,16 @@ class ManualStepContext:
 
 class ActionRunner:
     def __init__(self, adb: ADB, screenshot_dir: Path, max_retries: int = 3,
-                 retry_interval: float = 1.0, on_manual_step=None):
+                 retry_interval: float = 1.0, on_manual_step=None, *,
+                 contract_mode: Literal["legacy", "canonical"] = "legacy"):
+        if contract_mode not in ("legacy", "canonical"):
+            raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
         self.adb = adb
         self.screenshot_dir = screenshot_dir
         self.max_retries = max_retries
         self.retry_interval = retry_interval
         self.on_manual_step = on_manual_step
+        self.contract_mode = contract_mode
 
     def run_step(self, step: dict, tc_name: str = "", step_index: int = 0) -> StepResult:
         action = step["action"]
@@ -212,7 +216,10 @@ class ActionRunner:
         return False, f"Text '{text}' not found on screen"
 
     def _tap_id(self, step: dict) -> tuple[bool, str]:
-        resource_id = step["id"]
+        if self.contract_mode == "canonical":
+            resource_id = step["target"]
+        else:
+            resource_id = step["id"]
         for attempt in range(self.max_retries):
             xml = self.adb.dump_ui()
             element = find_element_by_id(xml, resource_id)
@@ -256,8 +263,21 @@ class ActionRunner:
 
     def _shell(self, step: dict) -> tuple[bool, str]:
         command = step["command"]
-        output = self.adb.shell(command)
-        return True, f"Shell: {command} -> {output.strip()[:100]}"
+        if self.contract_mode == "legacy":
+            output = self.adb.shell(command)
+            return True, f"Shell: {command} -> {output.strip()[:100]}"
+
+        result = self.adb.shell_result(command)
+        return result.ok, self._shell_result_message(result)
+
+    @staticmethod
+    def _shell_result_message(result) -> str:
+        stdout = result.stdout.strip()[:200]
+        stderr = result.stderr.strip()[:200]
+        return (
+            f"Shell rc={result.returncode}; "
+            f"stdout={stdout!r}; stderr={stderr!r}"
+        )
 
     def _wait(self, step: dict) -> tuple[bool, str]:
         # 'seconds' (초 단위) 또는 'duration' (밀리초 단위) 모두 허용
@@ -362,11 +382,24 @@ class ActionRunner:
     def _verify_shell(self, step: dict) -> tuple[bool, str]:
         command = step["command"]
         expected = step["expected"]
-        timeout = step.get("timeout", 30)
-        output = self.adb.shell(command, timeout=timeout)
-        if expected in output:
-            return True, f"'{expected}' found in output"
-        return False, f"Expected '{expected}' not found in: {output.strip()[:200]}"
+        if self.contract_mode == "legacy":
+            timeout = step.get("timeout", 30)
+            output = self.adb.shell(command, timeout=timeout)
+            if expected in output:
+                return True, f"'{expected}' found in output"
+            return False, f"Expected '{expected}' not found in: {output.strip()[:200]}"
+
+        timeout_ms = step.get("timeout", 30000)
+        result = self.adb.shell_result(
+            command,
+            timeout_s=timeout_ms / 1000.0,
+        )
+        diagnostics = self._shell_result_message(result)
+        if not result.ok:
+            return False, diagnostics
+        if expected in result.stdout:
+            return True, f"'{expected}' found in output; {diagnostics}"
+        return False, f"Expected '{expected}' not found; {diagnostics}"
 
     def _input_text(self, step: dict) -> tuple[bool, str]:
         text = step["text"]
