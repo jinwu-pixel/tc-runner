@@ -1,0 +1,17 @@
+07-21 15:10:38.613269 16380 16399 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:10:38.615852 16380 16399 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 6
+07-21 15:10:38.617935 16380 16399 E com.hnlens.simplemode: GlobalDataManage: com.android.mms:SMS loadUnreadData unreadMmsCount: 0
+07-21 15:10:39.145498 16380 16414 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:10:39.147526 16380 16414 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 6
+07-21 15:10:39.147874 16380 16414 E com.hnlens.simplemode: GlobalDataManage: com.android.mms:SMS loadUnreadData unreadMmsCount: 0
+07-21 15:10:39.292371 16361 16437 D Launcher: getUnreadMissedCallCount Query String: SELECT _id, type, is_read FROM calls WHERE type = ? AND is_read = ? ORDER BY date DESC
+07-21 15:10:39.301772 16361 16437 W Launcher: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:10:39.301927 16361 16437 D Launcher: getUnreadMissedCallCount cursor count: 3 	 moveToNext: true
+07-21 15:10:39.301992 16361 16437 E Launcher: ——— getUnreadMissedCallCount: $mTotal
+07-21 15:10:39.302143 16361 16437 I Launcher: bootCompletedMissedCallCount lastMissedCallCount = -1; missedCallNotificationCount = 3
+07-21 15:10:48.954925 16575 16592 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:10:48.958293 16575 16592 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 6
+07-21 15:10:48.960317 16575 16592 E com.hnlens.simplemode: GlobalDataManage: com.android.mms:SMS loadUnreadData unreadMmsCount: 0
+07-21 15:10:49.489502 16575 16601 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:10:49.492424 16575 16601 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 6
+07-21 15:10:49.493080 16575 16601 E com.hnlens.simplemode: GlobalDataManage: com.android.mms:SMS loadUnreadData unreadMmsCount: 0

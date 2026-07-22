@@ -1,0 +1,23 @@
+07-21 15:16:59.422455  2534  3250 D Launcher: getUnreadMissedCallCount Query String: SELECT _id, type, is_read FROM calls WHERE type = ? AND is_read is not ? ORDER BY date DESC
+07-21 15:16:59.940983  2534  3514 D Launcher: getUnreadMissedCallCount Query String: SELECT _id, type, is_read FROM calls WHERE type = ? AND is_read is not ? ORDER BY date DESC
+07-21 15:17:00.129550  3216  3289 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:17:00.129715  3216  3289 D com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount cursor count: 6 	 moveToNext: true
+07-21 15:17:00.155185  2534  3250 W Launcher: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:17:00.155289  2534  3250 D Launcher: getUnreadMissedCallCount cursor count: 6 	 moveToNext: true
+07-21 15:17:00.184932  2534  3250 E Launcher: ——— getUnreadMissedCallCount: 6
+07-21 15:17:00.185078  2534  3250 I Launcher: bootCompletedMissedCallCount lastMissedCallCount = -1; missedCallNotificationCount = 6
+07-21 15:17:00.196107  3216  3289 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 6
+07-21 15:17:00.196540  3216  3289 E com.hnlens.simplemode: GlobalDataManage: com.android.mms:SMS loadUnreadData unreadMmsCount: 0
+07-21 15:17:00.209058  2534  3514 W Launcher: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:17:00.209268  2534  3514 D Launcher: getUnreadMissedCallCount cursor count: 6 	 moveToNext: true
+07-21 15:17:00.213071  2534  3514 E Launcher: ——— getUnreadMissedCallCount: 6
+07-21 15:17:00.213270  2534  3514 I SettingContentObserver: updateNewMissedCallCount mMissedCallNotificationLastCount = 6 missedCallNotificationCount = 6
+07-21 15:17:00.232919  3216  3364 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:17:00.233068  3216  3364 D com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount cursor count: 6 	 moveToNext: true
+07-21 15:17:00.235567  3216  3364 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 6
+07-21 15:17:00.235940  3216  3364 E com.hnlens.simplemode: GlobalDataManage: com.android.mms:SMS loadUnreadData unreadMmsCount: 0
+07-21 15:17:00.961205  2534  3587 D Launcher: getUnreadMissedCallCount Query String: SELECT _id, type, is_read FROM calls WHERE type = ? AND is_read is not ? ORDER BY date DESC
+07-21 15:17:00.976279  2534  3587 W Launcher: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:17:00.976433  2534  3587 D Launcher: getUnreadMissedCallCount cursor count: 6 	 moveToNext: true
+07-21 15:17:00.987505  2534  3587 E Launcher: ——— getUnreadMissedCallCount: 6
+07-21 15:17:00.987728  2534  3587 I SettingContentObserver: updateNewMissedCallCount mMissedCallNotificationLastCount = 6 missedCallNotificationCount = 6

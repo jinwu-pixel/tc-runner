@@ -1,0 +1,8 @@
+07-21 15:25:10.163  7246  7321 D Launcher: getUnreadMissedCallCount Query String: SELECT _id, type, is_read FROM calls WHERE type = ? AND is_read is not ? ORDER BY date DESC
+07-21 15:25:10.177  7246  7321 W Launcher: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:25:10.177  7246  7321 D Launcher: getUnreadMissedCallCount cursor count: 7 	 moveToNext: true
+07-21 15:25:10.179  7246  7321 E Launcher: ——— getUnreadMissedCallCount: 7
+07-21 15:25:10.180  7246  7321 I SettingContentObserver: updateNewMissedCallCount mMissedCallNotificationLastCount = 6 missedCallNotificationCount = 7
+07-21 15:25:10.347  3216  3288 W com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount query typeColumnIndex: 1 	 isReadColumnIndex: 2
+07-21 15:25:10.348  3216  3288 D com.hnlens.simplemode: UnReadDataHelper: getUnreadMissedCallCount cursor count: 7 	 moveToNext: true
+07-21 15:25:10.351  3216  3288 E com.hnlens.simplemode: GlobalDataManage: com.android.dialer:Call loadUnreadData unreadCallCount: 7

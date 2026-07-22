@@ -1,0 +1,11 @@
+Row: 0 _id=1, number=01020954744, type=3, is_read=0, new=1, date=1784613873421
+Row: 1 _id=2, number=01029170913, type=3, is_read=0, new=1, date=1784613884842
+Row: 2 _id=3, number=01029170913, type=3, is_read=0, new=1, date=1784613890319
+Row: 3 _id=4, number=13626746277, type=3, is_read=NULL, new=0, date=1784520052622
+Row: 4 _id=5, number=13600877537, type=1, is_read=NULL, new=0, date=1784534736494
+Row: 5 _id=6, number=13630770374, type=1, is_read=NULL, new=0, date=1784604057574
+Row: 6 _id=7, number=13625308733, type=1, is_read=NULL, new=0, date=1784603605556
+Row: 7 _id=8, number=13626682307, type=3, is_read=NULL, new=0, date=1784598816046
+Row: 8 _id=9, number=13652254733, type=3, is_read=NULL, new=0, date=1784542908294
+Row: 9 _id=10, number=13615316202, type=1, is_read=NULL, new=0, date=1784576511159
+Row: 10 _id=11, number=01020954744, type=3, is_read=0, new=1, date=1784615106630
