@@ -76,6 +76,9 @@ class _ConnectedADB:
     def get_device_info(self):
         return {"serial": "HOST-FAKE", "model": "fake", "android_version": "0"}
 
+    def device_serial(self):
+        return "HOST-FAKE"
+
 
 def create_test_excel(path: Path) -> None:
     wb = Workbook()
@@ -215,6 +218,116 @@ def test_run_rejects_unknown_contract_mode(monkeypatch):
     assert exc_info.value.code == 2
 
 
+def test_run_parser_exposes_serial_and_strict_shell_independently(monkeypatch):
+    captured = {}
+
+    def fake_run(args):
+        captured["serial"] = args.serial
+        captured["strict_shell"] = args.strict_shell
+
+    monkeypatch.setattr("src.cli.cmd_run", fake_run)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "cli",
+            "run",
+            "dummy.yaml",
+            "--serial",
+            "SERIAL",
+            "--strict-shell",
+        ],
+    )
+
+    main()
+
+    assert captured == {"serial": "SERIAL", "strict_shell": True}
+
+
+def test_run_parser_serial_and_strict_shell_defaults_are_independent(monkeypatch):
+    captured = {}
+
+    def fake_run(args):
+        captured["serial"] = args.serial
+        captured["strict_shell"] = args.strict_shell
+
+    monkeypatch.setattr("src.cli.cmd_run", fake_run)
+    monkeypatch.setattr("sys.argv", ["cli", "run", "dummy.yaml"])
+
+    main()
+
+    assert captured == {"serial": None, "strict_shell": False}
+
+
+def test_invalid_serial_exits_before_adb_constructed(monkeypatch, capsys):
+    adb_calls = []
+
+    def forbidden_adb(*args, **kwargs):
+        adb_calls.append((args, kwargs))
+        raise AssertionError("invalid serial must stop before ADB construction")
+
+    monkeypatch.setattr(cli, "ADB", forbidden_adb)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=["unused.yaml"],
+                run_id="20260722T010000Z",
+                contract_mode="legacy",
+                serial="BAD SERIAL",
+                strict_shell=False,
+            )
+        )
+
+    captured = capsys.readouterr()
+    assert exc_info.value.code == 1
+    assert adb_calls == []
+    assert "ERROR: --serial" in captured.err
+    assert "Traceback" not in captured.err
+
+
+@pytest.mark.parametrize(
+    ("serial", "strict_shell", "expected_args", "expected_kwargs"),
+    [
+        (None, False, (), {}),
+        ("SERIAL", False, (), {"device_serial": "SERIAL"}),
+        (None, True, (), {"strict_shell": True}),
+        (
+            "SERIAL",
+            True,
+            (),
+            {"device_serial": "SERIAL", "strict_shell": True},
+        ),
+    ],
+)
+def test_cmd_run_adb_constructor_matrix(
+    monkeypatch, serial, strict_shell, expected_args, expected_kwargs
+):
+    calls = []
+
+    class DisconnectedADB:
+        def __init__(self, *args, **kwargs):
+            calls.append((args, kwargs))
+
+        def is_connected(self):
+            return False
+
+    monkeypatch.setattr(cli, "ADB", DisconnectedADB)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=["unused.yaml"],
+                run_id="20260722T010001Z",
+                contract_mode="legacy",
+                serial=serial,
+                strict_shell=strict_shell,
+            )
+        )
+
+    assert exc_info.value.code == 1
+    assert calls == [(expected_args, expected_kwargs)]
+
+
 def test_canonical_preflight_rejects_runnable_false_before_adb_constructed(
     tmp_path, monkeypatch
 ):
@@ -237,6 +350,8 @@ def test_canonical_preflight_rejects_runnable_false_before_adb_constructed(
                 tc_files=[str(tc_file)],
                 run_id="20260721T010000Z",
                 contract_mode="canonical",
+                serial="SERIAL",
+                strict_shell=True,
             )
         )
 
@@ -625,6 +740,480 @@ def test_legacy_verifier_only_break_policy_is_unchanged(tmp_path, monkeypatch):
     assert calls == ["tap_xy", "wait", "verify_text", "wait"]
     assert data["contract_mode"] == "legacy"
     assert data["run_status"] == "COMPLETED"
+    assert data["device"]["serial_pinned"] is None
+    assert data["device"]["serial_observed"] == "HOST-FAKE"
+
+
+def test_serial_only_legacy_preserves_continue_policy_and_records_identity(
+    tmp_path, monkeypatch
+):
+    first = tmp_path / "serial-only-first.yaml"
+    first.write_text(
+        json.dumps(
+            {
+                "name": "SERIAL_ONLY_FIRST",
+                "steps": [
+                    {"action": "tap_xy"},
+                    {"action": "wait"},
+                    {"action": "verify_text"},
+                    {"action": "screenshot"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    second = tmp_path / "serial-only-second.yaml"
+    second.write_text(
+        json.dumps(
+            {"name": "SERIAL_ONLY_SECOND", "steps": [{"action": "wait"}]}
+        ),
+        encoding="utf-8",
+    )
+    created = []
+    calls = []
+
+    class IdentityADB:
+        def __init__(self, device_serial=None, *, strict_shell=False):
+            assert device_serial == "PINNED-SERIAL"
+            assert strict_shell is False
+            created.append(self)
+
+        def is_connected(self):
+            return True
+
+        def get_device_info(self):
+            return {"model": "AT-M140", "android_version": "14"}
+
+        def device_serial(self):
+            return "OBSERVED-SERIAL"
+
+    class FakeRunner:
+        def __init__(self, *args, **kwargs):
+            assert kwargs["adb"] is created[0]
+            assert kwargs["contract_mode"] == "legacy"
+
+        def run_step(self, step, *args, **kwargs):
+            calls.append(step["action"])
+            return StepResult(
+                action=step["action"],
+                passed=step["action"] not in {"tap_xy", "verify_text"},
+                message="forced legacy failure",
+            )
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", IdentityADB)
+    monkeypatch.setattr(cli, "ActionRunner", FakeRunner)
+
+    cli.cmd_run(
+        SimpleNamespace(
+            tc_files=[str(first), str(second)],
+            run_id="20260722T010002Z",
+            contract_mode="legacy",
+            serial="PINNED-SERIAL",
+            strict_shell=False,
+        )
+    )
+
+    data = json.loads(
+        (tmp_path / "reports" / "20260722T010002Z" / "summary.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert calls == ["tap_xy", "wait", "verify_text", "wait"]
+    assert data["run_status"] == "COMPLETED"
+    assert data["device"]["serial_pinned"] == "PINNED-SERIAL"
+    assert data["device"]["serial_observed"] == "OBSERVED-SERIAL"
+
+
+def test_serial_only_legacy_preserves_load_skip_behavior(
+    tmp_path, monkeypatch, capsys
+):
+    invalid = tmp_path / "serial-load-invalid.yaml"
+    valid = tmp_path / "serial-load-valid.yaml"
+    invalid.write_text("placeholder", encoding="utf-8")
+    valid.write_text("placeholder", encoding="utf-8")
+    load_calls = []
+    runner_calls = []
+
+    def fake_load(path):
+        path = Path(path)
+        load_calls.append(path)
+        if path == invalid:
+            raise cli.TCValidationError("legacy invalid")
+        return {"name": "SERIAL_VALID", "steps": [{"action": "wait"}]}
+
+    class IdentityADB:
+        def __init__(self, device_serial=None, *, strict_shell=False):
+            assert device_serial == "PINNED-SERIAL"
+            assert strict_shell is False
+
+        def is_connected(self):
+            return True
+
+        def get_device_info(self):
+            return {"model": "AT-M140", "android_version": "14"}
+
+        def device_serial(self):
+            return "OBSERVED-SERIAL"
+
+    class PassingRunner:
+        def __init__(self, *args, **kwargs):
+            assert kwargs["contract_mode"] == "legacy"
+
+        def run_step(self, step, *args, **kwargs):
+            runner_calls.append(step["action"])
+            return StepResult(action=step["action"], passed=True)
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", IdentityADB)
+    monkeypatch.setattr(cli, "ActionRunner", PassingRunner)
+    monkeypatch.setattr(cli, "load_tc", fake_load)
+
+    cli.cmd_run(
+        SimpleNamespace(
+            tc_files=[str(invalid), str(valid)],
+            run_id="20260722T010008Z",
+            contract_mode="legacy",
+            serial="PINNED-SERIAL",
+            strict_shell=False,
+        )
+    )
+
+    captured = capsys.readouterr()
+    data = json.loads(
+        (tmp_path / "reports" / "20260722T010008Z" / "summary.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert load_calls == [invalid, valid]
+    assert runner_calls == ["wait"]
+    assert "SKIP:" in captured.out
+    assert data["run_status"] == "COMPLETED"
+    assert [result["name"] for result in data["results"]] == ["SERIAL_VALID"]
+
+
+def test_serial_only_legacy_summary_write_failure_remains_warning(
+    tmp_path, monkeypatch, capsys
+):
+    tc_file = tmp_path / "serial-summary-warning.yaml"
+    tc_file.write_text(
+        json.dumps({"name": "SERIAL_WARNING", "steps": [{"action": "wait"}]}),
+        encoding="utf-8",
+    )
+    attempted_contexts = []
+    real_reporter = cli.Reporter
+
+    class IdentityADB:
+        def __init__(self, device_serial=None, *, strict_shell=False):
+            assert device_serial == "PINNED-SERIAL"
+            assert strict_shell is False
+
+        def is_connected(self):
+            return True
+
+        def get_device_info(self):
+            return {"model": "AT-M140", "android_version": "14"}
+
+        def device_serial(self):
+            return "OBSERVED-SERIAL"
+
+    class FailingSummaryReporter(real_reporter):
+        def write_summary_json(self):
+            attempted_contexts.append((self.contract_mode, self.run_status))
+            raise OSError("simulated legacy disk full")
+
+    class PassingRunner:
+        def __init__(self, *args, **kwargs):
+            assert kwargs["contract_mode"] == "legacy"
+
+        def run_step(self, step, *args, **kwargs):
+            return StepResult(action=step["action"], passed=True)
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", IdentityADB)
+    monkeypatch.setattr(cli, "ActionRunner", PassingRunner)
+    monkeypatch.setattr(cli, "Reporter", FailingSummaryReporter)
+
+    cli.cmd_run(
+        SimpleNamespace(
+            tc_files=[str(tc_file)],
+            run_id="20260722T010009Z",
+            contract_mode="legacy",
+            serial="PINNED-SERIAL",
+            strict_shell=False,
+        )
+    )
+
+    captured = capsys.readouterr()
+    assert attempted_contexts == [("legacy", "COMPLETED")]
+    assert "WARNING:" in captured.out
+    assert "ERROR:" not in captured.err
+
+
+def test_strict_legacy_action_failure_aborts_and_persists_partial_summary(
+    tmp_path, monkeypatch
+):
+    first = tmp_path / "strict-first.yaml"
+    first.write_text(
+        json.dumps(
+            {
+                "name": "STRICT_FIRST",
+                "steps": [
+                    {"action": "tap_xy"},
+                    {"action": "wait"},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    second = tmp_path / "strict-second.yaml"
+    second.write_text(
+        json.dumps({"name": "STRICT_SECOND", "steps": [{"action": "wait"}]}),
+        encoding="utf-8",
+    )
+    calls = []
+
+    class StrictADB(_ConnectedADB):
+        def __init__(self, *, strict_shell=False):
+            assert strict_shell is True
+
+    class FakeRunner:
+        def __init__(self, *args, **kwargs):
+            assert kwargs["contract_mode"] == "legacy"
+
+        def run_step(self, step, *args, **kwargs):
+            calls.append(step["action"])
+            return StepResult(
+                action=step["action"],
+                passed=False,
+                message="strict failure",
+            )
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", StrictADB)
+    monkeypatch.setattr(cli, "ActionRunner", FakeRunner)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=[str(first), str(second)],
+                run_id="20260722T010003Z",
+                contract_mode="legacy",
+                serial=None,
+                strict_shell=True,
+            )
+        )
+
+    data = json.loads(
+        (tmp_path / "reports" / "20260722T010003Z" / "summary.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert exc_info.value.code == 1
+    assert calls == ["tap_xy"]
+    assert data["contract_mode"] == "legacy"
+    assert data["run_status"] == "ABORTED_FAIL_CLOSED"
+    assert [step["action"] for step in data["results"][0]["steps"]] == calls
+
+
+def test_strict_legacy_load_error_preserves_prior_results_in_partial_summary(
+    tmp_path, monkeypatch
+):
+    first = tmp_path / "load-first.yaml"
+    second = tmp_path / "load-invalid.yaml"
+    third = tmp_path / "load-never-reached.yaml"
+    first.write_text("placeholder", encoding="utf-8")
+    second.write_text("placeholder", encoding="utf-8")
+    third.write_text("placeholder", encoding="utf-8")
+    load_calls = []
+    runner_calls = []
+
+    def fake_load(path):
+        path = Path(path)
+        load_calls.append(path)
+        if path == second:
+            raise cli.TCValidationError("invalid second file")
+        if path == first:
+            return {"name": "LOAD_FIRST", "steps": [{"action": "wait"}]}
+        return {"name": "LOAD_THIRD", "steps": [{"action": "key"}]}
+
+    class StrictADB(_ConnectedADB):
+        def __init__(self, *, strict_shell=False):
+            assert strict_shell is True
+
+    class PassingRunner:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def run_step(self, step, *args, **kwargs):
+            runner_calls.append(step["action"])
+            return StepResult(action=step["action"], passed=True)
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", StrictADB)
+    monkeypatch.setattr(cli, "ActionRunner", PassingRunner)
+    monkeypatch.setattr(cli, "load_tc", fake_load)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=[str(first), str(second), str(third)],
+                run_id="20260722T010004Z",
+                contract_mode="legacy",
+                serial=None,
+                strict_shell=True,
+            )
+        )
+
+    data = json.loads(
+        (tmp_path / "reports" / "20260722T010004Z" / "summary.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert exc_info.value.code == 1
+    assert load_calls == [first, second]
+    assert runner_calls == ["wait"]
+    assert data["run_status"] == "ABORTED_FAIL_CLOSED"
+    assert [result["name"] for result in data["results"]] == ["LOAD_FIRST"]
+
+
+def test_strict_first_legacy_load_error_has_no_synthetic_summary(
+    tmp_path, monkeypatch, capsys
+):
+    invalid = tmp_path / "load-invalid.yaml"
+    later = tmp_path / "load-never-reached.yaml"
+    invalid.write_text("placeholder", encoding="utf-8")
+    later.write_text("placeholder", encoding="utf-8")
+    load_calls = []
+
+    def fake_load(path):
+        path = Path(path)
+        load_calls.append(path)
+        if path == invalid:
+            raise cli.TCValidationError("invalid first")
+        return {"name": "NEVER_REACHED", "steps": [{"action": "wait"}]}
+
+    class StrictADB(_ConnectedADB):
+        def __init__(self, *, strict_shell=False):
+            assert strict_shell is True
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", StrictADB)
+    monkeypatch.setattr(cli, "load_tc", fake_load)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=[str(invalid), str(later)],
+                run_id="20260722T010005Z",
+                contract_mode="legacy",
+                serial=None,
+                strict_shell=True,
+            )
+        )
+
+    captured = capsys.readouterr()
+    assert exc_info.value.code == 1
+    assert load_calls == [invalid]
+    assert "SKIP:" not in captured.out
+    assert "ERROR:" in captured.err
+    assert not (tmp_path / "reports" / "20260722T010005Z" / "summary.json").exists()
+
+
+def test_strict_legacy_summary_persistence_failure_is_fatal(
+    tmp_path, monkeypatch, capsys
+):
+    tc_file = tmp_path / "passing.yaml"
+    tc_file.write_text(
+        json.dumps({"name": "PASSING", "steps": [{"action": "wait"}]}),
+        encoding="utf-8",
+    )
+    attempted_contexts = []
+    real_reporter = cli.Reporter
+
+    class StrictADB(_ConnectedADB):
+        def __init__(self, *, strict_shell=False):
+            assert strict_shell is True
+
+    class FailingSummaryReporter(real_reporter):
+        def write_summary_json(self):
+            attempted_contexts.append((self.contract_mode, self.run_status))
+            raise OSError("simulated disk full")
+
+    class PassingRunner:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def run_step(self, step, *args, **kwargs):
+            return StepResult(action=step["action"], passed=True)
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", StrictADB)
+    monkeypatch.setattr(cli, "ActionRunner", PassingRunner)
+    monkeypatch.setattr(cli, "Reporter", FailingSummaryReporter)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=[str(tc_file)],
+                run_id="20260722T010006Z",
+                contract_mode="legacy",
+                serial=None,
+                strict_shell=True,
+            )
+        )
+
+    captured = capsys.readouterr()
+    assert exc_info.value.code == 1
+    assert attempted_contexts == [("legacy", "COMPLETED")]
+    assert "ERROR:" in captured.err
+    assert "summary.json" in captured.err
+
+
+def test_strict_device_info_failure_is_preexecution_without_summary(
+    tmp_path, monkeypatch, capsys
+):
+    tc_file = tmp_path / "unused.yaml"
+    tc_file.write_text(
+        json.dumps({"name": "UNUSED", "steps": [{"action": "wait"}]}),
+        encoding="utf-8",
+    )
+    runner_calls = []
+
+    class FailingInfoADB:
+        def __init__(self, *, strict_shell=False):
+            assert strict_shell is True
+
+        def is_connected(self):
+            return True
+
+        def get_device_info(self):
+            raise RuntimeError("device info denied")
+
+    def forbidden_runner(*args, **kwargs):
+        runner_calls.append((args, kwargs))
+        raise AssertionError("runner must not be constructed")
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "ADB", FailingInfoADB)
+    monkeypatch.setattr(cli, "ActionRunner", forbidden_runner)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli.cmd_run(
+            SimpleNamespace(
+                tc_files=[str(tc_file)],
+                run_id="20260722T010007Z",
+                contract_mode="legacy",
+                serial=None,
+                strict_shell=True,
+            )
+        )
+
+    captured = capsys.readouterr()
+    assert exc_info.value.code == 1
+    assert runner_calls == []
+    assert "ERROR:" in captured.err
+    assert not (tmp_path / "reports" / "20260722T010007Z" / "summary.json").exists()
 
 
 def test_primary_corpus_host_preflight_matches_declared_metadata():

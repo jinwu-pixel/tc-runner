@@ -16,7 +16,7 @@ if sys.platform == "win32":
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-from src.adb import ADB
+from src.adb import ADB, validate_device_serial
 from src.tc_loader import load_tc, TCValidationError
 from src.action_runner import ActionRunner, ManualStepAction, ManualStepContext
 from src.reporter import Reporter, TCResult
@@ -280,6 +280,13 @@ def cmd_run(args):
     contract_mode = getattr(args, "contract_mode", "legacy")
     if contract_mode not in ("legacy", "canonical"):
         raise ValueError(f"unsupported contract_mode: {contract_mode!r}")
+    device_serial = getattr(args, "serial", None)
+    strict_shell = bool(getattr(args, "strict_shell", False))
+    try:
+        validate_device_serial(device_serial)
+    except ValueError as e:
+        print(f"ERROR: --serial 부적합: {e}", file=sys.stderr)
+        sys.exit(1)
 
     tc_files: list[Path] = []
     temp_dirs: list[Path] = []
@@ -309,7 +316,14 @@ def cmd_run(args):
                         print(f"    - {reason}", file=sys.stderr)
                 sys.exit(1)
 
-        adb = ADB()
+        if device_serial is None and not strict_shell:
+            adb = ADB()
+        elif device_serial is None:
+            adb = ADB(strict_shell=True)
+        elif not strict_shell:
+            adb = ADB(device_serial=device_serial)
+        else:
+            adb = ADB(device_serial=device_serial, strict_shell=True)
         if not adb.is_connected():
             print("ERROR: ADB에 연결된 단말이 없습니다.")
             print("USB 케이블과 USB 디버깅 설정을 확인해주세요.")
@@ -328,7 +342,17 @@ def cmd_run(args):
             run_id=run_id,
             contract_mode=contract_mode,
         )
-        reporter.device_info = adb.get_device_info()
+        try:
+            reporter.device_info = {
+                **adb.get_device_info(),
+                "serial_pinned": device_serial,
+                "serial_observed": adb.device_serial(),
+            }
+        except Exception as e:
+            if strict_shell:
+                print(f"ERROR: strict device identity failed — {e}", file=sys.stderr)
+                sys.exit(1)
+            raise
         screenshot_dir = reporter.screenshot_dir
         runner = ActionRunner(
             adb=adb,
@@ -362,6 +386,13 @@ def cmd_run(args):
                 try:
                     tc_data = load_tc(tc_file)
                 except TCValidationError as e:
+                    if strict_shell:
+                        print(
+                            f"ERROR: strict legacy load rejected {tc_file} — {e}",
+                            file=sys.stderr,
+                        )
+                        aborted_fail_closed = True
+                        break
                     print(f"\nSKIP: {tc_file} — {e}")
                     continue
                 tc_name = tc_data["name"]
@@ -378,7 +409,7 @@ def cmd_run(args):
                 reporter.print_step(tc_name, i, step_result)
 
                 if not step_result.passed:
-                    if contract_mode == "canonical":
+                    if contract_mode == "canonical" or strict_shell:
                         aborted_fail_closed = True
                         break
                     # legacy: verify action 실패 시 이 T/C 중단, 다음 T/C로
@@ -408,9 +439,10 @@ def cmd_run(args):
             summary_path = reporter.write_summary_json()
             print(f"  Summary JSON: {summary_path}")
         except Exception as e:
-            if contract_mode == "canonical":
+            if contract_mode == "canonical" or strict_shell:
+                context = "canonical" if contract_mode == "canonical" else "strict"
                 print(
-                    f"ERROR: canonical summary.json persistence failed — {e}",
+                    f"ERROR: {context} summary.json persistence failed — {e}",
                     file=sys.stderr,
                 )
                 sys.exit(1)
@@ -877,6 +909,16 @@ def main():
         choices=("legacy", "canonical"),
         default="legacy",
         help="execution contract mode (기본: legacy)",
+    )
+    run_parser.add_argument(
+        "--serial",
+        default=None,
+        help="ADB transport serial pin (run subcommand only)",
+    )
+    run_parser.add_argument(
+        "--strict-shell",
+        action="store_true",
+        help="fail on nonzero ADB shell results and abort on first failure",
     )
     run_parser.set_defaults(func=cmd_run)
 
