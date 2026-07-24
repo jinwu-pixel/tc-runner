@@ -290,6 +290,7 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 | `qcat_fast_extract.ps1` (PowerShell) | 대용량 qmdl QCAT 파싱 단축 (filter-first + ISF 캐시 ~740× + 단일 포그라운드 COM). 상세 `docs/qcat_parsing.md` |
 | `ims_sip_digest.py` | QCAT 0x156E IMS SIP 텍스트 → override 검증용 KB digest (KST 타임스탬프) |
 | `eng_mode_runner.py` + `eng_mode_profiles.py` | 동일한 gate→tab→flat-list UI 구조의 Engineer-Mode 앱 런너 (preflight wrong-device 가드·caseset 앱-1회 batch·capture 상태-게이트·adb 0 `plan`; selector/라벨/좌표 프로파일 외부화). host-TDD/dry-run 완료, 범용 경로 device smoke pending |
+| `evidence_verifier.py` | runbook 증거 검증기 (capture-baseline/verify 2모드, C0~C5 fail-closed·exit `0/1/2/3`, git hash-object·JUnit·결정론 bundle, baseline 바이트 결박). runbook Tier 0 검토를 attestation+spot-check로 축소. Tier-1 검증·T0-CHAR 파일럿 GREEN (2026-07-23) |
 
 ### 5.4 운영 도구 (`tools/`)
 
@@ -482,6 +483,7 @@ batch10 dir 직접 기록 = phantom side-effect + 슬라이스 over-read 53/29).
 | 2026-06-17 | 단말 런타임 효율·정확도 | Engineer IMS 8케이스 실기가 과다 소요 — 항목별 앱 cold 재기동·불필요 reboot(둘이 최대급 손실; reboot는 호 파라미터 환원까지)·조기 qmdl pull·단말정체 미확인(self-call·USIM 교체)·Way1·2≠Way3 매번 재판별. 도구화(런너 caseset/preflight+wrong-device 가드/capture 상태-게이트) + 카탈로그 RUNTIME_PLAYBOOK Override Applicability Matrix + feedback 메모리 | §5.3 (`eng_mode_runner.py`+profile, host-TDD/dry-run) + §4.2(applicability 재사용) + `RUNTIME_PLAYBOOK.md`; 범용 경로 device smoke pending | applied |
 | 2026-06-17 | QCAT 파싱 단축 도구 | 대용량 qmdl(155M/131만p) QCAT 파싱 병목 = OpenLog 전수 인덱싱(~148s, 86%가 불요 0x1FEB debug). 단축법 정립·실측: filter-first(SaveAsText 전 SetAll(false)+Set+Commit, 564MB→KB) + ISF 캐시(SaveAsISF 1회→재오픈 0.2s, ~740×, 무손실) + 단일 포그라운드 세션(0x80080005 진짜 원인=QCAT 첫기동 DirectPlay 모달 launch 블록, 백그라운드 금지). `scripts/qcat_fast_extract.ps1` 승격 + BTS15068·40M 양 캡처 검증. 0xB193=RSRP/RSRQ per-antenna ground truth | §5.3 (qcat_fast_extract.ps1·ims_sip_digest.py)·docs/qcat_parsing.md·memory([[reference_qcat_fast_extraction]]·[[project_bts15068_antbar]]) | applied |
 | 2026-07-02 | TalkBack×하드키 검증 방법론 | THOR2_J×LINE 이슈 2건 규명(SPEC_GAP)에서 앱 무관 방법론 정립: 포커스 2축(입력≠a11y, non-speaking 컨테이너 무피드백 구간)·FocusFinder shadowing(전폭 컨테이너가 자식 가림·ViewPager 수평키 소비)·adb 함정 3종(uiautomator dump=TalkBack 일시 억제→키 시퀀스 중 dump 금지 / input tap·swipe=터치탐색 우회 즉시클릭→탐색 발화는 keyevent로 대체 / MSYS·PS5.1 깨짐)·발화 정량(TTS Synthesis+오디오포커스 세션+대조군 2종)·레이어 분리 절차·단말측 3rd-party a11y 수정 경로 부재(트리=앱 소유·RRO 무력·TalkBack=Google/Play·bare D-PAD 키맵 없음, 리서치 확정). 정적 스크리닝 S1~S8 도구화는 승인 대기 | docs/talkback_dpad_verification.md(신설 완료)·memory([[reference_talkback_hardkey_verification]]·[[project_thor2j_line_talkback]]) 반영, §4/§5 본문 등록은 갱신 대기 | proposed |
+| 2026-07-23 | 이중 게이트 병목 축소 | Codex 검토+사용자 승인 이중 게이트를 blast-radius별 재배치: RUNBOOK 템플릿 v2(Tier 0/1/2 + exact-bytes 실행 캡슐 + evidence bundle) + `scripts/evidence_verifier.py`(baseline 결박·fail-closed·결정론) 신설. T0-CHAR 파일럿 1회로 (A)검토 절반이 attestation+spot-check로 collapse 실증. 파일럿 도중 백슬래시 param 정규화 실버그를 exit 3(fail-closed)로 flush → 도구 신뢰 실증. **§3.x 자동연속 정책 본문 lock은 보류**(파일럿 1회=mechanism만 증명, 다중-task 자동연속 미실행 — 실 Tier-0 작업 축적 후 승격) | §5.3(evidence_verifier 등록)·RUNBOOK_DIRECTIVE_TEMPLATE.md·§3.x/§8.4(정책 보류) | proposed |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
