@@ -1,5 +1,5 @@
 from dataclasses import FrozenInstanceError
-from unittest.mock import patch, MagicMock
+from unittest.mock import call, patch, MagicMock
 import subprocess
 
 import pytest
@@ -328,6 +328,121 @@ def test_remote_helper_success_uses_namespaced_tmp_and_pinned_argv(
     assert all("/sdcard" not in " ".join(call) for call in calls)
     if helper == "dump_ui":
         assert result == "<hierarchy/>"
+
+
+@patch("src.adb.subprocess.run")
+def test_screenshot_exact_argv_with_pinned_serial(mock_run, tmp_path):
+    mock_run.side_effect = [_completed(), _completed(), _completed()]
+    local_path = tmp_path / "shot.png"
+
+    result = ADB("SERIAL", strict_shell=False).screenshot(local_path)
+
+    assert result is None
+    assert mock_run.call_args_list == [
+        call(
+            [
+                "adb",
+                "-s",
+                "SERIAL",
+                "shell",
+                "screencap -p "
+                "/data/local/tmp/tc_runner_screenshot_tmp.png",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        ),
+        call(
+            [
+                "adb",
+                "-s",
+                "SERIAL",
+                "pull",
+                "/data/local/tmp/tc_runner_screenshot_tmp.png",
+                str(local_path),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        ),
+        call(
+            [
+                "adb",
+                "-s",
+                "SERIAL",
+                "shell",
+                "rm -f /data/local/tmp/tc_runner_screenshot_tmp.png",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        ),
+    ]
+
+
+@patch("src.adb.subprocess.run")
+def test_dump_ui_exact_argv_with_pinned_serial(mock_run):
+    mock_run.side_effect = [
+        _completed(),
+        _completed(stdout="<hierarchy/>"),
+        _completed(),
+    ]
+
+    result = ADB("SERIAL", strict_shell=False).dump_ui()
+
+    assert result == "<hierarchy/>"
+    assert mock_run.call_args_list == [
+        call(
+            [
+                "adb",
+                "-s",
+                "SERIAL",
+                "shell",
+                "uiautomator dump "
+                "/data/local/tmp/tc_runner_ui_dump.xml",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        ),
+        call(
+            [
+                "adb",
+                "-s",
+                "SERIAL",
+                "shell",
+                "cat",
+                "/data/local/tmp/tc_runner_ui_dump.xml",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        ),
+        call(
+            [
+                "adb",
+                "-s",
+                "SERIAL",
+                "shell",
+                "rm -f /data/local/tmp/tc_runner_ui_dump.xml",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding="utf-8",
+            errors="replace",
+        ),
+    ]
 
 
 @pytest.mark.parametrize("helper", ["screenshot", "dump_ui"])
