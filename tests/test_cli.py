@@ -188,6 +188,22 @@ def test_run_contract_mode_defaults_to_legacy(monkeypatch):
 
     main()
 
+    assert captured["contract_mode"] == "canonical"
+
+
+def test_run_accepts_explicit_legacy_contract_mode(monkeypatch):
+    captured = {}
+
+    def fake_run(args):
+        captured["contract_mode"] = args.contract_mode
+
+    monkeypatch.setattr("src.cli.cmd_run", fake_run)
+    monkeypatch.setattr(
+        "sys.argv", ["cli", "run", "dummy.yaml", "--contract-mode", "legacy"]
+    )
+
+    main()
+
     assert captured["contract_mode"] == "legacy"
 
 

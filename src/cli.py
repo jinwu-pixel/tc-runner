@@ -907,8 +907,8 @@ def main():
     run_parser.add_argument(
         "--contract-mode",
         choices=("legacy", "canonical"),
-        default="legacy",
-        help="execution contract mode (기본: legacy)",
+        default="canonical",
+        help="execution contract mode (기본: canonical; legacy는 --contract-mode legacy)",
     )
     run_parser.add_argument(
         "--serial",
