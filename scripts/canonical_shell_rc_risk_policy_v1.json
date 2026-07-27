@@ -1,0 +1,201 @@
+{
+  "schema_version": "canonical-shell-rc-risk-policy-v1",
+  "inventory_sha256": "b0c5552c4a3d20590c85ce701c46061a7c6cd5e2cf589bc1cfa5395382880b7f",
+  "inventory_row_count": 692,
+  "override_count": 24,
+  "override_identity_sha256": "d42e891471bedb10a9a35a879670051d0a2ffc62ff514f9a718b7ef811e61cc3",
+  "overrides": [
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:ODIN2 - My gallary/functional/photo/GAL_FUNC_05_photo_multi_delete_trash_flow.yaml#23",
+      "action": "shell",
+      "command_sha256": "fae7c7ced780956f25a23cefcc3400d11eb85f4ce1f31dcb5f8b0a2ef32d8a70",
+      "classification": "REVIEW_REQUIRED",
+      "reason_code": "EMPTY_GLOB_CONDITIONAL_LOOP_RC_AMBIGUOUS",
+      "evidence": ".trashed 접두어 파일을 원래 이름으로 복구 (glob)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:ODIN2 - My gallary/functional/photo/GAL_FUNC_12_photo_edit_save_copy.yaml#18",
+      "action": "shell",
+      "command_sha256": "a853161f425d03d56642940faa7f19efada64bfacb7b8c3bfedb94ea43fcd348",
+      "classification": "REVIEW_REQUIRED",
+      "reason_code": "EMPTY_GLOB_CONDITIONAL_LOOP_RC_AMBIGUOUS",
+      "evidence": "생성된 EDIT_COPY 사본 제거"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:ODIN2 - My gallary/functional/video/GAL_FUNC_16_video_orientation.yaml#8",
+      "action": "shell",
+      "command_sha256": "fe2d97f13dfc97f375a748391e3a8b4e1a173c64587e94054dcd0fb79c3ca484",
+      "classification": "OBSERVE_ONLY",
+      "reason_code": "PIPELINE_LAST_COMMAND_MASKS_UPSTREAM",
+      "evidence": "회전 상태 로그 (hook 없이 참고용)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:ODIN2 - minifile/functional/ops/MNF_FUNC_12_ops_rename.yaml#22",
+      "action": "shell",
+      "command_sha256": "436e17005307aa17348e5d1de507e2eefc80be7a6340bb811b52ebcc39d55f65",
+      "classification": "REVIEW_REQUIRED",
+      "reason_code": "COMMAND_SUBSTITUTION_FAILURE_CAN_NOOP",
+      "evidence": "KEYCODE_DEL(67) 반복으로 EditText 클리어"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:ODIN2 - minifile/functional/trash/MNF_FUNC_27_trash_enter.yaml#11",
+      "action": "shell",
+      "command_sha256": "dda7fcb0be569a399506f7da1f6d0532a012046fcfbd2043d014d32cdadc66d3",
+      "classification": "MASKED_ASSERTION",
+      "reason_code": "OR_FALLBACK_MASKS_ASSERTION",
+      "evidence": "파일 리스트 뷰 존재 확인"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC01_permission_denied.yaml#11",
+      "action": "shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인 (0이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC02_permission_allow_idle.yaml#11",
+      "action": "shell",
+      "command_sha256": "5d0c363c31ad4ab71fbc1457594582783e8ac070ef3c393dc550ee599d465b67",
+      "classification": "COUNT_EQ_1",
+      "reason_code": "GREP_COUNT_CARDINALITY_UNENFORCED",
+      "evidence": "register 횟수 확인 (1이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC03_ringing_permission.yaml#15",
+      "action": "shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인 (0이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC04_offhook_seed_recovery.yaml#18",
+      "action": "shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인 (0이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC05_boundary_values.yaml#9",
+      "action": "shell",
+      "command_sha256": "3be300a023647d2a2659a134bcd472321fee03fb60ea1ad83895cf77b0b84548",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "[TC-05A] LONG_CALL_DURATION 미발생 확인 (0이어야 PASS)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC06_missed_rejected.yaml#10",
+      "action": "shell",
+      "command_sha256": "3be300a023647d2a2659a134bcd472321fee03fb60ea1ad83895cf77b0b84548",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "LONG_CALL_DURATION 미발생 확인 (0이어야 PASS)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC06_missed_rejected.yaml#11",
+      "action": "shell",
+      "command_sha256": "239f9ac82ddfbfddb8c434d02bfc0e6a83e1b5bc3e0da00c07f1320fad4138de",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "risk event 미발생 확인 (0이어야 PASS)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC07_short_call_no_false_positive.yaml#9",
+      "action": "shell",
+      "command_sha256": "3be300a023647d2a2659a134bcd472321fee03fb60ea1ad83895cf77b0b84548",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "LONG_CALL_DURATION 미발생 확인 (0이어야 PASS)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC09_offhook_permission_banking.yaml#20",
+      "action": "shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인 (0이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC0_P0_endcall_crash.yaml#15",
+      "action": "shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인 (0이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC10_permission_toggle.yaml#24",
+      "action": "shell",
+      "command_sha256": "5d0c363c31ad4ab71fbc1457594582783e8ac070ef3c393dc550ee599d465b67",
+      "classification": "COUNT_EQ_1",
+      "reason_code": "GREP_COUNT_CARDINALITY_UNENFORCED",
+      "evidence": "register 횟수 확인 (1이어야 정상 — 2차에서 1회만)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC11_multi_subscription.yaml#20",
+      "action": "shell",
+      "command_sha256": "b7fdf5d0f6929b0fb5345b790714d0e7c950c4c25c9963a4fac9dc6fe68291fd",
+      "classification": "COUNT_EQ_1",
+      "reason_code": "GREP_COUNT_CARDINALITY_UNENFORCED",
+      "evidence": "LONG_CALL_DURATION 발생 횟수 확인 (1이어야 정상 — 중복 없음)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC11_multi_subscription.yaml#21",
+      "action": "shell",
+      "command_sha256": "abfa4fbdf56c323a37d7e483bea8971006419b2253eaaeda3c7b9d6d52fc0f49",
+      "classification": "COUNT_LE_1",
+      "reason_code": "GREP_LE_ONE_POLARITY_AND_BOUND_UNENFORCED",
+      "evidence": "notification escalation 횟수 확인 (1 이하여야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC12_legacy_path.yaml#19",
+      "action": "shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인 (0이어야 정상)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_tc1/BUG_25175_LGU_APN_menu.yaml#75",
+      "action": "shell",
+      "command_sha256": "92bf8ea876da2855facd9e176e481364a9e1d709c9bbfe6e2bd8109bcf7ed20a",
+      "classification": "TRANSPORT_TERMINATING",
+      "reason_code": "ADB_TRANSPORT_MAY_CLOSE_ON_SUCCESS",
+      "evidence": "단말 재부팅"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_tc1/BUG_5426_airplane_reboot_apn.yaml#15",
+      "action": "shell",
+      "command_sha256": "4c5860f34d389283531429a000586f50273d1456f62f3868c15335ddddf868a6",
+      "classification": "TRANSPORT_TERMINATING",
+      "reason_code": "ADB_TRANSPORT_MAY_CLOSE_ON_SUCCESS",
+      "evidence": "logcat 초기화 후 리부팅"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:ODIN2 - My gallary/functional/photo/GAL_FUNC_03_photo_multi_select.yaml#24",
+      "action": "verify_shell",
+      "command_sha256": "89a4bf8b0978e9e686bb648e5b6ec044db96c9da21bcf055140f8d370883308c",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "VERIFY_GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "선택 오버레이 전부 해제"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC01_permission_denied.yaml#10",
+      "action": "verify_shell",
+      "command_sha256": "86926ba3bf1c2298477b83eada4929c946d466cdc002fa02e31c6fb422a9b168",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "VERIFY_GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "call signal 비어있음 (또는 coordinator에 도달 안 함)"
+    },
+    {
+      "row_key": "78b3ac34e9f8bacabe926172dd199342b7eb58c5:exported_ss_call/SS_TC0_P0_telebanking_offhook.yaml#24",
+      "action": "verify_shell",
+      "command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "reason_code": "VERIFY_GREP_ZERO_RC_POLARITY_INVERTED",
+      "evidence": "FATAL 크래시 없음 확인"
+    }
+  ]
+}
