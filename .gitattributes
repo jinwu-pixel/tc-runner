@@ -4,3 +4,7 @@
 
 # Windows batch files must stay CRLF (some environments fail on LF).
 *.bat text eol=crlf
+
+# Frozen policy/evidence bytes are SHA-bound and must be checkout-stable.
+scripts/canonical_shell_rc_risk_policy_v1.json text eol=lf
+"THOR2_J - Settings/RESULT_2026-07-24.md" text eol=lf
