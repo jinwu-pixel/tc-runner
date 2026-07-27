@@ -70,7 +70,22 @@ def main(argv=None) -> int:
     ap.add_argument("--cwd", default=".")
     args = ap.parse_args(argv)
 
-    untracked = git_untracked(args.cwd)
+    if not args.protected or any(
+        not prefix.strip() or prefix != prefix.strip()
+        for prefix in args.protected
+    ):
+        print(
+            "error: --protected requires exact non-blank prefixes "
+            "without surrounding whitespace",
+            file=sys.stderr,
+        )
+        return 2
+
+    try:
+        untracked = git_untracked(args.cwd)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        print(f"infra failure: {exc}", file=sys.stderr)
+        return 3
     flagged = scan_contamination(untracked, args.protected, args.allow)
     if flagged:
         print("=== ⚠ untracked 오염 의심 (보호 prefix 하위·미허용) ===")
