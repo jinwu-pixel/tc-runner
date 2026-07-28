@@ -8,3 +8,6 @@
 # Frozen policy/evidence bytes are SHA-bound and must be checkout-stable.
 scripts/canonical_shell_rc_risk_policy_v1.json text eol=lf
 "THOR2_J - Settings/RESULT_2026-07-24.md" text eol=lf
+HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md text eol=lf
+docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md text eol=lf
+scripts/dispatch_capsule.py text eol=lf

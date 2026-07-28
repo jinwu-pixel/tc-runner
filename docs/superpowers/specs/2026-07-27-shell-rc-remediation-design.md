@@ -17,13 +17,14 @@ sentinel을 stdout에 출력한다. runner·ADB·schema·normalizer·validator �
 
 ## 1. Baseline and Evidence Identity
 
-2026-07-27 설계 시작 시점의 live 상태는 다음과 같다.
+2026-07-27 설계 시작 시점의 content-derived evidence identity는 다음과 같다.
+HEAD, upstream, index, tracked/staged 상태, untracked map, ignored map처럼 이후
+commit마다 바뀌는 repo-state observation은 이 문서나 실행 directive에
+하드코딩하지 않는다. 해당 값의 유일한 source는 Gate 0.5의 dispatch-time
+external capsule이다.
 
 | 항목 | 값 |
 |---|---|
-| live HEAD | `0ca6701e9574bccd5b7e6e74bda8e0ded751423e` |
-| remote sync | `origin/master...HEAD = 0/0` |
-| tracked / staged | clean / 0 |
 | frozen inventory HEAD | `78b3ac34e9f8bacabe926172dd199342b7eb58c5` |
 | frozen inventory CSV SHA-256 | `b0c5552c4a3d20590c85ce701c46061a7c6cd5e2cf589bc1cfa5395382880b7f` |
 | frozen risk matrix SHA-256 | `81b44a584f2b1cf83955545c7b2898c93f1a8f2a000872d1fb8576d768ffd8e4` |
@@ -34,9 +35,9 @@ sentinel을 stdout에 출력한다. runner·ADB·schema·normalizer·validator �
 | documented replay example | `python -m src.cli export-mmi tc_samples/TC_1.xlsx --sheet "SS-TC 1"` |
 | matrix population | 692 rows = blocker 18 + advisory 74 + runtime-review 6 + default 594 |
 
-18개 blocker와 6개 runtime-review가 속한 YAML은 frozen HEAD부터 live HEAD까지
-tracked diff가 0이다. 따라서 `78b3ac3`의 row identity를 현재 교정 설계의
-baseline으로 사용할 수 있다.
+18개 blocker와 6개 runtime-review의 row identity baseline은 frozen inventory
+HEAD `78b3ac3`이다. dispatch entry의 현재 HEAD에서 이 corpus가 baseline과
+동일한지는 capsule 검증 뒤 별도 frozen-input 검사가 다시 입증한다.
 
 다음 파일은 구현 slice의 불변 대상이다.
 
@@ -507,13 +508,68 @@ policy 안에 candidate commit SHA를 넣는 자기참조가 발생하지 않는
 
 서면 spec 승인 후 P0/P1만 수행하는 host-only directive를 만들고 사용자
 dispatch 승인을 받는다. 이 directive는 workbook/YAML 편집 권한을 주지 않는다.
-최소 다음 값을 고정한다.
+repo-state observation은 tracked directive에 기록하지 않고
+`scripts/dispatch_capsule.py`가 별도 승인된 dispatch 직전에 외부 capsule로
+capture한다.
+
+capsule 계약:
+
+- fixed root:
+  `C:\tmp\tc-runner-dispatch-capsules\<capsule_sha256>.json`
+- `<capsule_sha256>`은 capsule raw bytes의 lowercase 64-hex SHA-256이며,
+  caller-supplied path 대신 이 token에서만 경로를 파생
+- UTF-8, BOM·trailing LF 없음, sorted-key compact canonical JSON
+- exact closed schema:
+  `schema_version`, `capsule_type`, `directive_id`,
+  `issued_at_epoch_s`, `expires_at_epoch_s`, `ttl_seconds`,
+  `repo`, `index`, `untracked`, `ignored`, `identities`
+- `repo`는 resolved repo root, upstream ref, HEAD/upstream full SHA,
+  ahead/behind, tracked/staged clean을 기록
+- upstream ref는 exact `origin/master`; verifier caller는 directive/spec
+  repo-relative path도 exact expected input으로 전달
+- `index`는 raw `git ls-files --stage -z` entry count와 byte SHA-256을 기록
+- `untracked`와 `ignored`는 각각 전체 ordinary-file
+  `{path,file_type,git_hash_object_no_filters}` canonical map의 count/SHA와
+  빈 exclusion set을 기록
+- `identities`는 directive/spec/generator의 repo-relative path, raw SHA-256,
+  `git hash-object --no-filters` blob을 기록하고 모두 HEAD blob과 같아야 함
+- TTL은 두 번의 동일 repo snapshot 측정이 끝난 뒤 시작하며 정확히 1800초
+- capture는 HEAD==upstream, ahead/behind 0/0, tracked/staged clean에서만 허용
+- 두 snapshot 사이 drift가 있으면 publish하지 않음
+- verify는 두 개의 연속 full live snapshot이 모두 capsule과 같아야 GREEN
+- fixed external root가 repo 내부로 resolve되거나 link/reparse path이면 거부
+- final file은 content-addressed create-new로 atomic publish하며 기존 target을
+  overwrite하지 않음
+- dispatch message는 exact
+  `CAPSULE_SHA256: <lowercase-64-hex>` token 하나만 전달
+
+executor는 repo write나 temp/evidence path 생성 전에 generator의 `verify`를
+실행해 token/path/raw SHA/canonical bytes/closed schema/directive ID,
+expected directive/spec path, repo root, exact `origin/master`, identity, TTL,
+연속 2회 live repo state를 모두 대조한다. verify 시작과 두 live 측정 뒤
+모두 `issued_at <= now < expires_at`이어야 한다. TTL은 첫 operation-ledger
+write까지의 entry authorization이고, 실행이 시작된 뒤에는 capsule raw bytes와
+phase별 frozen-input state 재검사가 권한을 이어받는다.
+
+generator가 실행하는 Git은 global/system Git config와 global excludes file을
+비활성화해 repo-local 입력만 소비한다. identity-critical Git 명령이 exit 0이어도
+stderr를 출력하면 exit 3이다.
+
+capsule capture는 P0/P1과 분리된 pre-dispatch 행위다. P0/P1 directive는 capsule을
+read-only로만 소비하며 capture, 수정, 삭제, overwrite를 금지한다. 이번 5-path
+amendment에서도 live capsule capture는 하지 않는다.
+
+generator exit contract:
+
+- `0`: capture 또는 verify GREEN
+- `2`: path/schema/hash/TTL/identity/live-state mismatch 등 입력 무효
+- `3`: Git/filesystem/clock/hashing 인프라 실패
+
+directive는 최소 다음 content-derived 값을 고정한다.
 
 - provenance directive ID와 host-only Tier 1
-- approved spec path, SHA-256, worktree blob
-- entry HEAD와 `origin/master...HEAD`
-- 전체 index fingerprint
-- 기존 비허용 untracked map SHA와 protected spec/directive blob
+- approved spec path, raw SHA-256, worktree blob
+- capsule generator path, raw SHA-256, worktree blob
 - workbook path/SHA/Git blob과 source sheets
 - exporter 코드 SHA, exact read-only/dry-run argv, temporary output root
 - frozen inventory/risk policy/risk audit identity
@@ -521,8 +577,9 @@ dispatch 승인을 받는다. 이 directive는 workbook/YAML 편집 권한을 �
 - repo의 workbook/YAML/source write path는 빈 집합
 - staging/commit/push/device 금지
 
-provenance directive SHA-256과 approved spec SHA-256 중 하나라도 dispatch
-이후 달라지면 P0/P1을 시작하지 않고 STOP한다.
+capsule SHA-256, provenance directive SHA-256, approved spec SHA-256,
+capsule generator SHA-256 중 하나라도 dispatch envelope 또는 live bytes와
+달라지면 P0/P1을 시작하지 않고 STOP한다.
 
 ### Gate P — Provenance
 
@@ -628,7 +685,8 @@ compiled YAML을 독립 수기 보정하지 않고 STOP한다. 이 경우 produc
   delta 0
 - post-change exporter SHA, argv, workbook candidate blob, isolated output
   canonical inventory SHA를 v2 evidence에 결속
-- `.gitattributes`가 manifest와 verifier 두 경로만 `text eol=lf`로 고정
+- `.gitattributes`가 기존 content-identity pin은 보존하고 manifest와 verifier
+  두 경로를 추가로 `text eol=lf`로 고정
 - §1 read-only 파일 SHA-256 전부 불변
 - v1 replay 불변
 - `verify-worktree` exit 0

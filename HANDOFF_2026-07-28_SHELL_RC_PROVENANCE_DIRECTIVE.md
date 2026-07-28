@@ -34,55 +34,84 @@ dependency install, staging, commit, push.
 ## 0. External Dispatch Envelope
 
 directive는 자기 SHA-256을 본문에 넣을 수 없다. 사용자의 후속 imperative
-dispatch 메시지가 다음 두 affirmative token과 네 identity를 모두 exact하게
+dispatch 메시지가 다음 세 affirmative token과 여섯 identity를 모두 exact하게
 포함해야 실행 권한이 성립한다.
 
 ```text
-SPEC_REVIEW_APPROVED: 4c2919be00f0ba53cd9c5601f05e359cd6e8ee9139414d41541c96b7f0755654
+SPEC_REVIEW_APPROVED: 396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde
 AUTHORIZE_EXECUTION: RB-20260728-shellrc-p0p1
+CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 ```
 
 | identity | dispatch가 고정할 값 |
 |---|---|
 | directive raw SHA-256 | 작성 완료 보고의 exact 값 |
 | directive `git hash-object --no-filters` blob | 작성 완료 보고의 exact 값 |
-| spec raw SHA-256 | `4c2919be00f0ba53cd9c5601f05e359cd6e8ee9139414d41541c96b7f0755654` |
-| spec `git hash-object --no-filters` blob | `6e99e92774358d57e8f29bd577de5faf27c15056` |
+| spec raw SHA-256 | `396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde` |
+| spec `git hash-object --no-filters` blob | `b47fbf236aee7ff517e5209ca96baa28decdc649` |
+| capsule generator raw SHA-256 | `f06e91f3959d153ab821ecac418e2bfc776c40b32a78883c01e916a45d1d13cf` |
+| capsule generator `git hash-object --no-filters` blob | `e003cce7935525552fd733793e31f72935815488` |
 
 위 token 또는 identity를 단순 인용·질문·리뷰 맥락에 넣는 것은 dispatch가
-아니다. 실행 명령의 뜻으로 두 token을 명시하고 네 identity를 모두 고정해야
-한다. 사용자가 “진행”만 말하거나 하나라도 누락되거나 재계산값과 다르면
+아니다. 실행 명령의 뜻으로 세 token을 명시하고 위 identity를 모두 고정해야
+한다. `CAPSULE_SHA256`은 lowercase 64-hex이고
+`C:\tmp\tc-runner-dispatch-capsules\<CAPSULE_SHA256>.json`을 유일한 capsule
+경로로 파생한다. caller-supplied capsule path는 받지 않는다. 사용자가 “진행”만
+말하거나 하나라도 누락되거나 재계산값과 다르면
 dispatch가 아니며 어떤 preflight도 시작하지 않는다. dispatch 뒤 live
 identity mismatch가 발견될 때만 exit 2로 STOP한다.
 
 ---
 
-## 1. Immutable Entry Capsule
+## 1. Content Invariants and External Entry Capsule
 
 ### 1.1 Git and workspace
 
-| 항목 | freeze 값 |
-|---|---|
-| repo root | `C:\Users\momen\Projects\tc-runner` |
-| HEAD | `0ca6701e9574bccd5b7e6e74bda8e0ded751423e` |
-| origin/master | `0ca6701e9574bccd5b7e6e74bda8e0ded751423e` |
-| ahead / behind | `0 / 0` |
-| tracked worktree | clean |
-| staged paths | 0 |
-| raw index entries | 1179 |
-| SHA-256 of raw `git ls-files --stage -z` bytes | `cad2853e2ea8e96d093bd949067e95f77c151d15a71639d510704917fd11bbfd` |
+repo-state observation은 directive 본문에 literal로 넣지 않는다. dispatch 직전
+`scripts/dispatch_capsule.py capture`가 두 번의 동일한 read-only snapshot 뒤
+발행한 external capsule이 유일한 entry source다. capsule은 repo 밖
+`C:\tmp\tc-runner-dispatch-capsules/<lowercase-sha256>.json`의 ordinary file이고
+자기 SHA/path field를 payload 안에 넣지 않는다. exact schema는 다음과 같다.
 
-기존 untracked backlog는 경로 집합만 보존하면 안 된다. 다음 계약으로 content
-map을 재계산한다.
+```text
+capsule_type = "tc-runner.dispatch-entry"
+schema_version = 1
+ttl_seconds = 1800
+directive_id = "RB-20260728-shellrc-p0p1"
+issued_at_epoch_s / expires_at_epoch_s
+repo {
+  root, upstream_ref, head_sha, upstream_sha,
+  ahead, behind, tracked_clean, staged_clean
+}
+index { entry_count, raw_stage_z_sha256 }
+untracked / ignored {
+  count, canonical_json_sha256, excluded_paths = []
+}
+identities {
+  directive / spec / generator {
+    path, raw_sha256, git_blob_no_filters
+  }
+}
+```
+
+`repo.root`는 `C:/Users/momen/Projects/tc-runner`,
+`repo.upstream_ref`는 `origin/master`, HEAD/upstream은 동일한 lowercase
+full OID, ahead/behind는 `0/0`, tracked/staged는 모두 true여야 한다. capsule
+발행 시각은 두 snapshot과 map 측정이 끝난 뒤 정하고
+`expires_at_epoch_s - issued_at_epoch_s == 1800`이어야 한다. entry write 전에는
+`issued_at_epoch_s <= now < expires_at_epoch_s`를 두 번 검사한다. campaign
+진입 뒤에는 capsule bytes와 live state를 계속 검사하지만, 진행 중 TTL 경과만으로
+이미 승인된 campaign을 실패시키지 않는다.
+
+untracked backlog는 경로 집합만 보존하면 안 된다. generator와 executor는 다음
+동일 계약으로 content map을 재계산한다.
 
 1. `git -c core.quotepath=false ls-files --others --exclude-standard -z`
    결과를 UTF-8 path로 해석한다.
-2. 아래 protected 두 파일을 map에서 제외한다.
-   - `docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md`
-   - `HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md`
-3. 나머지 path는 모두 `Get-Item -Force` 기준 `PSIsContainer == false`이고
+2. 제외 path는 없다. capsule의 `excluded_paths`는 정확히 빈 배열이다.
+3. 각 path는 모두 `Get-Item -Force` 기준 `PSIsContainer == false`이고
    `FileAttributes.ReparsePoint`가 없어야 한다. 하나라도 아니면 exit 2다.
-   이 freeze에서 `file_type` literal은 정확히 `"file"`이며, 각 leaf마다
+   `file_type` literal은 정확히 `"file"`이며, 각 leaf마다
    `{file_type:"file", git_hash_object_no_filters, path}`를 만든다.
 4. path는 `/` 구분자를 사용하고 case-fold하지 않는다.
 5. UTF-8 path bytes 순으로 정렬한다.
@@ -90,23 +119,14 @@ map을 재계산한다.
    `ensure_ascii=false`, 공백·trailing LF 없음.
 7. 그 JSON bytes의 SHA-256을 계산한다.
 
-| untracked invariant | freeze 값 |
-|---|---|
-| protected 제외 file count | 1862 |
-| canonical JSON SHA-256 | `def31bcb4eb286f161101eab26eed0f3ba81775a34484b99f98c4358644abe9e` |
-
 ignored file도 별도 canonical map으로 freeze한다. 동일 `{file_type:"file",
 git_hash_object_no_filters,path}`/UTF-8 path sort/compact JSON 규칙을 쓰되 path
 source는
 `git -c core.quotepath=false ls-files --others --ignored --exclude-standard -z`다.
 entry에는 evidence final/tmp가 존재하지 않는다.
 
-| ignored invariant | freeze 값 |
-|---|---|
-| ignored file count | 6760 |
-| canonical JSON SHA-256 | `91248b4ed31c875409f7692763e44e7d2f364431f0bed5a9eaaae78c2916cdbb` |
-
-spec과 directive는 위 map에 섞지 않고 §0의 각 blob으로 별도 보호한다.
+spec, directive, generator는 tracked identity이며 capsule `identities`와 §0의
+각 raw SHA/blob으로 이중 보호한다.
 비허용 untracked file의 add/remove/content/file-type 변화는 exit 2다. mismatch를
 현재 상태로 재-freeze하거나 파일을 원복·삭제하는 판단은 Codex가 하지 않는다.
 
@@ -200,7 +220,9 @@ reports/canonical_shell_rc_provenance/RB-20260728-shellrc-p0p1/PROVENANCE_EVIDEN
 entry preflight가 끝나기 전 발생한 exit 2는 evidence를 만들지 않는다.
 preflight GREEN 뒤 Appendix C가 exact bytes로 materialize·hash-verify되어
 invocable하고 operation ledger가 append 가능한 이후의 exit 0/1/2/3은
-status-bearing evidence를 `.tmp`에 먼저 쓰고 final JSON으로 atomic rename한다.
+status-bearing evidence를 `.tmp`에 exclusive-create하고 `fsync`한 뒤 final
+JSON 이름을 no-overwrite hard link로 publish하고 final bytes/hash를 다시
+검증한다.
 그 이전 materialization 실패, 이후 operation-ledger append 자체 실패, 또는
 assembler 자체 실패는 fileless exit 3이며 console의 exact class/message만
 보고한다. exit 3 evidence는 가능한 경우 측정된 부분, exact exception
@@ -242,6 +264,17 @@ operation_log.ndjson
 temp root가 entry에 이미 존재하면 exit 2다. 삭제·재사용·`--overwrite` 금지다.
 실행 뒤에도 temp root를 자동 삭제하지 않고 evidence 재검토용으로 보존한다.
 
+다음 경로는 write root가 아니라 dispatch 전에 이미 존재해야 하는 read-only
+input이다.
+
+```text
+C:\tmp\tc-runner-dispatch-capsules\<CAPSULE_SHA256>.json
+```
+
+lowercase token에서 파생한 exact path만 읽고 생성·수정·mtime 변경·삭제하지
+않는다. capsule root와 capsule은 link/junction/reparse point가 아닌 ordinary
+directory/file이어야 한다.
+
 ### 2.3 Closed tool-call allowlist
 
 허용 경계는 “command family”가 아니라 아래 exact operation 목록이다. 개별
@@ -262,6 +295,10 @@ first failure를 순서대로 append한다. Appendix C 내부 read-only Git은 a
    - `git ls-files --error-unmatch -- <exact path>`
    - `git hash-object --no-filters -- <exact path>` 또는 `--stdin-paths`
    - `git check-ignore -v -- <exact evidence path>`
+   - 모든 Git process는 `GIT_CONFIG_GLOBAL=NUL`,
+     `GIT_CONFIG_SYSTEM=NUL`, `-c core.excludesFile=NUL`을 강제한다.
+     user/system config와 global excludes에 따라 capsule map이 달라지는 실행은
+     금지한다.
 2. PowerShell identity/path primitives:
    `Resolve-Path`, `Test-Path`, `Get-Item`, `Get-ChildItem -LiteralPath`,
    `Get-FileHash -Algorithm SHA256`, `[System.IO.File]` read/hash/write,
@@ -269,28 +306,39 @@ first failure를 순서대로 append한다. Appendix C 내부 read-only Git은 a
    `[System.Security.Cryptography.SHA256]`의 canonical map hash,
    `ConvertFrom-Json`의 P0 gate 및 §5.2 identity rehydrate read,
    `ConvertTo-Json`의 ledger line write,
-   `New-Item -ItemType Directory`의 §2.1/§2.2 exact parents,
-   `Move-Item -LiteralPath <evidence.tmp> -Destination <evidence.final>`.
+   `New-Item -ItemType Directory`의 §2.1/§2.2 exact parents.
+   evidence publish에는 PowerShell `Move-Item`/rename을 허용하지 않는다.
+   Appendix C 내부의 exact `open(..., "xb")`/flush/`os.fsync`/`os.link`,
+   final read/hash 검증, 성공 뒤 temporary unlink만 허용한다.
 3. tool-version probes:
    - `venv\Scripts\python.exe -B --version`
    - `venv\Scripts\python.exe -B -c`로 openpyxl/PyYAML exact version 출력만
    - `node --version`
    - `$PSVersionTable`/console encoding read
-4. Appendix A의 exact JavaScript source 1회를 `node_repl.js`에 제출한다.
+4. write-0 host preflight에서만 다음 exact capsule verify를 1회 실행한다.
+   `venv\Scripts\python.exe -B scripts/dispatch_capsule.py verify --repo
+   <resolved-repo> --capsule-sha256 <dispatch-token>
+   --expected-directive-id RB-20260728-shellrc-p0p1
+   --expected-directive HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md
+   --expected-spec
+   docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md`.
+   `capture`는 이 campaign의 허용 operation이 아니다.
+5. Appendix A의 exact JavaScript source 1회를 `node_repl.js`에 제출한다.
    제출 text의 UTF-8/LF/trailing-LF SHA가 Appendix A freeze와 같아야 한다.
    existing bare-import가 실패하면 exit 3이다. `js_add_node_module_dir`,
    junction, npm, network, 임의 `.mjs` 실행은 금지한다.
-5. Appendix B source를 exact bytes로 external temp
+6. Appendix B source를 exact bytes로 external temp
    `analyze_provenance.py`에 생성하고 source SHA를 확인한 뒤 §5.7 exact argv로
    1회 실행한다. 이 script는 stdlib+PyYAML read/analyze 전용이며 `src.*`를
    import하거나 producer를 호출하지 않는다.
-6. Appendix C source를 exact bytes로 external temp
+7. Appendix C source를 exact bytes로 external temp
    `assemble_evidence.py`에 생성하고 source SHA를 확인한 뒤 §6.3 exact argv로
    정확히 1회 실행한다.
-7. `venv\Scripts\python.exe -B -m src.cli export-mmi`의 §5 exact argv 4개.
+8. `venv\Scripts\python.exe -B -m src.cli export-mmi`의 §5 exact argv 4개.
 
-Appendix source의 외부 temp 생성, evidence `.tmp` 직렬화, final atomic rename은
-directive 안의 exact bytes/path만 허용한다. producer flag 변경, custom
+Appendix source의 외부 temp 생성, evidence `.tmp` exclusive-create와
+no-overwrite hard-link publish는 directive 안의 exact bytes/path만 허용한다.
+producer flag 변경, custom
 canonical harness, arbitrary Python/Node/PowerShell script, ADB, network,
 package manager, install, test runner, staging/commit/push는 금지한다.
 
@@ -391,7 +439,10 @@ full measured path는 8행 exact sequence와 전부 `COMPLETED`를 요구한다.
 HOST_PREFLIGHT failure는 write 0이므로 ledger/evidence 없이 exit 2다. 각 process의
 `$LASTEXITCODE`, node_repl tool status, 실제 argv를 얻은 직후 다음 phase 전에
 기록한다. preflight `observed`에는 Python/openpyxl/PyYAML/Node/PowerShell exact
-version과 encoding을 반드시 넣는다.
+version과 encoding, dispatch capsule payload/token/path, exact verifier
+tool/argv/exit, `ttl_valid_before_first_write:true`를 반드시 넣는다. verifier는
+write-0에서 실행되지만 성공 뒤 temp root를 만든 직후 이 row에 그대로
+지연 기록한다.
 
 spawned process의 `FAILED.exit`은 process 자체 nonzero뿐 아니라 process exit 0
 뒤 canonical output 또는 성공 artifact hash I/O가 실패한 경우의 0도 허용한다.
@@ -409,7 +460,7 @@ phase별 identity는 다음 exact contract를 따른다. `cwd`는 모든 phase�
 
 | phase | tool | argv | tool_input_sha256 | observed 필수값 |
 |---|---|---|---|---|
-| `HOST_PREFLIGHT` | `PowerShell` | `null` | `null` | 위 exact `toolchain`; `exit:null` |
+| `HOST_PREFLIGHT` | `PowerShell` | `null` | `null` | 위 exact `toolchain`; full `dispatch_capsule`; capsule token/path; exact nested verify tool/argv/exit; TTL bool; `exit:null` |
 | `APPENDIX_MATERIALIZATION` | `PowerShell` | `null` | `null` | `appendix_b_source_sha256`, `appendix_c_source_sha256`; `exit:null` |
 | `P0_ARTIFACT_CAPTURE` | `node_repl.js` | `null` | Appendix A source SHA | 성공 시 `p0_workbook_sha256`, `reconciled`, post-P0 input identity 5필드; 실패 시 `{}` |
 | dry/export 4개 | resolved `venv\Scripts\python.exe` absolute path | §5.3/§5.4 exact array | `null` | precheck와 launch bool; mismatch면 producer=false, precheck infra면 producer=null/check=false, launch 실패면 producer=true/launch=false |
@@ -426,19 +477,24 @@ Appendix C는 이 ledger를 읽어 phase/tool/cwd/argv/input SHA를 template과
 
 아래 항목을 모두 read-only로 재계산한다.
 
-1. §0 external envelope의 directive/spec raw SHA와 Git blob
-2. `git rev-parse --show-toplevel`이
-   `C:/Users/momen/Projects/tc-runner`와 separator-normalized exact인지,
-   HEAD/origin/ahead/behind와 tracked/staged 상태
-3. raw index fingerprint와 1179 entry count
-4. protected 두 파일을 제외한 untracked canonical map과 ignored canonical map
+1. §0 external envelope의 directive/spec/generator raw SHA와 Git blob,
+   lowercase `CAPSULE_SHA256`
+2. token에서 파생한 external capsule ordinary-file identity, canonical JSON
+   bytes, exact schema와 directive/spec/generator identity binding
+3. exact `dispatch_capsule.py verify` exit 0. 이 호출은 TTL을 live-state
+   double-snapshot 전후로 검사하고 capsule repo/index/untracked/ignored/identity와
+   현재 상태를 비교한다
+4. `git rev-parse --show-toplevel`이
+   `C:/Users/momen/Projects/tc-runner`와 separator-normalized exact인지
 5. workbook tracked identity, raw SHA, Git blob, worktree/index == HEAD
 6. workbook mtime-before
 7. frozen audit 4개 hash
 8. producer actor 14파일 hash
 9. Python/openpyxl/PyYAML/Node/PowerShell version과 UTF-8 process encoding
 10. evidence/temp 경로 부재와 evidence path ignore rule
-host-side 1~10이 모두 GREEN이기 전에는 temp/evidence directory도 만들지 않는다.
+11. first write 직전 capsule raw SHA 재검사와
+    `issued_at_epoch_s <= now < expires_at_epoch_s`
+host-side 1~11이 모두 GREEN이기 전에는 temp/evidence directory도 만들지 않는다.
 identity/path mismatch는 exit 2다. host preflight GREEN 뒤 exact temp root와
 evidence parent만 생성하고, Appendix B/C를 §2.4대로 materialize·hash 확인한
 뒤 Appendix A를 제출한다. Appendix A import, API/version/formula/style/region/
@@ -459,6 +515,15 @@ Add-PhaseRecord ([ordered]@{
     tool_input_sha256 = $null
     exit = $null
     observed = [ordered]@{
+        dispatch_capsule = $DispatchCapsule
+        dispatch_capsule_path = $CapsulePath.Replace('\', '/')
+        dispatch_capsule_sha256 = $CapsuleSha256
+        capsule_verify = [ordered]@{
+            tool = $Python
+            argv = @($CapsuleVerifyArgs)
+            exit = $CapsuleVerifyExit
+        }
+        ttl_valid_before_first_write = $true
         toolchain = [ordered]@{
             console_input = 'utf-8'
             console_output = 'utf-8'
@@ -639,6 +704,7 @@ Appendix A tool call이 성공한 직후 다음 exact gate를 실행한다.
 
 ```powershell
 $P0Path = Join-Path $TempRoot 'artifact-tool-work\p0_workbook.json'
+$P0SuccessRecord = $null
 try {
     $P0Text = [System.IO.File]::ReadAllText($P0Path, $Utf8NoBom)
     $P0Gate = $P0Text | ConvertFrom-Json
@@ -649,11 +715,9 @@ try {
         Get-FileHash -Algorithm SHA256 -LiteralPath $Workbook
     ).Hash.ToLowerInvariant()
     $P0WorkbookBlobCurrent = (
-        & git hash-object --no-filters -- $Workbook
+        Invoke-GitText `
+            'hash-object --no-filters -- tc_samples/TC_1.xlsx' $null
     ).Trim()
-    if ($LASTEXITCODE -ne 0) {
-        throw "post-P0 git hash-object exit $LASTEXITCODE"
-    }
     $P0WorkbookItem = Get-Item -LiteralPath $Workbook
     $P0EpochTicks = [System.Numerics.BigInteger]621355968000000000
     $P0WorkbookMtimeCurrentNs = (
@@ -678,7 +742,7 @@ try {
     )
     $P0ProducerInputIdentityValid = $true
     try {
-        Assert-FrozenProducerInputs
+        Assert-FrozenProducerInputs $DispatchCapsule
     } catch {
         if (Test-InputMismatchException $_.Exception) {
             $P0ProducerInputIdentityValid = $false
@@ -686,7 +750,7 @@ try {
             throw
         }
     }
-    Add-PhaseRecord ([ordered]@{
+    $P0SuccessRecord = [ordered]@{
         phase = 'P0_ARTIFACT_CAPTURE'
         status = 'COMPLETED'
         tool = 'node_repl.js'
@@ -706,8 +770,13 @@ try {
         }
         error_class = ''
         error_message = ''
-    })
+    }
+    Add-PhaseRecord $P0SuccessRecord
 } catch {
+    if ($null -ne $P0SuccessRecord) {
+        # A success-row append failure is never retried or reconstructed.
+        throw
+    }
     $P0Failure = $_.Exception
     Add-PhaseRecord ([ordered]@{
         phase = 'P0_ARTIFACT_CAPTURE'
@@ -762,26 +831,41 @@ STOP 뒤 Claude 재검증과 사용자 승인에서만 결정한다.
 
 ### 5.2 Exact PowerShell setup
 
-문서 배치는 P1 설명을 위한 것이다. 이 code fence 전체는 host preflight GREEN
-직후, temp root 생성과 §2.5 writer 초기화보다 **먼저** 정확히 1회 실행한다.
-따라서 `$Repo/$Python/$Workbook/$TempRoot/$Utf8NoBom`과 아래 함수들은 P0
-ledger/gate 이전부터 정의되어 있어야 한다. `$Out0/$Out1` assignment는 directory를
+문서 배치는 P1 설명을 위한 것이다. 이 code fence는 각 PowerShell process에서
+정확히 1회 선언하되 `$ProcessEntryMode`를 최초 process에서는 exact `ENTRY`,
+후속 process에서는 exact `RESUME`으로 치환한다. `ENTRY`는 write-0 host
+preflight 안에서 temp root 생성과 §2.5 writer 초기화보다 먼저 실행하며 capsule
+verifier와 TTL을 정확히 1회 수행한다. `RESUME`은 verifier/TTL을 재실행하지 않고
+기존 HOST_PREFLIGHT ledger payload와 pinned external capsule만 rehydrate한다.
+따라서 `$Repo/$Python/$Workbook/$TempRoot/$Utf8NoBom`과 아래 함수들은 각 process
+phase 전에 정의되어 있어야 한다. `$Out0/$Out1` assignment는 directory를
 생성하지 않는다.
 
 ```powershell
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$ProcessEntryMode = '<ENTRY_OR_RESUME>'
 
 $Repo = (Resolve-Path -LiteralPath '.').Path
 $Python = (Resolve-Path -LiteralPath 'venv\Scripts\python.exe').Path
 $Workbook = (Resolve-Path -LiteralPath 'tc_samples\TC_1.xlsx').Path
 $TempRoot = 'C:\tmp\tc-runner-shell-rc-provenance-RB-20260728-shellrc-p0p1'
+$CapsuleRoot = 'C:\tmp\tc-runner-dispatch-capsules'
+$CapsuleSha256 = '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>'
+$CapsulePath = Join-Path $CapsuleRoot ($CapsuleSha256 + '.json')
+$DirectiveRelative =
+    'HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md'
+$SpecRelative =
+    'docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md'
+$GeneratorRelative = 'scripts/dispatch_capsule.py'
 $Out0 = Join-Path $TempRoot 'SS-TC-0'
 $Out1 = Join-Path $TempRoot 'SS-TC-1'
 $P0WorkbookMtimeCurrentNs = $null
 
 $env:PYTHONHASHSEED = '0'
 $env:PYTHONIOENCODING = 'utf-8'
+$env:GIT_CONFIG_GLOBAL = 'NUL'
+$env:GIT_CONFIG_SYSTEM = 'NUL'
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [Console]::InputEncoding = $Utf8NoBom
@@ -804,13 +888,240 @@ function Test-InputMismatchException([System.Exception]$Exception) {
         [System.StringComparison]::Ordinal
     )
 }
+function Read-PinnedDispatchCapsule {
+    if ($CapsuleSha256 -notmatch '^[0-9a-f]{64}$') {
+        Throw-InputMismatch "capsule token is not lowercase SHA-256"
+    }
+    if (-not (Test-Path -LiteralPath $CapsuleRoot -PathType Container)) {
+        Throw-InputMismatch "capsule root missing"
+    }
+    $RootItem = Get-Item -LiteralPath $CapsuleRoot
+    if (
+        ($RootItem.Attributes -band
+            [System.IO.FileAttributes]::ReparsePoint) -ne 0
+    ) {
+        Throw-InputMismatch "capsule root is link/reparse point"
+    }
+    if (-not (Test-Path -LiteralPath $CapsulePath -PathType Leaf)) {
+        Throw-InputMismatch "capsule file missing"
+    }
+    $CapsuleItem = Get-Item -LiteralPath $CapsulePath
+    if (
+        $CapsuleItem.PSIsContainer -or
+        (($CapsuleItem.Attributes -band
+            [System.IO.FileAttributes]::ReparsePoint) -ne 0)
+    ) {
+        Throw-InputMismatch "capsule is not ordinary file"
+    }
+    $ActualCapsuleSha = (
+        Get-FileHash -Algorithm SHA256 -LiteralPath $CapsulePath
+    ).Hash.ToLowerInvariant()
+    if ($ActualCapsuleSha -ne $CapsuleSha256) {
+        Throw-InputMismatch "capsule SHA mismatch"
+    }
+    $Capsule = (
+        [System.IO.File]::ReadAllText($CapsulePath, $Utf8NoBom) |
+            ConvertFrom-Json
+    )
+    if (
+        $Capsule.schema_version -ne 1 -or
+        $Capsule.capsule_type -ne 'tc-runner.dispatch-entry' -or
+        $Capsule.directive_id -ne 'RB-20260728-shellrc-p0p1' -or
+        $Capsule.ttl_seconds -ne 1800 -or
+        ($Capsule.expires_at_epoch_s - $Capsule.issued_at_epoch_s) -ne
+            1800 -or
+        $Capsule.repo.root -ne 'C:/Users/momen/Projects/tc-runner' -or
+        $Capsule.repo.upstream_ref -ne 'origin/master' -or
+        $Capsule.repo.ahead -ne 0 -or
+        $Capsule.repo.behind -ne 0 -or
+        $Capsule.repo.tracked_clean -ne $true -or
+        $Capsule.repo.staged_clean -ne $true -or
+        @($Capsule.untracked.excluded_paths).Count -ne 0 -or
+        @($Capsule.ignored.excluded_paths).Count -ne 0 -or
+        $Capsule.identities.directive.path -ne $DirectiveRelative -or
+        $Capsule.identities.spec.path -ne $SpecRelative -or
+        $Capsule.identities.generator.path -ne $GeneratorRelative
+    ) {
+        Throw-InputMismatch "capsule fixed schema/binding mismatch"
+    }
+    if (
+        $Capsule.identities.directive.raw_sha256 -ne
+            '<DISPATCH_EXACT_DIRECTIVE_RAW_SHA256>' -or
+        $Capsule.identities.directive.git_blob_no_filters -ne
+            '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>' -or
+        $Capsule.identities.spec.raw_sha256 -ne
+            '396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde' -or
+        $Capsule.identities.spec.git_blob_no_filters -ne
+            'b47fbf236aee7ff517e5209ca96baa28decdc649' -or
+        $Capsule.identities.generator.raw_sha256 -ne
+            'f06e91f3959d153ab821ecac418e2bfc776c40b32a78883c01e916a45d1d13cf' -or
+        $Capsule.identities.generator.git_blob_no_filters -ne
+            'e003cce7935525552fd733793e31f72935815488'
+    ) {
+        Throw-InputMismatch "capsule content identity mismatch"
+    }
+    return $Capsule
+}
+$CapsuleVerifyArgs = @(
+    '-B', 'scripts/dispatch_capsule.py', 'verify',
+    '--repo', $Repo,
+    '--capsule-sha256', $CapsuleSha256,
+    '--expected-directive-id', 'RB-20260728-shellrc-p0p1',
+    '--expected-directive', $DirectiveRelative,
+    '--expected-spec', $SpecRelative
+)
+$CapsuleVerifyLines = @()
+$CapsuleVerifyExit = $null
+if ($ProcessEntryMode -eq 'ENTRY') {
+    $PreviousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $global:LASTEXITCODE = $null
+        $CapsuleVerifyLines = @(& $Python @CapsuleVerifyArgs 2>&1)
+        $CapsuleVerifyExit = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $PreviousErrorActionPreference
+    }
+    if ($CapsuleVerifyExit -eq 2) {
+        Throw-InputMismatch (
+            "capsule verify input invalid: " +
+            (
+                ($CapsuleVerifyLines |
+                    ForEach-Object { [string]$_ }) -join ' | '
+            )
+        )
+    }
+    if ($CapsuleVerifyExit -ne 0) {
+        throw (
+            "capsule verify infrastructure failure exit " +
+            "${CapsuleVerifyExit}: " +
+            (
+                ($CapsuleVerifyLines |
+                    ForEach-Object { [string]$_ }) -join ' | '
+            )
+        )
+    }
+    $ExpectedCapsuleVerifyOutput = (
+        '{"capsule_sha256":"' + $CapsuleSha256 + '","status":"GREEN"}'
+    )
+    $ActualCapsuleVerifyOutput = (
+        $CapsuleVerifyLines | ForEach-Object { [string]$_ }
+    ) -join "`n"
+    if ($ActualCapsuleVerifyOutput -ne $ExpectedCapsuleVerifyOutput) {
+        Throw-InputMismatch "capsule verify stdout mismatch"
+    }
+    $DispatchCapsule = Read-PinnedDispatchCapsule
+    $NowEpochSeconds = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+    if (
+        $NowEpochSeconds -lt $DispatchCapsule.issued_at_epoch_s -or
+        $NowEpochSeconds -ge $DispatchCapsule.expires_at_epoch_s
+    ) {
+        Throw-InputMismatch "capsule TTL invalid before first write"
+    }
+} elseif ($ProcessEntryMode -eq 'RESUME') {
+    $OperationLog = Join-Path $TempRoot 'operation_log.ndjson'
+    $OperationLogItem = Get-Item -LiteralPath $OperationLog
+    if (
+        $OperationLogItem.PSIsContainer -or
+        (($OperationLogItem.Attributes -band
+            [System.IO.FileAttributes]::ReparsePoint) -ne 0)
+    ) {
+        Throw-InputMismatch "resume ledger is not ordinary file"
+    }
+    $HostRows = @(
+        [System.IO.File]::ReadAllLines($OperationLog, $Utf8NoBom) |
+            ForEach-Object { $_ | ConvertFrom-Json } |
+            Where-Object { $_.phase -eq 'HOST_PREFLIGHT' }
+    )
+    $HostRowKeys = @(
+        'phase', 'status', 'tool', 'cwd', 'argv',
+        'tool_input_sha256', 'exit', 'observed',
+        'error_class', 'error_message'
+    )
+    $HostObservedKeys = @(
+        'dispatch_capsule', 'dispatch_capsule_path',
+        'dispatch_capsule_sha256', 'capsule_verify',
+        'ttl_valid_before_first_write', 'toolchain'
+    )
+    $CapsuleVerifyKeys = @('tool', 'argv', 'exit')
+    $ExpectedToolchain = [ordered]@{
+        console_input = 'utf-8'
+        console_output = 'utf-8'
+        node = 'v24.14.1'
+        openpyxl = '3.1.5'
+        output_encoding = 'utf-8'
+        powershell = '5.1.26100.8875'
+        psedition = 'Desktop'
+        pyyaml = '6.0.3'
+        python = '3.12.2'
+        pythonhashseed = '0'
+        pythonioencoding = 'utf-8'
+    }
+    if (
+        $HostRows.Count -ne 1 -or
+        @($HostRows[0].PSObject.Properties.Name).Count -ne
+            $HostRowKeys.Count -or
+        (
+            @($HostRows[0].PSObject.Properties.Name) -join "`n"
+        ) -ne (@($HostRowKeys) -join "`n") -or
+        $HostRows[0].phase -ne 'HOST_PREFLIGHT' -or
+        $HostRows[0].status -ne 'COMPLETED' -or
+        $HostRows[0].tool -ne 'PowerShell' -or
+        $HostRows[0].cwd -ne $Repo -or
+        $null -ne $HostRows[0].argv -or
+        $null -ne $HostRows[0].tool_input_sha256 -or
+        $null -ne $HostRows[0].exit -or
+        $HostRows[0].error_class -ne '' -or
+        $HostRows[0].error_message -ne '' -or
+        @($HostRows[0].observed.PSObject.Properties.Name).Count -ne
+            $HostObservedKeys.Count -or
+        (
+            @($HostRows[0].observed.PSObject.Properties.Name) -join "`n"
+        ) -ne (@($HostObservedKeys) -join "`n") -or
+        $HostRows[0].observed.dispatch_capsule_sha256 -ne
+            $CapsuleSha256 -or
+        $HostRows[0].observed.dispatch_capsule_path -ne
+            $CapsulePath.Replace('\', '/') -or
+        $HostRows[0].observed.ttl_valid_before_first_write -ne $true -or
+        @(
+            $HostRows[0].observed.capsule_verify.PSObject.Properties.Name
+        ).Count -ne $CapsuleVerifyKeys.Count -or
+        (
+            @($HostRows[0].observed.capsule_verify.PSObject.Properties.Name) -join "`n"
+        ) -ne (@($CapsuleVerifyKeys) -join "`n") -or
+        $HostRows[0].observed.capsule_verify.tool -ne $Python -or
+        $HostRows[0].observed.capsule_verify.exit -ne 0 -or
+        @($HostRows[0].observed.capsule_verify.argv).Count -ne
+            $CapsuleVerifyArgs.Count -or
+        (
+            @($HostRows[0].observed.capsule_verify.argv) -join "`n"
+        ) -ne (@($CapsuleVerifyArgs) -join "`n") -or
+        (
+            $HostRows[0].observed.toolchain |
+                ConvertTo-Json -Compress
+        ) -ne ($ExpectedToolchain | ConvertTo-Json -Compress)
+    ) {
+        Throw-InputMismatch "resume HOST_PREFLIGHT binding mismatch"
+    }
+    $CapsuleVerifyExit = 0
+    $DispatchCapsule = $HostRows[0].observed.dispatch_capsule
+    $PinnedCapsule = Read-PinnedDispatchCapsule
+    if (
+        ($PinnedCapsule | ConvertTo-Json -Depth 12 -Compress) -ne
+        ($DispatchCapsule | ConvertTo-Json -Depth 12 -Compress)
+    ) {
+        Throw-InputMismatch "resume capsule payload mismatch"
+    }
+} else {
+    Throw-InputMismatch "process entry mode must be ENTRY or RESUME"
+}
 function Invoke-GitText(
     [string]$Arguments,
     [object]$InputText
 ) {
     $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
     $StartInfo.FileName = 'git'
-    $StartInfo.Arguments = $Arguments
+    $StartInfo.Arguments = '-c core.excludesFile=NUL ' + $Arguments
     $StartInfo.WorkingDirectory = $Repo
     $StartInfo.UseShellExecute = $false
     $StartInfo.CreateNoWindow = $true
@@ -843,7 +1154,45 @@ function Invoke-GitText(
             $ErrorText.Trim()
         )
     }
+    if (-not [string]::IsNullOrEmpty($ErrorText)) {
+        throw "git $Arguments emitted stderr: $($ErrorText.Trim())"
+    }
     return $OutputText
+}
+function Invoke-GitQuiet([string]$Arguments) {
+    $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $StartInfo.FileName = 'git'
+    $StartInfo.Arguments = '-c core.excludesFile=NUL ' + $Arguments
+    $StartInfo.WorkingDirectory = $Repo
+    $StartInfo.UseShellExecute = $false
+    $StartInfo.CreateNoWindow = $true
+    $StartInfo.RedirectStandardOutput = $true
+    $StartInfo.RedirectStandardError = $true
+    $StartInfo.StandardOutputEncoding = $Utf8NoBom
+    $StartInfo.StandardErrorEncoding = $Utf8NoBom
+    $Process = New-Object System.Diagnostics.Process
+    $Process.StartInfo = $StartInfo
+    if (-not $Process.Start()) {
+        throw "git process failed to start: $Arguments"
+    }
+    $OutputTask = $Process.StandardOutput.ReadToEndAsync()
+    $ErrorTask = $Process.StandardError.ReadToEndAsync()
+    $Process.WaitForExit()
+    $OutputText = $OutputTask.GetAwaiter().GetResult()
+    $ErrorText = $ErrorTask.GetAwaiter().GetResult()
+    if ($Process.ExitCode -notin @(0, 1)) {
+        throw (
+            "git $Arguments exit $($Process.ExitCode): " +
+            $ErrorText.Trim()
+        )
+    }
+    if (-not [string]::IsNullOrEmpty($OutputText)) {
+        throw "git $Arguments emitted stdout"
+    }
+    if (-not [string]::IsNullOrEmpty($ErrorText)) {
+        throw "git $Arguments emitted stderr: $($ErrorText.Trim())"
+    }
+    return $Process.ExitCode -eq 0
 }
 function ConvertTo-CanonicalJsonString([string]$Value) {
     $Builder = New-Object System.Text.StringBuilder
@@ -875,20 +1224,10 @@ function Get-FrozenPathMapIdentity([bool]$Ignored) {
         '-c core.quotepath=false ls-files --others --exclude-standard -z'
     }
     $RawPaths = Invoke-GitText $ListArguments $null
-    $Protected = @(
-        'docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md',
-        'HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md'
-    )
     $Paths = [System.Collections.Generic.List[string]]::new()
     foreach ($RawPath in $RawPaths.Split([char]0)) {
         if ([string]::IsNullOrEmpty($RawPath)) { continue }
         $Relative = $RawPath.Replace('\', '/')
-        if (
-            -not $Ignored -and
-            $Protected -contains $Relative
-        ) {
-            continue
-        }
         if ($Relative.Contains("`n") -or $Relative.Contains("`r")) {
             Throw-InputMismatch "newline-containing path is unsupported"
         }
@@ -970,7 +1309,14 @@ function Get-FrozenPathMapIdentity([bool]$Ignored) {
         canonical_json_sha256 = $Digest
     }
 }
-function Assert-FrozenProducerInputs {
+function Assert-FrozenProducerInputs([object]$ExpectedCapsule) {
+    $CurrentCapsule = Read-PinnedDispatchCapsule
+    if (
+        ($CurrentCapsule | ConvertTo-Json -Depth 12 -Compress) -ne
+        ($ExpectedCapsule | ConvertTo-Json -Depth 12 -Compress)
+    ) {
+        Throw-InputMismatch "dispatch capsule payload changed"
+    }
     if ([string]::IsNullOrEmpty($P0WorkbookMtimeCurrentNs)) {
         $P0IdentityPath = Join-Path `
             $TempRoot 'artifact-tool-work\p0_workbook.json'
@@ -1035,34 +1381,25 @@ function Assert-FrozenProducerInputs {
             [string]$P0Identity.workbook_mtime_after_ns
     }
     $ActualHead = (Invoke-GitText 'rev-parse HEAD' $null).Trim()
-    if ($ActualHead -ne
-        '0ca6701e9574bccd5b7e6e74bda8e0ded751423e') {
+    if ($ActualHead -ne [string]$ExpectedCapsule.repo.head_sha) {
         Throw-InputMismatch "producer input HEAD mismatch: $ActualHead"
     }
     $ActualOrigin = (
         Invoke-GitText 'rev-parse origin/master' $null
     ).Trim()
-    if ($ActualOrigin -ne
-        '0ca6701e9574bccd5b7e6e74bda8e0ded751423e') {
+    if (
+        $ExpectedCapsule.repo.upstream_ref -ne 'origin/master' -or
+        $ActualOrigin -ne [string]$ExpectedCapsule.repo.upstream_sha
+    ) {
         Throw-InputMismatch (
             "producer input origin/master mismatch: $ActualOrigin"
         )
     }
-    $null = (& git diff --quiet)
-    $TrackedDiffExit = $LASTEXITCODE
-    if ($TrackedDiffExit -eq 1) {
+    if (-not (Invoke-GitQuiet 'diff --quiet')) {
         Throw-InputMismatch "producer input tracked diff"
     }
-    if ($TrackedDiffExit -ne 0) {
-        throw "git diff --quiet exit $TrackedDiffExit"
-    }
-    $null = (& git diff --cached --quiet)
-    $StagedDiffExit = $LASTEXITCODE
-    if ($StagedDiffExit -eq 1) {
+    if (-not (Invoke-GitQuiet 'diff --cached --quiet')) {
         Throw-InputMismatch "producer input staged diff"
-    }
-    if ($StagedDiffExit -ne 0) {
-        throw "git diff --cached --quiet exit $StagedDiffExit"
     }
     $FrozenActors = [ordered]@{
         'src/cli.py' = 'c27fa7d5c6c4bd9f956238ef0008990e667989949bbc5743d6a37347ee71a5b0'
@@ -1098,14 +1435,10 @@ function Assert-FrozenProducerInputs {
         '160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa') {
         Throw-InputMismatch "producer workbook SHA mismatch"
     }
-    $WorkbookBlobOutput = @(
-        & git hash-object --no-filters -- $Workbook
-    )
-    $WorkbookBlobExit = $LASTEXITCODE
-    if ($WorkbookBlobExit -ne 0) {
-        throw "git hash-object workbook exit $WorkbookBlobExit"
-    }
-    $WorkbookBlob = ($WorkbookBlobOutput -join '').Trim()
+    $WorkbookBlob = (
+        Invoke-GitText `
+            'hash-object --no-filters -- tc_samples/TC_1.xlsx' $null
+    ).Trim()
     if ($WorkbookBlob -ne
         '24593d11dd80a2b3711655bd0c5216ee9157dedc') {
         Throw-InputMismatch "producer workbook blob mismatch: $WorkbookBlob"
@@ -1125,17 +1458,20 @@ function Assert-FrozenProducerInputs {
     }
     $UntrackedIdentity = Get-FrozenPathMapIdentity $false
     if (
-        $UntrackedIdentity.count -ne 1862 -or
+        $UntrackedIdentity.count -ne
+            $ExpectedCapsule.untracked.count -or
         $UntrackedIdentity.canonical_json_sha256 -ne
-            'def31bcb4eb286f161101eab26eed0f3ba81775a34484b99f98c4358644abe9e'
+            $ExpectedCapsule.untracked.canonical_json_sha256 -or
+        @($ExpectedCapsule.untracked.excluded_paths).Count -ne 0
     ) {
         Throw-InputMismatch "producer input untracked identity mismatch"
     }
     $IgnoredIdentity = Get-FrozenPathMapIdentity $true
     if (
-        $IgnoredIdentity.count -ne 6760 -or
+        $IgnoredIdentity.count -ne $ExpectedCapsule.ignored.count -or
         $IgnoredIdentity.canonical_json_sha256 -ne
-            '91248b4ed31c875409f7692763e44e7d2f364431f0bed5a9eaaae78c2916cdbb'
+            $ExpectedCapsule.ignored.canonical_json_sha256 -or
+        @($ExpectedCapsule.ignored.excluded_paths).Count -ne 0
     ) {
         Throw-InputMismatch "producer input ignored identity mismatch"
     }
@@ -1157,17 +1493,10 @@ function Assert-FrozenProducerInputs {
         '160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa') {
         Throw-InputMismatch "producer final workbook SHA mismatch"
     }
-    $FinalWorkbookBlobOutput = @(
-        & git hash-object --no-filters -- $Workbook
-    )
-    $FinalWorkbookBlobExit = $LASTEXITCODE
-    if ($FinalWorkbookBlobExit -ne 0) {
-        throw (
-            "git hash-object final workbook exit " +
-            "$FinalWorkbookBlobExit"
-        )
-    }
-    $FinalWorkbookBlob = ($FinalWorkbookBlobOutput -join '').Trim()
+    $FinalWorkbookBlob = (
+        Invoke-GitText `
+            'hash-object --no-filters -- tc_samples/TC_1.xlsx' $null
+    ).Trim()
     if ($FinalWorkbookBlob -ne
         '24593d11dd80a2b3711655bd0c5216ee9157dedc') {
         Throw-InputMismatch (
@@ -1193,28 +1522,16 @@ function Assert-FrozenProducerInputs {
         Invoke-GitText 'rev-parse origin/master' $null
     ).Trim()
     if (
-        $FinalHead -ne
-            '0ca6701e9574bccd5b7e6e74bda8e0ded751423e' -or
-        $FinalOrigin -ne
-            '0ca6701e9574bccd5b7e6e74bda8e0ded751423e'
+        $FinalHead -ne [string]$ExpectedCapsule.repo.head_sha -or
+        $FinalOrigin -ne [string]$ExpectedCapsule.repo.upstream_sha
     ) {
         Throw-InputMismatch "producer final HEAD/origin mismatch"
     }
-    $null = (& git diff --quiet)
-    $FinalTrackedDiffExit = $LASTEXITCODE
-    if ($FinalTrackedDiffExit -eq 1) {
+    if (-not (Invoke-GitQuiet 'diff --quiet')) {
         Throw-InputMismatch "producer final tracked diff"
     }
-    if ($FinalTrackedDiffExit -ne 0) {
-        throw "final git diff --quiet exit $FinalTrackedDiffExit"
-    }
-    $null = (& git diff --cached --quiet)
-    $FinalStagedDiffExit = $LASTEXITCODE
-    if ($FinalStagedDiffExit -eq 1) {
+    if (-not (Invoke-GitQuiet 'diff --cached --quiet')) {
         Throw-InputMismatch "producer final staged diff"
-    }
-    if ($FinalStagedDiffExit -ne 0) {
-        throw "final git diff --cached --quiet exit $FinalStagedDiffExit"
     }
 }
 function Complete-ProcessPhase(
@@ -1311,7 +1628,7 @@ function Invoke-CheckedPythonPhase(
     [object]$ObservedField
 ) {
     try {
-        Assert-FrozenProducerInputs
+        Assert-FrozenProducerInputs $DispatchCapsule
     } catch {
         $InputFailure = $_.Exception
         $InputMismatch = Test-InputMismatchException $InputFailure
@@ -1413,8 +1730,10 @@ ledger FAILED row가 먼저 flush된 뒤 exception이 발생한다. orchestratio
 boundary는 추가 phase를 실행하지 않고 §6.3을 `infra_failure`와 그 row의 exact
 class/message로 1회 호출한다.
 Codex tool-call 경계가 PowerShell process를 새로 만들면 §2.5 writer와 §5.2
-setup/functions를 exact 재선언하되 기존 operation log는 append만 하고 truncate
-또는 재구성하지 않는다. 새 process에서 null로 초기화된 P0 mtime은 첫
+setup/functions를 `$ProcessEntryMode = 'RESUME'`으로 exact 재선언한다.
+`ENTRY`를 두 번째로 실행하거나 capsule verifier/TTL을 재실행하지 않는다.
+기존 operation log는 append만 하고 truncate 또는 재구성하지 않는다.
+새 process에서 null로 초기화된 P0 mtime은 첫
 `Assert-FrozenProducerInputs`가 ordinary P0 JSON의 frozen SHA와 before/after
 mtime을 재검증한 뒤 exact 값으로 rehydrate한다.
 
@@ -1614,12 +1933,12 @@ I/O 또는 분석기 내부 오류만 analyzer exit 3이다.
 
 evidence final publish 직전에 다음을 재계산한다.
 
-- HEAD/origin/ahead/behind
+- capsule raw SHA와 capsule payload copy
+- HEAD/origin/ahead/behind와 capsule `repo`
 - tracked diff와 staged paths
-- raw index fingerprint
-- protected spec/directive blob
-- protected 제외 untracked canonical map
-- ignored file canonical map
+- raw index fingerprint와 capsule `index`
+- directive/spec/generator identity
+- 제외 없는 untracked canonical map과 ignored canonical map
 - tracked basename `TC_1.xlsx` candidate exact list
 - workbook SHA, Git blob, mtime
 - frozen audit와 producer actor hashes
@@ -1654,8 +1973,8 @@ verdict
 
 필수 내용:
 
-- directive/spec SHA와 blob
-- Git/index/untracked identities
+- directive/spec/generator SHA와 blob, capsule SHA/path/issued/expires
+- capsule entry payload와 독립 재계산한 Git/index/untracked/ignored identities
 - artifact-tool actual version과 inspect/render result hashes
 - workbook sheet/header/cell/formula/style/topology evidence
 - 15 target / 12 row mapping
@@ -1676,8 +1995,8 @@ array ordering도 contract다.
 - `command_log`: 실제 실행 순서
 - `blocking_reasons`: `(code, path, message)` Unicode codepoint order
 
-evidence 자신의 SHA는 JSON 안에 넣지 않는다. final atomic rename 뒤 raw
-SHA-256과 Git blob을 외부 완료 보고에서 고정한다.
+evidence 자신의 SHA는 JSON 안에 넣지 않는다. no-overwrite hard-link publish와
+final byte/hash 재검증 뒤 raw SHA-256과 Git blob을 외부 완료 보고에서 고정한다.
 
 `command_log`의 ledger rows는 §2.5 status 의미를 그대로 쓴다. 마지막
 `ASSEMBLE` row만 `status:"EVIDENCE_WRITTEN"`과 `campaign_exit`을 사용하며,
@@ -1699,9 +2018,10 @@ $AssembleArgs = @(
     '-B', $Assembler,
     '--directive-sha', '<DISPATCH_EXACT_DIRECTIVE_RAW_SHA256>',
     '--directive-blob', '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>',
+    '--capsule-sha256', '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>',
     '--appendix-a-sha', '8372beed251d73ee58bf8efecf0fec65ebffd22f21f373e4e2eec03bc4d74436',
     '--appendix-b-sha', '6ab74d52b3765d6300cd4f9f90a15d5cbf2442af2b94a798006d2042264c2e5c',
-    '--appendix-c-sha', '32e870b23d703ef57590ba53106703699ccbf5c95833bb7d571d65b20ee399af',
+    '--appendix-c-sha', '1c466e4a15888474b9d3c176f820700addc0186c68d123bba33492a725655e17',
     '--status', $Status,
     '--last-phase', $LastPhase
 )
@@ -1734,7 +2054,7 @@ class/message와 함께 exit 3으로 STOP하며 재실행·수기 evidence 생�
 |---:|---|---|---|
 | 0 | `PROVENANCE_RECONCILED` | P0 15/12 unique + P1 source/target 15/15 관계 재현 + mapped 12 docs runnable/unresolved-free | publish |
 | 1 | `PROVENANCE_MISMATCH` | 유효한 측정에서 candidate 0/2+, view 불일치, producer 누락·collision·semantic mismatch 관찰 | publish |
-| 2 | `INPUT_INVALID` | envelope/HEAD/index/untracked/hash/path/sheet/tool version 입력 계약 위반 | preflight=`—`; post-preflight=publish |
+| 2 | `INPUT_INVALID` | envelope/capsule/TTL/HEAD/index/untracked/hash/path/sheet/tool version 입력 계약 위반 | preflight=`—`; post-preflight=publish |
 | 3 | `INFRA_FAILURE` | artifact runtime·formula/style visibility·Git·IO·producer process 측정 실패 | Appendix C exact hash-verified/invocable + ledger append 가능 시 publish; materialization/ledger-append/assembler 자체 실패는 fileless |
 
 producer process nonzero는 semantic mismatch로 강등하지 않고 exit 3이다.
@@ -1761,6 +2081,7 @@ producer process nonzero는 semantic mismatch로 강등하지 않고 exit 3이�
 ```text
 Directive ID:
 Dispatch envelope:
+Capsule SHA / path / issued / expires:
 Entry HEAD / origin / ahead-behind:
 Index fingerprint:
 Untracked invariant count / SHA:
@@ -3537,7 +3858,7 @@ if __name__ == "__main__":
 아래 code fence 내부 source만 external temp `assemble_evidence.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `32e870b23d703ef57590ba53106703699ccbf5c95833bb7d571d65b20ee399af`
+**Expected source SHA-256:** `1c466e4a15888474b9d3c176f820700addc0186c68d123bba33492a725655e17`
 
 ```python
 from __future__ import annotations
@@ -3565,13 +3886,12 @@ SPEC = (
     REPO / "docs" / "superpowers" / "specs"
     / "2026-07-27-shell-rc-remediation-design.md"
 )
-HEAD = "0ca6701e9574bccd5b7e6e74bda8e0ded751423e"
-INDEX_COUNT = 1179
-INDEX_SHA = "cad2853e2ea8e96d093bd949067e95f77c151d15a71639d510704917fd11bbfd"
-UNTRACKED_COUNT = 1862
-UNTRACKED_SHA = "def31bcb4eb286f161101eab26eed0f3ba81775a34484b99f98c4358644abe9e"
-IGNORED_COUNT = 6760
-IGNORED_SHA = "91248b4ed31c875409f7692763e44e7d2f364431f0bed5a9eaaae78c2916cdbb"
+GENERATOR = REPO / "scripts" / "dispatch_capsule.py"
+CAPSULE_ROOT = Path(r"C:\tmp\tc-runner-dispatch-capsules")
+CAPSULE_TYPE = "tc-runner.dispatch-entry"
+CAPSULE_SCHEMA_VERSION = 1
+CAPSULE_TTL_SECONDS = 1800
+UPSTREAM_REF = "origin/master"
 PHASE_ORDER = (
     "HOST_PREFLIGHT",
     "APPENDIX_MATERIALIZATION",
@@ -3616,14 +3936,12 @@ EXPECTED_YAML_PATHS = tuple(sorted(
     {path for path, _index in EXPECTED_TARGETS},
     key=lambda value: value.encode("utf-8"),
 ))
-SPEC_SHA = "4c2919be00f0ba53cd9c5601f05e359cd6e8ee9139414d41541c96b7f0755654"
-SPEC_BLOB = "6e99e92774358d57e8f29bd577de5faf27c15056"
+SPEC_SHA = "396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde"
+SPEC_BLOB = "b47fbf236aee7ff517e5209ca96baa28decdc649"
+GENERATOR_SHA = "f06e91f3959d153ab821ecac418e2bfc776c40b32a78883c01e916a45d1d13cf"
+GENERATOR_BLOB = "e003cce7935525552fd733793e31f72935815488"
 WORKBOOK_SHA = "160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa"
 WORKBOOK_BLOB = "24593d11dd80a2b3711655bd0c5216ee9157dedc"
-PROTECTED = {
-    "docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md",
-    "HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md",
-}
 ACTORS = {
     "src/cli.py": "c27fa7d5c6c4bd9f956238ef0008990e667989949bbc5743d6a37347ee71a5b0",
     "src/execution_contract.py": "b5a8601a8efd7008752f5c1b50134066082a64f8b976f1fb2270fcc76f1b21eb",
@@ -3672,6 +3990,241 @@ def sha256_file(path: Path) -> str:
     if not path.is_file() or is_linklike(path):
         raise ValueError(f"not an ordinary file: {path}")
     return sha256_bytes(path.read_bytes())
+
+
+def object_without_duplicates(
+    pairs: list[tuple[str, Any]],
+) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"capsule duplicate key: {key}")
+        result[key] = value
+    return result
+
+
+def exact_object(
+    value: object,
+    keys: set[str],
+    *,
+    label: str,
+) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != keys:
+        raise ValueError(f"{label} schema")
+    return value
+
+
+def is_non_bool_int(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def is_lower_sha256(value: object) -> bool:
+    return isinstance(value, str) and re.fullmatch(
+        r"[0-9a-f]{64}", value
+    ) is not None
+
+
+def is_lower_oid(value: object) -> bool:
+    return isinstance(value, str) and re.fullmatch(
+        r"[0-9a-f]{40}", value
+    ) is not None
+
+
+def validate_capsule_identity(
+    value: object,
+    *,
+    label: str,
+    expected_path: str,
+    expected_sha: str,
+    expected_blob: str,
+) -> None:
+    identity = exact_object(
+        value,
+        {"path", "raw_sha256", "git_blob_no_filters"},
+        label=label,
+    )
+    if (
+        identity["path"] != expected_path
+        or identity["raw_sha256"] != expected_sha
+        or identity["git_blob_no_filters"] != expected_blob
+        or not is_lower_sha256(identity["raw_sha256"])
+        or not is_lower_oid(identity["git_blob_no_filters"])
+    ):
+        raise ValueError(f"{label} binding")
+
+
+def validate_dispatch_capsule_payload(
+    value: object,
+    *,
+    capsule_sha256: str,
+    directive_sha: str,
+    directive_blob: str,
+) -> dict[str, Any]:
+    capsule = exact_object(
+        value,
+        {
+            "capsule_type",
+            "directive_id",
+            "expires_at_epoch_s",
+            "identities",
+            "ignored",
+            "index",
+            "issued_at_epoch_s",
+            "repo",
+            "schema_version",
+            "ttl_seconds",
+            "untracked",
+        },
+        label="capsule",
+    )
+    if (
+        not is_lower_sha256(capsule_sha256)
+        or sha256_bytes(canonical_bytes(capsule)) != capsule_sha256
+        or capsule["capsule_type"] != CAPSULE_TYPE
+        or capsule["directive_id"] != DIRECTIVE_ID
+        or not is_non_bool_int(capsule["schema_version"])
+        or capsule["schema_version"] != CAPSULE_SCHEMA_VERSION
+        or not is_non_bool_int(capsule["ttl_seconds"])
+        or capsule["ttl_seconds"] != CAPSULE_TTL_SECONDS
+        or not is_non_bool_int(capsule["issued_at_epoch_s"])
+        or not is_non_bool_int(capsule["expires_at_epoch_s"])
+        or capsule["issued_at_epoch_s"] < 0
+        or capsule["expires_at_epoch_s"] < 0
+        or capsule["expires_at_epoch_s"]
+        - capsule["issued_at_epoch_s"]
+        != CAPSULE_TTL_SECONDS
+    ):
+        raise ValueError("capsule fixed fields")
+    repo = exact_object(
+        capsule["repo"],
+        {
+            "root",
+            "upstream_ref",
+            "head_sha",
+            "upstream_sha",
+            "ahead",
+            "behind",
+            "tracked_clean",
+            "staged_clean",
+        },
+        label="capsule.repo",
+    )
+    if (
+        repo["root"] != REPO.resolve(strict=True).as_posix()
+        or repo["upstream_ref"] != UPSTREAM_REF
+        or not is_lower_oid(repo["head_sha"])
+        or not is_lower_oid(repo["upstream_sha"])
+        or repo["head_sha"] != repo["upstream_sha"]
+        or not is_non_bool_int(repo["ahead"])
+        or not is_non_bool_int(repo["behind"])
+        or repo["ahead"] != 0
+        or repo["behind"] != 0
+        or repo["tracked_clean"] is not True
+        or repo["staged_clean"] is not True
+    ):
+        raise ValueError("capsule repo binding")
+    index = exact_object(
+        capsule["index"],
+        {"entry_count", "raw_stage_z_sha256"},
+        label="capsule.index",
+    )
+    if (
+        not is_non_bool_int(index["entry_count"])
+        or index["entry_count"] < 0
+        or not is_lower_sha256(index["raw_stage_z_sha256"])
+    ):
+        raise ValueError("capsule index fields")
+    for name in ("untracked", "ignored"):
+        mapping = exact_object(
+            capsule[name],
+            {"count", "canonical_json_sha256", "excluded_paths"},
+            label=f"capsule.{name}",
+        )
+        if (
+            not is_non_bool_int(mapping["count"])
+            or mapping["count"] < 0
+            or not is_lower_sha256(mapping["canonical_json_sha256"])
+            or mapping["excluded_paths"] != []
+        ):
+            raise ValueError(f"capsule {name} fields")
+    identities = exact_object(
+        capsule["identities"],
+        {"directive", "spec", "generator"},
+        label="capsule.identities",
+    )
+    validate_capsule_identity(
+        identities["directive"],
+        label="capsule directive",
+        expected_path=DIRECTIVE.relative_to(REPO).as_posix(),
+        expected_sha=directive_sha,
+        expected_blob=directive_blob,
+    )
+    validate_capsule_identity(
+        identities["spec"],
+        label="capsule spec",
+        expected_path=SPEC.relative_to(REPO).as_posix(),
+        expected_sha=SPEC_SHA,
+        expected_blob=SPEC_BLOB,
+    )
+    validate_capsule_identity(
+        identities["generator"],
+        label="capsule generator",
+        expected_path=GENERATOR.relative_to(REPO).as_posix(),
+        expected_sha=GENERATOR_SHA,
+        expected_blob=GENERATOR_BLOB,
+    )
+    return capsule
+
+
+def dispatch_capsule_path(capsule_sha256: str) -> Path:
+    if not is_lower_sha256(capsule_sha256):
+        raise ValueError("capsule token is not lowercase SHA-256")
+    root_lexical = Path(os.path.abspath(CAPSULE_ROOT))
+    repo_resolved = REPO.resolve(strict=True)
+    root_resolved = root_lexical.resolve(strict=True)
+    try:
+        root_resolved.relative_to(repo_resolved)
+    except ValueError:
+        pass
+    else:
+        raise ValueError("capsule root resolves inside repo")
+    if (
+        not root_resolved.is_dir()
+        or is_linklike(root_lexical)
+        or is_linklike(root_resolved)
+    ):
+        raise ValueError("capsule root is not ordinary directory")
+    return root_resolved / f"{capsule_sha256}.json"
+
+
+def read_external_dispatch_capsule(
+    capsule_sha256: str,
+    *,
+    directive_sha: str,
+    directive_blob: str,
+) -> tuple[Path, dict[str, Any]]:
+    path = dispatch_capsule_path(capsule_sha256)
+    if not path.is_file() or is_linklike(path):
+        raise FileNotFoundError("dispatch capsule missing or link/junction")
+    raw = path.read_bytes()
+    if sha256_bytes(raw) != capsule_sha256:
+        raise ValueError("dispatch capsule raw SHA")
+    try:
+        value = json.loads(
+            raw.decode("utf-8", "strict"),
+            object_pairs_hook=object_without_duplicates,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError("dispatch capsule JSON") from error
+    if canonical_bytes(value) != raw:
+        raise ValueError("dispatch capsule is not canonical JSON")
+    capsule = validate_dispatch_capsule_payload(
+        value,
+        capsule_sha256=capsule_sha256,
+        directive_sha=directive_sha,
+        directive_blob=directive_blob,
+    )
+    return path, capsule
 
 
 def require_ordinary_repo_child(path: Path) -> None:
@@ -3965,43 +4518,55 @@ def blob_id(value: bytes) -> str:
 
 
 def git(*args: str, input_bytes: bytes | None = None) -> bytes:
+    environment = os.environ.copy()
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
     result = subprocess.run(
-        ["git", *args],
+        ["git", "-c", f"core.excludesFile={os.devnull}", *args],
         cwd=REPO,
         input=input_bytes,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
+        env=environment,
     )
     if result.returncode != 0:
         message = result.stderr.decode("utf-8", "replace").strip()
         raise RuntimeError(f"git {' '.join(args)}: {result.returncode}: {message}")
+    if result.stderr:
+        message = result.stderr.decode("utf-8", "replace").strip()
+        raise RuntimeError(f"git {' '.join(args)} emitted stderr: {message}")
     return result.stdout
 
 
 def git_quiet(*args: str) -> bool:
+    environment = os.environ.copy()
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
     result = subprocess.run(
-        ["git", *args],
+        ["git", "-c", f"core.excludesFile={os.devnull}", *args],
         cwd=REPO,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
+        env=environment,
     )
     if result.returncode not in (0, 1):
         raise RuntimeError(f"git {' '.join(args)}: {result.returncode}")
+    if result.stderr:
+        message = result.stderr.decode("utf-8", "replace").strip()
+        raise RuntimeError(f"git {' '.join(args)} emitted stderr: {message}")
     return result.returncode == 0
 
 
 def path_identity(
     git_args: tuple[str, ...],
-    excluded: set[str],
 ) -> dict[str, Any]:
     raw = git(*git_args)
     paths = [
         item.decode("utf-8").replace("\\", "/")
         for item in raw.split(b"\0") if item
     ]
-    paths = [item for item in paths if item not in excluded]
     if any("\n" in item or "\r" in item for item in paths):
         raise ValueError("newline-containing untracked path is unsupported")
     for relative in paths:
@@ -4040,7 +4605,6 @@ def untracked_identity() -> dict[str, Any]:
             "-c", "core.quotepath=false", "ls-files",
             "--others", "--exclude-standard", "-z",
         ),
-        PROTECTED,
     )
 
 
@@ -4050,16 +4614,31 @@ def ignored_identity() -> dict[str, Any]:
             "-c", "core.quotepath=false", "ls-files",
             "--others", "--ignored", "--exclude-standard", "-z",
         ),
-        set(),
     )
 
 
+def current_file_identity(path: Path) -> dict[str, str]:
+    require_ordinary_repo_child(path)
+    relative = path.relative_to(REPO).as_posix()
+    raw = path.read_bytes()
+    actual_blob = git(
+        "hash-object", "--no-filters", "--", relative
+    ).decode("ascii", "strict").strip()
+    if not is_lower_oid(actual_blob):
+        raise ValueError(f"invalid Git blob identity: {relative}")
+    return {
+        "path": relative,
+        "raw_sha256": sha256_bytes(raw),
+        "git_blob_no_filters": actual_blob,
+    }
+
+
 def snapshot(
-    directive_sha: str,
-    directive_blob: str,
+    capsule: dict[str, Any] | None,
 ) -> tuple[dict[str, Any], list[str]]:
     require_ordinary_repo_child(DIRECTIVE)
     require_ordinary_repo_child(SPEC)
+    require_ordinary_repo_child(GENERATOR)
     index_raw = git("-c", "core.quotepath=false", "ls-files", "--stage", "-z")
     tracked_raw = git("-c", "core.quotepath=false", "ls-files", "-z")
     tracked_paths = [
@@ -4080,28 +4659,41 @@ def snapshot(
     workbook = REPO / "tc_samples" / "TC_1.xlsx"
     actual_actors = {path: sha256_file(REPO / path) for path in ACTORS}
     actual_audit = {path: sha256_file(REPO / path) for path in AUDIT}
-    actual_directive = DIRECTIVE.read_bytes()
-    actual_spec = SPEC.read_bytes()
+    dispatch_state = {
+        "repo": {
+            "root": REPO.resolve(strict=True).as_posix(),
+            "upstream_ref": UPSTREAM_REF,
+            "head_sha":
+                git("rev-parse", "HEAD").decode("ascii", "strict").strip(),
+            "upstream_sha":
+                git("rev-parse", UPSTREAM_REF)
+                .decode("ascii", "strict").strip(),
+            "ahead": int(ahead_behind[1]),
+            "behind": int(ahead_behind[0]),
+            "tracked_clean": git_quiet("diff", "--quiet"),
+            "staged_clean": git_quiet("diff", "--cached", "--quiet"),
+        },
+        "index": {
+            "entry_count":
+                len([item for item in index_raw.split(b"\0") if item]),
+            "raw_stage_z_sha256": sha256_bytes(index_raw),
+        },
+        "untracked": {
+            **untracked_identity(),
+            "excluded_paths": [],
+        },
+        "ignored": {
+            **ignored_identity(),
+            "excluded_paths": [],
+        },
+        "identities": {
+            "directive": current_file_identity(DIRECTIVE),
+            "spec": current_file_identity(SPEC),
+            "generator": current_file_identity(GENERATOR),
+        },
+    }
     state = {
-        "repo_root": str(REPO),
-        "head": git("rev-parse", "HEAD").decode("ascii").strip(),
-        "origin_master":
-            git("rev-parse", "origin/master").decode("ascii").strip(),
-        "ahead_behind": [int(ahead_behind[1]), int(ahead_behind[0])],
-        "tracked_clean": git_quiet("diff", "--quiet"),
-        "staged_clean": git_quiet("diff", "--cached", "--quiet"),
-        "index_entry_count": len([item for item in index_raw.split(b"\0") if item]),
-        "index_raw_sha256": sha256_bytes(index_raw),
-        "untracked": untracked_identity(),
-        "ignored": ignored_identity(),
-        "directive": {
-            "raw_sha256": sha256_bytes(actual_directive),
-            "blob": blob_id(actual_directive),
-        },
-        "spec": {
-            "raw_sha256": sha256_bytes(actual_spec),
-            "blob": blob_id(actual_spec),
-        },
+        **dispatch_state,
         "workbook": {
             "raw_sha256": sha256_file(workbook),
             "blob": blob_id(workbook.read_bytes()),
@@ -4112,28 +4704,19 @@ def snapshot(
         "frozen_audit": actual_audit,
     }
     problems = []
+    capsule_state = (
+        {
+            key: capsule[key]
+            for key in ("repo", "index", "untracked", "ignored", "identities")
+        }
+        if capsule is not None else None
+    )
     exact_checks = (
-        (state["head"] == HEAD, "HEAD"),
-        (state["origin_master"] == HEAD, "origin/master"),
-        (state["ahead_behind"] == [0, 0], "ahead/behind"),
-        (state["tracked_clean"], "tracked worktree"),
-        (state["staged_clean"], "staged index"),
-        (state["index_entry_count"] == INDEX_COUNT, "index count"),
-        (state["index_raw_sha256"] == INDEX_SHA, "index SHA"),
-        (state["untracked"]["count"] == UNTRACKED_COUNT, "untracked count"),
         (
-            state["untracked"]["canonical_json_sha256"] == UNTRACKED_SHA,
-            "untracked SHA",
+            capsule_state is not None
+            and canonical_bytes(dispatch_state) == canonical_bytes(capsule_state),
+            "live repository state differs from dispatch capsule",
         ),
-        (state["ignored"]["count"] == IGNORED_COUNT, "ignored count"),
-        (
-            state["ignored"]["canonical_json_sha256"] == IGNORED_SHA,
-            "ignored SHA",
-        ),
-        (state["directive"]["raw_sha256"] == directive_sha, "directive SHA"),
-        (state["directive"]["blob"] == directive_blob, "directive blob"),
-        (state["spec"]["raw_sha256"] == SPEC_SHA, "spec SHA"),
-        (state["spec"]["blob"] == SPEC_BLOB, "spec blob"),
         (state["workbook"]["raw_sha256"] == WORKBOOK_SHA, "workbook SHA"),
         (state["workbook"]["blob"] == WORKBOOK_BLOB, "workbook blob"),
         (
@@ -4529,10 +5112,71 @@ def load_phase_ledger(
     return rows
 
 
+def validate_host_preflight_capsule(
+    row: dict[str, Any],
+    *,
+    capsule_sha256: str,
+    directive_sha: str,
+    directive_blob: str,
+) -> dict[str, Any]:
+    if (
+        row["phase"] != "HOST_PREFLIGHT"
+        or row["status"] != "COMPLETED"
+    ):
+        raise ValueError("HOST_PREFLIGHT capsule evidence unavailable")
+    observed = exact_object(
+        row["observed"],
+        {
+            "dispatch_capsule",
+            "dispatch_capsule_path",
+            "dispatch_capsule_sha256",
+            "capsule_verify",
+            "ttl_valid_before_first_write",
+            "toolchain",
+        },
+        label="HOST_PREFLIGHT observed",
+    )
+    capsule = validate_dispatch_capsule_payload(
+        observed["dispatch_capsule"],
+        capsule_sha256=capsule_sha256,
+        directive_sha=directive_sha,
+        directive_blob=directive_blob,
+    )
+    verify = exact_object(
+        observed["capsule_verify"],
+        {"tool", "argv", "exit"},
+        label="HOST_PREFLIGHT capsule_verify",
+    )
+    expected_verify_argv = [
+        "-B", "scripts/dispatch_capsule.py", "verify",
+        "--repo", str(REPO),
+        "--capsule-sha256", capsule_sha256,
+        "--expected-directive-id", DIRECTIVE_ID,
+        "--expected-directive", DIRECTIVE.relative_to(REPO).as_posix(),
+        "--expected-spec", SPEC.relative_to(REPO).as_posix(),
+    ]
+    capsule_path = dispatch_capsule_path(capsule_sha256)
+    if (
+        observed["dispatch_capsule_sha256"] != capsule_sha256
+        or observed["dispatch_capsule_path"] != capsule_path.as_posix()
+        or observed["ttl_valid_before_first_write"] is not True
+        or observed["toolchain"] != TOOLCHAIN
+        or verify["tool"] != str(
+            (REPO / "venv" / "Scripts" / "python.exe").resolve(strict=True)
+        )
+        or verify["argv"] != expected_verify_argv
+        or not is_non_bool_int(verify["exit"])
+        or verify["exit"] != 0
+    ):
+        raise ValueError("HOST_PREFLIGHT capsule evidence mismatch")
+    return capsule
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--directive-sha", required=True)
     parser.add_argument("--directive-blob", required=True)
+    parser.add_argument("--capsule-sha256", required=True)
     parser.add_argument("--appendix-a-sha", required=True)
     parser.add_argument("--appendix-b-sha", required=True)
     parser.add_argument("--appendix-c-sha", required=True)
@@ -4546,6 +5190,7 @@ def main() -> int:
     expected_application_args = [
         "--directive-sha", args.directive_sha,
         "--directive-blob", args.directive_blob,
+        "--capsule-sha256", args.capsule_sha256,
         "--appendix-a-sha", args.appendix_a_sha,
         "--appendix-b-sha", args.appendix_b_sha,
         "--appendix-c-sha", args.appendix_c_sha,
@@ -4595,14 +5240,7 @@ def main() -> int:
         raise FileNotFoundError("evidence parent missing")
     if any(EVIDENCE.parent.iterdir()):
         raise ValueError("evidence parent is not empty")
-    ignored = subprocess.run(
-        ["git", "check-ignore", "-v", "--", str(EVIDENCE)],
-        cwd=REPO,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    if ignored.returncode != 0:
+    if not git_quiet("check-ignore", "-q", "--", str(EVIDENCE)):
         raise ValueError("evidence path is not ignored")
 
     appendix_derived = derive_appendix_hashes()
@@ -4619,9 +5257,7 @@ def main() -> int:
         "appendix_b_source_sha256": args.appendix_b_sha,
         "appendix_c_source_sha256": args.appendix_c_sha,
     }
-    state, invariant_problems = snapshot(
-        args.directive_sha, args.directive_blob
-    )
+    invariant_problems: list[str] = []
     if (
         appendix_arguments != appendix_derived
         or appendix_actual != appendix_derived
@@ -4712,6 +5348,7 @@ def main() -> int:
         },
     }
     phase_ledger: list[dict[str, Any]] = []
+    ledger_capsule: dict[str, Any] | None = None
     try:
         phase_ledger = load_phase_ledger(
             args.status,
@@ -4809,12 +5446,48 @@ def main() -> int:
             invariant_problems.append(
                 "operation ledger APPENDIX_MATERIALIZATION observed"
             )
+        ledger_capsule = validate_host_preflight_capsule(
+            phase_ledger[0],
+            capsule_sha256=args.capsule_sha256,
+            directive_sha=args.directive_sha,
+            directive_blob=args.directive_blob,
+        )
     except (
         OSError, UnicodeError, json.JSONDecodeError, ValueError,
     ) as error:
         invariant_problems.append(
             f"operation ledger {type(error).__name__}: {error}"
         )
+
+    external_capsule: dict[str, Any] | None = None
+    external_capsule_path = (
+        CAPSULE_ROOT / f"{args.capsule_sha256}.json"
+    )
+    try:
+        external_capsule_path, external_capsule = (
+            read_external_dispatch_capsule(
+                args.capsule_sha256,
+                directive_sha=args.directive_sha,
+                directive_blob=args.directive_blob,
+            )
+        )
+        if (
+            ledger_capsule is not None
+            and canonical_bytes(external_capsule)
+            != canonical_bytes(ledger_capsule)
+        ):
+            invariant_problems.append(
+                "external dispatch capsule differs from HOST_PREFLIGHT"
+            )
+    except (FileNotFoundError, ValueError) as error:
+        invariant_problems.append(
+            f"external dispatch capsule {type(error).__name__}: {error}"
+        )
+    dispatch_capsule = (
+        ledger_capsule if ledger_capsule is not None else external_capsule
+    )
+    state, state_problems = snapshot(dispatch_capsule)
+    invariant_problems.extend(state_problems)
 
     p0_path = TEMP / "artifact-tool-work" / "p0_workbook.json"
     reconciliation_path = TEMP / "reconciliation.json"
@@ -5091,16 +5764,30 @@ def main() -> int:
             "directive_blob": args.directive_blob,
             "spec_raw_sha256": SPEC_SHA,
             "spec_blob": SPEC_BLOB,
+            "generator_raw_sha256": GENERATOR_SHA,
+            "generator_blob": GENERATOR_BLOB,
+            "capsule_sha256": args.capsule_sha256,
+            "capsule_path": external_capsule_path.as_posix(),
+            "capsule_type": (
+                dispatch_capsule.get("capsule_type")
+                if dispatch_capsule is not None else None
+            ),
+            "capsule_schema_version": (
+                dispatch_capsule.get("schema_version")
+                if dispatch_capsule is not None else None
+            ),
+            "capsule_issued_at_epoch_s": (
+                dispatch_capsule.get("issued_at_epoch_s")
+                if dispatch_capsule is not None else None
+            ),
+            "capsule_expires_at_epoch_s": (
+                dispatch_capsule.get("expires_at_epoch_s")
+                if dispatch_capsule is not None else None
+            ),
             **appendix_actual,
         },
         "entry": {
-            "frozen_head": HEAD,
-            "frozen_index_count": INDEX_COUNT,
-            "frozen_index_sha256": INDEX_SHA,
-            "frozen_untracked_count": UNTRACKED_COUNT,
-            "frozen_untracked_sha256": UNTRACKED_SHA,
-            "frozen_ignored_count": IGNORED_COUNT,
-            "frozen_ignored_sha256": IGNORED_SHA,
+            "dispatch_capsule": dispatch_capsule,
         },
         "toolchain": toolchain,
         "producer_actors": state["producer_actors"],
@@ -5144,11 +5831,11 @@ def main() -> int:
                     "path":
                         EVIDENCE.with_suffix(".json.tmp")
                         .relative_to(REPO).as_posix(),
-                    "event": "atomic temporary write",
+                    "event": "exclusive temporary create",
                 },
                 {
                     "path": EVIDENCE.relative_to(REPO).as_posix(),
-                    "event": "atomic rename destination",
+                    "event": "no-overwrite hard-link publish",
                 },
             ],
         },
@@ -5162,9 +5849,23 @@ def main() -> int:
             "blocking_reasons": blocking_reasons,
         },
     }
+    payload = canonical_bytes(output)
+    payload_sha256 = hashlib.sha256(payload).hexdigest()
     temporary = EVIDENCE.with_suffix(".json.tmp")
-    temporary.write_bytes(canonical_bytes(output))
-    os.replace(temporary, EVIDENCE)
+    with temporary.open("xb") as stream:
+        stream.write(payload)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.link(temporary, EVIDENCE)
+    if not EVIDENCE.is_file() or is_linklike(EVIDENCE):
+        raise RuntimeError("published evidence is not an ordinary file")
+    published = EVIDENCE.read_bytes()
+    if (
+        published != payload
+        or hashlib.sha256(published).hexdigest() != payload_sha256
+    ):
+        raise RuntimeError("published evidence byte/hash mismatch")
+    temporary.unlink()
     return exit_code
 
 
