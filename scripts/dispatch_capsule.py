@@ -21,7 +21,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Sequence
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 CAPSULE_TYPE = "tc-runner.dispatch-entry"
 TTL_SECONDS = 1800
 CAPSULE_ROOT = Path(r"C:\tmp\tc-runner-dispatch-capsules")
@@ -30,6 +30,14 @@ UPSTREAM_REF = "origin/master"
 LOWER_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 LOWER_OID_RE = re.compile(r"^[0-9a-f]{40}$")
 DIRECTIVE_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+MODULE_ROOT_KEYS = {
+    "entry_bytes",
+    "entry_relpath",
+    "entry_sha256",
+    "package_name",
+    "package_version",
+    "root_path",
+}
 
 
 class InputInvalid(ValueError):
@@ -393,6 +401,114 @@ def _file_identity(
     }
 
 
+def _plain_token(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and bool(value)
+        and "\\" not in value
+        and "\n" not in value
+        and "\r" not in value
+        and not any(character.isspace() for character in value)
+    )
+
+
+def _ordinary_external_file(path: Path, *, label: str) -> Path:
+    _reject_linklike_path_chain(path, label=label)
+    if not path.is_file() or path.is_dir() or _is_linklike(path):
+        raise InputInvalid(f"{label} is not an ordinary file")
+    return path
+
+
+def measure_module_root(
+    repo: Path,
+    root: Path,
+    package_name: str,
+) -> dict[str, Any]:
+    if not _plain_token(package_name):
+        raise InputInvalid("module package name is invalid")
+    lexical = Path(os.path.abspath(root))
+    _reject_linklike_path_chain(lexical, label="module root")
+    repo_resolved = repo.resolve(strict=True)
+    if _path_is_within(lexical, repo_resolved):
+        raise InputInvalid("module root must be outside repository")
+    try:
+        resolved = lexical.resolve(strict=True)
+    except OSError as exc:
+        raise InputInvalid("module root does not exist") from exc
+    if _path_is_within(resolved, repo_resolved):
+        raise InputInvalid("module root resolves inside repository")
+    if not resolved.is_dir() or _is_linklike(lexical):
+        raise InputInvalid("module root is not an ordinary directory")
+    package_dir = resolved
+    for part in package_name.split("/"):
+        if part in {"", ".", ".."}:
+            raise InputInvalid("module package name is invalid")
+        package_dir = package_dir / part
+    if not package_dir.is_dir() or _is_linklike(package_dir):
+        raise InputInvalid("module package directory is not ordinary")
+    manifest_path = _ordinary_external_file(
+        package_dir / "package.json", label="module package.json"
+    )
+    try:
+        manifest_raw = manifest_path.read_bytes()
+    except OSError as exc:
+        raise InfrastructureFailure(
+            "module package.json could not be read"
+        ) from exc
+    try:
+        manifest = json.loads(
+            manifest_raw.decode("utf-8", "strict"),
+            object_pairs_hook=_object_without_duplicates,
+        )
+    except InputInvalid:
+        raise
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise InputInvalid("module package.json is invalid JSON") from exc
+    if not isinstance(manifest, dict) or manifest.get("name") != package_name:
+        raise InputInvalid("module package name mismatch")
+    version = manifest.get("version")
+    if not _plain_token(version):
+        raise InputInvalid("module package version is invalid")
+    exports = manifest.get("exports")
+    entry_export = exports.get(".") if isinstance(exports, dict) else None
+    if (
+        not isinstance(entry_export, str)
+        or not entry_export.startswith("./")
+        or len(entry_export) <= 2
+    ):
+        raise InputInvalid("module exports entry is unsupported")
+    entry_relpath = _relative_path(
+        Path(entry_export[2:]), label="module entry"
+    )
+    entry_path = _ordinary_external_file(
+        package_dir / Path(entry_relpath), label="module entry"
+    )
+    try:
+        entry_raw = entry_path.read_bytes()
+    except OSError as exc:
+        raise InfrastructureFailure("module entry could not be read") from exc
+    if not entry_raw:
+        raise InputInvalid("module entry is empty")
+    return {
+        "entry_bytes": len(entry_raw),
+        "entry_relpath": entry_relpath,
+        "entry_sha256": _sha256_bytes(entry_raw),
+        "package_name": package_name,
+        "package_version": version,
+        "root_path": resolved.as_posix(),
+    }
+
+
+def _measure_module_specs(
+    repo: Path,
+    module_specs: Sequence[tuple[Path, str]],
+) -> list[dict[str, Any]]:
+    return [
+        measure_module_root(repo, root, package_name)
+        for root, package_name in module_specs
+    ]
+
+
 def measure_repo_state(
     repo: Path,
     *,
@@ -487,6 +603,7 @@ def _clock_value(now_fn: Callable[[], int]) -> int:
 def _capsule_payload(
     directive_id: str,
     state: dict[str, Any],
+    module_roots: list[dict[str, Any]],
     issued_at: int,
 ) -> dict[str, Any]:
     return {
@@ -497,6 +614,7 @@ def _capsule_payload(
         "ignored": state["ignored"],
         "index": state["index"],
         "issued_at_epoch_s": issued_at,
+        "module_roots": module_roots,
         "repo": state["repo"],
         "schema_version": SCHEMA_VERSION,
         "ttl_seconds": TTL_SECONDS,
@@ -568,6 +686,7 @@ def capture_capsule(
     spec_path: Path,
     generator_path: Path = GENERATOR_PATH,
     upstream_ref: str = UPSTREAM_REF,
+    module_specs: Sequence[tuple[Path, str]] = (),
     now_fn: Callable[[], int] = lambda: int(time.time()),
 ) -> tuple[Path, str]:
     if DIRECTIVE_ID_RE.fullmatch(directive_id) is None:
@@ -576,6 +695,7 @@ def capture_capsule(
     root = _validate_capsule_root(
         repo_resolved, capsule_root, require_exists=False
     )
+    first_modules = _measure_module_specs(repo_resolved, module_specs)
     first = measure_repo_state(
         repo_resolved,
         directive_path=directive_path,
@@ -594,9 +714,15 @@ def capture_capsule(
     _require_dispatchable(second)
     if canonical_json_bytes(first) != canonical_json_bytes(second):
         raise InputInvalid("repository state changed during capture")
+    second_modules = _measure_module_specs(repo_resolved, module_specs)
+    if (
+        canonical_json_bytes(first_modules)
+        != canonical_json_bytes(second_modules)
+    ):
+        raise InputInvalid("module state changed during capture")
     issued_at = _clock_value(now_fn)
     raw = canonical_json_bytes(
-        _capsule_payload(directive_id, second, issued_at)
+        _capsule_payload(directive_id, second, second_modules, issued_at)
     )
     digest = _sha256_bytes(raw)
     return _publish_content_addressed(root, raw, digest), digest
@@ -657,6 +783,7 @@ def _validate_capsule_schema(
             "ignored",
             "index",
             "issued_at_epoch_s",
+            "module_roots",
             "repo",
             "schema_version",
             "ttl_seconds",
@@ -731,6 +858,34 @@ def _validate_capsule_schema(
             or mapping["excluded_paths"] != []
         ):
             raise InputInvalid(f"capsule.{name} fields are invalid")
+    modules = capsule["module_roots"]
+    if not isinstance(modules, list):
+        raise InputInvalid("capsule.module_roots is invalid")
+    for item in modules:
+        entry = _exact_keys(
+            item,
+            MODULE_ROOT_KEYS,
+            label="capsule.module_roots[]",
+        )
+        if (
+            not _is_non_bool_int(entry["entry_bytes"])
+            or entry["entry_bytes"] <= 0
+            or not isinstance(entry["entry_relpath"], str)
+            or not entry["entry_relpath"]
+            or not _is_lower_sha256(entry["entry_sha256"])
+            or not _plain_token(entry["package_name"])
+            or not _plain_token(entry["package_version"])
+            or not isinstance(entry["root_path"], str)
+            or not entry["root_path"]
+            or "\\" in entry["root_path"]
+            or "\n" in entry["root_path"]
+            or "\r" in entry["root_path"]
+        ):
+            raise InputInvalid("capsule.module_roots[] fields are invalid")
+        _relative_path(
+            Path(entry["entry_relpath"]),
+            label="capsule.module_roots[].entry_relpath",
+        )
     identities = _exact_keys(
         capsule["identities"],
         {"directive", "spec", "generator"},
@@ -848,6 +1003,8 @@ def _parser() -> argparse.ArgumentParser:
     capture.add_argument("--directive-id", required=True)
     capture.add_argument("--directive", required=True)
     capture.add_argument("--spec", required=True)
+    capture.add_argument("--module-root", action="append", default=[])
+    capture.add_argument("--module-package", action="append", default=[])
     verify = subparsers.add_parser("verify")
     verify.add_argument("--repo", required=True)
     verify.add_argument("--capsule-sha256", required=True)
@@ -866,12 +1023,23 @@ def main(
     args = _parser().parse_args(argv)
     try:
         if args.mode == "capture":
+            if len(args.module_root) != len(args.module_package):
+                raise InputInvalid(
+                    "--module-root and --module-package must be paired"
+                )
+            module_specs = tuple(
+                (Path(root), package)
+                for root, package in zip(
+                    args.module_root, args.module_package, strict=True
+                )
+            )
             path, digest = capture_capsule(
                 repo=Path(args.repo),
                 capsule_root=capsule_root,
                 directive_id=args.directive_id,
                 directive_path=Path(args.directive),
                 spec_path=Path(args.spec),
+                module_specs=module_specs,
                 now_fn=now_fn,
             )
             print(

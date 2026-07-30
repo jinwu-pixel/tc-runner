@@ -38,7 +38,7 @@ dispatch 메시지가 다음 세 affirmative token과 여섯 identity를 모두 
 포함해야 실행 권한이 성립한다.
 
 ```text
-SPEC_REVIEW_APPROVED: 396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde
+SPEC_REVIEW_APPROVED: 492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf
 AUTHORIZE_EXECUTION: RB-20260728-shellrc-p0p1
 CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 ```
@@ -47,10 +47,10 @@ CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 |---|---|
 | directive raw SHA-256 | 작성 완료 보고의 exact 값 |
 | directive `git hash-object --no-filters` blob | 작성 완료 보고의 exact 값 |
-| spec raw SHA-256 | `396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde` |
-| spec `git hash-object --no-filters` blob | `b47fbf236aee7ff517e5209ca96baa28decdc649` |
-| capsule generator raw SHA-256 | `f06e91f3959d153ab821ecac418e2bfc776c40b32a78883c01e916a45d1d13cf` |
-| capsule generator `git hash-object --no-filters` blob | `e003cce7935525552fd733793e31f72935815488` |
+| spec raw SHA-256 | `492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf` |
+| spec `git hash-object --no-filters` blob | `4db31884e55f1c18dbfd53edd090da88d9f8b51e` |
+| capsule generator raw SHA-256 | `45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd` |
+| capsule generator `git hash-object --no-filters` blob | `db170b307a323e861b8a3fc7d29ef743b109197e` |
 
 위 token 또는 identity를 단순 인용·질문·리뷰 맥락에 넣는 것은 dispatch가
 아니다. 실행 명령의 뜻으로 세 token을 명시하고 위 identity를 모두 고정해야
@@ -75,7 +75,7 @@ repo-state observation은 directive 본문에 literal로 넣지 않는다. dispa
 
 ```text
 capsule_type = "tc-runner.dispatch-entry"
-schema_version = 1
+schema_version = 2
 ttl_seconds = 1800
 directive_id = "RB-20260728-shellrc-p0p1"
 issued_at_epoch_s / expires_at_epoch_s
@@ -87,12 +87,26 @@ index { entry_count, raw_stage_z_sha256 }
 untracked / ignored {
   count, canonical_json_sha256, excluded_paths = []
 }
+module_roots = [ exactly 1 element {
+  entry_bytes, entry_relpath, entry_sha256,
+  package_name = "@oai/artifact-tool",
+  package_version, root_path
+} ]
 identities {
   directive / spec / generator {
     path, raw_sha256, git_blob_no_filters
   }
 }
 ```
+
+`module_roots`는 §1.4 module route의 환경 관측이다. capture가
+`--module-root <node_modules 절대경로> --module-package @oai/artifact-tool`
+쌍으로 직접 측정한다: `root_path`는 resolve된 절대경로의 `/` 구분 표기,
+`package_version`은 해당 package.json의 `version`, `entry_relpath`는
+`exports["."]`에서 leading `./`를 제거한 상대경로, `entry_bytes`/`entry_sha256`은
+entry file raw bytes의 측정값이다. 경로는 환경 관측이므로 directive 본문에
+literal로 넣지 않는다. 이 directive의 dispatch에는 원소가 정확히 1개여야 하며
+`package_version`은 floor `2.8.6` 이상이어야 한다.
 
 `repo.root`는 `C:/Users/momen/Projects/tc-runner`,
 `repo.upstream_ref`는 `origin/master`, HEAD/upstream은 동일한 lowercase
@@ -183,14 +197,20 @@ HEAD 고정만으로도 tracked code identity가 정해지지만, evidence 독�
 | Node | `v24.14.1` |
 | Windows PowerShell | `5.1.26100.8875`, `PSEdition=Desktop` |
 | process text encoding | console input/output과 `$OutputEncoding`, `PYTHONIOENCODING` 모두 UTF-8 no BOM |
-| `@oai/artifact-tool` | runtime-resolved exact version, API floor `2.8.6`; unavailable or older = exit 3 |
+| `@oai/artifact-tool` | capsule `module_roots[0]` 결박: `package_version` capture 값 exact + floor `2.8.6`, entry raw SHA-256 exact. 모듈 부재·floor 미달 = exit 3, capsule-vs-live 불일치 = exit 2 |
 
 P0 spreadsheet inspection은 `@oai/artifact-tool`만 사용한다. runtime dependency
 loader 또는 formula/style visibility가 없으면 exit 3이다. 이 directive가
-허용하는 module route는 `node_repl`의 existing bare-import search root뿐이다.
-`js_add_node_module_dir`, junction, 임의 filesystem resolution, npm/install은
-승인하지 않는다. 작성 세션의 bare import probe는 `Module not found`였으므로
-동일 runtime에서 dispatch하면 P0 workbook open 전 exit 3이 정상 결과다.
+허용하는 module route는 `node_repl`의 existing bare-import search root와, §3
+module-route 절차가 negative-control(Appendix R) `EXPECTED_FAIL` 이후 capsule
+`module_roots[0].root_path` 하나를 `js_add_node_module_dir`로 최대 1회 추가하는
+것뿐이다. 임의 경로 추가, 조건 밖 반복 호출, junction, 그 외 임의 filesystem
+resolution, npm/install은 승인하지 않는다. 버전 게이트는 module export가 아니라
+capsule에 결박된 package.json `version`으로 판정한다 (2026-07-29 실측: 모듈에
+version 계열 export가 없다). route 성립은 node_repl 실세션 probe
+MRP-20260729-artifact-tool rev1+rev2 GREEN으로 사전 실증되었다. cold import는
+기본 30s 예산에 근접·초과하는 고변동(12.8s~>30s 실측)이므로 Appendix R/A를
+제출하는 node_repl 호출은 timeout `>= 300000ms`를 명시해야 한다.
 `openpyxl`, ZIP/XML 직접 파싱, Excel GUI, LibreOffice로 대체하지 않는다.
 P1의 repo `export-mmi`가 내부적으로 openpyxl을 사용하는 것은 현재 producer
 계약의 측정이므로 허용한다.
@@ -307,6 +327,8 @@ first failure를 순서대로 append한다. Appendix C 내부 read-only Git은 a
    `ConvertFrom-Json`의 P0 gate 및 §5.2 identity rehydrate read,
    `ConvertTo-Json`의 ledger line write,
    `New-Item -ItemType Directory`의 §2.1/§2.2 exact parents.
+   capsule `module_roots[0]`가 가리키는 외부 package.json/entry file의
+   read/hash(§3 module-route fs gate)도 이 read primitive family에 속한다.
    evidence publish에는 PowerShell `Move-Item`/rename을 허용하지 않는다.
    Appendix C 내부의 exact `open(..., "xb")`/flush/`os.fsync`/`os.link`,
    final read/hash 검증, 성공 뒤 temporary unlink만 허용한다.
@@ -323,10 +345,18 @@ first failure를 순서대로 append한다. Appendix C 내부 read-only Git은 a
    --expected-spec
    docs/superpowers/specs/2026-07-27-shell-rc-remediation-design.md`.
    `capture`는 이 campaign의 허용 operation이 아니다.
-5. Appendix A의 exact JavaScript source 1회를 `node_repl.js`에 제출한다.
-   제출 text의 UTF-8/LF/trailing-LF SHA가 Appendix A freeze와 같아야 한다.
-   existing bare-import가 실패하면 exit 3이다. `js_add_node_module_dir`,
-   junction, npm, network, 임의 `.mjs` 실행은 금지한다.
+5. module route + Appendix 제출 (모든 node_repl 호출은 timeout `>= 300000ms`
+   명시):
+   - Appendix R의 exact JavaScript source를 `node_repl.js`에 제출한다
+     (negative control). 1차 결과가 import 실패면
+     `js_add_node_module_dir`를 capsule `module_roots[0].root_path` exact
+     값으로 정확히 1회 호출한 뒤 Appendix R을 다시 제출하며, 2차는 import
+     성공이어야 한다 (Appendix R 제출 최대 2회). 1차가 import 성공이면 add를
+     생략한다. probe 동적 결과는 §8 완료 보고에 기록한다.
+   - Appendix A의 exact JavaScript source 1회를 `node_repl.js`에 제출한다.
+   - 각 제출 text의 UTF-8/LF/trailing-LF SHA가 해당 Appendix freeze와 같아야
+     한다. capsule 값 이외의 경로 add, 조건 밖 add 반복, junction, npm,
+     network, 임의 `.mjs` 실행은 금지한다.
 6. Appendix B source를 exact bytes로 external temp
    `analyze_provenance.py`에 생성하고 source SHA를 확인한 뒤 §5.7 exact argv로
    1회 실행한다. 이 script는 stdlib+PyYAML read/analyze 전용이며 `src.*`를
@@ -348,13 +378,15 @@ Python 호출은 항상 `-B`다. repo 안 `__pycache__` 생성은 허용 write�
 ### 2.4 Appendix byte materialization
 
 directive raw text를 UTF-8로 읽고 CRLF를 LF로 normalize한 뒤, exact heading
-`Appendix A/B/C` 바로 다음 동일 언어 code fence를 각각 **정확히 1개** 찾는다.
+`Appendix A/B/C/R` 바로 다음 동일 언어 code fence를 각각 **정확히 1개** 찾는다.
 opening/closing fence는 제외하고 body 마지막에 LF 1개를 붙인 bytes가 heading의
 SHA와 같아야 한다.
 
 - A bytes: 파일로 쓰지 않고 `node_repl.js.code`에 그대로 전달
 - B bytes: `analyze_provenance.py`를 create-new로 1회 기록
 - C bytes: `assemble_evidence.py`를 create-new로 1회 기록
+- R bytes: 파일로 쓰지 않고 `node_repl.js.code`에 그대로 전달 (§2.3 item 5,
+  최대 2회)
 
 0개/2개 이상 fence, SHA mismatch, 기존 target file은 exit 2다. 수기 재입력,
 부분 복사, formatter 적용은 금지한다.
@@ -440,7 +472,10 @@ HOST_PREFLIGHT failure는 write 0이므로 ledger/evidence 없이 exit 2다. 각
 `$LASTEXITCODE`, node_repl tool status, 실제 argv를 얻은 직후 다음 phase 전에
 기록한다. preflight `observed`에는 Python/openpyxl/PyYAML/Node/PowerShell exact
 version과 encoding, dispatch capsule payload/token/path, exact verifier
-tool/argv/exit, `ttl_valid_before_first_write:true`를 반드시 넣는다. verifier는
+tool/argv/exit, `ttl_valid_before_first_write:true`, 그리고 §3 item 12의
+`module_route` object(Appendix R source SHA + capsule `module_roots[0]` 결박
+5값 — 결정론 값만)를 반드시 넣는다. probe 동적 결과는 §8 완료 보고 전용이다.
+verifier는
 write-0에서 실행되지만 성공 뒤 temp root를 만든 직후 이 row에 그대로
 지연 기록한다.
 
@@ -460,7 +495,7 @@ phase별 identity는 다음 exact contract를 따른다. `cwd`는 모든 phase�
 
 | phase | tool | argv | tool_input_sha256 | observed 필수값 |
 |---|---|---|---|---|
-| `HOST_PREFLIGHT` | `PowerShell` | `null` | `null` | 위 exact `toolchain`; full `dispatch_capsule`; capsule token/path; exact nested verify tool/argv/exit; TTL bool; `exit:null` |
+| `HOST_PREFLIGHT` | `PowerShell` | `null` | `null` | 위 exact `toolchain`; full `dispatch_capsule`; capsule token/path; exact nested verify tool/argv/exit; TTL bool; `module_route` object; `exit:null` |
 | `APPENDIX_MATERIALIZATION` | `PowerShell` | `null` | `null` | `appendix_b_source_sha256`, `appendix_c_source_sha256`; `exit:null` |
 | `P0_ARTIFACT_CAPTURE` | `node_repl.js` | `null` | Appendix A source SHA | 성공 시 `p0_workbook_sha256`, `reconciled`, post-P0 input identity 5필드; 실패 시 `{}` |
 | dry/export 4개 | resolved `venv\Scripts\python.exe` absolute path | §5.3/§5.4 exact array | `null` | precheck와 launch bool; mismatch면 producer=false, precheck infra면 producer=null/check=false, launch 실패면 producer=true/launch=false |
@@ -494,12 +529,26 @@ Appendix C는 이 ledger를 읽어 phase/tool/cwd/argv/input SHA를 template과
 10. evidence/temp 경로 부재와 evidence path ignore rule
 11. first write 직전 capsule raw SHA 재검사와
     `issued_at_epoch_s <= now < expires_at_epoch_s`
-host-side 1~11이 모두 GREEN이기 전에는 temp/evidence directory도 만들지 않는다.
+12. module-route fs gate (`Assert-ModuleRouteBinding`): capsule
+    `module_roots`가 정확히 1개 원소이고 `package_name`이
+    `@oai/artifact-tool`이며, live filesystem에서 `root_path`가 ordinary
+    directory, package.json의 `name`/`version`이 capsule 값과 exact 일치,
+    `version`이 floor `2.8.6` 이상, entry file raw bytes/SHA-256이 capsule
+    `entry_bytes`/`entry_sha256`과 exact 일치. 모듈 경로/파일 부재·floor
+    미달은 exit 3, capsule-vs-live 값 불일치는 exit 2다.
+host-side 1~12가 모두 GREEN이기 전에는 temp/evidence directory도 만들지 않는다.
 identity/path mismatch는 exit 2다. host preflight GREEN 뒤 exact temp root와
-evidence parent만 생성하고, Appendix B/C를 §2.4대로 materialize·hash 확인한
-뒤 Appendix A를 제출한다. Appendix A import, API/version/formula/style/region/
-render visibility 측정 불능은 post-preflight exit 3이며 failure evidence를
-남긴다.
+evidence parent만 생성하고, Appendix B/C를 §2.4대로 materialize·hash 확인한다.
+그 다음 module-route probe를 수행한다: Appendix R source를 `node_repl.js`에
+제출하고 (timeout `>= 300000ms`), import 실패면 `js_add_node_module_dir`를
+capsule `module_roots[0].root_path` exact 값으로 정확히 1회 호출한 뒤 Appendix
+R을 재제출하며 2차는 import 성공이어야 한다 (실패 = exit 3, P0 row FAILED).
+1차 import 성공이면 add를 생략한다. probe의 동적 결과(negative-control 결과,
+add 호출 여부, 제출 횟수, 적용 timeout)는 §2.5 ledger가 아니라 §8 완료 보고에
+기록한다 — ledger의 `module_route`는 capsule 결박값과 Appendix R source SHA만
+담는 결정론 object다. probe GREEN 뒤 Appendix A를 제출한다 (timeout
+`>= 300000ms`). Appendix A import, API/formula/style/region/render visibility
+측정 불능은 post-preflight exit 3이며 failure evidence를 남긴다.
 
 temp root 생성 직후 §2.5 writer를 initialize하고 아래 exact 첫 row를 append한다.
 
@@ -524,6 +573,19 @@ Add-PhaseRecord ([ordered]@{
             exit = $CapsuleVerifyExit
         }
         ttl_valid_before_first_write = $true
+        module_route = [ordered]@{
+            probe_source_sha256 =
+                'd57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64'
+            package_name =
+                [string]$DispatchCapsule.module_roots[0].package_name
+            package_version =
+                [string]$DispatchCapsule.module_roots[0].package_version
+            root_path = [string]$DispatchCapsule.module_roots[0].root_path
+            entry_bytes =
+                [long]$DispatchCapsule.module_roots[0].entry_bytes
+            entry_sha256 =
+                [string]$DispatchCapsule.module_roots[0].entry_sha256
+        }
         toolchain = [ordered]@{
             console_input = 'utf-8'
             console_output = 'utf-8'
@@ -756,7 +818,7 @@ try {
         tool = 'node_repl.js'
         cwd = $Repo
         argv = $null
-        tool_input_sha256 = '8372beed251d73ee58bf8efecf0fec65ebffd22f21f373e4e2eec03bc4d74436'
+        tool_input_sha256 = '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9'
         exit = $null
         observed = [ordered]@{
             p0_workbook_sha256 = $P0Sha
@@ -784,7 +846,7 @@ try {
         tool = 'node_repl.js'
         cwd = $Repo
         argv = $null
-        tool_input_sha256 = '8372beed251d73ee58bf8efecf0fec65ebffd22f21f373e4e2eec03bc4d74436'
+        tool_input_sha256 = '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9'
         exit = $null
         observed = [ordered]@{}
         error_class = $P0Failure.GetType().Name
@@ -924,7 +986,7 @@ function Read-PinnedDispatchCapsule {
             ConvertFrom-Json
     )
     if (
-        $Capsule.schema_version -ne 1 -or
+        $Capsule.schema_version -ne 2 -or
         $Capsule.capsule_type -ne 'tc-runner.dispatch-entry' -or
         $Capsule.directive_id -ne 'RB-20260728-shellrc-p0p1' -or
         $Capsule.ttl_seconds -ne 1800 -or
@@ -950,17 +1012,144 @@ function Read-PinnedDispatchCapsule {
         $Capsule.identities.directive.git_blob_no_filters -ne
             '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>' -or
         $Capsule.identities.spec.raw_sha256 -ne
-            '396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde' -or
+            '492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf' -or
         $Capsule.identities.spec.git_blob_no_filters -ne
-            'b47fbf236aee7ff517e5209ca96baa28decdc649' -or
+            '4db31884e55f1c18dbfd53edd090da88d9f8b51e' -or
         $Capsule.identities.generator.raw_sha256 -ne
-            'f06e91f3959d153ab821ecac418e2bfc776c40b32a78883c01e916a45d1d13cf' -or
+            '45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd' -or
         $Capsule.identities.generator.git_blob_no_filters -ne
-            'e003cce7935525552fd733793e31f72935815488'
+            'db170b307a323e861b8a3fc7d29ef743b109197e'
     ) {
         Throw-InputMismatch "capsule content identity mismatch"
     }
     return $Capsule
+}
+function Assert-ModuleRouteBinding([object]$Capsule) {
+    function Assert-OrdinaryModulePath(
+        [string]$Path,
+        [string]$Label,
+        [bool]$ExpectContainer
+    ) {
+        $PathRoot = [System.IO.Path]::GetPathRoot($Path)
+        if (
+            [string]::IsNullOrWhiteSpace($Path) -or
+            [string]::IsNullOrEmpty($PathRoot) -or
+            $PathRoot.Length -lt 3
+        ) {
+            Throw-InputMismatch "module path is not absolute: $Label"
+        }
+        $FullPath = [System.IO.Path]::GetFullPath($Path)
+        $Current = $FullPath
+        $LeafItem = $null
+        while ($true) {
+            if (-not (Test-Path -LiteralPath $Current)) {
+                throw "module path unavailable: ${Label}: $FullPath"
+            }
+            $Item = Get-Item -Force -LiteralPath $Current
+            if (
+                ($Item.Attributes -band
+                    [System.IO.FileAttributes]::ReparsePoint) -ne 0
+            ) {
+                Throw-InputMismatch (
+                    "module path is link/reparse point: ${Label}: " +
+                    $Current
+                )
+            }
+            if ($null -eq $LeafItem) {
+                $LeafItem = $Item
+            }
+            $Parent = [System.IO.Directory]::GetParent($Current)
+            if ($null -eq $Parent) {
+                break
+            }
+            $Current = $Parent.FullName
+        }
+        if (
+            ($ExpectContainer -and -not $LeafItem.PSIsContainer) -or
+            (-not $ExpectContainer -and $LeafItem.PSIsContainer)
+        ) {
+            Throw-InputMismatch "module path type mismatch: $Label"
+        }
+        return $LeafItem
+    }
+    $Modules = @($Capsule.module_roots)
+    if ($Modules.Count -ne 1) {
+        Throw-InputMismatch "capsule module_roots cardinality"
+    }
+    $Module = $Modules[0]
+    if ($Module.package_name -ne '@oai/artifact-tool') {
+        Throw-InputMismatch "capsule module package name"
+    }
+    if (
+        $Module.entry_sha256 -notmatch '^[0-9a-f]{64}$' -or
+        [long]$Module.entry_bytes -le 0
+    ) {
+        Throw-InputMismatch "capsule module entry fields"
+    }
+    $RootPath = [string]$Module.root_path
+    $null = Assert-OrdinaryModulePath $RootPath 'root' $true
+    $RootFull = [System.IO.Path]::GetFullPath($RootPath)
+    $RepoFull = [System.IO.Path]::GetFullPath($Repo)
+    $RepoPrefix = (
+        $RepoFull.TrimEnd(
+            [System.IO.Path]::DirectorySeparatorChar,
+            [System.IO.Path]::AltDirectorySeparatorChar
+        ) + [System.IO.Path]::DirectorySeparatorChar
+    )
+    if (
+        $RootFull.Equals(
+            $RepoFull,
+            [System.StringComparison]::OrdinalIgnoreCase
+        ) -or
+        $RootFull.StartsWith(
+            $RepoPrefix,
+            [System.StringComparison]::OrdinalIgnoreCase
+        )
+    ) {
+        Throw-InputMismatch "module root must be outside repository"
+    }
+    $PackageDir = Join-Path (
+        Join-Path $RootFull '@oai'
+    ) 'artifact-tool'
+    $ManifestPath = Join-Path $PackageDir 'package.json'
+    $EntryPath = Join-Path $PackageDir (
+        ([string]$Module.entry_relpath).Replace('/', '\')
+    )
+    $null = Assert-OrdinaryModulePath $PackageDir 'package' $true
+    $null = Assert-OrdinaryModulePath $ManifestPath 'manifest' $false
+    $EntryItem = Assert-OrdinaryModulePath $EntryPath 'entry' $false
+    $Manifest = (
+        [System.IO.File]::ReadAllText($ManifestPath, $Utf8NoBom) |
+            ConvertFrom-Json
+    )
+    $ExportProperty = $null
+    if ($null -ne $Manifest.exports) {
+        $ExportProperty = $Manifest.exports.PSObject.Properties['.']
+    }
+    $LiveExport = if ($null -eq $ExportProperty) {
+        $null
+    } else {
+        $ExportProperty.Value
+    }
+    $ExpectedExport = (
+        './' + ([string]$Module.entry_relpath).Replace('\', '/')
+    )
+    if ([version]$Manifest.version -lt [version]'2.8.6') {
+        throw "module version below floor: $($Manifest.version)"
+    }
+    $EntrySha = (
+        Get-FileHash -Algorithm SHA256 -LiteralPath $EntryPath
+    ).Hash.ToLowerInvariant()
+    if (
+        $Manifest.name -cne $Module.package_name -or
+        $Manifest.version -cne $Module.package_version -or
+        $LiveExport -isnot [string] -or
+        $LiveExport -cne $ExpectedExport -or
+        [long]$EntryItem.Length -ne [long]$Module.entry_bytes -or
+        $EntrySha -ne [string]$Module.entry_sha256
+    ) {
+        Throw-InputMismatch "module capsule-vs-live mismatch"
+    }
 }
 $CapsuleVerifyArgs = @(
     '-B', 'scripts/dispatch_capsule.py', 'verify',
@@ -1018,6 +1207,7 @@ if ($ProcessEntryMode -eq 'ENTRY') {
     ) {
         Throw-InputMismatch "capsule TTL invalid before first write"
     }
+    Assert-ModuleRouteBinding $DispatchCapsule
 } elseif ($ProcessEntryMode -eq 'RESUME') {
     $OperationLog = Join-Path $TempRoot 'operation_log.ndjson'
     $OperationLogItem = Get-Item -LiteralPath $OperationLog
@@ -1041,7 +1231,11 @@ if ($ProcessEntryMode -eq 'ENTRY') {
     $HostObservedKeys = @(
         'dispatch_capsule', 'dispatch_capsule_path',
         'dispatch_capsule_sha256', 'capsule_verify',
-        'ttl_valid_before_first_write', 'toolchain'
+        'ttl_valid_before_first_write', 'module_route', 'toolchain'
+    )
+    $ModuleRouteKeys = @(
+        'probe_source_sha256', 'package_name', 'package_version',
+        'root_path', 'entry_bytes', 'entry_sha256'
     )
     $CapsuleVerifyKeys = @('tool', 'argv', 'exit')
     $ExpectedToolchain = [ordered]@{
@@ -1096,6 +1290,12 @@ if ($ProcessEntryMode -eq 'ENTRY') {
         (
             @($HostRows[0].observed.capsule_verify.argv) -join "`n"
         ) -ne (@($CapsuleVerifyArgs) -join "`n") -or
+        @(
+            $HostRows[0].observed.module_route.PSObject.Properties.Name
+        ).Count -ne $ModuleRouteKeys.Count -or
+        (
+            @($HostRows[0].observed.module_route.PSObject.Properties.Name) -join "`n"
+        ) -ne (@($ModuleRouteKeys) -join "`n") -or
         (
             $HostRows[0].observed.toolchain |
                 ConvertTo-Json -Compress
@@ -2019,9 +2219,9 @@ $AssembleArgs = @(
     '--directive-sha', '<DISPATCH_EXACT_DIRECTIVE_RAW_SHA256>',
     '--directive-blob', '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>',
     '--capsule-sha256', '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>',
-    '--appendix-a-sha', '8372beed251d73ee58bf8efecf0fec65ebffd22f21f373e4e2eec03bc4d74436',
+    '--appendix-a-sha', '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9',
     '--appendix-b-sha', '6ab74d52b3765d6300cd4f9f90a15d5cbf2442af2b94a798006d2042264c2e5c',
-    '--appendix-c-sha', '1c466e4a15888474b9d3c176f820700addc0186c68d123bba33492a725655e17',
+    '--appendix-c-sha', '9af40ad1346951bfd0acb7b538f01d0f6a5abeeb38f1f145895d9eef490d063d',
     '--status', $Status,
     '--last-phase', $LastPhase
 )
@@ -2087,6 +2287,8 @@ Index fingerprint:
 Untracked invariant count / SHA:
 Workbook SHA / blob / mtime before-after:
 Artifact-tool actual version:
+Module route fs gate (capsule vs live):
+Module route probe: negative-control / add invoked / submissions / timeout_ms:
 P0 mappings: target steps / YAML rows / candidate anomalies:
 P0 sheet distribution:
 P1 producer mode:
@@ -2120,7 +2322,7 @@ fileless exit 2/3이면 `Evidence path / raw SHA / Git blob: — / — / —`로
 아래 code fence 내부 source만 `node_repl.js`에 단 한 번 제출한다. source bytes는
 UTF-8, LF, 마지막 `})();` 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `8372beed251d73ee58bf8efecf0fec65ebffd22f21f373e4e2eec03bc4d74436`
+**Expected source SHA-256:** `784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9`
 
 ```javascript
 await (async () => {
@@ -2286,32 +2488,17 @@ await (async () => {
   }
   const compareUtf8 = (left, right) =>
     Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"));
-  function versionAtLeast(actual, floor) {
-    const a = actual.split(".").map((item) => Number.parseInt(item, 10));
-    const b = floor.split(".").map((item) => Number.parseInt(item, 10));
-    if (a.some(Number.isNaN) || b.some(Number.isNaN)) return false;
-    for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
-      const av = a[index] ?? 0;
-      const bv = b[index] ?? 0;
-      if (av !== bv) return av > bv;
-    }
-    return true;
-  }
-  async function artifactVersion() {
-    for (const candidate of [
-      artifact.version, artifact.VERSION, artifact.packageVersion,
-    ]) {
-      if (typeof candidate === "string") return candidate;
-    }
-    throw new Error("artifact-tool exported version unavailable");
-  }
 
   if (path.resolve(nodeRepl.cwd).replaceAll("\\", "/") !== REPO) {
     throw new Error(`unexpected nodeRepl.cwd: ${nodeRepl.cwd}`);
   }
-  const actualVersion = await artifactVersion();
-  if (!versionAtLeast(actualVersion, "2.8.6")) {
-    throw new Error(`artifact-tool ${actualVersion} is below 2.8.6`);
+  if (
+    typeof FileBlob !== "function" ||
+    typeof SpreadsheetFile !== "function" ||
+    typeof FileBlob.load !== "function" ||
+    typeof SpreadsheetFile.importXlsx !== "function"
+  ) {
+    throw new Error("artifact-tool API surface unavailable");
   }
   await fs.mkdir(WORK_ROOT, { recursive: false });
   const workbookMtimeBeforeNs =
@@ -2705,9 +2892,8 @@ await (async () => {
     (await fs.stat(WORKBOOK, { bigint: true })).mtimeNs.toString();
   const workbookRawShaAfter = sha(await fs.readFile(WORKBOOK));
   const output = {
-    schema_version: 1,
+    schema_version: 2,
     directive_id: "RB-20260728-shellrc-p0p1",
-    artifact_tool_version: actualVersion,
     workbook_path: "tc_samples/TC_1.xlsx",
     workbook_mtime_before_ns: workbookMtimeBeforeNs,
     workbook_mtime_after_ns: workbookMtimeAfterNs,
@@ -3858,7 +4044,7 @@ if __name__ == "__main__":
 아래 code fence 내부 source만 external temp `assemble_evidence.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `1c466e4a15888474b9d3c176f820700addc0186c68d123bba33492a725655e17`
+**Expected source SHA-256:** `9af40ad1346951bfd0acb7b538f01d0f6a5abeeb38f1f145895d9eef490d063d`
 
 ```python
 from __future__ import annotations
@@ -3889,8 +4075,10 @@ SPEC = (
 GENERATOR = REPO / "scripts" / "dispatch_capsule.py"
 CAPSULE_ROOT = Path(r"C:\tmp\tc-runner-dispatch-capsules")
 CAPSULE_TYPE = "tc-runner.dispatch-entry"
-CAPSULE_SCHEMA_VERSION = 1
+CAPSULE_SCHEMA_VERSION = 2
 CAPSULE_TTL_SECONDS = 1800
+MODULE_PACKAGE_NAME = "@oai/artifact-tool"
+MODULE_VERSION_FLOOR = (2, 8, 6)
 UPSTREAM_REF = "origin/master"
 PHASE_ORDER = (
     "HOST_PREFLIGHT",
@@ -3936,10 +4124,10 @@ EXPECTED_YAML_PATHS = tuple(sorted(
     {path for path, _index in EXPECTED_TARGETS},
     key=lambda value: value.encode("utf-8"),
 ))
-SPEC_SHA = "396b1b0aa89ac19d13271ed1b8a9024b166b3ccac11a801a1b68da974d887bde"
-SPEC_BLOB = "b47fbf236aee7ff517e5209ca96baa28decdc649"
-GENERATOR_SHA = "f06e91f3959d153ab821ecac418e2bfc776c40b32a78883c01e916a45d1d13cf"
-GENERATOR_BLOB = "e003cce7935525552fd733793e31f72935815488"
+SPEC_SHA = "492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf"
+SPEC_BLOB = "4db31884e55f1c18dbfd53edd090da88d9f8b51e"
+GENERATOR_SHA = "45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd"
+GENERATOR_BLOB = "db170b307a323e861b8a3fc7d29ef743b109197e"
 WORKBOOK_SHA = "160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa"
 WORKBOOK_BLOB = "24593d11dd80a2b3711655bd0c5216ee9157dedc"
 ACTORS = {
@@ -4053,6 +4241,56 @@ def validate_capsule_identity(
         raise ValueError(f"{label} binding")
 
 
+def module_version_tuple(value: str) -> tuple[int, ...]:
+    parts = value.split(".")
+    if not parts or any(
+        not part.isdigit() or (len(part) > 1 and part[0] == "0")
+        for part in parts
+    ):
+        raise ValueError("module version format")
+    return tuple(int(part) for part in parts)
+
+
+def validate_capsule_module_roots(value: object) -> list[dict[str, Any]]:
+    if not isinstance(value, list) or len(value) != 1:
+        raise ValueError("capsule module_roots cardinality")
+    modules = []
+    for item in value:
+        module = exact_object(
+            item,
+            {
+                "entry_bytes",
+                "entry_relpath",
+                "entry_sha256",
+                "package_name",
+                "package_version",
+                "root_path",
+            },
+            label="capsule.module_roots[]",
+        )
+        if (
+            module["package_name"] != MODULE_PACKAGE_NAME
+            or not is_non_bool_int(module["entry_bytes"])
+            or module["entry_bytes"] <= 0
+            or not isinstance(module["entry_relpath"], str)
+            or not module["entry_relpath"]
+            or "\\" in module["entry_relpath"]
+            or module["entry_relpath"].startswith("/")
+            or not is_lower_sha256(module["entry_sha256"])
+            or not isinstance(module["package_version"], str)
+            or not isinstance(module["root_path"], str)
+            or not module["root_path"]
+            or "\\" in module["root_path"]
+        ):
+            raise ValueError("capsule module_roots fields")
+        if module_version_tuple(
+            module["package_version"]
+        ) < MODULE_VERSION_FLOOR:
+            raise ValueError("capsule module version below floor")
+        modules.append(module)
+    return modules
+
+
 def validate_dispatch_capsule_payload(
     value: object,
     *,
@@ -4070,6 +4308,7 @@ def validate_dispatch_capsule_payload(
             "ignored",
             "index",
             "issued_at_epoch_s",
+            "module_roots",
             "repo",
             "schema_version",
             "ttl_seconds",
@@ -4147,6 +4386,7 @@ def validate_dispatch_capsule_payload(
             or mapping["excluded_paths"] != []
         ):
             raise ValueError(f"capsule {name} fields")
+    validate_capsule_module_roots(capsule["module_roots"])
     identities = exact_object(
         capsule["identities"],
         {"directive", "spec", "generator"},
@@ -4251,6 +4491,7 @@ def derive_appendix_hashes() -> dict[str, str]:
     result = {}
     for label, language in (
         ("A", "javascript"), ("B", "python"), ("C", "python"),
+        ("R", "javascript"),
     ):
         headings = list(re.finditer(
             rf"^## Appendix {label} —[^\n]*$",
@@ -4261,7 +4502,7 @@ def derive_appendix_hashes() -> dict[str, str]:
             raise ValueError(f"Appendix {label} heading cardinality")
         start = headings[0].end()
         next_heading = re.search(
-            r"^## Appendix [A-C] —[^\n]*$",
+            r"^## Appendix [A-CR] —[^\n]*$",
             text[start:],
             flags=re.MULTILINE,
         )
@@ -5132,6 +5373,7 @@ def validate_host_preflight_capsule(
             "dispatch_capsule_sha256",
             "capsule_verify",
             "ttl_valid_before_first_write",
+            "module_route",
             "toolchain",
         },
         label="HOST_PREFLIGHT observed",
@@ -5142,6 +5384,30 @@ def validate_host_preflight_capsule(
         directive_sha=directive_sha,
         directive_blob=directive_blob,
     )
+    capsule_module = capsule["module_roots"][0]
+    module_route = exact_object(
+        observed["module_route"],
+        {
+            "probe_source_sha256",
+            "package_name",
+            "package_version",
+            "root_path",
+            "entry_bytes",
+            "entry_sha256",
+        },
+        label="HOST_PREFLIGHT module_route",
+    )
+    if (
+        module_route["probe_source_sha256"]
+        != derive_appendix_hashes()["appendix_r_source_sha256"]
+        or module_route["package_name"] != capsule_module["package_name"]
+        or module_route["package_version"]
+        != capsule_module["package_version"]
+        or module_route["root_path"] != capsule_module["root_path"]
+        or module_route["entry_bytes"] != capsule_module["entry_bytes"]
+        or module_route["entry_sha256"] != capsule_module["entry_sha256"]
+    ):
+        raise ValueError("HOST_PREFLIGHT module_route binding")
     verify = exact_object(
         observed["capsule_verify"],
         {"tool", "argv", "exit"},
@@ -5544,7 +5810,7 @@ def main() -> int:
                 )
             else:
                 mismatch_schema = (
-                    p0.get("schema_version") == 1
+                    p0.get("schema_version") == 2
                     and p0.get("directive_id") == DIRECTIVE_ID
                     and isinstance(p0.get("mappings"), list)
                     and len(p0["mappings"]) == 12
@@ -5568,7 +5834,7 @@ def main() -> int:
             )
         else:
             if (
-                p0.get("schema_version") != 1
+                p0.get("schema_version") != 2
                 or p0.get("directive_id") != DIRECTIVE_ID
                 or p0.get("reconciled") is not True
                 or p0.get("p0_blocking_reasons") != []
@@ -5754,7 +6020,8 @@ def main() -> int:
         observed_toolchain, dict
     ) else {}
     toolchain["artifact_tool"] = (
-        p0.get("artifact_tool_version") if p0 else None
+        ledger_capsule["module_roots"][0]["package_version"]
+        if ledger_capsule else None
     )
     output = {
         "schema_version": 1,
@@ -5877,4 +6144,34 @@ if __name__ == "__main__":
     except Exception as error:
         print(f"{type(error).__name__}: {error}", file=sys.stderr)
         raise SystemExit(3)
+```
+
+---
+
+## Appendix R — Exact module-route negative-control probe source
+
+아래 code fence 내부 source만 `node_repl.js`에 제출한다 (§2.3 item 5, 최대
+2회, timeout `>= 300000ms`). source bytes는 UTF-8, LF, 마지막 `})();` 뒤
+trailing LF 1개다. 1차 제출 `IMPORT_FAIL`이면 `js_add_node_module_dir`(capsule
+`module_roots[0].root_path`, 정확히 1회) 뒤 재제출하고, 2차는 `IMPORT_OK` +
+두 symbol `function`이어야 한다. 1차 `IMPORT_OK`면 add 없이 통과다.
+
+**Expected source SHA-256:** `d57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64`
+
+```javascript
+await (async () => {
+  const result = { probe: "RB-20260728-shellrc-p0p1 module-route" };
+  try {
+    const artifact = await import("@oai/artifact-tool");
+    result.outcome = "IMPORT_OK";
+    result.typeof_SpreadsheetFile = typeof artifact.SpreadsheetFile;
+    result.typeof_FileBlob = typeof artifact.FileBlob;
+  } catch (error) {
+    result.outcome = "IMPORT_FAIL";
+    result.error_message = String(
+      error && error.message ? error.message : error,
+    );
+  }
+  console.log(JSON.stringify(result, null, 2));
+})();
 ```

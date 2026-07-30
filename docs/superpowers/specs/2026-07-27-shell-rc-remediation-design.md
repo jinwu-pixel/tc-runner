@@ -519,12 +519,24 @@ capsule 계약:
 - `<capsule_sha256>`은 capsule raw bytes의 lowercase 64-hex SHA-256이며,
   caller-supplied path 대신 이 token에서만 경로를 파생
 - UTF-8, BOM·trailing LF 없음, sorted-key compact canonical JSON
-- exact closed schema:
+- exact closed schema (`schema_version` = 2):
   `schema_version`, `capsule_type`, `directive_id`,
   `issued_at_epoch_s`, `expires_at_epoch_s`, `ttl_seconds`,
-  `repo`, `index`, `untracked`, `ignored`, `identities`
+  `repo`, `index`, `untracked`, `ignored`, `module_roots`, `identities`
 - `repo`는 resolved repo root, upstream ref, HEAD/upstream full SHA,
   ahead/behind, tracked/staged clean을 기록
+- `module_roots`는 capture가 `--module-root <path> --module-package <name>`
+  쌍으로 직접 측정한 환경 관측 배열이다. 각 원소는
+  `{entry_bytes, entry_relpath, entry_sha256, package_name,
+  package_version, root_path}`이며, 측정은 repo snapshot과 동일하게 2회
+  수행해 drift 시 publish하지 않는다. verify는 구조만 검증하고 live
+  filesystem 재측정은 하지 않는다 — live 결박은 P0/P1 directive의
+  module-route fs gate가 수행한다 (module route amendment,
+  2026-07-29-artifact-tool-module-route-amendment-design.md). 소비 시점 gate는
+  root가 absolute·repo 외부인지, root/package/package.json/entry 전체 path
+  chain이 ordinary·non-reparse인지 재검사하고, live package.json의
+  `name`/`version`/`exports["."]`와 entry bytes/SHA가 capsule 결박값과
+  정확히 일치해야 bare import를 허용한다
 - upstream ref는 exact `origin/master`; verifier caller는 directive/spec
   repo-relative path도 exact expected input으로 전달
 - `index`는 raw `git ls-files --stage -z` entry count와 byte SHA-256을 기록
