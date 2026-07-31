@@ -1,0 +1,63 @@
+# ============================================================
+# TC 템플릿 — 폴더 폰 (하드키 / 방향키 특화)
+# ============================================================
+
+# ============================================================
+# 패턴 F1: 방향키 이동을 통한 Focus 변경 검증
+# ============================================================
+# name: "FOLDER_NAV_01"
+# description: "방향키 입력 시 포커스 이동 여부 검증"
+# steps:
+#   # --- Setup: 초기 화면 이동 ---
+#   - action: key
+#     keycode: 3  # HOME
+#   - action: wait
+#     seconds: 1.0
+#
+#   # --- Trigger & Verify ---
+#   - action: verify_focus_moved
+#     trigger_action: key
+#     trigger_step:
+#       keycode: 20  # DPAD_DOWN
+
+# ============================================================
+# 패턴 F2: 연속된 방향키 (Setup Chain) 후 확정(ENTER)
+# ============================================================
+# name: "FOLDER_NAV_02_DEEP"
+# description: "다중 키 이벤트로 특정 뎁스 진입 후 화면 검증"
+# steps:
+#   - action: key
+#     keycode: 3
+#   - action: wait
+#     seconds: 1.0
+#   - action: key_sequence
+#     keys: [20, 20, 22]  # DOWN, DOWN, RIGHT
+#     delay: 0.5
+#   - action: key
+#     keycode: 66  # ENTER
+#   - action: wait
+#     seconds: 1.5
+#   - action: verify_shell
+#     command: "dumpsys window | grep mCurrentFocus"
+#     expected: "ActivityName"
+
+# ============================================================
+# 패턴 F3: Hall Sensor (폴더 상태) 검증
+# ============================================================
+# name: "FOLDER_STATE_01"
+# description: "폴더 열림 상태 여부 점검 (hall sensor)"
+# steps:
+#   - action: verify_shell
+#     command: "getprop sys.hls.hall.state"
+#     expected: "0"  # 0: OPEN, 1: CLOSED (실측치 반영)
+
+# ============================================================
+# 패턴 F4: 삭제 팝업의 안전한 기본 Focus 검증 (Cancel)
+# ============================================================
+# name: "FOLDER_POPUP_SAFE"
+# description: "삭제 등 위험 팝업 시 초기 포커스가 Cancel에 있는지 확인"
+# steps:
+#   # 팝업을 발생시키는 선행 단계 필요
+#   - action: verify_shell
+#     command: "uiautomator dump /dev/stdout"
+#     expected: 'text="Cancel" focused="true"' # (실제 환경에 맞게 조정 필요)

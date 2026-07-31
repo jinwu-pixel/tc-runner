@@ -1,0 +1,23 @@
+tc_name: "KIDS_BASIC_NAV_01"
+description: "키즈폰 화면 스와이프 및 탐색 샘플"
+metadata:
+  runnable: true
+  tc_class: "FULL_AUTO"
+  execution_type: "AUTO"
+  manual_detail: "NONE"
+  source: "Kids Phone 스와이프 룰 작성"
+steps:
+  - action: key
+    key: 3
+  - action: wait
+    duration: 1000
+  - action: swipe
+    x: 240
+    y: 600
+    x2: 240
+    y2: 200
+    duration: 500
+  - action: wait
+    duration: 1000
+  - action: key
+    key: 3

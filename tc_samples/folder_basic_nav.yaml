@@ -1,0 +1,22 @@
+tc_name: "FOLDER_BASIC_NAV_01"
+description: "폴더 폰 방향키 탐색 동작 검증 샘플"
+metadata:
+  runnable: true
+  tc_class: "FULL_AUTO"
+  execution_type: "AUTO"
+  manual_detail: "NONE"
+  source: "Thor2J 분석 결과 기반 작성"
+steps:
+  - action: key
+    key: 3
+  - action: wait
+    duration: 1000
+  - action: verify_focus_moved
+    trigger_action: key
+    trigger_step:
+      key: 20
+  - action: key_sequence
+    keys: [20, 22]
+    delay: 0.5
+  - action: key
+    key: 3
