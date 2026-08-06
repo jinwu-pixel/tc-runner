@@ -2221,7 +2221,7 @@ $AssembleArgs = @(
     '--capsule-sha256', '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>',
     '--appendix-a-sha', '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9',
     '--appendix-b-sha', '6ab74d52b3765d6300cd4f9f90a15d5cbf2442af2b94a798006d2042264c2e5c',
-    '--appendix-c-sha', '9af40ad1346951bfd0acb7b538f01d0f6a5abeeb38f1f145895d9eef490d063d',
+    '--appendix-c-sha', '258c1c96739d782ef56040fb95fa390384752a75f9623d4a79ab07c99c72013e',
     '--status', $Status,
     '--last-phase', $LastPhase
 )
@@ -4044,7 +4044,7 @@ if __name__ == "__main__":
 아래 code fence 내부 source만 external temp `assemble_evidence.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `9af40ad1346951bfd0acb7b538f01d0f6a5abeeb38f1f145895d9eef490d063d`
+**Expected source SHA-256:** `258c1c96739d782ef56040fb95fa390384752a75f9623d4a79ab07c99c72013e`
 
 ```python
 from __future__ import annotations
@@ -5510,6 +5510,14 @@ def main() -> int:
         raise ValueError("evidence path is not ignored")
 
     appendix_derived = derive_appendix_hashes()
+    appendix_expected = {
+        key: appendix_derived[key]
+        for key in (
+            "appendix_a_source_sha256",
+            "appendix_b_source_sha256",
+            "appendix_c_source_sha256",
+        )
+    }
     appendix_actual = {
         "appendix_a_source_sha256":
             appendix_derived["appendix_a_source_sha256"],
@@ -5525,8 +5533,8 @@ def main() -> int:
     }
     invariant_problems: list[str] = []
     if (
-        appendix_arguments != appendix_derived
-        or appendix_actual != appendix_derived
+        appendix_arguments != appendix_expected
+        or appendix_actual != appendix_expected
     ):
         invariant_problems.append("appendix source hashes")
     external_rows, external_problems = external_inventory(
