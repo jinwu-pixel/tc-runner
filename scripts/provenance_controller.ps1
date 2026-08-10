@@ -324,6 +324,31 @@ function Invoke-ControllerProcess {
     }
 }
 
+function ConvertTo-RehearsalAssemblerSource {
+    param([Parameter(Mandatory = $true)][string]$Source)
+    $LineFeed = [string][char]10
+    $AssemblerInvocation = (
+        '$AssembleResult = Invoke-ControllerProcess -FilePath $Python `' +
+        $LineFeed +
+        '    -ArgumentList $AssembleArgs -WorkingDirectory $Repo'
+    )
+    $RehearsalInvocation = (
+        '[Console]::Out.WriteLine("REHEARSAL_ASSEMBLE_ARGV " + ' +
+        '(@($AssembleArgs) -join " "))' + $LineFeed +
+        '$AssembleResult = [pscustomobject]@{' + $LineFeed +
+        '    ExitCode = 0' + $LineFeed +
+        "    StandardOutput = ''" + $LineFeed +
+        "    StandardError = ''" + $LineFeed +
+        '}'
+    )
+    if (-not $Source.Contains($AssemblerInvocation)) {
+        throw (New-ControllerFailure `
+            -Message 'assembler helper invocation absent' `
+            -InputInvalid $true)
+    }
+    return $Source.Replace($AssemblerInvocation, $RehearsalInvocation)
+}
+
 function Invoke-ControllerGit {
     param(
         [Parameter(Mandatory = $true)][string]$RepoPath,
@@ -947,14 +972,8 @@ function Invoke-ResumeMode {
         # Appendix C resolves the repo evidence path from frozen literals,
         # so a rehearsal must not invoke it. The argv is still built by the
         # directive's own fence and reported for inspection.
-        $AssembleSource = $AssembleSource.Replace(
-            '& $Python @AssembleArgs',
-            '[Console]::Out.WriteLine("REHEARSAL_ASSEMBLE_ARGV " + ' +
-                '(@($AssembleArgs) -join " "))'
-        ).Replace(
-            '$CampaignExit = $LASTEXITCODE',
-            '$CampaignExit = 0'
-        )
+        $AssembleSource = ConvertTo-RehearsalAssemblerSource `
+            -Source $AssembleSource
     }
     . ([scriptblock]::Create($AssembleSource))
     return [int]$CampaignExit
@@ -1038,6 +1057,35 @@ function Invoke-SelfTestMode {
             $GitVersion.StandardOutput.StartsWith('git version')) `
         -Detail $GitVersion.StandardOutput.Trim()
 
+    $RoundTripPayload = (
+        'Exception calling "ReadAllText" with "2" argument(s): ' +
+        '"Could not find a part of the path ' +
+        "'C:\tmp\artifact tool\p0_workbook.json'.`""
+    )
+    $RoundTrip = Invoke-ControllerProcess -FilePath $Context.PythonPath `
+        -ArgumentList @(
+            '-B', '-c',
+            ('import sys; print(len(sys.argv) - 1); ' +
+                'print(sys.argv[1]); print(sys.argv[2])'),
+            $RoundTripPayload,
+            'tail argument'
+        ) -WorkingDirectory $Context.RepoPath
+    $RoundTripObserved = @(
+        $RoundTrip.StandardOutput -split "`r?`n" |
+            Where-Object { -not [string]::IsNullOrEmpty($_) }
+    )
+    $RoundTripPassed = (
+        $RoundTrip.ExitCode -eq 0 -and
+        $RoundTripObserved.Count -eq 3 -and
+        [string]$RoundTripObserved[0] -ceq '2' -and
+        [string]$RoundTripObserved[1] -ceq $RoundTripPayload -and
+        [string]$RoundTripObserved[2] -ceq 'tail argument'
+    )
+    Add-SelfTest -Name 'S2b python argv roundtrip is exact' `
+        -Passed $RoundTripPassed `
+        -Detail ('exit=' + $RoundTrip.ExitCode +
+            ' output-lines=' + $RoundTripObserved.Count)
+
     $Head = Invoke-ControllerGit -RepoPath $Context.RepoPath `
         -ArgumentList @('rev-parse', 'HEAD')
     Add-SelfTest -Name 'S3 git helper runs' `
@@ -1082,6 +1130,36 @@ function Invoke-SelfTestMode {
         -Passed ($Setup.Contains("ProcessEntryMode = 'RESUME'") -and
             -not $Setup.Contains('<DISPATCH_')) `
         -Detail ('chars=' + $Setup.Length)
+
+    $RehearsalAssemble = Get-DirectiveFenceBody `
+        -Text $Context.DirectiveText `
+        -HeadingPrefix '### 6.3 Exact evidence assembler invocation' `
+        -Language 'powershell'
+    $RehearsalAssemble = $RehearsalAssemble.Replace(
+        '<DISPATCH_EXACT_DIRECTIVE_RAW_SHA256>', ('1' * 64)
+    ).Replace(
+        '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>', ('2' * 40)
+    ).Replace(
+        '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>', ('0' * 64)
+    )
+    $RehearsalAssemble = ConvertTo-RehearsalAssemblerSource `
+        -Source $RehearsalAssemble
+    $TempRoot = 'C:\tmp\controller-selftest-rehearsal'
+    $Status = 'infra_failure'
+    $LastPhase = 'P0_ARTIFACT_CAPTURE'
+    $ErrorClass = 'InvalidOperationException'
+    $ErrorMessage = $RoundTripPayload
+    $Python = $Context.PythonPath
+    $Repo = $Context.RepoPath
+    . ([scriptblock]::Create($RehearsalAssemble))
+    Add-SelfTest -Name 'S11 rehearsal assembler rewrite executes' `
+        -Passed ($CampaignExit -eq 0 -and
+            $AssembleArgs[-1] -ceq $RoundTripPayload -and
+            -not $RehearsalAssemble.Contains(
+                'Invoke-ControllerProcess -FilePath $Python'
+            )) `
+        -Detail ('exit=' + $CampaignExit +
+            ' error-message-exact=' + ($AssembleArgs[-1] -ceq $RoundTripPayload))
 
     [Console]::Out.WriteLine('')
     if ($Failures.Count -eq 0) {

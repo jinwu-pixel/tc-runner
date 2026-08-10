@@ -2281,8 +2281,15 @@ if ($Status -eq 'infra_failure') {
 } elseif ($Status -ne 'measured') {
     throw "unsupported assembler status: $Status"
 }
-& $Python @AssembleArgs
-$CampaignExit = $LASTEXITCODE
+$AssembleResult = Invoke-ControllerProcess -FilePath $Python `
+    -ArgumentList $AssembleArgs -WorkingDirectory $Repo
+if (-not [string]::IsNullOrEmpty($AssembleResult.StandardOutput)) {
+    [Console]::Out.Write($AssembleResult.StandardOutput)
+}
+if (-not [string]::IsNullOrEmpty($AssembleResult.StandardError)) {
+    [Console]::Error.Write($AssembleResult.StandardError)
+}
+$CampaignExit = [int]$AssembleResult.ExitCode
 ```
 
 angle-bracket token은 임의 placeholder가 아니다. dispatch envelope의 exact

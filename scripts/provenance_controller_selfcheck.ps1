@@ -380,6 +380,36 @@ $TimeoutsBound = (
 Add-CheckResult -Name 'C8d outer controller timeout/yield contract pinned' `
     -Passed $TimeoutsBound
 
+$AssemblerHelperCount = @([regex]::Matches(
+    $AssemblerFence,
+    '(?m)^\$AssembleResult = Invoke-ControllerProcess '
+)).Count
+Add-CheckResult -Name 'C8e assembler uses controller process helper once' `
+    -Passed ($AssemblerHelperCount -eq 1) `
+    -Detail ('count=' + $AssemblerHelperCount)
+
+$DirectAssemblerCount = @([regex]::Matches(
+    $AssemblerFence,
+    '(?m)^& \$Python @AssembleArgs$'
+)).Count
+Add-CheckResult -Name 'C8f assembler forbids direct native invocation' `
+    -Passed ($DirectAssemblerCount -eq 0) `
+    -Detail ('count=' + $DirectAssemblerCount)
+
+$AssemblerResultPreserved = (
+    $AssemblerFence.Contains(
+        '[Console]::Out.Write($AssembleResult.StandardOutput)'
+    ) -and
+    $AssemblerFence.Contains(
+        '[Console]::Error.Write($AssembleResult.StandardError)'
+    ) -and
+    $AssemblerFence.Contains(
+        '$CampaignExit = [int]$AssembleResult.ExitCode'
+    )
+)
+Add-CheckResult -Name 'C8g assembler preserves stdout stderr and exit' `
+    -Passed $AssemblerResultPreserved
+
 # --------------------------------------------------------------------------
 # Report
 # --------------------------------------------------------------------------
