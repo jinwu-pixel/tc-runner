@@ -365,6 +365,21 @@ first failure를 순서대로 append한다. Appendix C 내부 read-only Git은 a
    `assemble_evidence.py`에 생성하고 source SHA를 확인한 뒤 §6.3 exact argv로
    정확히 1회 실행한다.
 8. `venv\Scripts\python.exe -B -m src.cli export-mmi`의 §5 exact argv 4개.
+9. Windows PowerShell 5.1 controller orchestration은 다음 두 exact outer
+   operation만 허용한다. 각 줄은 하나의 process argv이며 `<...>` token은 §0
+   dispatch의 lowercase capsule SHA로만 치환한다.
+
+```text
+C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\provenance_controller.ps1 -Mode prepare -CapsuleSha256 <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256> -RepoRoot C:\Users\momen\Projects\tc-runner
+C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts\provenance_controller.ps1 -Mode resume -CapsuleSha256 <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256> -RepoRoot C:\Users\momen\Projects\tc-runner
+```
+
+   첫 줄은 `controller prepare operation`, 둘째 줄은 `controller resume
+   operation`이다. controller는 이 directive의 exact fence와 frozen literal을
+   추출·검증·순서화하는 실행 주체일 뿐 규범을 대체하지 않는다. 내부에서 허용되는
+   operation도 위 item 1~8과 directive exact fence로 한정한다. campaign에서는
+   `-Mode selftest`, `-RehearsalRoot`, `-RehearsalSkipVerify`를 전달하지 않는다.
+   self-check와 rehearsal은 capsule을 소비하지 않는 campaign 밖 검증이다.
 
 Appendix source의 외부 temp 생성, evidence `.tmp` exclusive-create와
 no-overwrite hard-link publish는 directive 안의 exact bytes/path만 허용한다.
@@ -536,19 +551,31 @@ Appendix C는 이 ledger를 읽어 phase/tool/cwd/argv/input SHA를 template과
     `version`이 floor `2.8.6` 이상, entry file raw bytes/SHA-256이 capsule
     `entry_bytes`/`entry_sha256`과 exact 일치. 모듈 경로/파일 부재·floor
     미달은 exit 3, capsule-vs-live 값 불일치는 exit 2다.
-host-side 1~12가 모두 GREEN이기 전에는 temp/evidence directory도 만들지 않는다.
-identity/path mismatch는 exit 2다. host preflight GREEN 뒤 exact temp root와
-evidence parent만 생성하고, Appendix B/C를 §2.4대로 materialize·hash 확인한다.
-그 다음 module-route probe를 수행한다: Appendix R source를 `node_repl.js`에
-제출하고 (timeout `>= 300000ms`), import 실패면 `js_add_node_module_dir`를
-capsule `module_roots[0].root_path` exact 값으로 정확히 1회 호출한 뒤 Appendix
-R을 재제출하며 2차는 import 성공이어야 한다 (실패 = exit 3, P0 row FAILED).
-1차 import 성공이면 add를 생략한다. probe의 동적 결과(negative-control 결과,
-add 호출 여부, 제출 횟수, 적용 timeout)는 §2.5 ledger가 아니라 §8 완료 보고에
-기록한다 — ledger의 `module_route`는 capsule 결박값과 Appendix R source SHA만
-담는 결정론 object다. probe GREEN 뒤 Appendix A를 제출한다 (timeout
-`>= 300000ms`). Appendix A import, API/formula/style/region/render visibility
-측정 불능은 post-preflight exit 3이며 failure evidence를 남긴다.
+host-side 진입은 §2.3 item 9의 `controller prepare operation`으로 수행한다.
+controller가 1~12를 모두 GREEN으로 확인하기 전에는 temp/evidence directory도
+만들지 않는다. identity/path mismatch는 exit 2다. host preflight GREEN 뒤
+controller가 exact temp root와 evidence parent만 생성하고, §2.5 ledger를
+initialize한 뒤 Appendix B/C를 §2.4대로 materialize·hash 확인한다. prepare는
+이 상태와 frozen Appendix/module-route identity를 JSON handoff로 반환하고
+exit 0으로 멈춘다.
+
+그 다음 executor가 module-route probe를 수행한다: Appendix R source를
+`node_repl.js`에 제출하고 (timeout `>= 300000ms`), import 실패면
+`js_add_node_module_dir`를 capsule `module_roots[0].root_path` exact 값으로
+정확히 1회 호출한 뒤 Appendix R을 재제출하며 2차는 import 성공이어야 한다
+(실패 = exit 3, P0 row FAILED). 1차 import 성공이면 add를 생략한다. probe의
+동적 결과(negative-control 결과, add 호출 여부, 제출 횟수, 적용 timeout)는
+§2.5 ledger가 아니라 §8 완료 보고에 기록한다 — ledger의 `module_route`는
+capsule 결박값과 Appendix R source SHA만 담는 결정론 object다. probe GREEN 뒤
+Appendix A를 제출한다 (timeout `>= 300000ms`). Appendix A import,
+API/formula/style/region/render visibility 측정 불능은 post-preflight exit 3이며
+failure evidence를 남긴다.
+
+Appendix R/A 제출이 끝나면 §2.3 item 9의 `controller resume operation`을
+정확히 1회 실행한다. resume는 기존 ledger/capsule identity를 rehydrate하고
+§4.3 P0 gate, §5 P1 phase, §6.3 assembler를 첫 실패까지 동일한 PowerShell
+process에서 순서대로 수행한다. Node submission은 controller 내부 operation이
+아니다.
 
 temp root 생성 직후 §2.5 writer를 initialize하고 아래 exact 첫 row를 append한다.
 
@@ -902,6 +929,12 @@ verifier와 TTL을 정확히 1회 수행한다. `RESUME`은 verifier/TTL을 재�
 따라서 `$Repo/$Python/$Workbook/$TempRoot/$Utf8NoBom`과 아래 함수들은 각 process
 phase 전에 정의되어 있어야 한다. `$Out0/$Out1` assignment는 directory를
 생성하지 않는다.
+
+campaign P1의 outer execution owner는 §2.3 item 9의 `controller resume operation`이다.
+이 한 process가 setup fence를 `RESUME`으로 정확히 1회
+선언하고, §4.3 P0 gate 뒤 §5.3, §5.4, §5.7과 §6.3을 directive 순서대로
+실행한다. Codex가 phase마다 새 PowerShell process를 만들거나 controller와
+동일 phase를 병렬·중복 실행하지 않는다.
 
 ```powershell
 Set-StrictMode -Version Latest
@@ -1937,16 +1970,23 @@ setup/functions를 `$ProcessEntryMode = 'RESUME'`으로 exact 재선언한다.
 `Assert-FrozenProducerInputs`가 ordinary P0 JSON의 frozen SHA와 before/after
 mtime을 재검증한 뒤 exact 값으로 rehydrate한다.
 
-각 process block을 감싸는 Codex 실행 호출은 `timeout_ms >= 300000`을
-명시해야 한다. 저자 환경에서 frozen untracked/ignored content-map gate만
-약 102.3초가 걸렸으므로 기본 10초 timeout은 허용하지 않는다. 실행 호출은
-동일한 PowerShell process를 유지한 채 50초 이하 간격으로 control/status를
-yield하는 recurring wait 방식을 사용한다. timeout 때문에 process를 kill하거나
-같은 phase를 새 process로 재시작하지 않는다. 실행기가 이 timeout/yield 계약을
-제공할 수 없으면 temp root·ledger·P0 생성 전에
-`CONTROLLER_TIMEOUT_UNSUPPORTED` infra failure(exit 3)로 STOP한다. 계약을
-어기고 외부에서 kill된 실행은 ledger row 부재를 포함해 campaign evidence로
-인정하지 않으며, 성공 또는 fail-closed phase 결과로 해석하지 않는다.
+controller outer process의 Codex 실행 timeout minimum은 다음과 같다.
+
+| controller mode | minimum `timeout_ms` |
+|---|---:|
+| `prepare` | `300000` |
+| `resume` | `1800000` |
+
+2026-08-10 rehearsal에서 `resume`은 11:28:29부터 11:48:21까지 약 20분이
+걸렸다. frozen untracked/ignored content-map gate만 회당 약 100초이고 P0 gate와
+5개 P1 phase가 이를 반복하므로, resume에 300000ms만 주는 것은 허용하지 않는다.
+prepare, resume, Node 제출 모두 동일 process/call을 유지한 채 50 seconds or less
+간격으로 control/status를 yield하는 recurring wait 방식을 사용한다. timeout
+때문에 process를 kill하거나 같은 phase/controller mode를 새 process로 재시작하지
+않는다. 실행기가 위 timeout/yield 계약을 제공할 수 없으면 temp root·ledger·P0
+생성 전에 `CONTROLLER_TIMEOUT_UNSUPPORTED` infra failure(exit 3)로 STOP한다.
+계약을 어기고 외부에서 kill된 실행은 ledger row 부재를 포함해 campaign
+evidence로 인정하지 않으며, 성공 또는 fail-closed phase 결과로 해석하지 않는다.
 
 ### 5.3 Exact dry-run argv
 
@@ -2211,6 +2251,10 @@ bytes로 생성하고 source SHA를 확인한다. P0/P1/analyzer가 모두 정�
 `--last-phase P0_ARTIFACT_CAPTURE`다. measured invocation은 error option 두 개를
 아예 전달하지 않는다. infra failure에서만 nonempty `--error-class`와
 `--error-message`로 실제 첫 실패 하나를 전달한다.
+
+§2.3 item 9의 `controller resume operation`이 아래 exact fence에서
+`$AssembleArgs`를 구성하고 Appendix C를 정확히 1회 호출한다. first failure 뒤
+별도 wrapper나 수기 argv로 assembler를 다시 실행하지 않는다.
 
 ```powershell
 $Assembler = Join-Path $TempRoot 'assemble_evidence.py'
