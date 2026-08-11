@@ -38,7 +38,7 @@ dispatch 메시지가 다음 세 affirmative token과 여섯 identity를 모두 
 포함해야 실행 권한이 성립한다.
 
 ```text
-SPEC_REVIEW_APPROVED: 492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf
+SPEC_REVIEW_APPROVED: 881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce
 AUTHORIZE_EXECUTION: RB-20260728-shellrc-p0p1
 CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 ```
@@ -47,8 +47,8 @@ CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 |---|---|
 | directive raw SHA-256 | 작성 완료 보고의 exact 값 |
 | directive `git hash-object --no-filters` blob | 작성 완료 보고의 exact 값 |
-| spec raw SHA-256 | `492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf` |
-| spec `git hash-object --no-filters` blob | `4db31884e55f1c18dbfd53edd090da88d9f8b51e` |
+| spec raw SHA-256 | `881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce` |
+| spec `git hash-object --no-filters` blob | `c6448f0d390ac07e9d5aa8ae7b7a50017795ace9` |
 | capsule generator raw SHA-256 | `45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd` |
 | capsule generator `git hash-object --no-filters` blob | `db170b307a323e861b8a3fc7d29ef743b109197e` |
 
@@ -638,34 +638,37 @@ Add-PhaseRecord ([ordered]@{
 
 ### 4.1 Known target manifest
 
-tracked YAML에는 structured `source_row`가 없다. physical row는 아래 표에서
-추정하지 않고 P0가 exact하게 도출한다.
+tracked YAML에는 structured `source_row`가 없다. physical row는 selector 입력이
+아니며 P0가 아래 exact selector로 도출하는 evidence다.
 
-| tracked YAML | blocker step | sheet | physical row |
-|---|---:|---|---|
-| `exported_ss_call/SS_TC01_permission_denied.yaml` | 10, 11 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC02_permission_allow_idle.yaml` | 11 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC03_ringing_permission.yaml` | 15 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC04_offhook_seed_recovery.yaml` | 18 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC05_boundary_values.yaml` | 9 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC06_missed_rejected.yaml` | 10, 11 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC07_short_call_no_false_positive.yaml` | 9 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC09_offhook_permission_banking.yaml` | 20 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC0_P0_endcall_crash.yaml` | 15 | `SS-TC 0` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC10_permission_toggle.yaml` | 24 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC11_multi_subscription.yaml` | 20, 21 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
-| `exported_ss_call/SS_TC12_legacy_path.yaml` | 19 | `SS-TC 1` | YAML에 없음 — P0 unique join으로만 측정 |
+| tracked YAML | sheet | exact source selector(s) | blocker binding |
+|---|---|---|---|
+| `exported_ss_call/SS_TC01_permission_denied.yaml` | `SS-TC 1` | `TC-01` / `권한 미부여 기본 동작 확인` | steps `10,11` → `TC-01` |
+| `exported_ss_call/SS_TC02_permission_allow_idle.yaml` | `SS-TC 1` | `TC-02` / `권한 허용 후 Idle 진입 확인` | step `11` → `TC-02` |
+| `exported_ss_call/SS_TC03_ringing_permission.yaml` | `SS-TC 1` | `TC-03` / `RINGING 중 권한 허용 시 현재 통화 감지` | step `15` → `TC-03` |
+| `exported_ss_call/SS_TC04_offhook_seed_recovery.yaml` | `SS-TC 1` | `TC-04` / `OFFHOOK 도중 권한 허용 시 seed 복구 확인` | step `18` → `TC-04` |
+| `exported_ss_call/SS_TC05_boundary_values.yaml` | `SS-TC 1` | `TC-05A` / `9초 경계값 검증`; `TC-05B` / `10초 경계값 검증`; `TC-05C` / `11초 경계값 검증` | step `9` → `TC-05A` |
+| `exported_ss_call/SS_TC06_missed_rejected.yaml` | `SS-TC 1` | `TC-06` / `부재중/거절 통화 처리 확인` | steps `10,11` → `TC-06` |
+| `exported_ss_call/SS_TC07_short_call_no_false_positive.yaml` | `SS-TC 1` | `TC-07` / `짧은 정상 통화 오탐 방지` | step `9` → `TC-07` |
+| `exported_ss_call/SS_TC09_offhook_permission_banking.yaml` | `SS-TC 1` | `TC-09` / `OFFHOOK 중 권한 허용 후 금융 앱 개입 확인` | step `20` → `TC-09` |
+| `exported_ss_call/SS_TC0_P0_endcall_crash.yaml` | `SS-TC 0` | `T/C-01` / `경고 팝업의 "지금 전화 끊기" 버튼 경로에서 다이얼러 크래시 재발 여부와 dismiss→suppression→delayed endCall→IDLE→suppression release 순서 검증` | step `15` → `T/C-01` |
+| `exported_ss_call/SS_TC10_permission_toggle.yaml` | `SS-TC 1` | `TC-10` / `true→false→true 권한 흔들기` | step `24` → `TC-10` |
+| `exported_ss_call/SS_TC11_multi_subscription.yaml` | `SS-TC 1` | `TC-11` / `다중 구독 안전성 확인` | steps `20,21` → `TC-11` |
+| `exported_ss_call/SS_TC12_legacy_path.yaml` | `SS-TC 1` | `TC-12` / `Legacy 경로 현재 상태 반영 확인` | step `19` → `TC-12` |
 
 Acceptance cardinality:
 
-- target step mapping = 15
-- distinct tracked YAML / workbook row mapping = 12
-- step distribution = `SS-TC 0: 1`, `SS-TC 1: 14`
-- distinct row distribution = `SS-TC 0: 1`, `SS-TC 1: 11`
+- tracked YAML alias identity = 12
+- unique source selector / mapped workbook row = 14
+- source row distribution = `SS-TC 0: 1`, `SS-TC 1: 13`
+- target blocker binding = 15
+- blocker distribution = `SS-TC 0: 1`, `SS-TC 1: 14`
+- `SS_TC05_boundary_values.yaml`만 3 source row에서 1 tracked YAML로 aggregate
 - `SS_TC01`, `SS_TC06`, `SS_TC11`의 두 blocker step은 각자 같은 source row
-- 각 tracked YAML의 source row candidate count = 정확히 1
+- 각 `(sheet, source_no, source_functionality_effective)` selector의 candidate
+  count = 정확히 1
 - 15개 `(yaml_path, blocker_step_index)`는 모두 unique이고 step index는 1-based
-- 12개 `(yaml_path, sheet, physical_row)`와 12개 `(sheet, physical_row)`는
+- 14개 `(yaml_path, source_no)`와 14개 `(sheet, physical_row)`는
   각각 unique
 - 동일 row가 두 target step으로 fan-out하는 YAML은 위 3개뿐
 
@@ -722,11 +725,11 @@ render options/range와 PNG SHA를 기록한다. inspect result가 truncation fl
    `"ROW" + row_index`, `feature`는 trim된 `feature_name` 또는 `"UNNAMED"`의
    whitespace를 underscore로 바꾼 값이며 결과는
    `base_no + "_" + feature`다.
-7. Appendix A는 frozen target manifest의 `yaml_tc_name`·declared sheet와
-   workbook-derived name을 exact join한다. tracked YAML의 parsed
-   `tc_name`·source text는 Appendix B가 P1 acceptance 전에 별도로 exact
-   대조한다.
-8. unique join이 성립한 12 physical row의 7개 semantic cell을 inspect한다.
+7. Appendix A는 frozen selector의 declared sheet, `source_no`, carry-forward
+   적용 후 `source_functionality_effective`를 workbook row와 exact join한다.
+   tracked YAML의 `yaml_tc_name`은 workbook-derived name과 비교하지 않는다.
+8. unique join이 성립한 14 physical row의 7개 semantic cell을 inspect하고
+   workbook-derived name을 `workbook_tc_name` evidence로 기록한다.
 9. 7개 semantic header cell도 target cell과 같은 full evidence를 가진다.
 10. carry-forward가 적용된 두 column은 nearest preceding nonblank anchor부터
    target row까지의 모든 관련 cell도 기록한다.
@@ -756,27 +759,23 @@ evidence `p0.mappings[]`의 각 항목은 다음 필드를 가진다.
 ```text
 yaml_path
 yaml_tc_name
-blocker_step_indices
 declared_source_file
 declared_source_sheet
-workbook_sheet
-workbook_physical_row
-candidate_count
-join_basis
-source_no
-source_feature_name_raw
-source_feature_name_effective
-source_feature_anchor_row
-source_functionality_raw
-source_functionality_effective
-source_functionality_anchor_row
-source_precondition
-source_procedure
-source_expected
-source_priority
-cells[]
-cell_region_records[]
-carry_forward_cells[]
+source_selectors[]
+  source_no
+  source_functionality_effective
+  candidate_count
+  workbook_sheet
+  workbook_physical_row
+  workbook_tc_name
+  join_basis
+  source_* semantic fields
+  cells[]
+  cell_region_records[]
+  carry_forward_cells[]
+blocker_bindings[]
+  blocker_step_index
+  source_no
 verdict
 ```
 
@@ -845,7 +844,7 @@ try {
         tool = 'node_repl.js'
         cwd = $Repo
         argv = $null
-        tool_input_sha256 = '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9'
+        tool_input_sha256 = 'f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa'
         exit = $null
         observed = [ordered]@{
             p0_workbook_sha256 = $P0Sha
@@ -873,7 +872,7 @@ try {
         tool = 'node_repl.js'
         cwd = $Repo
         argv = $null
-        tool_input_sha256 = '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9'
+        tool_input_sha256 = 'f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa'
         exit = $null
         observed = [ordered]@{}
         error_class = $P0Failure.GetType().Name
@@ -1045,9 +1044,9 @@ function Read-PinnedDispatchCapsule {
         $Capsule.identities.directive.git_blob_no_filters -ne
             '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>' -or
         $Capsule.identities.spec.raw_sha256 -ne
-            '492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf' -or
+            '881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce' -or
         $Capsule.identities.spec.git_blob_no_filters -ne
-            '4db31884e55f1c18dbfd53edd090da88d9f8b51e' -or
+            'c6448f0d390ac07e9d5aa8ae7b7a50017795ace9' -or
         $Capsule.identities.generator.raw_sha256 -ne
             '45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd' -or
         $Capsule.identities.generator.git_blob_no_filters -ne
@@ -2073,7 +2072,7 @@ Invoke-CheckedPythonPhase `
    `metadata.source_row`를 가져야 한다.
 6. 같은 `(source_sheet, source_row)`가 둘 이상의 emitted YAML에 나타나면
    exit 1이다.
-7. P0에 mapping된 12 emitted YAML은 `metadata.runnable is true`이고
+7. P0에 source-bound된 14 emitted YAML은 `metadata.runnable is true`이고
    `metadata.has_unresolved_params is false`여야 한다. 그렇지 않으면
    `PRODUCER_RUNNABILITY_GAP`으로 exit 1이다. `--export-unrunnable`은 전체
    capture를 위한 flag일 뿐 acceptance 우회가 아니다.
@@ -2093,11 +2092,15 @@ deterministic surface는 위 semantic SHA뿐이며, 재실행 자체는 별도 �
 filename으로 join하지 않는다. P0의 `(sheet, physical_row)`를 emitted YAML의
 `metadata.source_sheet/source_row`와 exact join한다.
 
+tracked identity `tracked.tc_name == yaml_tc_name`과 producer identity
+`emitted.name == workbook_tc_name`은 별도로 검증하며 서로 비교하지 않는다.
+
 각 blocker step마다 evidence `p1.targets[]`에 다음을 기록한다.
 
 ```text
 yaml_path
 blocker_step_index
+source_no
 workbook_sheet
 workbook_physical_row
 emitted_yaml_path
@@ -2112,12 +2115,12 @@ candidate_count
 verdict
 ```
 
-source binding은 정확히 다음 세 조건이다.
+source binding은 selected source document마다 정확히 다음 세 조건이다.
 
-1. `emitted.name == p0.yaml_tc_name`
+1. `emitted.name == p0.source_selector.workbook_tc_name`
 2. `emitted.description == p0.source_procedure[:200]`
 3. emitted basename이 frozen exporter 알고리즘
-   `_make_filename(p0.yaml_tc_name, p0.source_procedure,
+   `_make_filename(p0.source_selector.workbook_tc_name, p0.source_procedure,
    p0.source_expected)` 재계산값과 exact 일치
 
 세 번째는 legacy document에 없는 expected 입력을 producer filename의 8-hex
@@ -2126,12 +2129,14 @@ content-hash에 결속하는 관찰이며 독립적인 expected 원문 동등성
 
 target step comparison은 `action`, `command`, `expected` 각 field의
 `{present: bool, value: parsed_value}`를 비교한다. absent와 explicit null을
-같게 취급하지 않는다. tracked blocker projection과 exact 동일한 emitted step을
-문서 전체에서 찾고 candidate count가 1이어야 한다. whitespace collapse,
+같게 취급하지 않는다. blocker binding의 `source_no`로 고른 source document
+안에서 tracked blocker projection과 exact 동일한 emitted step을 찾고 candidate
+count가 1이어야 한다. whitespace collapse,
 regex 유사도, alias normalization, filename heuristic은 쓰지 않는다.
 
-15/15 target이 unique join되고 위 source binding과 step projection이 확인돼야
-exit 0 후보가 된다. mapped document의 전체 ordered step projections와 hash는
+14/14 source document와 15/15 target이 unique join되고 위 source binding과
+step projection이 확인돼야 exit 0 후보가 된다. mapped document의 전체 ordered
+step projections와 hash는
 `document_step_projection_report[]`에 **report-only, gating=false**로 기록한다.
 legacy/canonical alias normalization이 이 reconnaissance에 정의되지 않았으므로
 non-target semantic equality 또는 delta 0을 주장하거나 exit gate로 쓰지 않는다.
@@ -2217,7 +2222,7 @@ verdict
 - capsule entry payload와 독립 재계산한 Git/index/untracked/ignored identities
 - artifact-tool actual version과 inspect/render result hashes
 - workbook sheet/header/cell/formula/style/topology evidence
-- 15 target / 12 row mapping
+- 12 tracked alias / 14 source document / 15 blocker binding mapping
 - exact producer argv, cwd, exit, canonical combined-output SHA
 - emitted raw/semantic inventory
 - target reconciliation과 non-target ordered projection report(`gating=false`)
@@ -2230,8 +2235,8 @@ array ordering도 contract다.
 
 - `p0.mappings`: `(yaml_path UTF-8 bytes, first blocker_step_index)`
 - `p1.inventories`: POSIX relative path UTF-8 bytes
-- `p1.targets`: `(yaml_path UTF-8 bytes, blocker_step_index)`
-- `document_step_projection_report`: yaml_path UTF-8 bytes
+- `p1.targets`: `(yaml_path UTF-8 bytes, blocker_step_index, source_no)`
+- `document_step_projection_report`: `(yaml_path UTF-8 bytes, source_no)`
 - `command_log`: 실제 실행 순서
 - `blocking_reasons`: `(code, path, message)` Unicode codepoint order
 
@@ -2263,9 +2268,9 @@ $AssembleArgs = @(
     '--directive-sha', '<DISPATCH_EXACT_DIRECTIVE_RAW_SHA256>',
     '--directive-blob', '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>',
     '--capsule-sha256', '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>',
-    '--appendix-a-sha', '784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9',
-    '--appendix-b-sha', '6ab74d52b3765d6300cd4f9f90a15d5cbf2442af2b94a798006d2042264c2e5c',
-    '--appendix-c-sha', '258c1c96739d782ef56040fb95fa390384752a75f9623d4a79ab07c99c72013e',
+    '--appendix-a-sha', 'f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa',
+    '--appendix-b-sha', '63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b',
+    '--appendix-c-sha', '62261c533481982b707903ecd00bdb149de670b4aadb133aa7180adb0eff1728',
     '--status', $Status,
     '--last-phase', $LastPhase
 )
@@ -2303,7 +2308,7 @@ class/message와 함께 exit 3으로 STOP하며 재실행·수기 evidence 생�
 
 | exit | label | 의미 | final evidence |
 |---:|---|---|---|
-| 0 | `PROVENANCE_RECONCILED` | P0 15/12 unique + P1 source/target 15/15 관계 재현 + mapped 12 docs runnable/unresolved-free | publish |
+| 0 | `PROVENANCE_RECONCILED` | P0 12 tracked aliases / 14 unique source selectors / 15 blocker bindings GREEN + P1 14 source-bound documents runnable/unresolved-free / 15 target bindings unique reconcile | publish |
 | 1 | `PROVENANCE_MISMATCH` | 유효한 측정에서 candidate 0/2+, view 불일치, producer 누락·collision·semantic mismatch 관찰 | publish |
 | 2 | `INPUT_INVALID` | envelope/capsule/TTL/HEAD/index/untracked/hash/path/sheet/tool version 입력 계약 위반 | preflight=`—`; post-preflight=publish |
 | 3 | `INFRA_FAILURE` | artifact runtime·formula/style visibility·Git·IO·producer process 측정 실패 | Appendix C exact hash-verified/invocable + ledger append 가능 시 publish; materialization/ledger-append/assembler 자체 실패는 fileless |
@@ -2340,13 +2345,13 @@ Workbook SHA / blob / mtime before-after:
 Artifact-tool actual version:
 Module route fs gate (capsule vs live):
 Module route probe: negative-control / add invoked / submissions / timeout_ms:
-P0 mappings: target steps / YAML rows / candidate anomalies:
-P0 sheet distribution:
+P0 mappings: tracked aliases 12 / source selectors 14 / blocker bindings 15 / candidate anomalies:
+P0 distribution: selectors SS-TC 0=1, SS-TC 1=13 / blockers SS-TC 0=1, SS-TC 1=14:
 P1 producer mode:
 P1 exact argv exits / combined-output SHA:
 P1 dry-run totals / exported counts / skipped:
-P1 target reconciliation:
-P1 mapped docs runnable / unresolved-free:
+P1 source documents: 14 source-bound / runnable / unresolved-free:
+P1 target reconciliation: 15 blocker bindings:
 P1 non-target projection report (gating=false):
 Exit / label:
 Evidence path / raw SHA / Git blob:
@@ -2373,7 +2378,7 @@ fileless exit 2/3이면 `Evidence path / raw SHA / Git blob: — / — / —`로
 아래 code fence 내부 source만 `node_repl.js`에 단 한 번 제출한다. source bytes는
 UTF-8, LF, 마지막 `})();` 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `784fdeb72c6878b5be16ae8f08c0f52cfc1f3e82a3241824918803d14fe7eaf9`
+**Expected source SHA-256:** `f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa`
 
 ```javascript
 await (async () => {
@@ -2391,33 +2396,157 @@ await (async () => {
   const OUTPUT = `${WORK_ROOT}/p0_workbook.json`;
   const SHEETS = ["SS-TC 0", "SS-TC 1"];
   const TARGETS = [
-    ["exported_ss_call/SS_TC01_permission_denied.yaml",
-      "SS_TC01_permission_denied", [10, 11], "SS-TC 1"],
-    ["exported_ss_call/SS_TC02_permission_allow_idle.yaml",
-      "SS_TC02_permission_allow_idle", [11], "SS-TC 1"],
-    ["exported_ss_call/SS_TC03_ringing_permission.yaml",
-      "SS_TC03_ringing_permission", [15], "SS-TC 1"],
-    ["exported_ss_call/SS_TC04_offhook_seed_recovery.yaml",
-      "SS_TC04_offhook_seed_recovery", [18], "SS-TC 1"],
-    ["exported_ss_call/SS_TC05_boundary_values.yaml",
-      "SS_TC05_boundary_values", [9], "SS-TC 1"],
-    ["exported_ss_call/SS_TC06_missed_rejected.yaml",
-      "SS_TC06_missed_rejected", [10, 11], "SS-TC 1"],
-    ["exported_ss_call/SS_TC07_short_call_no_false_positive.yaml",
-      "SS_TC07_short_call_no_false_positive", [9], "SS-TC 1"],
-    ["exported_ss_call/SS_TC09_offhook_permission_banking.yaml",
-      "SS_TC09_offhook_permission_banking", [20], "SS-TC 1"],
-    ["exported_ss_call/SS_TC0_P0_endcall_crash.yaml",
-      "SS_TC0_P0_endcall_crash", [15], "SS-TC 0"],
-    ["exported_ss_call/SS_TC10_permission_toggle.yaml",
-      "SS_TC10_permission_toggle", [24], "SS-TC 1"],
-    ["exported_ss_call/SS_TC11_multi_subscription.yaml",
-      "SS_TC11_multi_subscription", [20, 21], "SS-TC 1"],
-    ["exported_ss_call/SS_TC12_legacy_path.yaml",
-      "SS_TC12_legacy_path", [19], "SS-TC 1"],
-  ].map(([yaml_path, yaml_tc_name, blocker_step_indices, sheet]) => ({
-    yaml_path, yaml_tc_name, blocker_step_indices, sheet,
-  }));
+    {
+      yaml_path: "exported_ss_call/SS_TC01_permission_denied.yaml",
+      yaml_tc_name: "SS_TC01_permission_denied", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-01",
+          source_functionality_effective: "권한 미부여 기본 동작 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 10, source_no: "TC-01" },
+        { blocker_step_index: 11, source_no: "TC-01" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC02_permission_allow_idle.yaml",
+      yaml_tc_name: "SS_TC02_permission_allow_idle", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-02",
+          source_functionality_effective: "권한 허용 후 Idle 진입 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 11, source_no: "TC-02" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC03_ringing_permission.yaml",
+      yaml_tc_name: "SS_TC03_ringing_permission", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-03",
+          source_functionality_effective:
+            "RINGING 중 권한 허용 시 현재 통화 감지" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 15, source_no: "TC-03" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC04_offhook_seed_recovery.yaml",
+      yaml_tc_name: "SS_TC04_offhook_seed_recovery", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-04",
+          source_functionality_effective:
+            "OFFHOOK 도중 권한 허용 시 seed 복구 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 18, source_no: "TC-04" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC05_boundary_values.yaml",
+      yaml_tc_name: "SS_TC05_boundary_values", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-05A",
+          source_functionality_effective: "9초 경계값 검증" },
+        { source_no: "TC-05B",
+          source_functionality_effective: "10초 경계값 검증" },
+        { source_no: "TC-05C",
+          source_functionality_effective: "11초 경계값 검증" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 9, source_no: "TC-05A" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC06_missed_rejected.yaml",
+      yaml_tc_name: "SS_TC06_missed_rejected", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-06",
+          source_functionality_effective: "부재중/거절 통화 처리 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 10, source_no: "TC-06" },
+        { blocker_step_index: 11, source_no: "TC-06" },
+      ],
+    },
+    {
+      yaml_path:
+        "exported_ss_call/SS_TC07_short_call_no_false_positive.yaml",
+      yaml_tc_name: "SS_TC07_short_call_no_false_positive",
+      sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-07",
+          source_functionality_effective: "짧은 정상 통화 오탐 방지" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 9, source_no: "TC-07" },
+      ],
+    },
+    {
+      yaml_path:
+        "exported_ss_call/SS_TC09_offhook_permission_banking.yaml",
+      yaml_tc_name: "SS_TC09_offhook_permission_banking",
+      sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-09",
+          source_functionality_effective:
+            "OFFHOOK 중 권한 허용 후 금융 앱 개입 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 20, source_no: "TC-09" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC0_P0_endcall_crash.yaml",
+      yaml_tc_name: "SS_TC0_P0_endcall_crash", sheet: "SS-TC 0",
+      source_selectors: [
+        { source_no: "T/C-01",
+          source_functionality_effective:
+            "경고 팝업의 \"지금 전화 끊기\" 버튼 경로에서 다이얼러 크래시 " +
+            "재발 여부와 dismiss→suppression→delayed endCall→IDLE→" +
+            "suppression release 순서 검증" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 15, source_no: "T/C-01" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC10_permission_toggle.yaml",
+      yaml_tc_name: "SS_TC10_permission_toggle", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-10",
+          source_functionality_effective: "true→false→true 권한 흔들기" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 24, source_no: "TC-10" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC11_multi_subscription.yaml",
+      yaml_tc_name: "SS_TC11_multi_subscription", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-11",
+          source_functionality_effective: "다중 구독 안전성 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 20, source_no: "TC-11" },
+        { blocker_step_index: 21, source_no: "TC-11" },
+      ],
+    },
+    {
+      yaml_path: "exported_ss_call/SS_TC12_legacy_path.yaml",
+      yaml_tc_name: "SS_TC12_legacy_path", sheet: "SS-TC 1",
+      source_selectors: [
+        { source_no: "TC-12",
+          source_functionality_effective:
+            "Legacy 경로 현재 상태 반영 확인" },
+      ],
+      blocker_bindings: [
+        { blocker_step_index: 19, source_no: "TC-12" },
+      ],
+    },
+  ];
   const HEADER_PATTERNS = [
     ["functionality", /functionality|시험\s*목적|목적/i],
     ["feature_name", /검증\s*항목/i],
@@ -2698,56 +2827,71 @@ await (async () => {
       );
     }
     for (const target of TARGETS.filter((item) => item.sheet === sheetName)) {
-      const candidates = rowInventory.filter(
-        (row) => row.tc_name === target.yaml_tc_name,
-      );
-      const candidate = candidates.length === 1 ? candidates[0] : null;
-      const coordinates = [];
-      if (candidate) {
-        for (const field of fields) {
-          const coordinate =
-            `${columnName(columnMap[field])}${candidate.physical_row}`;
-          coordinates.push(coordinate);
-          relevantCoordinates.add(coordinate);
+      const selectorResults = [];
+      for (const selector of target.source_selectors) {
+        const candidates = rowInventory.filter(
+          (row) =>
+            row.source_no === selector.source_no &&
+            row.source_functionality_effective ===
+              selector.source_functionality_effective,
+        );
+        const candidate = candidates.length === 1 ? candidates[0] : null;
+        const coordinates = [];
+        if (candidate) {
+          for (const field of fields) {
+            const coordinate =
+              `${columnName(columnMap[field])}${candidate.physical_row}`;
+            coordinates.push(coordinate);
+            relevantCoordinates.add(coordinate);
+          }
+          if (candidate.source_feature_anchor_row !== null) {
+            relevantCoordinates.add(
+              `${columnName(columnMap.feature_name)}` +
+                `${candidate.source_feature_anchor_row}`,
+            );
+          }
+          if (candidate.source_functionality_anchor_row !== null) {
+            relevantCoordinates.add(
+              `${columnName(columnMap.functionality)}` +
+                `${candidate.source_functionality_anchor_row}`,
+            );
+          }
         }
-        if (candidate.source_feature_anchor_row !== null) {
-          relevantCoordinates.add(
-            `${columnName(columnMap.feature_name)}` +
-              `${candidate.source_feature_anchor_row}`,
-          );
-        }
-        if (candidate.source_functionality_anchor_row !== null) {
-          relevantCoordinates.add(
-            `${columnName(columnMap.functionality)}` +
-              `${candidate.source_functionality_anchor_row}`,
-          );
-        }
+        selectorResults.push({
+          selector, candidates, candidate, coordinates,
+        });
       }
-      provisional.push({ target, candidates, candidate, coordinates });
+      provisional.push({ target, selectorResults });
     }
 
     for (const item of provisional) {
-      const candidate = item.candidate;
-      const carryCoordinates = new Set();
-      if (candidate) {
-        for (const [column, anchorRow] of [
-          [columnMap.feature_name, candidate.source_feature_anchor_row],
-          [columnMap.functionality, candidate.source_functionality_anchor_row],
-        ]) {
-          if (anchorRow !== null) {
-            for (
-              let row = anchorRow;
-              row <= candidate.physical_row;
-              row += 1
-            ) {
-              const coordinate = `${columnName(column)}${row}`;
-              carryCoordinates.add(coordinate);
-              relevantCoordinates.add(coordinate);
+      for (const selectorResult of item.selectorResults) {
+        const candidate = selectorResult.candidate;
+        const carryCoordinates = new Set();
+        if (candidate) {
+          for (const [column, anchorRow] of [
+            [columnMap.feature_name, candidate.source_feature_anchor_row],
+            [
+              columnMap.functionality,
+              candidate.source_functionality_anchor_row,
+            ],
+          ]) {
+            if (anchorRow !== null) {
+              for (
+                let row = anchorRow;
+                row <= candidate.physical_row;
+                row += 1
+              ) {
+                const coordinate = `${columnName(column)}${row}`;
+                carryCoordinates.add(coordinate);
+                relevantCoordinates.add(coordinate);
+              }
             }
           }
         }
+        selectorResult.carryCoordinates =
+          [...carryCoordinates].sort(compareUtf8);
       }
-      item.carryCoordinates = [...carryCoordinates].sort(compareUtf8);
     }
 
     const cellEvidence = {};
@@ -2795,45 +2939,54 @@ await (async () => {
         region_sha256: sha(Buffer.from(regionNdjson, "utf8")),
       };
     }
-    for (const {
-      target, candidates, candidate, coordinates, carryCoordinates,
-    } of provisional) {
+    for (const { target, selectorResults } of provisional) {
       allMappings.push({
         yaml_path: target.yaml_path,
         yaml_tc_name: target.yaml_tc_name,
-        blocker_step_indices: target.blocker_step_indices,
         declared_source_file: "TC_1.xlsx",
         declared_source_sheet: target.sheet,
-        workbook_sheet: target.sheet,
-        workbook_physical_row: candidate?.physical_row ?? null,
-        candidate_count: candidates.length,
-        join_basis: "exact sheet + computed MMIRow.tc_name",
-        source_no: candidate?.source_no ?? null,
-        source_feature_name_raw: candidate?.source_feature_name_raw ?? null,
-        source_feature_name_effective:
-          candidate?.source_feature_name_effective ?? null,
-        source_feature_anchor_row:
-          candidate?.source_feature_anchor_row ?? null,
-        source_functionality_raw:
-          candidate?.source_functionality_raw ?? null,
-        source_functionality_effective:
-          candidate?.source_functionality_effective ?? null,
-        source_functionality_anchor_row:
-          candidate?.source_functionality_anchor_row ?? null,
-        source_precondition: candidate?.source_precondition ?? null,
-        source_procedure: candidate?.source_procedure ?? null,
-        source_expected: candidate?.source_expected ?? null,
-        source_priority: candidate?.source_priority ?? null,
-        cells: coordinates.map((coordinate) => cellEvidence[coordinate]),
-        cell_region_records: coordinates.map((coordinate) => ({
-          coordinate,
-          region_request: cellEvidence[coordinate].region_request,
-          region_ndjson: cellEvidence[coordinate].region_ndjson,
-          region_sha256: cellEvidence[coordinate].region_sha256,
+        source_selectors: selectorResults.map((item) => ({
+          source_no: item.selector.source_no,
+          source_functionality_effective:
+            item.selector.source_functionality_effective,
+          workbook_sheet: target.sheet,
+          workbook_physical_row: item.candidate?.physical_row ?? null,
+          workbook_tc_name: item.candidate?.tc_name ?? null,
+          candidate_count: item.candidates.length,
+          join_basis:
+            "exact sheet + source_no + source_functionality_effective",
+          source_feature_name_raw:
+            item.candidate?.source_feature_name_raw ?? null,
+          source_feature_name_effective:
+            item.candidate?.source_feature_name_effective ?? null,
+          source_feature_anchor_row:
+            item.candidate?.source_feature_anchor_row ?? null,
+          source_functionality_raw:
+            item.candidate?.source_functionality_raw ?? null,
+          source_functionality_anchor_row:
+            item.candidate?.source_functionality_anchor_row ?? null,
+          source_precondition: item.candidate?.source_precondition ?? null,
+          source_procedure: item.candidate?.source_procedure ?? null,
+          source_expected: item.candidate?.source_expected ?? null,
+          source_priority: item.candidate?.source_priority ?? null,
+          cells: item.coordinates.map(
+            (coordinate) => cellEvidence[coordinate],
+          ),
+          cell_region_records: item.coordinates.map((coordinate) => ({
+            coordinate,
+            region_request: cellEvidence[coordinate].region_request,
+            region_ndjson: cellEvidence[coordinate].region_ndjson,
+            region_sha256: cellEvidence[coordinate].region_sha256,
+          })),
+          carry_forward_cells: item.carryCoordinates.map(
+            (coordinate) => cellEvidence[coordinate],
+          ),
+          verdict: item.candidates.length === 1 ? "UNIQUE" : "MISMATCH",
         })),
-        carry_forward_cells:
-          carryCoordinates.map((coordinate) => cellEvidence[coordinate]),
-        verdict: candidates.length === 1 ? "UNIQUE" : "MISMATCH",
+        blocker_bindings: target.blocker_bindings,
+        verdict: selectorResults.every(
+          (item) => item.candidates.length === 1,
+        ) ? "UNIQUE" : "MISMATCH",
       });
     }
 
@@ -2879,41 +3032,56 @@ await (async () => {
   }
 
   allMappings.sort((left, right) => {
-    const order = compareUtf8(left.yaml_path, right.yaml_path);
-    return order || (
-      left.blocker_step_indices[0] - right.blocker_step_indices[0]
-    );
+    return compareUtf8(left.yaml_path, right.yaml_path);
   });
   const p0BlockingReasons = [];
-  if (allMappings.length !== 12) {
+  const selectorResults = allMappings.flatMap(
+    (mapping) => mapping.source_selectors.map(
+      (selector) => ({ mapping, selector }),
+    ),
+  );
+  const blockerBindings = allMappings.flatMap(
+    (mapping) => mapping.blocker_bindings.map(
+      (binding) => ({ mapping, binding }),
+    ),
+  );
+  if (
+    allMappings.length !== 12 ||
+    selectorResults.length !== 14 ||
+    blockerBindings.length !== 15
+  ) {
     p0BlockingReasons.push({
       code: "P0_CARDINALITY",
       path: "mappings",
-      message: `expected=12,observed=${allMappings.length}`,
+      message:
+        "expected=12/14/15,observed=" +
+        `${allMappings.length}/${selectorResults.length}/` +
+        `${blockerBindings.length}`,
     });
   }
-  for (const mapping of allMappings) {
-    if (mapping.candidate_count !== 1) {
+  for (const { mapping, selector } of selectorResults) {
+    if (selector.candidate_count !== 1) {
       p0BlockingReasons.push({
         code: "P0_UNIQUE_JOIN",
-        path: mapping.yaml_path,
-        message: `candidate_count=${mapping.candidate_count}`,
+        path: `${mapping.yaml_path}:${selector.source_no}`,
+        message: `candidate_count=${selector.candidate_count}`,
       });
     }
   }
   const uniqueRows = new Set(
-    allMappings
-      .filter((mapping) => mapping.candidate_count === 1)
+    selectorResults
+      .filter(({ selector }) => selector.candidate_count === 1)
       .map(
-        (mapping) =>
-          `${mapping.workbook_sheet}\u0000${mapping.workbook_physical_row}`,
+        ({ selector }) =>
+          `${selector.workbook_sheet}\u0000` +
+          `${selector.workbook_physical_row}`,
       ),
   );
-  if (uniqueRows.size !== 12) {
+  if (uniqueRows.size !== 14) {
     p0BlockingReasons.push({
       code: "P0_SOURCE_ROW_UNIQUENESS",
       path: "mappings",
-      message: `expected=12,observed=${uniqueRows.size}`,
+      message: `expected=14,observed=${uniqueRows.size}`,
     });
   }
   const rowDistribution = Object.fromEntries(
@@ -2926,12 +3094,77 @@ await (async () => {
   );
   if (
     rowDistribution["SS-TC 0"] !== 1 ||
-    rowDistribution["SS-TC 1"] !== 11
+    rowDistribution["SS-TC 1"] !== 13
   ) {
     p0BlockingReasons.push({
       code: "P0_ROW_DISTRIBUTION",
       path: "mappings",
       message: JSON.stringify(rowDistribution),
+    });
+  }
+  const blockerDistribution = Object.fromEntries(
+    SHEETS.map((sheetName) => [
+      sheetName,
+      blockerBindings.filter(
+        ({ mapping }) => mapping.declared_source_sheet === sheetName,
+      ).length,
+    ]),
+  );
+  if (
+    blockerDistribution["SS-TC 0"] !== 1 ||
+    blockerDistribution["SS-TC 1"] !== 14
+  ) {
+    p0BlockingReasons.push({
+      code: "P0_BLOCKER_DISTRIBUTION",
+      path: "mappings",
+      message: JSON.stringify(blockerDistribution),
+    });
+  }
+  for (const { mapping, binding } of blockerBindings) {
+    if (
+      !mapping.source_selectors.some(
+        (selector) => selector.source_no === binding.source_no,
+      )
+    ) {
+      p0BlockingReasons.push({
+        code: "P0_BLOCKER_SOURCE",
+        path: `${mapping.yaml_path}:${binding.blocker_step_index}`,
+        message: `source_no=${binding.source_no}`,
+      });
+    }
+  }
+  const aggregate = allMappings.find(
+    (mapping) =>
+      mapping.yaml_path ===
+      "exported_ss_call/SS_TC05_boundary_values.yaml",
+  );
+  if (
+    aggregate === undefined ||
+    JSON.stringify(aggregate.source_selectors.map(
+      (selector) => selector.source_no,
+    )) !== JSON.stringify(["TC-05A", "TC-05B", "TC-05C"]) ||
+    JSON.stringify(aggregate.blocker_bindings) !== JSON.stringify([
+      { blocker_step_index: 9, source_no: "TC-05A" },
+    ])
+  ) {
+    p0BlockingReasons.push({
+      code: "P0_AGGREGATE_BINDING",
+      path: "exported_ss_call/SS_TC05_boundary_values.yaml",
+      message: "expected A/B/C selectors with step 9 bound to A only",
+    });
+  }
+  const fanOutPaths = allMappings
+    .filter((mapping) => mapping.blocker_bindings.length === 2)
+    .map((mapping) => mapping.yaml_path);
+  if (JSON.stringify(fanOutPaths) !== JSON.stringify([
+    "exported_ss_call/SS_TC01_permission_denied.yaml",
+    "exported_ss_call/SS_TC06_missed_rejected.yaml",
+    "exported_ss_call/SS_TC11_multi_subscription.yaml",
+  ])) {
+    p0BlockingReasons.push({
+      code: "P0_FAN_OUT_BINDING",
+      path: "mappings",
+      message: JSON.stringify(fanOutPaths),
     });
   }
   p0BlockingReasons.sort((left, right) => (
@@ -2943,7 +3176,7 @@ await (async () => {
     (await fs.stat(WORKBOOK, { bigint: true })).mtimeNs.toString();
   const workbookRawShaAfter = sha(await fs.readFile(WORKBOOK));
   const output = {
-    schema_version: 2,
+    schema_version: 3,
     directive_id: "RB-20260728-shellrc-p0p1",
     workbook_path: "tc_samples/TC_1.xlsx",
     workbook_mtime_before_ns: workbookMtimeBeforeNs,
@@ -2969,7 +3202,7 @@ await fs.rename(`${OUTPUT}.tmp`, OUTPUT);
 아래 code fence 내부 source만 external temp `analyze_provenance.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `6ab74d52b3765d6300cd4f9f90a15d5cbf2442af2b94a798006d2042264c2e5c`
+**Expected source SHA-256:** `63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b`
 
 ```python
 from __future__ import annotations
@@ -3000,20 +3233,196 @@ P0_FIELDS = (
     "no", "feature_name", "functionality", "precondition",
     "procedure", "expected", "priority",
 )
-TARGETS = (
-    ("exported_ss_call/SS_TC01_permission_denied.yaml", (10, 11), "SS-TC 1"),
-    ("exported_ss_call/SS_TC02_permission_allow_idle.yaml", (11,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC03_ringing_permission.yaml", (15,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC04_offhook_seed_recovery.yaml", (18,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC05_boundary_values.yaml", (9,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC06_missed_rejected.yaml", (10, 11), "SS-TC 1"),
-    ("exported_ss_call/SS_TC07_short_call_no_false_positive.yaml", (9,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC09_offhook_permission_banking.yaml", (20,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC0_P0_endcall_crash.yaml", (15,), "SS-TC 0"),
-    ("exported_ss_call/SS_TC10_permission_toggle.yaml", (24,), "SS-TC 1"),
-    ("exported_ss_call/SS_TC11_multi_subscription.yaml", (20, 21), "SS-TC 1"),
-    ("exported_ss_call/SS_TC12_legacy_path.yaml", (19,), "SS-TC 1"),
-)
+TARGETS = [
+    {
+        "yaml_path": "exported_ss_call/SS_TC01_permission_denied.yaml",
+        "yaml_tc_name": "SS_TC01_permission_denied",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-01",
+                "source_functionality_effective": "권한 미부여 기본 동작 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 10, "source_no": "TC-01"},
+            {"blocker_step_index": 11, "source_no": "TC-01"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC02_permission_allow_idle.yaml",
+        "yaml_tc_name": "SS_TC02_permission_allow_idle",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-02",
+                "source_functionality_effective": "권한 허용 후 Idle 진입 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 11, "source_no": "TC-02"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC03_ringing_permission.yaml",
+        "yaml_tc_name": "SS_TC03_ringing_permission",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-03",
+                "source_functionality_effective":
+                    "RINGING 중 권한 허용 시 현재 통화 감지",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 15, "source_no": "TC-03"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC04_offhook_seed_recovery.yaml",
+        "yaml_tc_name": "SS_TC04_offhook_seed_recovery",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-04",
+                "source_functionality_effective":
+                    "OFFHOOK 도중 권한 허용 시 seed 복구 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 18, "source_no": "TC-04"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC05_boundary_values.yaml",
+        "yaml_tc_name": "SS_TC05_boundary_values",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-05A",
+                "source_functionality_effective": "9초 경계값 검증",
+            },
+            {
+                "source_no": "TC-05B",
+                "source_functionality_effective": "10초 경계값 검증",
+            },
+            {
+                "source_no": "TC-05C",
+                "source_functionality_effective": "11초 경계값 검증",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 9, "source_no": "TC-05A"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC06_missed_rejected.yaml",
+        "yaml_tc_name": "SS_TC06_missed_rejected",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-06",
+                "source_functionality_effective": "부재중/거절 통화 처리 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 10, "source_no": "TC-06"},
+            {"blocker_step_index": 11, "source_no": "TC-06"},
+        ],
+    },
+    {
+        "yaml_path":
+            "exported_ss_call/SS_TC07_short_call_no_false_positive.yaml",
+        "yaml_tc_name": "SS_TC07_short_call_no_false_positive",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-07",
+                "source_functionality_effective": "짧은 정상 통화 오탐 방지",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 9, "source_no": "TC-07"},
+        ],
+    },
+    {
+        "yaml_path":
+            "exported_ss_call/SS_TC09_offhook_permission_banking.yaml",
+        "yaml_tc_name": "SS_TC09_offhook_permission_banking",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-09",
+                "source_functionality_effective":
+                    "OFFHOOK 중 권한 허용 후 금융 앱 개입 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 20, "source_no": "TC-09"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC0_P0_endcall_crash.yaml",
+        "yaml_tc_name": "SS_TC0_P0_endcall_crash",
+        "sheet": "SS-TC 0",
+        "source_selectors": [
+            {
+                "source_no": "T/C-01",
+                "source_functionality_effective":
+                    "경고 팝업의 \"지금 전화 끊기\" 버튼 경로에서 다이얼러 크래시 "
+                    "재발 여부와 dismiss→suppression→delayed endCall→IDLE→"
+                    "suppression release 순서 검증",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 15, "source_no": "T/C-01"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC10_permission_toggle.yaml",
+        "yaml_tc_name": "SS_TC10_permission_toggle",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-10",
+                "source_functionality_effective": "true→false→true 권한 흔들기",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 24, "source_no": "TC-10"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC11_multi_subscription.yaml",
+        "yaml_tc_name": "SS_TC11_multi_subscription",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-11",
+                "source_functionality_effective": "다중 구독 안전성 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 20, "source_no": "TC-11"},
+            {"blocker_step_index": 21, "source_no": "TC-11"},
+        ],
+    },
+    {
+        "yaml_path": "exported_ss_call/SS_TC12_legacy_path.yaml",
+        "yaml_tc_name": "SS_TC12_legacy_path",
+        "sheet": "SS-TC 1",
+        "source_selectors": [
+            {
+                "source_no": "TC-12",
+                "source_functionality_effective":
+                    "Legacy 경로 현재 상태 반영 확인",
+            },
+        ],
+        "blocker_bindings": [
+            {"blocker_step_index": 19, "source_no": "TC-12"},
+        ],
+    },
+]
 
 
 def canonical_bytes(value: object) -> bytes:
@@ -3406,33 +3815,201 @@ def check_sheet_internal(
     return ok
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--repo", type=Path, required=True)
-    parser.add_argument("--p0", type=Path, required=True)
-    parser.add_argument("--out0", type=Path, required=True)
-    parser.add_argument("--out1", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
+def check_selector_internal(
+    selector: dict[str, Any],
+    expected_sheet: str,
+    sheet_by_name: dict[str, dict[str, Any]],
+    reasons: list[dict[str, str]],
+    yaml_path: str,
+    source_no: str,
+) -> bool:
+    reason_path = f"{yaml_path}:{source_no}"
+    ok = True
+    cells = selector.get("cells")
+    carry_cells = selector.get("carry_forward_cells")
+    region_records = selector.get("cell_region_records")
+    if (
+        not isinstance(cells, list)
+        or len(cells) != 7
+        or any(not valid_cell_evidence(cell, expected_sheet) for cell in cells)
+        or not isinstance(carry_cells, list)
+        or not carry_cells
+        or any(
+            not valid_cell_evidence(cell, expected_sheet)
+            for cell in carry_cells
+        )
+        or not isinstance(region_records, list)
+        or len(region_records) != 7
+        or any(
+            not valid_region_record(record, expected_sheet)
+            for record in region_records
+        )
+    ):
+        add_reason(
+            reasons, "P0_CELL_EVIDENCE", reason_path,
+            "cell/carry/region evidence incomplete",
+        )
+        ok = False
+    try:
+        sheet_record = sheet_by_name[expected_sheet]
+        column_map = sheet_record["column_map"]
+        physical_row = selector.get("workbook_physical_row")
+        if (
+            isinstance(physical_row, bool)
+            or not isinstance(physical_row, int)
+            or physical_row <= 0
+            or not isinstance(cells, list)
+            or not isinstance(carry_cells, list)
+            or not isinstance(region_records, list)
+        ):
+            raise ValueError("selector shape unavailable")
+        expected_coordinates = [
+            f"{column_name(column_map[field])}{physical_row}"
+            for field in P0_FIELDS
+        ]
+        observed_coordinates = [
+            cell.get("coordinate")
+            for cell in cells if isinstance(cell, dict)
+        ]
+        if observed_coordinates != expected_coordinates:
+            raise ValueError("semantic cell coordinates differ")
+        source_fields = (
+            "source_no",
+            "source_feature_name_raw",
+            "source_functionality_raw",
+            "source_precondition",
+            "source_procedure",
+            "source_expected",
+            "source_priority",
+        )
+        for cell, source_field in zip(cells, source_fields, strict=True):
+            if (
+                p0_safe_str(loader_value_from_cell(cell))
+                != selector.get(source_field)
+            ):
+                raise ValueError(f"{source_field} differs from loader cell")
+        region_by_coordinate = {
+            record.get("coordinate"): record
+            for record in region_records if isinstance(record, dict)
+        }
+        if (
+            len(region_by_coordinate) != len(expected_coordinates)
+            or set(region_by_coordinate) != set(expected_coordinates)
+        ):
+            raise ValueError("region coordinate set differs")
+        cell_by_coordinate = {
+            cell["coordinate"]: cell
+            for cell in cells if isinstance(cell, dict)
+        }
+        for coordinate in expected_coordinates:
+            cell = cell_by_coordinate[coordinate]
+            record = region_by_coordinate[coordinate]
+            for field in ("region_request", "region_ndjson", "region_sha256"):
+                if record.get(field) != cell.get(field):
+                    raise ValueError(f"{coordinate} region record differs")
+        carry_by_coordinate = {
+            cell.get("coordinate"): cell
+            for cell in carry_cells if isinstance(cell, dict)
+        }
+        if len(carry_by_coordinate) != len(carry_cells):
+            raise ValueError("carry coordinate duplicate")
+        expected_carry_coordinates = []
+        for column_field, anchor_field, effective_field in (
+            (
+                "feature_name", "source_feature_anchor_row",
+                "source_feature_name_effective",
+            ),
+            (
+                "functionality", "source_functionality_anchor_row",
+                "source_functionality_effective",
+            ),
+        ):
+            anchor = selector.get(anchor_field)
+            if anchor is None:
+                final_effective = ""
+                row_range = ()
+            elif (
+                isinstance(anchor, bool)
+                or not isinstance(anchor, int)
+                or anchor <= 0
+                or anchor > physical_row
+            ):
+                raise ValueError(f"{anchor_field} invalid")
+            else:
+                final_effective = ""
+                row_range = range(anchor, physical_row + 1)
+            nonblank_rows = []
+            for row in row_range:
+                coordinate = f"{column_name(column_map[column_field])}{row}"
+                expected_carry_coordinates.append(coordinate)
+                if coordinate not in carry_by_coordinate:
+                    raise ValueError(f"carry cell missing: {coordinate}")
+                value = p0_safe_str(
+                    loader_value_from_cell(carry_by_coordinate[coordinate])
+                )
+                if value:
+                    nonblank_rows.append(row)
+                    final_effective = value
+            if anchor is not None and nonblank_rows != [anchor]:
+                raise ValueError(
+                    f"{anchor_field} is not nearest preceding nonblank"
+                )
+            if final_effective != selector.get(effective_field):
+                raise ValueError(f"{effective_field} carry derivation differs")
+        if set(carry_by_coordinate) != set(expected_carry_coordinates):
+            raise ValueError("carry coordinate set differs")
+        expected_workbook_name = (
+            selector.get("source_no") or f"ROW{physical_row}"
+        ) + "_" + re.sub(
+            r"\s+", "_",
+            selector.get("source_feature_name_effective") or "UNNAMED",
+        )
+        if selector.get("workbook_tc_name") != expected_workbook_name:
+            raise ValueError("MMIRow.tc_name derivation differs")
+        row_inventory = sheet_record.get("row_inventory")
+        row_matches = [
+            row for row in row_inventory
+            if isinstance(row, dict)
+            and row.get("physical_row") == physical_row
+        ] if isinstance(row_inventory, list) else []
+        if len(row_matches) != 1:
+            raise ValueError("row inventory join is not unique")
+        row_record = row_matches[0]
+        inventory_bindings = {
+            "tc_name": "workbook_tc_name",
+            "source_no": "source_no",
+            "source_feature_name_raw": "source_feature_name_raw",
+            "source_feature_name_effective": "source_feature_name_effective",
+            "source_feature_anchor_row": "source_feature_anchor_row",
+            "source_functionality_raw": "source_functionality_raw",
+            "source_functionality_effective":
+                "source_functionality_effective",
+            "source_functionality_anchor_row":
+                "source_functionality_anchor_row",
+            "source_precondition": "source_precondition",
+            "source_procedure": "source_procedure",
+            "source_expected": "source_expected",
+            "source_priority": "source_priority",
+        }
+        if any(
+            row_record.get(row_field) != selector.get(selector_field)
+            for row_field, selector_field in inventory_bindings.items()
+        ):
+            raise ValueError("row inventory fields differ from selector")
+    except (KeyError, TypeError, ValueError) as error:
+        add_reason(
+            reasons, "P0_INTERNAL_CONSISTENCY", reason_path,
+            f"{type(error).__name__}: {error}",
+        )
+        ok = False
+    return ok
 
-    expected_paths = (
-        (args.repo, EXPECTED_REPO, "repo"),
-        (args.p0, EXPECTED_TEMP / "artifact-tool-work" /
-         "p0_workbook.json", "p0"),
-        (args.out0, EXPECTED_TEMP / "SS-TC-0", "out0"),
-        (args.out1, EXPECTED_TEMP / "SS-TC-1", "out1"),
-        (args.output, EXPECTED_TEMP / "reconciliation.json", "output"),
-    )
-    for actual, expected, label in expected_paths:
-        if not same_path(actual, expected):
-            raise ValueError(f"{label}: unexpected path {actual}")
-    temporary = args.output.with_suffix(".json.tmp")
-    if args.output.exists() or temporary.exists():
-        raise FileExistsError("reconciliation output already exists")
 
+def reconcile_v2(
+    args: argparse.Namespace,
+    temporary: Path,
+) -> int:
     p0 = json.loads(args.p0.read_text(encoding="utf-8"))
-    if p0.get("directive_id") != DIRECTIVE_ID:
-        raise ValueError("P0 directive_id mismatch")
     mappings = p0.get("mappings")
     if not isinstance(mappings, list):
         raise ValueError("P0 mappings must be list")
@@ -3442,15 +4019,16 @@ def main() -> int:
         if isinstance(item, dict) and isinstance(item.get("yaml_path"), str)
     }
     reasons: list[dict[str, str]] = []
+    if p0.get("schema_version") != 3:
+        add_reason(reasons, "P0_SCHEMA", "p0", "expected schema_version=3")
+    if p0.get("directive_id") != DIRECTIVE_ID:
+        raise ValueError("P0 directive_id mismatch")
     if len(mappings) != 12 or len(mapping_by_path) != 12:
         add_reason(
             reasons, "P0_CARDINALITY", "p0.mappings",
             "expected 12 unique YAML mappings",
         )
-    if (
-        p0.get("reconciled") is not True
-        or p0.get("p0_blocking_reasons") != []
-    ):
+    if p0.get("reconciled") is not True or p0.get("p0_blocking_reasons") != []:
         add_reason(
             reasons, "P0_GATE_STATE", "p0",
             "analyzer requires reconciled P0 with no blocking reasons",
@@ -3492,37 +4070,43 @@ def main() -> int:
         )
     sheet_by_name = {
         sheet["sheet_name"]: sheet
-        for sheet in sheets
-        if isinstance(sheet, dict)
+        for sheet in sheets if isinstance(sheet, dict)
     }
     for sheet in sheets:
         check_sheet_internal(sheet, reasons)
 
-    target_keys = [
-        (path, index)
-        for path, indices, _sheet in TARGETS
-        for index in indices
+    source_manifest_keys = [
+        (target["yaml_path"], selector["source_no"])
+        for target in TARGETS for selector in target["source_selectors"]
     ]
-    if len(target_keys) != 15 or len(set(target_keys)) != 15:
-        raise ValueError("embedded target manifest is invalid")
-    if any(index < 1 for _path, index in target_keys):
-        raise ValueError("embedded target index is not 1-based")
+    target_manifest_keys = [
+        (
+            target["yaml_path"], binding["blocker_step_index"],
+            binding["source_no"],
+        )
+        for target in TARGETS for binding in target["blocker_bindings"]
+    ]
+    if (
+        len(TARGETS) != 12
+        or len(source_manifest_keys) != 14
+        or len(set(source_manifest_keys)) != 14
+        or len(target_manifest_keys) != 15
+        or len(set(target_manifest_keys)) != 15
+    ):
+        raise ValueError("embedded reconcile manifest is invalid")
 
     inventories = inventory(args.out0, "SS-TC-0", reasons) + inventory(
         args.out1, "SS-TC-1", reasons
     )
     inventories.sort(key=lambda item: item["relative_path"].encode("utf-8"))
     producer_counts = []
-    for label, stem in (
-        ("SS-TC-0", "SS-TC-0"),
-        ("SS-TC-1", "SS-TC-1"),
-    ):
-        dry_text = (
-            EXPECTED_TEMP / f"dry-run-{stem}.combined.txt"
-        ).read_text(encoding="utf-8")
-        export_text = (
-            EXPECTED_TEMP / f"export-{stem}.combined.txt"
-        ).read_text(encoding="utf-8")
+    for label, stem in (("SS-TC-0", "SS-TC-0"), ("SS-TC-1", "SS-TC-1")):
+        dry_text = (EXPECTED_TEMP / f"dry-run-{stem}.combined.txt").read_text(
+            encoding="utf-8"
+        )
+        export_text = (EXPECTED_TEMP / f"export-{stem}.combined.txt").read_text(
+            encoding="utf-8"
+        )
         total = one_count(
             r"^Total: ([1-9][0-9]*) TCs$", dry_text,
             f"{label} dry total",
@@ -3541,26 +4125,19 @@ def main() -> int:
         )
         producer_counts.append(
             {
-                "sheet_label": label,
-                "dry_total": total,
-                "created": created,
-                "skipped": skipped,
+                "sheet_label": label, "dry_total": total,
+                "created": created, "skipped": skipped,
                 "inventory_count": inventory_count,
             }
         )
-        if not (
-            total == created == inventory_count
-            and skipped == 0
-        ):
+        if not (total == created == inventory_count and skipped == 0):
             add_reason(
-                reasons, "PRODUCER_COUNT",
-                label,
+                reasons, "PRODUCER_COUNT", label,
                 f"total={total},created={created}," +
                 f"inventory={inventory_count},skipped={skipped}",
             )
-    emitted_by_source: dict[
-        tuple[str, int], list[dict[str, Any]]
-    ] = {}
+
+    emitted_by_source: dict[tuple[str, int], list[dict[str, Any]]] = {}
     for item in inventories:
         metadata = item["document"].get("metadata")
         if not isinstance(metadata, dict):
@@ -3596,8 +4173,16 @@ def main() -> int:
     projections: list[dict[str, Any]] = []
     mapped_document_status: list[dict[str, Any]] = []
     mapped_source_keys: list[tuple[str, int]] = []
-    for yaml_path, blocker_indices, expected_sheet in TARGETS:
+    for target in TARGETS:
+        yaml_path = target["yaml_path"]
+        yaml_tc_name = target["yaml_tc_name"]
+        expected_sheet = target["sheet"]
         tracked = read_mapping(args.repo / Path(yaml_path))
+        tracked_steps = tracked.get("steps")
+        if not isinstance(tracked_steps, list) or not all(
+            isinstance(step, dict) for step in tracked_steps
+        ):
+            raise ValueError(f"{yaml_path}: tracked steps invalid")
         source = tracked.get("metadata", {}).get("source")
         match = SOURCE_RE.fullmatch(source) if isinstance(source, str) else None
         if match is None or match.group(1) != expected_sheet:
@@ -3605,328 +4190,259 @@ def main() -> int:
                 reasons, "TRACKED_SOURCE", yaml_path,
                 f"invalid source: {source!r}",
             )
+        tracked_name_match = tracked.get("tc_name") == yaml_tc_name
+        if not tracked_name_match:
+            add_reason(
+                reasons, "TRACKED_TC_NAME", yaml_path,
+                "tracked tc_name differs from manifest alias",
+            )
         mapping = mapping_by_path.get(yaml_path)
         if not isinstance(mapping, dict):
             add_reason(
                 reasons, "P0_MAPPING_MISSING", yaml_path, "mapping missing",
             )
             continue
-        if mapping.get("blocker_step_indices") != list(blocker_indices):
-            add_reason(
-                reasons, "P0_TARGET_INDICES", yaml_path,
-                f"observed={mapping.get('blocker_step_indices')!r}",
-            )
         if (
-            mapping.get("declared_source_file") != "TC_1.xlsx"
+            mapping.get("yaml_tc_name") != yaml_tc_name
+            or mapping.get("declared_source_file") != "TC_1.xlsx"
             or mapping.get("declared_source_sheet") != expected_sheet
         ):
             add_reason(
                 reasons, "P0_DECLARED_SOURCE", yaml_path,
-                "declared source file/sheet mismatch",
+                "tracked alias or declared source mismatch",
             )
-        cells = mapping.get("cells")
-        carry_cells = mapping.get("carry_forward_cells")
-        region_records = mapping.get("cell_region_records")
-        if (
-            not isinstance(cells, list)
-            or len(cells) != 7
-            or any(
-                not valid_cell_evidence(cell, expected_sheet)
-                for cell in cells
-            )
-            or not isinstance(carry_cells, list)
-            or not carry_cells
-            or any(
-                not valid_cell_evidence(cell, expected_sheet)
-                for cell in carry_cells
-            )
-            or not isinstance(region_records, list)
-            or len(region_records) != 7
-            or any(
-                not valid_region_record(record, expected_sheet)
-                for record in region_records
-            )
-        ):
-            add_reason(
-                reasons, "P0_CELL_EVIDENCE", yaml_path,
-                "cell/carry/region evidence incomplete",
-            )
-        try:
-            sheet_record = sheet_by_name[expected_sheet]
-            column_map = sheet_record["column_map"]
-            physical_row = mapping.get("workbook_physical_row")
-            if (
-                isinstance(physical_row, bool)
-                or not isinstance(physical_row, int)
-                or physical_row <= 0
-                or not isinstance(cells, list)
-                or not isinstance(carry_cells, list)
-                or not isinstance(region_records, list)
-            ):
-                raise ValueError("mapping shape unavailable")
-            expected_coordinates = [
-                f"{column_name(column_map[field])}{physical_row}"
-                for field in P0_FIELDS
-            ]
-            observed_coordinates = [
-                cell.get("coordinate")
-                for cell in cells if isinstance(cell, dict)
-            ]
-            if observed_coordinates != expected_coordinates:
-                raise ValueError("semantic cell coordinates differ")
-            source_fields = (
-                "source_no",
-                "source_feature_name_raw",
-                "source_functionality_raw",
-                "source_precondition",
-                "source_procedure",
-                "source_expected",
-                "source_priority",
-            )
-            for cell, source_field in zip(
-                cells, source_fields, strict=True
-            ):
-                if (
-                    p0_safe_str(loader_value_from_cell(cell))
-                    != mapping.get(source_field)
-                ):
-                    raise ValueError(
-                        f"{source_field} differs from loader cell"
-                    )
-            region_by_coordinate = {
-                record.get("coordinate"): record
-                for record in region_records
-                if isinstance(record, dict)
-            }
-            if (
-                len(region_by_coordinate) != len(expected_coordinates)
-                or set(region_by_coordinate) != set(expected_coordinates)
-            ):
-                raise ValueError("region coordinate set differs")
-            cell_by_coordinate = {
-                cell["coordinate"]: cell
-                for cell in cells if isinstance(cell, dict)
-            }
-            for coordinate in expected_coordinates:
-                cell = cell_by_coordinate[coordinate]
-                record = region_by_coordinate[coordinate]
-                for field in (
-                    "region_request", "region_ndjson", "region_sha256",
-                ):
-                    if record.get(field) != cell.get(field):
-                        raise ValueError(
-                            f"{coordinate} region record differs"
-                        )
-            carry_by_coordinate = {
-                cell.get("coordinate"): cell
-                for cell in carry_cells if isinstance(cell, dict)
-            }
-            if len(carry_by_coordinate) != len(carry_cells):
-                raise ValueError("carry coordinate duplicate")
-            expected_carry_coordinates = []
-            for (
-                column_field, anchor_field, effective_field,
-            ) in (
-                (
-                    "feature_name", "source_feature_anchor_row",
-                    "source_feature_name_effective",
-                ),
-                (
-                    "functionality", "source_functionality_anchor_row",
-                    "source_functionality_effective",
-                ),
-            ):
-                anchor = mapping.get(anchor_field)
-                if anchor is None:
-                    final_effective = ""
-                    row_range = ()
-                elif (
-                    isinstance(anchor, bool)
-                    or not isinstance(anchor, int)
-                    or anchor <= 0
-                    or anchor > physical_row
-                ):
-                    raise ValueError(f"{anchor_field} invalid")
-                else:
-                    final_effective = ""
-                    row_range = range(anchor, physical_row + 1)
-                nonblank_rows = []
-                for row in row_range:
-                    coordinate = (
-                        f"{column_name(column_map[column_field])}{row}"
-                    )
-                    expected_carry_coordinates.append(coordinate)
-                    if coordinate not in carry_by_coordinate:
-                        raise ValueError(
-                            f"carry cell missing: {coordinate}"
-                        )
-                    value = p0_safe_str(loader_value_from_cell(
-                        carry_by_coordinate[coordinate]
-                    ))
-                    if value:
-                        nonblank_rows.append(row)
-                        final_effective = value
-                if anchor is not None and nonblank_rows != [anchor]:
-                    raise ValueError(
-                        f"{anchor_field} is not nearest preceding nonblank"
-                    )
-                if final_effective != mapping.get(effective_field):
-                    raise ValueError(
-                        f"{effective_field} carry derivation differs"
-                    )
-            if set(carry_by_coordinate) != set(expected_carry_coordinates):
-                raise ValueError("carry coordinate set differs")
-            expected_tc_name = (
-                mapping.get("source_no") or f"ROW{physical_row}"
-            ) + "_" + re.sub(
-                r"\s+", "_",
-                mapping.get("source_feature_name_effective") or "UNNAMED",
-            )
-            if mapping.get("yaml_tc_name") != expected_tc_name:
-                raise ValueError("MMIRow.tc_name derivation differs")
-            row_inventory = sheet_record.get("row_inventory")
-            row_matches = [
-                row for row in row_inventory
-                if isinstance(row, dict)
-                and row.get("physical_row") == physical_row
-            ] if isinstance(row_inventory, list) else []
-            if len(row_matches) != 1:
-                raise ValueError("row inventory join is not unique")
-            row_record = row_matches[0]
-            inventory_bindings = {
-                "tc_name": "yaml_tc_name",
-                "source_no": "source_no",
-                "source_feature_name_raw": "source_feature_name_raw",
-                "source_feature_name_effective":
-                    "source_feature_name_effective",
-                "source_feature_anchor_row": "source_feature_anchor_row",
-                "source_functionality_raw": "source_functionality_raw",
-                "source_functionality_effective":
-                    "source_functionality_effective",
-                "source_functionality_anchor_row":
-                    "source_functionality_anchor_row",
-                "source_precondition": "source_precondition",
-                "source_procedure": "source_procedure",
-                "source_expected": "source_expected",
-                "source_priority": "source_priority",
-            }
-            if any(
-                row_record.get(row_field) != mapping.get(mapping_field)
-                for row_field, mapping_field in inventory_bindings.items()
-            ):
-                raise ValueError("row inventory fields differ from mapping")
-        except (KeyError, TypeError, ValueError) as error:
-            add_reason(
-                reasons, "P0_INTERNAL_CONSISTENCY", yaml_path,
-                f"{type(error).__name__}: {error}",
-            )
-        p0_sheet = mapping.get("workbook_sheet")
-        p0_row = mapping.get("workbook_physical_row")
-        if (
-            mapping.get("candidate_count") != 1
-            or p0_sheet != expected_sheet
-            or isinstance(p0_row, bool)
-            or not isinstance(p0_row, int)
-            or p0_row <= 0
-        ):
-            add_reason(
-                reasons, "P0_UNIQUE_JOIN", yaml_path,
-                "candidate_count/source row invalid",
-            )
-            continue
-        source_key = (p0_sheet, p0_row)
-        mapped_source_keys.append(source_key)
-        emitted_candidates = emitted_by_source.get(source_key, [])
-        if len(emitted_candidates) != 1:
-            add_reason(
-                reasons, "P1_SOURCE_JOIN", yaml_path,
-                f"{p0_sheet}:{p0_row} " +
-                f"candidate_count={len(emitted_candidates)}",
-            )
-            continue
-        emitted_item = emitted_candidates[0]
-        emitted = emitted_item["document"]
-        metadata = emitted.get("metadata")
-        emitted_steps = emitted.get("steps")
-        tracked_steps = tracked.get("steps")
-        if not isinstance(metadata, dict):
-            add_reason(
-                reasons, "EMITTED_METADATA", yaml_path,
-                "emitted metadata is not mapping",
-            )
-            continue
-        if not isinstance(emitted_steps, list) or not all(
-            isinstance(step, dict) for step in emitted_steps
-        ):
-            add_reason(
-                reasons, "EMITTED_STEPS_INVALID", yaml_path,
-                "emitted steps must be list of mappings",
-            )
-            continue
-        if not isinstance(tracked_steps, list) or not all(
-            isinstance(step, dict) for step in tracked_steps
-        ):
-            raise ValueError(f"{yaml_path}: tracked steps invalid")
-
-        tc_name = mapping.get("yaml_tc_name")
-        procedure = mapping.get("source_procedure")
-        expected = mapping.get("source_expected")
-        if not all(
-            isinstance(value, str)
-            for value in (tc_name, procedure, expected)
-        ):
-            raise ValueError(f"{yaml_path}: P0 source strings unavailable")
-        if tracked.get("tc_name") != tc_name:
-            add_reason(
-                reasons, "TRACKED_TC_NAME", yaml_path,
-                "tracked tc_name differs from P0 mapping",
-            )
-        tracked_name_match = tracked.get("tc_name") == tc_name
-        bindings = {
-            "emitted_name_match": emitted.get("name") == tc_name,
-            "procedure_prefix_match":
-                emitted.get("description") == procedure[:200],
-            "source_content_hash_match":
-                Path(emitted_item["relative_path"]).name
-                == make_filename(tc_name, procedure, expected),
-        }
-        for field, field_match in bindings.items():
-            if not field_match:
-                add_reason(
-                    reasons, "SOURCE_BINDING",
-                    f"{yaml_path}:{field}", "exact match failed",
-                )
-        if metadata.get("runnable") is not True:
-            add_reason(
-                reasons, "PRODUCER_RUNNABILITY_GAP",
-                f"{yaml_path}:runnable", "expected true",
-            )
-        if metadata.get("has_unresolved_params") is not False:
-            add_reason(
-                reasons, "PRODUCER_RUNNABILITY_GAP",
-                f"{yaml_path}:has_unresolved_params", "expected false",
-            )
-        document_green = (
-            tracked_name_match
-            and all(bindings.values())
-            and metadata.get("runnable") is True
-            and metadata.get("has_unresolved_params") is False
-        )
-        mapped_document_status.append(
+        selector_results = mapping.get("source_selectors")
+        blocker_bindings = mapping.get("blocker_bindings")
+        if not isinstance(selector_results, list):
+            selector_results = []
+        observed_selectors = [
             {
-                "yaml_path": yaml_path,
-                "emitted_yaml_path": emitted_item["relative_path"],
-                "tracked_tc_name_match": tracked_name_match,
-                **bindings,
-                "runnable": metadata.get("runnable"),
-                "has_unresolved_params":
-                    metadata.get("has_unresolved_params"),
-                "verdict": "RECONCILED"
-                if document_green else "MISMATCH",
+                "source_no": item.get("source_no"),
+                "source_functionality_effective":
+                    item.get("source_functionality_effective"),
             }
-        )
+            for item in selector_results if isinstance(item, dict)
+        ]
+        if observed_selectors != target["source_selectors"]:
+            add_reason(
+                reasons, "P0_SELECTOR_MANIFEST", yaml_path,
+                f"observed={observed_selectors!r}",
+            )
+        if blocker_bindings != target["blocker_bindings"]:
+            add_reason(
+                reasons, "P0_BLOCKER_MANIFEST", yaml_path,
+                f"observed={blocker_bindings!r}",
+            )
 
-        for blocker_index in blocker_indices:
+        documents_by_source: dict[str, list[dict[str, Any]]] = {}
+        for selector_manifest in target["source_selectors"]:
+            source_no = selector_manifest["source_no"]
+            matches = [
+                item for item in selector_results
+                if isinstance(item, dict)
+                and item.get("source_no") == source_no
+                and item.get("source_functionality_effective")
+                == selector_manifest["source_functionality_effective"]
+            ]
+            status: dict[str, Any] = {
+                "yaml_path": yaml_path,
+                "source_no": source_no,
+                "emitted_yaml_path": None,
+                "tracked_tc_name_match": tracked_name_match,
+                "emitted_name_match": False,
+                "procedure_prefix_match": False,
+                "source_content_hash_match": False,
+                "runnable": None,
+                "has_unresolved_params": None,
+                "verdict": "MISMATCH",
+            }
+            projection: dict[str, Any] = {
+                "yaml_path": yaml_path,
+                "source_no": source_no,
+                "gating": False,
+                "tracked_ordered_projection": [
+                    step_projection(step) for step in tracked_steps
+                ],
+                "tracked_projection_sha256": None,
+                "emitted_ordered_projection": None,
+                "emitted_projection_sha256": None,
+            }
+            projection["tracked_projection_sha256"] = sha256_bytes(
+                canonical_bytes(projection["tracked_ordered_projection"])
+            )
+            context = {
+                "source_no": source_no,
+                "document_green": False,
+                "bindings": {
+                    "emitted_name_match": False,
+                    "procedure_prefix_match": False,
+                    "source_content_hash_match": False,
+                },
+                "emitted_steps": None,
+                "emitted_item": None,
+                "selector": matches[0] if len(matches) == 1 else None,
+            }
+            documents_by_source.setdefault(source_no, []).append(context)
+            if len(matches) != 1:
+                add_reason(
+                    reasons, "P0_SELECTOR_RESULT", f"{yaml_path}:{source_no}",
+                    f"candidate_count={len(matches)}",
+                )
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            selector = matches[0]
+            if not check_selector_internal(
+                selector, expected_sheet, sheet_by_name,
+                reasons, yaml_path, source_no,
+            ):
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            p0_sheet = selector.get("workbook_sheet")
+            p0_row = selector.get("workbook_physical_row")
+            if (
+                selector.get("candidate_count") != 1
+                or p0_sheet != expected_sheet
+                or isinstance(p0_row, bool)
+                or not isinstance(p0_row, int)
+                or p0_row <= 0
+            ):
+                add_reason(
+                    reasons, "P0_UNIQUE_JOIN", f"{yaml_path}:{source_no}",
+                    "candidate_count/source row invalid",
+                )
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            source_key = (p0_sheet, p0_row)
+            mapped_source_keys.append(source_key)
+            emitted_candidates = emitted_by_source.get(source_key, [])
+            if len(emitted_candidates) != 1:
+                add_reason(
+                    reasons, "P1_SOURCE_JOIN", f"{yaml_path}:{source_no}",
+                    f"{p0_sheet}:{p0_row} " +
+                    f"candidate_count={len(emitted_candidates)}",
+                )
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            emitted_item = emitted_candidates[0]
+            emitted = emitted_item["document"]
+            metadata = emitted.get("metadata")
+            emitted_steps = emitted.get("steps")
+            if not isinstance(metadata, dict):
+                add_reason(
+                    reasons, "EMITTED_METADATA", f"{yaml_path}:{source_no}",
+                    "emitted metadata is not mapping",
+                )
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            if not isinstance(emitted_steps, list) or not all(
+                isinstance(step, dict) for step in emitted_steps
+            ):
+                add_reason(
+                    reasons, "EMITTED_STEPS_INVALID",
+                    f"{yaml_path}:{source_no}",
+                    "emitted steps must be list of mappings",
+                )
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            workbook_tc_name = selector.get("workbook_tc_name")
+            procedure = selector.get("source_procedure")
+            expected = selector.get("source_expected")
+            if not all(
+                isinstance(value, str)
+                for value in (workbook_tc_name, procedure, expected)
+            ):
+                add_reason(
+                    reasons, "P0_INTERNAL_CONSISTENCY",
+                    f"{yaml_path}:{source_no}",
+                    "P0 source strings unavailable",
+                )
+                mapped_document_status.append(status)
+                projections.append(projection)
+                continue
+            bindings = {
+                "emitted_name_match": emitted.get("name") == workbook_tc_name,
+                "procedure_prefix_match": emitted.get("description") == procedure[:200],
+                "source_content_hash_match": (
+                    Path(emitted_item["relative_path"]).name
+                    == make_filename(workbook_tc_name, procedure, expected)
+                ),
+            }
+            for field, field_match in bindings.items():
+                if not field_match:
+                    add_reason(
+                        reasons, "SOURCE_BINDING",
+                        f"{yaml_path}:{source_no}:{field}",
+                        "exact match failed",
+                    )
+            if metadata.get("runnable") is not True:
+                add_reason(
+                    reasons, "PRODUCER_RUNNABILITY_GAP",
+                    f"{yaml_path}:{source_no}:runnable", "expected true",
+                )
+            if metadata.get("has_unresolved_params") is not False:
+                add_reason(
+                    reasons, "PRODUCER_RUNNABILITY_GAP",
+                    f"{yaml_path}:{source_no}:has_unresolved_params",
+                    "expected false",
+                )
+            document_green = (
+                tracked_name_match
+                and all(bindings.values())
+                and metadata.get("runnable") is True
+                and metadata.get("has_unresolved_params") is False
+            )
+            status.update(
+                {
+                    "emitted_yaml_path": emitted_item["relative_path"],
+                    **bindings,
+                    "runnable": metadata.get("runnable"),
+                    "has_unresolved_params":
+                        metadata.get("has_unresolved_params"),
+                    "verdict": "RECONCILED" if document_green else "MISMATCH",
+                }
+            )
+            emitted_projection = [
+                step_projection(step) for step in emitted_steps
+            ]
+            projection.update(
+                {
+                    "emitted_ordered_projection": emitted_projection,
+                    "emitted_projection_sha256":
+                        sha256_bytes(canonical_bytes(emitted_projection)),
+                }
+            )
+            context.update(
+                {
+                    "document_green": document_green,
+                    "bindings": bindings,
+                    "emitted_steps": emitted_steps,
+                    "emitted_item": emitted_item,
+                }
+            )
+            mapped_document_status.append(status)
+            projections.append(projection)
+
+        for binding in target["blocker_bindings"]:
+            blocker_index = binding["blocker_step_index"]
+            source_no = binding["source_no"]
+            contexts = documents_by_source.get(source_no, [])
+            if len(contexts) != 1:
+                add_reason(
+                    reasons, "TARGET_SOURCE_JOIN",
+                    f"{yaml_path}:{blocker_index}:{source_no}",
+                    f"candidate_count={len(contexts)}",
+                )
+                continue
+            context = contexts[0]
+            emitted_steps = context["emitted_steps"]
+            emitted_item = context["emitted_item"]
+            selector = context["selector"]
             if blocker_index > len(tracked_steps):
                 raise ValueError(
                     f"{yaml_path}: blocker index {blocker_index} out of range"
@@ -3934,7 +4450,7 @@ def main() -> int:
             tracked_projection = step_projection(
                 tracked_steps[blocker_index - 1]
             )
-            candidate_indices = [
+            candidate_indices = [] if not isinstance(emitted_steps, list) else [
                 index
                 for index, step in enumerate(emitted_steps, start=1)
                 if step_projection(step) == tracked_projection
@@ -3942,68 +4458,53 @@ def main() -> int:
             if len(candidate_indices) != 1:
                 add_reason(
                     reasons, "TARGET_STEP_JOIN",
-                    f"{yaml_path}:{blocker_index}",
+                    f"{yaml_path}:{blocker_index}:{source_no}",
                     f"candidate_count={len(candidate_indices)}",
                 )
             targets.append(
                 {
                     "yaml_path": yaml_path,
                     "blocker_step_index": blocker_index,
-                    "workbook_sheet": p0_sheet,
-                    "workbook_physical_row": p0_row,
-                    "emitted_yaml_path": emitted_item["relative_path"],
+                    "source_no": source_no,
+                    "workbook_sheet":
+                        selector.get("workbook_sheet")
+                        if isinstance(selector, dict) else None,
+                    "workbook_physical_row":
+                        selector.get("workbook_physical_row")
+                        if isinstance(selector, dict) else None,
+                    "emitted_yaml_path":
+                        emitted_item["relative_path"]
+                        if isinstance(emitted_item, dict) else None,
                     "emitted_step_index":
                         candidate_indices[0]
                         if len(candidate_indices) == 1 else None,
                     "tracked_tc_name_match": tracked_name_match,
-                    **bindings,
+                    "emitted_name_match":
+                        context["bindings"]["emitted_name_match"],
+                    "procedure_prefix_match":
+                        context["bindings"]["procedure_prefix_match"],
+                    "source_content_hash_match":
+                        context["bindings"]["source_content_hash_match"],
                     "tracked_step_projection": tracked_projection,
                     "emitted_step_projection":
-                        step_projection(
-                            emitted_steps[candidate_indices[0] - 1]
-                        ) if len(candidate_indices) == 1 else None,
+                        step_projection(emitted_steps[candidate_indices[0] - 1])
+                        if len(candidate_indices) == 1 else None,
                     "candidate_count": len(candidate_indices),
                     "step_join_verdict":
-                        "RECONCILED"
-                        if len(candidate_indices) == 1 else "MISMATCH",
+                        "RECONCILED" if len(candidate_indices) == 1
+                        else "MISMATCH",
                     "verdict":
                         "RECONCILED"
-                        if len(candidate_indices) == 1 and document_green
-                        else "MISMATCH",
+                        if len(candidate_indices) == 1
+                        and context["document_green"] else "MISMATCH",
                 }
             )
-        tracked_projection = [
-            step_projection(step) for step in tracked_steps
-        ]
-        emitted_projection = [
-            step_projection(step) for step in emitted_steps
-        ]
-        projections.append(
-            {
-                "yaml_path": yaml_path,
-                "gating": False,
-                "tracked_ordered_projection": tracked_projection,
-                "tracked_projection_sha256":
-                    sha256_bytes(canonical_bytes(tracked_projection)),
-                "emitted_ordered_projection": emitted_projection,
-                "emitted_projection_sha256":
-                    sha256_bytes(canonical_bytes(emitted_projection)),
-            }
-        )
 
-    if len(mapped_source_keys) == 12 and len(set(mapped_source_keys)) != 12:
+    if len(mapped_source_keys) != 14 or len(set(mapped_source_keys)) != 14:
         add_reason(
             reasons, "P0_SOURCE_ROW_UNIQUENESS", "p0.mappings",
-            "source rows repeat",
+            f"expected=14,observed={len(set(mapped_source_keys))}",
         )
-    step_sheet_counts = {
-        sheet: sum(
-            len(indices)
-            for _path, indices, target_sheet in TARGETS
-            if target_sheet == sheet
-        )
-        for sheet in ("SS-TC 0", "SS-TC 1")
-    }
     row_sheet_counts = {
         sheet: sum(
             1 for source_sheet, _row in set(mapped_source_keys)
@@ -4011,56 +4512,49 @@ def main() -> int:
         )
         for sheet in ("SS-TC 0", "SS-TC 1")
     }
-    if step_sheet_counts != {"SS-TC 0": 1, "SS-TC 1": 14}:
-        raise ValueError("embedded step sheet distribution failed")
-    if (
-        len(mapped_source_keys) == 12
-        and row_sheet_counts != {"SS-TC 0": 1, "SS-TC 1": 11}
-    ):
+    if row_sheet_counts != {"SS-TC 0": 1, "SS-TC 1": 13}:
         add_reason(
             reasons, "P0_ROW_DISTRIBUTION", "p0.mappings",
             f"observed={row_sheet_counts!r}",
         )
-    paired = {
-        path for path, indices, _sheet in TARGETS if len(indices) == 2
-    }
-    if paired != {
-        "exported_ss_call/SS_TC01_permission_denied.yaml",
-        "exported_ss_call/SS_TC06_missed_rejected.yaml",
-        "exported_ss_call/SS_TC11_multi_subscription.yaml",
-    }:
-        raise ValueError("embedded paired-path invariant failed")
-
     targets.sort(
         key=lambda item: (
             item["yaml_path"].encode("utf-8"),
-            item["blocker_step_index"],
+            item["blocker_step_index"], item["source_no"].encode("utf-8"),
         )
     )
-    projections.sort(key=lambda item: item["yaml_path"].encode("utf-8"))
+    projections.sort(
+        key=lambda item: (
+            item["yaml_path"].encode("utf-8"),
+            item["source_no"].encode("utf-8"),
+        )
+    )
     mapped_document_status.sort(
-        key=lambda item: item["yaml_path"].encode("utf-8")
+        key=lambda item: (
+            item["yaml_path"].encode("utf-8"),
+            item["source_no"].encode("utf-8"),
+        )
     )
     emitted_target_keys = [
         (item["emitted_yaml_path"], item["emitted_step_index"])
-        for item in targets
-        if item["emitted_step_index"] is not None
+        for item in targets if item["emitted_step_index"] is not None
     ]
     if len(emitted_target_keys) != len(set(emitted_target_keys)):
         add_reason(
             reasons, "TARGET_STEP_REUSE", "targets",
             "emitted document/step pair reused",
         )
-    reasons.sort(
-        key=lambda item: (item["code"], item["path"], item["message"])
-    )
+    reasons.sort(key=lambda item: (item["code"], item["path"], item["message"]))
     public_inventory = [
         {key: value for key, value in item.items() if key != "document"}
         for item in inventories
     ]
-    reconciled = not reasons and len(targets) == 15
+    reconciled = (
+        not reasons and len(targets) == 15
+        and len(mapped_document_status) == 14 and len(projections) == 14
+    )
     output = {
-        "schema_version": 1,
+        "schema_version": 2,
         "directive_id": DIRECTIVE_ID,
         "inventories": public_inventory,
         "producer_counts": producer_counts,
@@ -4069,15 +4563,41 @@ def main() -> int:
         "document_step_projection_report": projections,
         "blocking_reasons": reasons,
         "reconciled": reconciled,
-        "verdict":
+        "verdict": (
             "PROVENANCE_RECONCILED"
-            if reconciled else "PROVENANCE_MISMATCH",
+            if reconciled else "PROVENANCE_MISMATCH"
+        ),
     }
     temporary.write_bytes(canonical_bytes(output))
     os.replace(temporary, args.output)
     return 0
 
 
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--p0", type=Path, required=True)
+    parser.add_argument("--out0", type=Path, required=True)
+    parser.add_argument("--out1", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+
+    expected_paths = (
+        (args.repo, EXPECTED_REPO, "repo"),
+        (args.p0, EXPECTED_TEMP / "artifact-tool-work" /
+         "p0_workbook.json", "p0"),
+        (args.out0, EXPECTED_TEMP / "SS-TC-0", "out0"),
+        (args.out1, EXPECTED_TEMP / "SS-TC-1", "out1"),
+        (args.output, EXPECTED_TEMP / "reconciliation.json", "output"),
+    )
+    for actual, expected, label in expected_paths:
+        if not same_path(actual, expected):
+            raise ValueError(f"{label}: unexpected path {actual}")
+    temporary = args.output.with_suffix(".json.tmp")
+    if args.output.exists() or temporary.exists():
+        raise FileExistsError("reconciliation output already exists")
+
+    return reconcile_v2(args, temporary)
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
@@ -4095,7 +4615,7 @@ if __name__ == "__main__":
 아래 code fence 내부 source만 external temp `assemble_evidence.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `258c1c96739d782ef56040fb95fa390384752a75f9623d4a79ab07c99c72013e`
+**Expected source SHA-256:** `62261c533481982b707903ecd00bdb149de670b4aadb133aa7180adb0eff1728`
 
 ```python
 from __future__ import annotations
@@ -4155,28 +4675,44 @@ TOOLCHAIN = {
     "pythonioencoding": "utf-8",
 }
 EXPECTED_TARGETS = (
-    ("exported_ss_call/SS_TC01_permission_denied.yaml", 10),
-    ("exported_ss_call/SS_TC01_permission_denied.yaml", 11),
-    ("exported_ss_call/SS_TC02_permission_allow_idle.yaml", 11),
-    ("exported_ss_call/SS_TC03_ringing_permission.yaml", 15),
-    ("exported_ss_call/SS_TC04_offhook_seed_recovery.yaml", 18),
-    ("exported_ss_call/SS_TC05_boundary_values.yaml", 9),
-    ("exported_ss_call/SS_TC06_missed_rejected.yaml", 10),
-    ("exported_ss_call/SS_TC06_missed_rejected.yaml", 11),
-    ("exported_ss_call/SS_TC07_short_call_no_false_positive.yaml", 9),
-    ("exported_ss_call/SS_TC09_offhook_permission_banking.yaml", 20),
-    ("exported_ss_call/SS_TC0_P0_endcall_crash.yaml", 15),
-    ("exported_ss_call/SS_TC10_permission_toggle.yaml", 24),
-    ("exported_ss_call/SS_TC11_multi_subscription.yaml", 20),
-    ("exported_ss_call/SS_TC11_multi_subscription.yaml", 21),
-    ("exported_ss_call/SS_TC12_legacy_path.yaml", 19),
+    ("exported_ss_call/SS_TC01_permission_denied.yaml", 10, "TC-01"),
+    ("exported_ss_call/SS_TC01_permission_denied.yaml", 11, "TC-01"),
+    ("exported_ss_call/SS_TC02_permission_allow_idle.yaml", 11, "TC-02"),
+    ("exported_ss_call/SS_TC03_ringing_permission.yaml", 15, "TC-03"),
+    ("exported_ss_call/SS_TC04_offhook_seed_recovery.yaml", 18, "TC-04"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", 9, "TC-05A"),
+    ("exported_ss_call/SS_TC06_missed_rejected.yaml", 10, "TC-06"),
+    ("exported_ss_call/SS_TC06_missed_rejected.yaml", 11, "TC-06"),
+    ("exported_ss_call/SS_TC07_short_call_no_false_positive.yaml", 9, "TC-07"),
+    ("exported_ss_call/SS_TC09_offhook_permission_banking.yaml", 20, "TC-09"),
+    ("exported_ss_call/SS_TC0_P0_endcall_crash.yaml", 15, "T/C-01"),
+    ("exported_ss_call/SS_TC10_permission_toggle.yaml", 24, "TC-10"),
+    ("exported_ss_call/SS_TC11_multi_subscription.yaml", 20, "TC-11"),
+    ("exported_ss_call/SS_TC11_multi_subscription.yaml", 21, "TC-11"),
+    ("exported_ss_call/SS_TC12_legacy_path.yaml", 19, "TC-12"),
+)
+EXPECTED_SOURCE_BINDINGS = (
+    ("exported_ss_call/SS_TC01_permission_denied.yaml", "TC-01"),
+    ("exported_ss_call/SS_TC02_permission_allow_idle.yaml", "TC-02"),
+    ("exported_ss_call/SS_TC03_ringing_permission.yaml", "TC-03"),
+    ("exported_ss_call/SS_TC04_offhook_seed_recovery.yaml", "TC-04"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", "TC-05A"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", "TC-05B"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", "TC-05C"),
+    ("exported_ss_call/SS_TC06_missed_rejected.yaml", "TC-06"),
+    ("exported_ss_call/SS_TC07_short_call_no_false_positive.yaml", "TC-07"),
+    ("exported_ss_call/SS_TC09_offhook_permission_banking.yaml", "TC-09"),
+    ("exported_ss_call/SS_TC0_P0_endcall_crash.yaml", "T/C-01"),
+    ("exported_ss_call/SS_TC10_permission_toggle.yaml", "TC-10"),
+    ("exported_ss_call/SS_TC11_multi_subscription.yaml", "TC-11"),
+    ("exported_ss_call/SS_TC12_legacy_path.yaml", "TC-12"),
 )
 EXPECTED_YAML_PATHS = tuple(sorted(
-    {path for path, _index in EXPECTED_TARGETS},
+    {path for path, _source_no in EXPECTED_SOURCE_BINDINGS},
     key=lambda value: value.encode("utf-8"),
 ))
-SPEC_SHA = "492b718d4dfc3713f9c78c362c3db38af4e348336df81917aa7991ee145aaebf"
-SPEC_BLOB = "4db31884e55f1c18dbfd53edd090da88d9f8b51e"
+SPEC_SHA = "881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce"
+SPEC_BLOB = "c6448f0d390ac07e9d5aa8ae7b7a50017795ace9"
 GENERATOR_SHA = "45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd"
 GENERATOR_BLOB = "db170b307a323e861b8a3fc7d29ef743b109197e"
 WORKBOOK_SHA = "160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa"
@@ -4602,7 +5138,7 @@ def validate_reconciliation(value: object) -> list[str]:
     problems = []
     if not isinstance(value, dict):
         return ["reconciliation top level"]
-    if value.get("schema_version") != 1:
+    if value.get("schema_version") != 2:
         problems.append("reconciliation schema_version")
     if value.get("directive_id") != DIRECTIVE_ID:
         problems.append("reconciliation directive_id")
@@ -4633,7 +5169,11 @@ def validate_reconciliation(value: object) -> list[str]:
         problems.append("reconciliation targets")
         targets = []
     observed_target_keys = [
-        (item.get("yaml_path"), item.get("blocker_step_index"))
+        (
+            item.get("yaml_path"),
+            item.get("blocker_step_index"),
+            item.get("source_no"),
+        )
         for item in targets if isinstance(item, dict)
     ]
     valid_target_keys = (
@@ -4642,13 +5182,15 @@ def validate_reconciliation(value: object) -> list[str]:
             isinstance(path, str)
             and isinstance(index, int)
             and not isinstance(index, bool)
-            for path, index in observed_target_keys
+            and isinstance(source_no, str)
+            and source_no
+            for path, index, source_no in observed_target_keys
         )
     )
     if (
         not valid_target_keys
         or len(set(observed_target_keys)) != len(observed_target_keys)
-        or not set(observed_target_keys).issubset(set(EXPECTED_TARGETS))
+        or observed_target_keys != list(EXPECTED_TARGETS)
     ):
         problems.append("reconciliation target cardinality")
     if reconciled is True:
@@ -4661,6 +5203,8 @@ def validate_reconciliation(value: object) -> list[str]:
                 or item.get("emitted_name_match") is not True
                 or item.get("procedure_prefix_match") is not True
                 or item.get("source_content_hash_match") is not True
+                or isinstance(item.get("candidate_count"), bool)
+                or not isinstance(item.get("candidate_count"), int)
                 or item.get("candidate_count") != 1
                 or item.get("step_join_verdict") != "RECONCILED"
                 or item.get("verdict") != "RECONCILED"
@@ -4676,24 +5220,29 @@ def validate_reconciliation(value: object) -> list[str]:
     if not isinstance(documents, list):
         problems.append("reconciliation mapped documents")
         documents = []
-    document_paths = [
-        item.get("yaml_path")
+    document_keys = [
+        (item.get("yaml_path"), item.get("source_no"))
         for item in documents if isinstance(item, dict)
     ]
-    valid_document_paths = (
-        len(document_paths) == len(documents)
-        and all(isinstance(item, str) for item in document_paths)
+    valid_document_keys = (
+        len(document_keys) == len(documents)
+        and all(
+            isinstance(path, str)
+            and isinstance(source_no, str)
+            and source_no
+            for path, source_no in document_keys
+        )
     )
     if (
-        not valid_document_paths
-        or len(set(document_paths)) != len(document_paths)
-        or not set(document_paths).issubset(set(EXPECTED_YAML_PATHS))
+        not valid_document_keys
+        or len(set(document_keys)) != len(document_keys)
+        or document_keys != list(EXPECTED_SOURCE_BINDINGS)
     ):
         problems.append("reconciliation document cardinality")
     if reconciled is True:
         if (
-            len(documents) != 12
-            or document_paths != list(EXPECTED_YAML_PATHS)
+            len(documents) != 14
+            or document_keys != list(EXPECTED_SOURCE_BINDINGS)
             or any(
                 not isinstance(item, dict)
                 or item.get("tracked_tc_name_match") is not True
@@ -4775,20 +5324,25 @@ def validate_reconciliation(value: object) -> list[str]:
         problems.append("reconciliation inventory")
 
     projections = value.get("document_step_projection_report")
-    projection_paths = [
-        item.get("yaml_path")
+    projection_keys = [
+        (item.get("yaml_path"), item.get("source_no"))
         for item in projections if isinstance(item, dict)
     ] if isinstance(projections, list) else []
-    valid_projection_paths = (
+    valid_projection_keys = (
         isinstance(projections, list)
-        and len(projection_paths) == len(projections)
-        and all(isinstance(item, str) for item in projection_paths)
+        and len(projection_keys) == len(projections)
+        and all(
+            isinstance(path, str)
+            and isinstance(source_no, str)
+            and source_no
+            for path, source_no in projection_keys
+        )
     )
     if (
         not isinstance(projections, list)
-        or not valid_projection_paths
-        or len(set(projection_paths)) != len(projection_paths)
-        or not set(projection_paths).issubset(set(EXPECTED_YAML_PATHS))
+        or not valid_projection_keys
+        or len(set(projection_keys)) != len(projection_keys)
+        or projection_keys != list(EXPECTED_SOURCE_BINDINGS)
         or any(
             not isinstance(item, dict)
             or item.get("gating") is not False
@@ -4797,8 +5351,8 @@ def validate_reconciliation(value: object) -> list[str]:
     ):
         problems.append("reconciliation projection report")
     elif reconciled is True and (
-        len(projections) != 12
-        or projection_paths != list(EXPECTED_YAML_PATHS)
+        len(projections) != 14
+        or projection_keys != list(EXPECTED_SOURCE_BINDINGS)
     ):
         problems.append("reconciliation green projection report")
     return problems
@@ -5869,10 +6423,50 @@ def main() -> int:
                 )
             else:
                 mismatch_schema = (
-                    p0.get("schema_version") == 2
+                    p0.get("schema_version") == 3
                     and p0.get("directive_id") == DIRECTIVE_ID
                     and isinstance(p0.get("mappings"), list)
                     and len(p0["mappings"]) == 12
+                    and all(
+                        isinstance(mapping, dict)
+                        and isinstance(mapping.get("yaml_path"), str)
+                        and mapping.get("yaml_path")
+                        and isinstance(mapping.get("source_selectors"), list)
+                        and mapping.get("source_selectors")
+                        and all(
+                            isinstance(selector, dict)
+                            and isinstance(selector.get("source_no"), str)
+                            and selector.get("source_no")
+                            for selector in mapping["source_selectors"]
+                        )
+                        and isinstance(mapping.get("blocker_bindings"), list)
+                        and mapping.get("blocker_bindings")
+                        and all(
+                            isinstance(binding, dict)
+                            and isinstance(
+                                binding.get("blocker_step_index"), int
+                            )
+                            and not isinstance(
+                                binding.get("blocker_step_index"), bool
+                            )
+                            and isinstance(binding.get("source_no"), str)
+                            and binding.get("source_no")
+                            for binding in mapping["blocker_bindings"]
+                        )
+                        for mapping in p0["mappings"]
+                    )
+                    and len({
+                        mapping["yaml_path"]
+                        for mapping in p0["mappings"]
+                    }) == 12
+                    and sum(
+                        len(mapping["source_selectors"])
+                        for mapping in p0["mappings"]
+                    ) == 14
+                    and sum(
+                        len(mapping["blocker_bindings"])
+                        for mapping in p0["mappings"]
+                    ) == 15
                     and p0.get("reconciled") is False
                     and valid_reason_list(
                         p0.get("p0_blocking_reasons"),
@@ -5893,8 +6487,28 @@ def main() -> int:
             )
         else:
             if (
-                p0.get("schema_version") != 2
+                p0.get("schema_version") != 3
                 or p0.get("directive_id") != DIRECTIVE_ID
+                or not isinstance(p0.get("mappings"), list)
+                or len(p0["mappings"]) != 12
+                or [
+                    (mapping.get("yaml_path"), selector.get("source_no"))
+                    for mapping in p0["mappings"]
+                    if isinstance(mapping, dict)
+                    for selector in mapping.get("source_selectors", [])
+                    if isinstance(selector, dict)
+                ] != list(EXPECTED_SOURCE_BINDINGS)
+                or [
+                    (
+                        mapping.get("yaml_path"),
+                        binding.get("blocker_step_index"),
+                        binding.get("source_no"),
+                    )
+                    for mapping in p0["mappings"]
+                    if isinstance(mapping, dict)
+                    for binding in mapping.get("blocker_bindings", [])
+                    if isinstance(binding, dict)
+                ] != list(EXPECTED_TARGETS)
                 or p0.get("reconciled") is not True
                 or p0.get("p0_blocking_reasons") != []
             ):

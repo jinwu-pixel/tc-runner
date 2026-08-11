@@ -1161,6 +1161,169 @@ function Invoke-SelfTestMode {
         -Detail ('exit=' + $CampaignExit +
             ' error-message-exact=' + ($AssembleArgs[-1] -ceq $RoundTripPayload))
 
+    $AppendixCBody = Get-DirectiveFenceBody `
+        -Text $Context.DirectiveText `
+        -HeadingPrefix '## Appendix C' -Language 'python'
+    $FixtureHarness = @'
+import json
+import sys
+from pathlib import Path
+
+source = Path(sys.argv[1]).read_text(encoding="utf-8")
+prefix = source.split("\ndef blob_id(", 1)[0]
+namespace = {}
+exec(compile(prefix, sys.argv[1], "exec"), namespace)
+validate = namespace["validate_reconciliation"]
+
+SOURCE_KEYS = [
+    ("exported_ss_call/SS_TC01_permission_denied.yaml", "TC-01"),
+    ("exported_ss_call/SS_TC02_permission_allow_idle.yaml", "TC-02"),
+    ("exported_ss_call/SS_TC03_ringing_permission.yaml", "TC-03"),
+    ("exported_ss_call/SS_TC04_offhook_seed_recovery.yaml", "TC-04"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", "TC-05A"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", "TC-05B"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", "TC-05C"),
+    ("exported_ss_call/SS_TC06_missed_rejected.yaml", "TC-06"),
+    ("exported_ss_call/SS_TC07_short_call_no_false_positive.yaml", "TC-07"),
+    ("exported_ss_call/SS_TC09_offhook_permission_banking.yaml", "TC-09"),
+    ("exported_ss_call/SS_TC0_P0_endcall_crash.yaml", "T/C-01"),
+    ("exported_ss_call/SS_TC10_permission_toggle.yaml", "TC-10"),
+    ("exported_ss_call/SS_TC11_multi_subscription.yaml", "TC-11"),
+    ("exported_ss_call/SS_TC12_legacy_path.yaml", "TC-12"),
+]
+TARGET_KEYS = [
+    ("exported_ss_call/SS_TC01_permission_denied.yaml", 10, "TC-01"),
+    ("exported_ss_call/SS_TC01_permission_denied.yaml", 11, "TC-01"),
+    ("exported_ss_call/SS_TC02_permission_allow_idle.yaml", 11, "TC-02"),
+    ("exported_ss_call/SS_TC03_ringing_permission.yaml", 15, "TC-03"),
+    ("exported_ss_call/SS_TC04_offhook_seed_recovery.yaml", 18, "TC-04"),
+    ("exported_ss_call/SS_TC05_boundary_values.yaml", 9, "TC-05A"),
+    ("exported_ss_call/SS_TC06_missed_rejected.yaml", 10, "TC-06"),
+    ("exported_ss_call/SS_TC06_missed_rejected.yaml", 11, "TC-06"),
+    ("exported_ss_call/SS_TC07_short_call_no_false_positive.yaml", 9, "TC-07"),
+    ("exported_ss_call/SS_TC09_offhook_permission_banking.yaml", 20, "TC-09"),
+    ("exported_ss_call/SS_TC0_P0_endcall_crash.yaml", 15, "T/C-01"),
+    ("exported_ss_call/SS_TC10_permission_toggle.yaml", 24, "TC-10"),
+    ("exported_ss_call/SS_TC11_multi_subscription.yaml", 20, "TC-11"),
+    ("exported_ss_call/SS_TC11_multi_subscription.yaml", 21, "TC-11"),
+    ("exported_ss_call/SS_TC12_legacy_path.yaml", 19, "TC-12"),
+]
+
+def fixture(source_keys, target_keys=TARGET_KEYS):
+    return {
+        "schema_version": 2,
+        "directive_id": "RB-20260728-shellrc-p0p1",
+        "reconciled": True,
+        "blocking_reasons": [],
+        "verdict": "PROVENANCE_RECONCILED",
+        "targets": [
+            {
+                "yaml_path": path,
+                "blocker_step_index": index,
+                "source_no": source_no,
+                "tracked_tc_name_match": True,
+                "emitted_name_match": True,
+                "procedure_prefix_match": True,
+                "source_content_hash_match": True,
+                "candidate_count": 1,
+                "step_join_verdict": "RECONCILED",
+                "verdict": "RECONCILED",
+                "emitted_step_index": index,
+            }
+            for path, index, source_no in target_keys
+        ],
+        "mapped_document_status": [
+            {
+                "yaml_path": path,
+                "source_no": source_no,
+                "tracked_tc_name_match": True,
+                "emitted_name_match": True,
+                "procedure_prefix_match": True,
+                "source_content_hash_match": True,
+                "runnable": True,
+                "has_unresolved_params": False,
+                "verdict": "RECONCILED",
+            }
+            for path, source_no in source_keys
+        ],
+        "producer_counts": [
+            {"sheet_label": "SS-TC-0", "dry_total": 1, "created": 1,
+             "inventory_count": 1, "skipped": 0},
+            {"sheet_label": "SS-TC-1", "dry_total": 1, "created": 1,
+             "inventory_count": 1, "skipped": 0},
+        ],
+        "inventories": [
+            {"relative_path": "SS-TC-0/a.yaml", "raw_sha256": "0" * 64,
+             "semantic_sha256": "1" * 64},
+            {"relative_path": "SS-TC-1/b.yaml", "raw_sha256": "2" * 64,
+             "semantic_sha256": "3" * 64},
+        ],
+        "document_step_projection_report": [
+            {"yaml_path": path, "source_no": source_no, "gating": False}
+            for path, source_no in source_keys
+        ],
+    }
+
+twelve_keys = []
+seen_paths = set()
+for key in SOURCE_KEYS:
+    if key[0] not in seen_paths:
+        twelve_keys.append(key)
+        seen_paths.add(key[0])
+wrong_targets = list(TARGET_KEYS)
+wrong_targets[5] = (wrong_targets[5][0], 9, "TC-05B")
+duplicate_keys = list(SOURCE_KEYS) + [SOURCE_KEYS[0]]
+missing_keys = list(SOURCE_KEYS[:-1])
+boolean_candidate = fixture(SOURCE_KEYS)
+boolean_candidate["targets"][0]["candidate_count"] = True
+
+result = {
+    "reject_12": "reconciliation green documents" in validate(
+        fixture(twelve_keys)
+    ),
+    "accept_14": validate(fixture(SOURCE_KEYS)) == [],
+    "reject_tc05b": bool(validate(fixture(SOURCE_KEYS, wrong_targets))),
+    "reject_duplicate": bool(validate(fixture(duplicate_keys))),
+    "reject_missing": bool(validate(fixture(missing_keys))),
+    "reject_boolean_candidate": bool(validate(boolean_candidate)),
+}
+print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+'@
+    $SelfTestFixtureRoot = Join-Path 'C:\tmp' `
+        ('tc-runner-controller-selftest-' + [guid]::NewGuid().ToString('N'))
+    $AppendixCPath = Join-Path $SelfTestFixtureRoot 'appendix_c.py'
+    $FixtureHarnessPath = Join-Path $SelfTestFixtureRoot 'fixture_harness.py'
+    try {
+        $null = New-Item -ItemType Directory -Path $SelfTestFixtureRoot
+        [System.IO.File]::WriteAllText(
+            $AppendixCPath, $AppendixCBody, $ControllerUtf8NoBom
+        )
+        [System.IO.File]::WriteAllText(
+            $FixtureHarnessPath, $FixtureHarness, $ControllerUtf8NoBom
+        )
+        $FixtureResult = Invoke-ControllerProcess `
+            -FilePath $Context.PythonPath `
+            -ArgumentList @('-B', $FixtureHarnessPath, $AppendixCPath) `
+            -WorkingDirectory $Context.RepoPath
+        $FixtureObserved = $FixtureResult.StandardOutput.Trim() | ConvertFrom-Json
+        Add-SelfTest -Name 'S12 Appendix C rejects 12 source documents' `
+            -Passed ($FixtureObserved.reject_12 -eq $true)
+        Add-SelfTest -Name 'S13 Appendix C accepts 14 source documents' `
+            -Passed ($FixtureObserved.accept_14 -eq $true)
+        Add-SelfTest -Name 'S14 Appendix C rejects TC05 step 9 to TC-05B' `
+            -Passed ($FixtureObserved.reject_tc05b -eq $true)
+        Add-SelfTest -Name 'S15 Appendix C rejects duplicate source key' `
+            -Passed ($FixtureObserved.reject_duplicate -eq $true)
+        Add-SelfTest -Name 'S16 Appendix C rejects missing source document' `
+            -Passed ($FixtureObserved.reject_missing -eq $true)
+        Add-SelfTest -Name 'S17 Appendix C rejects boolean candidate count' `
+            -Passed ($FixtureObserved.reject_boolean_candidate -eq $true)
+    } finally {
+        if (Test-Path -LiteralPath $SelfTestFixtureRoot) {
+            Remove-Item -LiteralPath $SelfTestFixtureRoot -Recurse -Force
+        }
+    }
+
     [Console]::Out.WriteLine('')
     if ($Failures.Count -eq 0) {
         [Console]::Out.WriteLine('CONTROLLER SELFTEST GREEN')

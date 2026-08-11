@@ -411,6 +411,170 @@ Add-CheckResult -Name 'C8g assembler preserves stdout stderr and exit' `
     -Passed $AssemblerResultPreserved
 
 # --------------------------------------------------------------------------
+# C9 - producer reconciliation manifest and identity namespaces
+# --------------------------------------------------------------------------
+$AppendixA = Get-FenceBodyForCheck -Text $DirectiveText `
+    -HeadingPrefix '## Appendix A ' -Language 'javascript'
+$AppendixB = Get-FenceBodyForCheck -Text $DirectiveText `
+    -HeadingPrefix '## Appendix B ' -Language 'python'
+$AppendixC = Get-FenceBodyForCheck -Text $DirectiveText `
+    -HeadingPrefix '## Appendix C ' -Language 'python'
+
+$ExpectedYamlCount = 12
+$ExpectedSelectorCount = 14
+$ExpectedBlockerCount = 15
+$ExpectedSourceDistribution = @{ 'SS-TC 0' = 1; 'SS-TC 1' = 13 }
+$ExpectedBlockerDistribution = @{ 'SS-TC 0' = 1; 'SS-TC 1' = 14 }
+
+$TargetMatch = [regex]::Match(
+    $AppendixA,
+    '(?ms)^\s*const TARGETS = (?<body>.*?);\n\s*const HEADER_PATTERNS'
+)
+$TargetBody = if ($TargetMatch.Success) {
+    $TargetMatch.Groups['body'].Value
+} else {
+    ''
+}
+$PathPattern = 'exported_ss_call/[A-Za-z0-9_]+\.yaml'
+$YamlPaths = @(
+    [regex]::Matches($TargetBody, $PathPattern) |
+        ForEach-Object { $_.Value } |
+        Select-Object -Unique
+)
+$SelectorPattern = (
+    '\{\s*"?source_no"?\s*:\s*"(?<source>[^"\r\n]+)"\s*,' +
+    '\s*"?source_functionality_effective"?\s*:'
+)
+$BlockerPattern = (
+    '\{\s*"?blocker_step_index"?\s*:\s*(?<step>[0-9]+)\s*,' +
+    '\s*"?source_no"?\s*:\s*"(?<source>[^"\r\n]+)"\s*\}'
+)
+$SelectorMatches = @([regex]::Matches($TargetBody, $SelectorPattern))
+$BlockerMatches = @([regex]::Matches($TargetBody, $BlockerPattern))
+Add-CheckResult -Name 'C9a manifest cardinality is 12/14/15' `
+    -Passed (
+        $YamlPaths.Count -eq $ExpectedYamlCount -and
+        $SelectorMatches.Count -eq $ExpectedSelectorCount -and
+        $BlockerMatches.Count -eq $ExpectedBlockerCount
+    ) `
+    -Detail (
+        'yaml=' + $YamlPaths.Count + ',selectors=' +
+        $SelectorMatches.Count + ',blockers=' + $BlockerMatches.Count
+    )
+
+$SourceDistribution = @{ 'SS-TC 0' = 0; 'SS-TC 1' = 0 }
+$BlockerDistribution = @{ 'SS-TC 0' = 0; 'SS-TC 1' = 0 }
+$PathMatches = @([regex]::Matches($TargetBody, $PathPattern))
+$AggregateSegment = ''
+for ($Index = 0; $Index -lt $PathMatches.Count; $Index++) {
+    $Start = $PathMatches[$Index].Index
+    $End = if ($Index + 1 -lt $PathMatches.Count) {
+        $PathMatches[$Index + 1].Index
+    } else {
+        $TargetBody.Length
+    }
+    $Segment = $TargetBody.Substring($Start, $End - $Start)
+    $SheetMatch = [regex]::Match(
+        $Segment, '"?sheet"?\s*:\s*"(?<sheet>SS-TC [01])"'
+    )
+    if ($SheetMatch.Success) {
+        $Sheet = $SheetMatch.Groups['sheet'].Value
+        $SourceDistribution[$Sheet] += @(
+            [regex]::Matches($Segment, $SelectorPattern)
+        ).Count
+        $BlockerDistribution[$Sheet] += @(
+            [regex]::Matches($Segment, $BlockerPattern)
+        ).Count
+    }
+    if ($PathMatches[$Index].Value -eq
+        'exported_ss_call/SS_TC05_boundary_values.yaml') {
+        $AggregateSegment = $Segment
+    }
+}
+$DistributionMatches = $true
+foreach ($Sheet in @('SS-TC 0', 'SS-TC 1')) {
+    if (
+        $SourceDistribution[$Sheet] -ne $ExpectedSourceDistribution[$Sheet] -or
+        $BlockerDistribution[$Sheet] -ne
+            $ExpectedBlockerDistribution[$Sheet]
+    ) {
+        $DistributionMatches = $false
+    }
+}
+Add-CheckResult -Name 'C9b source/blocker distribution is 1+13/1+14' `
+    -Passed $DistributionMatches `
+    -Detail (
+        'sources=' + $SourceDistribution['SS-TC 0'] + '+' +
+        $SourceDistribution['SS-TC 1'] + ',blockers=' +
+        $BlockerDistribution['SS-TC 0'] + '+' +
+        $BlockerDistribution['SS-TC 1']
+    )
+
+$AggregateSelectors = @(
+    [regex]::Matches($AggregateSegment, $SelectorPattern) |
+        ForEach-Object { $_.Groups['source'].Value }
+)
+$AggregateBindings = @(
+    [regex]::Matches($AggregateSegment, $BlockerPattern) |
+        ForEach-Object {
+            $_.Groups['step'].Value + ':' + $_.Groups['source'].Value
+        }
+)
+Add-CheckResult -Name 'C9c SS_TC05 A/B/C and step 9 to A only' `
+    -Passed (
+        (($AggregateSelectors -join ',') -ceq 'TC-05A,TC-05B,TC-05C') -and
+        (($AggregateBindings -join ',') -ceq '9:TC-05A')
+    ) `
+    -Detail (
+        'selectors=' + ($AggregateSelectors -join ',') +
+        ',bindings=' + ($AggregateBindings -join ',')
+    )
+
+$ForbiddenJoins = @(
+    'row.tc_name === target.yaml_tc_name',
+    'mapping.get("yaml_tc_name") != expected_tc_name',
+    'emitted.get("name") == tc_name'
+)
+$ObservedForbidden = New-Object System.Collections.Generic.List[string]
+foreach ($Needle in $ForbiddenJoins) {
+    if (
+        $AppendixA.Contains($Needle) -or
+        $AppendixB.Contains($Needle) -or
+        $AppendixC.Contains($Needle)
+    ) {
+        $ObservedForbidden.Add($Needle)
+    }
+}
+Add-CheckResult -Name 'C9d direct alias joins are forbidden' `
+    -Passed ($ObservedForbidden.Count -eq 0) `
+    -Detail ('observed=' + $ObservedForbidden.Count)
+
+$P0SchemaV3 = (
+    $AppendixA.Contains('schema_version: 3,') -and
+    $AppendixC.Contains('p0.get("schema_version") == 3') -and
+    $AppendixC.Contains('p0.get("schema_version") != 3')
+)
+Add-CheckResult -Name 'C9e P0 schema version is 3 end-to-end' `
+    -Passed $P0SchemaV3
+
+$ReconciliationSchemaV2 = $AppendixC.Contains(
+    'value.get("schema_version") != 2'
+)
+Add-CheckResult -Name 'C9f reconciliation schema version is 2' `
+    -Passed $ReconciliationSchemaV2
+
+$SplitIdentity = (
+    $AppendixB.Contains(
+        'emitted.get("name") == workbook_tc_name'
+    ) -and
+    $AppendixB.Contains(
+        'tracked.get("tc_name") == yaml_tc_name'
+    )
+)
+Add-CheckResult -Name 'C9g producer and tracked identities stay split' `
+    -Passed $SplitIdentity
+
+# --------------------------------------------------------------------------
 # Report
 # --------------------------------------------------------------------------
 foreach ($Line in $Results) { [Console]::Out.WriteLine($Line) }

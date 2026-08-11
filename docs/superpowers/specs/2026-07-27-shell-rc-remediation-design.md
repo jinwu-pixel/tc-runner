@@ -114,21 +114,25 @@ HEAD `78b3ac3`이다. dispatch entry의 현재 HEAD에서 이 corpus가 baseline
 `MASKED_ASSERTION` 1건은 기존 YAML의 무시되던 `expected: "1"`과 설명
 “파일 리스트 뷰 존재 확인”에 따라 `EQ_1`로 고정한다.
 
-15개 `TC_1.xlsx` 유래 행은 12개 파일에 분포한다. 나머지는 manual 1행과
-ODIN2 local TC 2행이다.
+15개 `TC_1.xlsx` 유래 blocker binding은 12개 tracked YAML에 분포하며,
+workbook source selector는 14개다. 나머지는 manual 1행과 ODIN2 local TC
+2행이다.
 
 ---
 
 ## 4. Source Provenance Gate
 
 `tc_samples/TC_1.xlsx`는 tracked source candidate로 존재하며 12개 YAML의
-metadata는 이 파일의 `SS-TC 0` 또는 `SS-TC 1` sheet를 가리킨다. 기존 계획에는
-같은 workbook의 `SS-TC 1` `export-mmi` replay 명령이 기록돼 있다.
+metadata는 이 파일의 `SS-TC 0` 또는 `SS-TC 1` sheet를 가리킨다. 이 12개
+tracked alias는 14개 exact source selector와 15개 blocker binding으로
+reconcile한다. tracked YAML alias identity와 workbook/producer identity는 서로
+다른 namespace이며 이름 동등성을 가정하지 않는다. 기존 계획에는 같은 workbook의
+`SS-TC 1` `export-mmi` replay 명령이 기록돼 있다.
 
 설계 작성 세션에서는 spreadsheet artifact runtime이 제공되지 않아 workbook
 내부 셀과 exporter round-trip을 열어 확인하지 못했다. 따라서 “workbook이
-없다”는 전제는 기각됐지만, 15행이 현재 workbook에서 재생되는지는 아직
-확정하지 않는다.
+없다”는 전제는 기각됐지만, 14개 source selector와 15개 blocker binding이 현재
+workbook/producer에서 재생되는지는 아직 확정하지 않는다.
 
 구현은 다음 read-only provenance reconnaissance가 GREEN이 되기 전까지
 **모든 18행 편집을 STOP**한다. 부분 교정은 허용하지 않는다.
@@ -137,7 +141,12 @@ metadata는 이 파일의 `SS-TC 0` 또는 `SS-TC 1` sheet를 가리킨다. 기�
 
 - tracked path, SHA-256, Git blob이 §1 값과 일치
 - sheet `SS-TC 0`, `SS-TC 1` 존재
-- 12개 YAML metadata와 workbook row를 잇는 exact mapping 15개 작성
+- 12개 tracked YAML alias / 14개 exact workbook source selector / 15개
+  blocker binding의 frozen manifest 구조와 cardinality를 검증
+- selector는 `(sheet, source_no, source_functionality_effective)` exact
+  conjunction이며 physical row는 관측 evidence일 뿐 selector가 아님
+- manifest의 `yaml_tc_name`과 workbook-derived `workbook_tc_name`을 별도
+  identity field로 기록하고 서로 비교하지 않음
 - workbook의 relevant cell value/formula/style을 읽기 전용으로 기록
 
 ### P1 — isolated replay
@@ -147,14 +156,28 @@ metadata는 이 파일의 `SS-TC 0` 또는 `SS-TC 1` sheet를 가리킨다. 기�
 1. `export-mmi` dry-run을 `SS-TC 0`, `SS-TC 1` 각각 실행해 결과를 기록한다.
 2. 실제 export는 repo 밖 temporary directory에만 기록한다.
 3. exporter 코드 SHA, 전체 argv, workbook SHA를 고정한다.
-4. isolated output과 tracked `exported_ss_call/`을 tc identity로 join한다.
-5. target 15행의 source procedure와 emitted command 관계를 증명한다.
-6. target 외 semantic delta를 보고한다.
+4. 12개 tracked YAML을 읽어 `tracked.tc_name == yaml_tc_name`과 metadata
+   source의 anchored grammar/declared sheet 일치를 검증한다.
+5. P0의 selected `(sheet, physical_row)`를 emitted
+   `metadata.source_sheet/source_row`와 exact join한다.
+6. 14개 source-bound producer document에서는 `emitted.name ==
+   workbook_tc_name`을, 12개 tracked YAML에서는 `tracked.tc_name ==
+   yaml_tc_name`을 서로 독립적으로 검증한다.
+7. 15개 blocker binding의 source procedure와 emitted command 관계를
+   증명한다.
+8. target 외 semantic delta를 보고한다.
+
+이 phase boundary는 구현 refinement다. Appendix A는 artifact-tool-only P0로서
+workbook identity, frozen manifest, exact selector join을 검증한다. tracked YAML
+alias/source 검증은 Appendix B의 P1에서 독립 수행한다. full-chain GREEN은 두 phase
+모두를 요구하며, 어느 phase의 mismatch도 P2 전에 STOP한다. 검증을 삭제하거나
+완화한 것이 아니라 실제 reader의 책임 경계에 맞춰 배치한 것이다.
 
 ### P2 — provenance decision
 
-- P0/P1이 15행을 재현하면 **source-first**가 강제된다. workbook의 exact cell
-  set을 먼저 freeze하고 source와 derived YAML을 같은 Tier 1 slice에서 정렬한다.
+- P0/P1이 12 alias / 14 selector / 15 blocker binding을 재현하면
+  **source-first**가 강제된다. workbook의 exact cell set을 먼저 freeze하고
+  source와 derived YAML을 같은 Tier 1 slice에서 정렬한다.
 - P0/P1이 불일치하면 즉시 STOP한다. mismatch evidence를 사용자에게 보고한
   뒤에만 compiled-artifact 예외 또는 producer reconcile slice를 선택할 수 있다.
 - workbook이 존재하는 현재 상태에서
@@ -595,7 +618,8 @@ capsule generator SHA-256 중 하나라도 dispatch envelope 또는 live bytes�
 
 ### Gate P — Provenance
 
-- §4 P0/P1 read-only reconciliation GREEN
+- §4 P0/P1 read-only 12 alias / 14 selector / 15 blocker binding
+  reconciliation GREEN
 - 결과와 evidence SHA를 보고하고 STOP
 - 사용자가 P2 source-first 또는 mismatch 후 후속 방향을 별도로 결정
 - 결정 전 workbook/YAML 편집 0
@@ -663,9 +687,9 @@ runner/schema를 수정해 RED를 피하지 않는다.
 ### Gate 2 — GREEN implementation
 
 - manifest와 verifier를 최소 구현
-- source-first 15행은 P0 exact workbook cell을 먼저 교정하고, P1과 같은
-  exporter bytes/argv로 격리 export한 결과에서 mapped step만 derived YAML에
-  반영
+- source-first 14 selector row는 P0 exact workbook cell을 먼저 교정하고,
+  P1과 같은 exporter bytes/argv로 격리 export한 결과에서 15 blocker binding의
+  mapped step만 derived YAML에 반영
 - local/manual 3행은 source mapping대로 YAML을 직접 교정
 - exact YAML 15개에서 합계 exact 18 step만 교정
 - 15개 기존 `shell`을 `verify_shell`로 전환
@@ -685,13 +709,13 @@ compiled YAML을 독립 수기 보정하지 않고 STOP한다. 이 경우 produc
 - remediation tests 전부 통과
 - full `pytest tests/` 통과
 - 실행 직전 수집한 baseline nodeid loss 0
-- P0 workbook cell map 15/15와 P1 isolated replay evidence가 directive의
-  frozen identity와 일치
+- P0 12 alias / 14 selector / 15 blocker binding map과 P1 isolated replay
+  evidence가 directive의 frozen identity와 일치
 - source-first인 경우 workbook의 허용 cell만 변경되고, 비대상
   value/formula/style 및 sheet topology delta 0
 - workbook candidate raw SHA-256, Git blob, exact changed-cell map 기록
 - 수정된 workbook을 P1과 같은 exporter SHA/argv로 다시 isolated export
-- post-change export target 15행이 candidate YAML의 mapped
+- post-change export target 15 blocker binding이 candidate YAML의 mapped
   `action/command/expected`와 exact semantic-equal
 - P1 pre-change export 대 post-change export의 mapped non-target semantic
   delta 0
