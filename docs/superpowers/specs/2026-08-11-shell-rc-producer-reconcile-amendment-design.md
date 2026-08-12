@@ -1,6 +1,6 @@
 # shell-rc producer reconcile amendment — 확정 설계
 
-> **STATUS: CONTRACT AMENDMENT IMPLEMENTED + TESTED — COMMIT APPROVAL PENDING (2026-08-12)**
+> **STATUS: CONTRACT AMENDMENT IMPLEMENTED + TESTED + COMMITTED + PUSHED — SPEC_REVIEW_APPROVED PENDING (2026-08-12)**
 >
 > 사용자 승인 범위 = Run-A의 P0 mismatch 원인을 producer reconcile 방식으로
 > 교정하는 TDD 구현과 검증. staging, commit, push, capsule capture, campaign
@@ -335,10 +335,10 @@ Run-A 완주 전에는 P2 source-first 교정으로 넘어가지 않는다.
 | A | producer reconcile conceptual design 선택 | **사용자 승인 완료** |
 | B | 본 written amendment spec 작성 + self-review | **완료** |
 | C | written spec 사용자 review/승인 | **완료** |
-| D | TDD 구현 + regression | **IMPLEMENTED + TESTED — COMMIT APPROVAL PENDING (2026-08-11)** |
-| E | 명시 path stage + commit | 별도 승인 대기 |
-| F | push audit + fast-forward push | 별도 승인 대기 |
-| G | fresh capsule + Run-A campaign | 별도 실행 승인 대기 |
+| D | TDD 구현 + regression | **IMPLEMENTED + TESTED (2026-08-12)** |
+| E | 명시 path stage + commit | **COMMITTED** |
+| F | push audit + fast-forward push | **PUSHED — origin/master 0/0** |
+| G | fresh capsule + Run-A campaign | **SPEC_REVIEW_APPROVED 대기 — capsule/campaign 미승인** |
 
 ### 9.1 Qualification 측정 결과
 
@@ -471,7 +471,7 @@ base spec이 변경되므로 새 raw SHA/no-filter blob을 directive §0, setup,
   `af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6` /
   `bc63b8f69f1fc79757adb41f7f43600491b67f00`
 
-Base spec identity가 바뀌었으므로 commit 뒤 fresh capsule/campaign 전에 신규
+Base spec identity가 바뀌었으므로 fresh capsule/campaign 전에 신규
 `SPEC_REVIEW_APPROVED` 토큰을 독립 재발급해야 한다. 이전 spec token과 capsule은
-재사용할 수 없다. staging, commit, push, cleanup, capsule capture, campaign은
-여전히 미승인이다.
+재사용할 수 없다. staging, commit, push는 완료됐고 현재 gate는 신규
+`SPEC_REVIEW_APPROVED` 발급이다. cleanup, capsule capture, campaign은 미승인이다.

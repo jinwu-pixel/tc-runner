@@ -1,6 +1,6 @@
 # Shell-RC provenance contract amendment design
 
-> **STATUS: IMPLEMENTED + TESTED — COMMIT APPROVAL PENDING (2026-08-12)**
+> **STATUS: IMPLEMENTED + TESTED + COMMITTED + PUSHED — SPEC_REVIEW_APPROVED PENDING (2026-08-12)**
 >
 > 사용자 승인 범위는 Appendix B의 loader-equivalent shared-column 검증,
 > deterministic analyzer stdout, 회귀 테스트, SHA/spec identity 재결박이다.
