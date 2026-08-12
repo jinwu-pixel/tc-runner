@@ -1537,6 +1537,48 @@ def _appendix_b_cell(coordinate: str, value: object) -> dict[str, object]:
     }
 
 
+def _apply_ss_tc1_shared_feature_priority_alias(
+    p0: dict[str, object], *, corrupt_duplicate_evidence: bool = False,
+) -> None:
+    sheet = next(
+        item for item in p0["sheets"] if item["sheet_name"] == "SS-TC 1"
+    )
+    sheet["column_map"] = dict(sheet["column_map"])
+    feature_column = sheet["column_map"]["feature_name"]
+    sheet["column_map"]["priority"] = feature_column
+    feature_header = json.loads(json.dumps(sheet["header_cells"][1]))
+    feature_header["field"] = "priority"
+    sheet["header_cells"][-1] = feature_header
+
+    rows_by_physical_row = {
+        item["physical_row"]: item for item in sheet["row_inventory"]
+    }
+    for mapping in p0["mappings"]:
+        if mapping["declared_source_sheet"] != "SS-TC 1":
+            continue
+        for selector in mapping["source_selectors"]:
+            shared_value = selector["source_feature_name_raw"]
+            selector["source_priority"] = shared_value
+            selector["cells"][-1] = json.loads(
+                json.dumps(selector["cells"][1])
+            )
+            selector["cell_region_records"][-1] = json.loads(
+                json.dumps(selector["cell_region_records"][1])
+            )
+            rows_by_physical_row[
+                selector["workbook_physical_row"]
+            ]["source_priority"] = shared_value
+
+    if corrupt_duplicate_evidence:
+        selector = next(
+            mapping["source_selectors"][0]
+            for mapping in p0["mappings"]
+            if mapping["declared_source_sheet"] == "SS-TC 1"
+        )
+        selector["cells"][-1]["region_sha256"] = "1" * 64
+        selector["cell_region_records"][-1]["region_sha256"] = "1" * 64
+
+
 def _run_real_appendix_b_reconcile(
     tmp_path: Path,
     *,
@@ -1807,6 +1849,54 @@ def test_provenance_appendix_b_real_reconcile_accepts_aggregate(tmp_path):
     assert [(item["blocker_step_index"], item["source_no"])
             for item in boundary] == [(9, "TC-05A")]
     assert boundary[0]["candidate_count"] == 1
+
+
+def test_provenance_appendix_b_accepts_loader_shared_feature_priority_column(
+    tmp_path,
+):
+    result, invocations, source = _run_real_appendix_b_reconcile(
+        tmp_path,
+        mutate_p0=_apply_ss_tc1_shared_feature_priority_alias,
+    )
+
+    assert (invocations, source) == (1, "<appendix-b-contract>")
+    assert result["reconciled"] is True
+    assert result["verdict"] == "PROVENANCE_RECONCILED"
+    assert result["blocking_reasons"] == []
+
+
+def test_provenance_appendix_b_rejects_different_shared_coordinate_evidence(
+    tmp_path,
+):
+    def mutate(p0: dict[str, object]) -> None:
+        _apply_ss_tc1_shared_feature_priority_alias(
+            p0, corrupt_duplicate_evidence=True,
+        )
+
+    result, invocations, source = _run_real_appendix_b_reconcile(
+        tmp_path, mutate_p0=mutate,
+    )
+
+    assert (invocations, source) == (1, "<appendix-b-contract>")
+    assert result["reconciled"] is False
+    assert any(
+        reason["code"] == "P0_INTERNAL_CONSISTENCY"
+        and "shared semantic cell evidence differs" in reason["message"]
+        for reason in result["blocking_reasons"]
+    )
+
+
+def test_provenance_appendix_b_success_emits_deterministic_summary(
+    tmp_path, capsys,
+):
+    result, invocations, source = _run_real_appendix_b_reconcile(tmp_path)
+
+    assert (invocations, source) == (1, "<appendix-b-contract>")
+    assert result["reconciled"] is True
+    assert capsys.readouterr().out == (
+        "ANALYZE_RESULT verdict=PROVENANCE_RECONCILED "
+        "mapped_documents=14 targets=15 blocking_reasons=0\n"
+    )
 
 
 def test_provenance_appendix_b_real_reconcile_rejects_wrong_source_binding(

@@ -38,7 +38,7 @@ dispatch 메시지가 다음 세 affirmative token과 여섯 identity를 모두 
 포함해야 실행 권한이 성립한다.
 
 ```text
-SPEC_REVIEW_APPROVED: 881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce
+SPEC_REVIEW_APPROVED: af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6
 AUTHORIZE_EXECUTION: RB-20260728-shellrc-p0p1
 CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 ```
@@ -47,8 +47,8 @@ CAPSULE_SHA256: <DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>
 |---|---|
 | directive raw SHA-256 | 작성 완료 보고의 exact 값 |
 | directive `git hash-object --no-filters` blob | 작성 완료 보고의 exact 값 |
-| spec raw SHA-256 | `881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce` |
-| spec `git hash-object --no-filters` blob | `c6448f0d390ac07e9d5aa8ae7b7a50017795ace9` |
+| spec raw SHA-256 | `af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6` |
+| spec `git hash-object --no-filters` blob | `bc63b8f69f1fc79757adb41f7f43600491b67f00` |
 | capsule generator raw SHA-256 | `45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd` |
 | capsule generator `git hash-object --no-filters` blob | `db170b307a323e861b8a3fc7d29ef743b109197e` |
 
@@ -711,6 +711,13 @@ render options/range와 PNG SHA를 기록한다. inspect result가 truncation fl
    - `procedure`
    - `expected`
    - `priority`
+   7개 semantic field의 physical coordinate는 원칙적으로 단사여야 한다. 단,
+   `feature_name` header가 없어 loader가 `functionality - 1` fallback을 적용하고
+   그 coordinate가 explicit `priority`와 같은 경우에만
+   `feature_name`/`priority` 한 쌍의 공유를 허용한다. 이 경우 header·row의 중복
+   cell evidence와 row `cell_region_records`는 semantic label을 제외한 모든
+   field가 각각 완전 동일해야 하며, 하나라도 다르면 measured mismatch다. 그 외
+   비단사 column map은 모두 거부한다.
 4. cell에 formula가 존재하면 loader-equivalent 값은 formula text,
    아니면 direct `values` 값이다. `displayFormulas`는 이름 그대로 별도
    `display_formula_view` 증거이며 cached/displayed value라고 과대 표기하지
@@ -1044,9 +1051,9 @@ function Read-PinnedDispatchCapsule {
         $Capsule.identities.directive.git_blob_no_filters -ne
             '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>' -or
         $Capsule.identities.spec.raw_sha256 -ne
-            '881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce' -or
+            'af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6' -or
         $Capsule.identities.spec.git_blob_no_filters -ne
-            'c6448f0d390ac07e9d5aa8ae7b7a50017795ace9' -or
+            'bc63b8f69f1fc79757adb41f7f43600491b67f00' -or
         $Capsule.identities.generator.raw_sha256 -ne
             '45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd' -or
         $Capsule.identities.generator.git_blob_no_filters -ne
@@ -2141,6 +2148,18 @@ step projections와 hash는
 legacy/canonical alias normalization이 이 reconnaissance에 정의되지 않았으므로
 non-target semantic equality 또는 delta 0을 주장하거나 exit gate로 쓰지 않는다.
 
+Appendix B analyzer는 reconciliation file을 atomic publish한 뒤 성공 exit `0`
+직전에 다음 deterministic 한 줄을 stdout으로 출력한다.
+
+```text
+ANALYZE_RESULT verdict=<PROVENANCE_RECONCILED|PROVENANCE_MISMATCH> mapped_documents=<int> targets=<int> blocking_reasons=<int>
+```
+
+필드 순서와 단일 LF는 고정하며 timestamp, nonce, absolute path, mtime을 넣지
+않는다. 따라서 controller의 canonical capture로 생성되는
+`analyze.combined.txt`는 analyzer 성공 경로에서 항상 non-empty다. Appendix C의
+required-file non-empty invariant는 완화하지 않는다.
+
 ### 5.7 Exact analysis-only argv
 
 Appendix B source SHA를 확인하고 P0/P1 artifact가 모두 존재한 뒤 아래 1회만
@@ -2269,8 +2288,8 @@ $AssembleArgs = @(
     '--directive-blob', '<DISPATCH_EXACT_DIRECTIVE_GIT_BLOB>',
     '--capsule-sha256', '<DISPATCH_EXACT_LOWERCASE_CAPSULE_SHA256>',
     '--appendix-a-sha', 'f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa',
-    '--appendix-b-sha', '63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b',
-    '--appendix-c-sha', '62261c533481982b707903ecd00bdb149de670b4aadb133aa7180adb0eff1728',
+    '--appendix-b-sha', '516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267',
+    '--appendix-c-sha', '6182cbaa8962d43965e3b34eebfd600a19d1bd7410b7e4e70b2630fb75f0cc54',
     '--status', $Status,
     '--last-phase', $LastPhase
 )
@@ -3202,7 +3221,7 @@ await fs.rename(`${OUTPUT}.tmp`, OUTPUT);
 아래 code fence 내부 source만 external temp `analyze_provenance.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b`
+**Expected source SHA-256:** `516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267`
 
 ```python
 from __future__ import annotations
@@ -3735,6 +3754,48 @@ def p0_safe_str(value: object) -> str:
     raise ValueError(f"unsupported P0 loader value type: {type(value).__name__}")
 
 
+def valid_semantic_column_map(column_map: dict[str, int]) -> bool:
+    fields_by_column: dict[int, list[str]] = {}
+    for field in P0_FIELDS:
+        fields_by_column.setdefault(column_map[field], []).append(field)
+    aliases = [
+        set(fields) for fields in fields_by_column.values()
+        if len(fields) > 1
+    ]
+    if not aliases:
+        return True
+    return (
+        len(aliases) == 1
+        and aliases[0] == {"feature_name", "priority"}
+        and column_map["feature_name"] == column_map["functionality"] - 1
+    )
+
+
+def assert_shared_coordinate_evidence(
+    items: list[dict[str, Any]],
+    evidence_label: str,
+    ignored_fields: frozenset[str] = frozenset(),
+) -> None:
+    items_by_coordinate: dict[str, list[dict[str, Any]]] = {}
+    for item in items:
+        items_by_coordinate.setdefault(item["coordinate"], []).append(item)
+    for coordinate, duplicates in items_by_coordinate.items():
+        if len(duplicates) == 1:
+            continue
+        views = [
+            {
+                field: value for field, value in item.items()
+                if field not in ignored_fields
+            }
+            for item in duplicates
+        ]
+        if any(view != views[0] for view in views[1:]):
+            raise ValueError(
+                f"shared semantic {evidence_label} evidence differs: "
+                f"{coordinate}"
+            )
+
+
 def check_sheet_internal(
     sheet: dict[str, Any],
     reasons: list[dict[str, str]],
@@ -3754,7 +3815,6 @@ def check_sheet_internal(
             or value < 0
             for value in column_map.values()
         )
-        or len(set(column_map.values())) != len(P0_FIELDS)
         or isinstance(header_row, bool)
         or not isinstance(header_row, int)
         or header_row <= 0
@@ -3762,6 +3822,12 @@ def check_sheet_internal(
         add_reason(
             reasons, "P0_SHEET_INTERNAL", str(name),
             "column map/header contract mismatch",
+        )
+        return False
+    if not valid_semantic_column_map(column_map):
+        add_reason(
+            reasons, "P0_SHEET_INTERNAL", name,
+            "semantic column alias contract mismatch",
         )
         return False
     address = re.fullmatch(
@@ -3793,7 +3859,10 @@ def check_sheet_internal(
             )
             ok = False
     headers = sheet.get("header_cells")
-    if not isinstance(headers, list):
+    if (
+        not isinstance(headers, list)
+        or any(not isinstance(cell, dict) for cell in headers)
+    ):
         return False
     expected_header_coordinates = [
         f"{column_name(column_map[field])}{header_row}"
@@ -3810,6 +3879,16 @@ def check_sheet_internal(
         add_reason(
             reasons, "P0_SHEET_INTERNAL", f"{name}:headers",
             "header field/coordinate relation mismatch",
+        )
+        ok = False
+    try:
+        assert_shared_coordinate_evidence(
+            headers, "header cell", frozenset({"field"}),
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        add_reason(
+            reasons, "P0_SHEET_INTERNAL", f"{name}:headers",
+            f"{type(error).__name__}: {error}",
         )
         ok = False
     return ok
@@ -3873,6 +3952,8 @@ def check_selector_internal(
         ]
         if observed_coordinates != expected_coordinates:
             raise ValueError("semantic cell coordinates differ")
+        assert_shared_coordinate_evidence(cells, "cell")
+        assert_shared_coordinate_evidence(region_records, "region")
         source_fields = (
             "source_no",
             "source_feature_name_raw",
@@ -3893,7 +3974,7 @@ def check_selector_internal(
             for record in region_records if isinstance(record, dict)
         }
         if (
-            len(region_by_coordinate) != len(expected_coordinates)
+            len(region_by_coordinate) != len(set(expected_coordinates))
             or set(region_by_coordinate) != set(expected_coordinates)
         ):
             raise ValueError("region coordinate set differs")
@@ -4570,6 +4651,13 @@ def reconcile_v2(
     }
     temporary.write_bytes(canonical_bytes(output))
     os.replace(temporary, args.output)
+    print(
+        "ANALYZE_RESULT "
+        f"verdict={output['verdict']} "
+        f"mapped_documents={len(mapped_document_status)} "
+        f"targets={len(targets)} "
+        f"blocking_reasons={len(reasons)}"
+    )
     return 0
 
 
@@ -4615,7 +4703,7 @@ if __name__ == "__main__":
 아래 code fence 내부 source만 external temp `assemble_evidence.py`로 만든다.
 source bytes는 UTF-8, LF, 마지막 line 뒤 trailing LF 1개다.
 
-**Expected source SHA-256:** `62261c533481982b707903ecd00bdb149de670b4aadb133aa7180adb0eff1728`
+**Expected source SHA-256:** `6182cbaa8962d43965e3b34eebfd600a19d1bd7410b7e4e70b2630fb75f0cc54`
 
 ```python
 from __future__ import annotations
@@ -4711,8 +4799,8 @@ EXPECTED_YAML_PATHS = tuple(sorted(
     {path for path, _source_no in EXPECTED_SOURCE_BINDINGS},
     key=lambda value: value.encode("utf-8"),
 ))
-SPEC_SHA = "881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce"
-SPEC_BLOB = "c6448f0d390ac07e9d5aa8ae7b7a50017795ace9"
+SPEC_SHA = "af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6"
+SPEC_BLOB = "bc63b8f69f1fc79757adb41f7f43600491b67f00"
 GENERATOR_SHA = "45a1a0ebc3fdc89691f6b3106fede0771ea376a8f132866899bca655289db6bd"
 GENERATOR_BLOB = "db170b307a323e861b8a3fc7d29ef743b109197e"
 WORKBOOK_SHA = "160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa"

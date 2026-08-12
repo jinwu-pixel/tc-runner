@@ -574,6 +574,38 @@ $SplitIdentity = (
 Add-CheckResult -Name 'C9g producer and tracked identities stay split' `
     -Passed $SplitIdentity
 
+$SharedColumnContract = (
+    $AppendixB.Contains('def valid_semantic_column_map(') -and
+    $AppendixB.Contains('{"feature_name", "priority"}') -and
+    $AppendixB.Contains(
+        'column_map["feature_name"] == column_map["functionality"] - 1'
+    ) -and
+    $AppendixB.Contains('def assert_shared_coordinate_evidence(') -and
+    $AppendixB.Contains(
+        'assert_shared_coordinate_evidence(cells, "cell")'
+    ) -and
+    $AppendixB.Contains(
+        'assert_shared_coordinate_evidence(region_records, "region")'
+    ) -and
+    $AppendixB.Contains(
+        'f"shared semantic {evidence_label} evidence differs: "'
+    )
+)
+Add-CheckResult -Name 'C9h loader alias is narrow and evidence-identical' `
+    -Passed $SharedColumnContract
+
+$AnalyzeSummaryContract = (
+    $AppendixB.Contains('"ANALYZE_RESULT "') -and
+    $AppendixB.Contains('f"verdict={output[''verdict'']} "') -and
+    $AppendixB.Contains(
+        'f"mapped_documents={len(mapped_document_status)} "'
+    ) -and
+    $AppendixB.Contains('f"targets={len(targets)} "') -and
+    $AppendixB.Contains('f"blocking_reasons={len(reasons)}"')
+)
+Add-CheckResult -Name 'C9i analyzer emits deterministic nonempty summary' `
+    -Passed $AnalyzeSummaryContract
+
 # --------------------------------------------------------------------------
 # Report
 # --------------------------------------------------------------------------

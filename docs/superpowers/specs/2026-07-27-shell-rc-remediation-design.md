@@ -147,6 +147,11 @@ workbook/producer에서 재생되는지는 아직 확정하지 않는다.
   conjunction이며 physical row는 관측 evidence일 뿐 selector가 아님
 - manifest의 `yaml_tc_name`과 workbook-derived `workbook_tc_name`을 별도
   identity field로 기록하고 서로 비교하지 않음
+- semantic column map은 단사를 기본으로 하되, loader의 실제
+  `feature_name = functionality - 1` fallback이 explicit `priority` column과
+  겹치는 경우에만 `feature_name`/`priority` 공유를 허용한다. 공유 coordinate의
+  중복 cell/region evidence는 field 단위로 완전 동일해야 하며 그 외 비단사
+  mapping 또는 중복 evidence 차이는 mismatch다.
 - workbook의 relevant cell value/formula/style을 읽기 전용으로 기록
 
 ### P1 — isolated replay
@@ -166,6 +171,9 @@ workbook/producer에서 재생되는지는 아직 확정하지 않는다.
 7. 15개 blocker binding의 source procedure와 emitted command 관계를
    증명한다.
 8. target 외 semantic delta를 보고한다.
+9. analyzer 성공은 verdict, mapped document 수, target 수, blocking reason 수를
+   고정 순서 deterministic 한 줄로 stdout에 남긴다. timestamp·nonce·경로는
+   금지하며 Appendix C의 non-empty log invariant는 유지한다.
 
 이 phase boundary는 구현 refinement다. Appendix A는 artifact-tool-only P0로서
 workbook identity, frozen manifest, exact selector join을 검증한다. tracked YAML

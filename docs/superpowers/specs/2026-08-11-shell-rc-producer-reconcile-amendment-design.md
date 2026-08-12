@@ -1,6 +1,6 @@
 # shell-rc producer reconcile amendment — 확정 설계
 
-> **STATUS: IMPLEMENTED + TESTED — COMMIT APPROVAL PENDING (2026-08-11)**
+> **STATUS: CONTRACT AMENDMENT IMPLEMENTED + TESTED — COMMIT APPROVAL PENDING (2026-08-12)**
 >
 > 사용자 승인 범위 = Run-A의 P0 mismatch 원인을 producer reconcile 방식으로
 > 교정하는 TDD 구현과 검증. staging, commit, push, capsule capture, campaign
@@ -353,7 +353,7 @@ Run-A 완주 전에는 P2 source-first 교정으로 넘어가지 않는다.
 - producer regression: `52 passed`, exit `0`
 - materialized Appendix A/B/C/R SHA-256:
   - A `f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa`
-  - B `63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b`
+  - B `516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267`
   - C `eda7da101e254ce7dde5eebbdc53861390891761748f75ff6d7af83aa9b692fa`
   - R `d57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64`
 - base spec raw SHA-256 / no-filter blob:
@@ -384,8 +384,8 @@ Appendix C 외부 pin을 순서대로 refreeze하고, 제품·테스트 파일�
 - real Appendix B 3-scenario selection: `3 passed, 73 deselected`, exit `0`
 - materialized Appendix A/B/C/R SHA-256:
   - A `f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa`
-  - B `63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b`
-  - C `62261c533481982b707903ecd00bdb149de670b4aadb133aa7180adb0eff1728`
+  - B `516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267`
+  - C `6182cbaa8962d43965e3b34eebfd600a19d1bd7410b7e4e70b2630fb75f0cc54`
   - R `d57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64`
 - base spec raw SHA-256 / no-filter blob:
   `881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce` /
@@ -408,3 +408,70 @@ Task 7 중 두 번의 read-only audit-command construction 오류는 제품/cont
 이 qualification은 uncommitted 구현 검증이다. campaign/runtime provenance는 아직
 완주하지 않았고, staging, commit, push, capsule capture, campaign 실행은 모두
 승인되지 않았다.
+
+---
+
+## 10. 2026-08-12 contract amendment
+
+RunA-3은 8개 ledger phase를 모두 완료했지만 Appendix B/C의 두 계약 부정합 때문에
+유효한 measured mismatch가 `INPUT_INVALID`로 분류됐다. 독립 격리 진단
+`08799f816845291c8ea0d4782712bcf08dca13d488def3e3241d7f07d9b5b770`은
+두 번 byte-identical했고, alias correction 뒤 Appendix C의 실제
+`validate_reconciliation` 문제는 0건이었다.
+
+이번 amendment는 다음만 변경한다.
+
+1. Appendix B는 column map 단사를 기본으로 유지한다.
+2. `feature_name == functionality - 1` loader fallback이 explicit `priority`와
+   겹치는 정확한 한 쌍만 허용한다.
+3. shared header cell은 semantic `field`만 제외하고 동일해야 하며, shared row
+   cell과 region record는 모든 field가 각각 동일해야 한다.
+4. Appendix B는 atomic output 뒤 verdict/documents/targets/reasons를 담은
+   deterministic 한 줄을 stdout으로 출력한다.
+5. Appendix C non-empty invariant와 Appendix A bytes는 변경하지 않는다.
+
+전용 설계 source는
+`docs/superpowers/specs/2026-08-12-shell-rc-contract-amendment-design.md`다.
+base spec이 변경되므로 새 raw SHA/no-filter blob을 directive §0, setup, Appendix C
+소비 지점에 다시 결박하며, commit 뒤 신규 `SPEC_REVIEW_APPROVED` 발급이 필요하다.
+
+### 10.1 TDD evidence
+
+- RED: shared-column acceptance, corrupted duplicate evidence reason,
+  deterministic analyzer stdout의 3개 테스트가 기존 Appendix B에서 모두 실패
+- 첫 GREEN 시도: 2 passed / 1 failed; fixture가 두 sheet에 같은 `column_map`
+  object를 재사용한 test-only 결함을 확인
+- fixture를 실제 P0처럼 sheet별 독립 map으로 교정한 뒤: 3 passed
+- selfcheck RED: 신규 C9h/C9i 두 계약만 실패
+- behavior 구현 뒤 identity refreeze 전 selfcheck: 신규 C9h/C9i GREEN,
+  Appendix B stale pin C4c만 RED
+
+최종 full qualification 수치와 base-spec identity는 모든 gate가 fresh GREEN인 뒤
+본 섹션에 기록한다.
+
+### 10.2 Fresh qualification
+
+- focused behavior RED: `3 failed, 76 deselected`, exit `1`
+- static selfcheck RED: C9h/C9i만 실패, `2/40`, exit `1`
+- focused behavior GREEN: `3 passed, 76 deselected`, exit `0`
+- controller static self-check: `40/40 GREEN`, exit `0`
+- controller runtime selftest: `S1-S17 GREEN`, exit `0`
+- dispatch capsule regression: Windows PowerShell 5.1 outer process,
+  `79 passed`, exit `0`, kill/restart 없음
+- PowerShell 7 outer에서 최초 full dispatch를 실행했을 때 기존 module-binding
+  2건이 inherited PS7 `PSModulePath` 때문에 `Get-FileHash` autoload에 실패했다.
+  동일 2건은 Windows PowerShell 5.1 outer에서 `2 passed`였고, 같은 5.1 outer의
+  전체 fresh rerun이 위 `79 passed`다. 제품/contract 변경은 없었다.
+- materialized Appendix A/B/C/R SHA-256:
+  - A `f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa`
+  - B `516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267`
+  - C `6182cbaa8962d43965e3b34eebfd600a19d1bd7410b7e4e70b2630fb75f0cc54`
+  - R `d57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64`
+- base spec raw SHA-256 / no-filter blob:
+  `af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6` /
+  `bc63b8f69f1fc79757adb41f7f43600491b67f00`
+
+Base spec identity가 바뀌었으므로 commit 뒤 fresh capsule/campaign 전에 신규
+`SPEC_REVIEW_APPROVED` 토큰을 독립 재발급해야 한다. 이전 spec token과 capsule은
+재사용할 수 없다. staging, commit, push, cleanup, capsule capture, campaign은
+여전히 미승인이다.

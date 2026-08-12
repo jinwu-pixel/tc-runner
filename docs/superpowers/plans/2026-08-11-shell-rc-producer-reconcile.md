@@ -332,3 +332,25 @@ qualification status or refreeze identities in Task 6.
 
 No staging, commit, push, capsule capture, or campaign is part of Task 7 unless a
 later explicit approval opens that separate gate.
+
+### Task 8: 2026-08-12 contract amendment
+
+**Approved files:** directive, base spec, amendment design, this plan,
+controller self-check, dispatch tests, and the new
+`2026-08-12-shell-rc-contract-amendment-design.md` only.
+
+**Immutable:** Appendix A, Appendix C non-empty policy, controller, workbook,
+tracked YAML, producer source, capsule generator, campaign roots.
+
+- [x] Add RED tests for the real `SS-TC 1` shared feature/priority column,
+  corrupted duplicate evidence, and silent analyzer success.
+- [x] Observe `3 failed` against the old Appendix B for the intended reasons.
+- [x] Add C9h/C9i static RED checks and observe only those two checks fail.
+- [x] Implement the narrow loader-equivalent alias and field-identical duplicate
+  evidence checks in Appendix B.
+- [x] Emit one deterministic `ANALYZE_RESULT` line after atomic output publish.
+- [x] Turn the three focused behavior tests GREEN.
+- [x] Refreeze Appendix B and the edited base-spec identity in every consumer.
+- [x] Run static selfcheck, runtime selftest, and complete dispatch regression.
+- [x] Audit exact seven-path scope, immutable paths, hashes, blobs, and unstaged
+  Git state; stop at the separate commit gate.
