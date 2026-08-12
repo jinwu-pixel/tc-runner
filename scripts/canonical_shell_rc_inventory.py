@@ -190,6 +190,8 @@ def _head_yaml_tree(repo: Path, head_sha: str) -> dict[str, str]:
             continue
         if PurePosixPath(path).suffix.lower() not in {".yaml", ".yml"}:
             continue
+        if PurePosixPath(path).parts[0] == "provenance":
+            continue
         if path in paths:
             raise AuditInfraError(f"duplicate YAML path in HEAD tree: {path}")
         paths[path] = oid_text

@@ -89,6 +89,36 @@ def test_head_snapshot_preserves_non_ascii_paths_and_ignores_worktree(
     )
 
 
+def test_head_snapshot_excludes_provenance_manifests(tmp_path: Path) -> None:
+    """Catches provenance metadata leaking into the executable TC inventory."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git(repo, "init", "-q")
+
+    case = repo / "case.yaml"
+    case.write_text("tc_name: case\nsteps: []\n", encoding="utf-8")
+    manifest = repo / "provenance" / "manifest.yaml"
+    manifest.parent.mkdir()
+    manifest.write_text("schema_version: 1\n", encoding="utf-8")
+    _git(repo, "add", "--", "case.yaml", "provenance/manifest.yaml")
+    _git(
+        repo,
+        "-c",
+        "user.name=Inventory Test",
+        "-c",
+        "user.email=inventory@example.invalid",
+        "commit",
+        "-q",
+        "-m",
+        "fixture",
+    )
+    head = _git(repo, "rev-parse", "HEAD")
+
+    blobs = AUDIT.read_head_yaml_blobs(repo, head)
+
+    assert [blob.path for blob in blobs] == ["case.yaml"]
+
+
 def test_collect_inventory_replays_explicit_head_after_head_advances(
     tmp_path: Path,
 ) -> None:
@@ -430,7 +460,7 @@ def test_current_head_inventory_matches_reviewed_target_set() -> None:
     report = AUDIT.collect_inventory(REPO)
 
     assert report.summary == {
-        "tracked_yaml_files": 615,
+        "tracked_yaml_files": 619,
         "raw_runnable_rc_files": 112,
         "canonical_preflight_pass_files": 112,
         "canonical_preflight_reject_files": 0,

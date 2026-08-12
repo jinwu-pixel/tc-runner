@@ -856,7 +856,11 @@ def test_verify_rejects_live_repo_drift(tmp_path, kind):
 def test_missing_git_is_infrastructure_failure(tmp_path, monkeypatch):
     tool = _load_tool()
     fixture = _make_repo(tmp_path)
-    monkeypatch.setenv("PATH", "")
+
+    def raise_missing_git(*_args, **_kwargs):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(tool.subprocess, "run", raise_missing_git)
 
     with pytest.raises(tool.InfrastructureFailure, match="could not start"):
         tool.measure_index(fixture.repo)
@@ -1238,7 +1242,11 @@ def test_main_git_spawn_failure_is_exit_3_without_capsule_write(
     tool = _load_tool()
     fixture = _make_repo(tmp_path)
     root = tmp_path / "capsules"
-    monkeypatch.setenv("PATH", "")
+
+    def raise_missing_git(*_args, **_kwargs):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(tool.subprocess, "run", raise_missing_git)
 
     exit_code = tool.main(
         [

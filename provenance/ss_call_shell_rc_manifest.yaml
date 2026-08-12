@@ -1,0 +1,217 @@
+mappings:
+- blocker_bindings:
+  - blocker_step_index: 10
+    source_no: TC-01
+    step_projection:
+      action: verify_shell
+      command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'callSignals=\[\]'
+      expected: '0'
+  - blocker_step_index: 11
+    source_no: TC-01
+    step_projection:
+      action: shell
+      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+      expected: null
+  source_selectors:
+  - functionality_effective: 권한 미부여 기본 동작 확인
+    source_content_hash: 7e8868cf1bde7491e8e0ef9c6cb30f2b014b8a74276b7e565162266c6e7241ca
+    source_no: TC-01
+    workbook_physical_row: 2
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC01_permission_denied.yaml
+  yaml_tc_name: SS_TC01_permission_denied
+- blocker_bindings:
+  - blocker_step_index: 11
+    source_no: TC-02
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
+      expected: null
+  source_selectors:
+  - functionality_effective: 권한 허용 후 Idle 진입 확인
+    source_content_hash: 3fdc5ed06ddc5c6f683a6ffdcf8e45ccee300ad58e2f1322ee4d57f0cc463f4b
+    source_no: TC-02
+    workbook_physical_row: 3
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC02_permission_allow_idle.yaml
+  yaml_tc_name: SS_TC02_permission_allow_idle
+- blocker_bindings:
+  - blocker_step_index: 15
+    source_no: TC-03
+    step_projection:
+      action: shell
+      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+      expected: null
+  source_selectors:
+  - functionality_effective: RINGING 중 권한 허용 시 현재 통화 감지
+    source_content_hash: 65902f1020e1d82c3ae0aba1f09238fabcfe10c4854332b0a02bd979dd86f8a9
+    source_no: TC-03
+    workbook_physical_row: 4
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC03_ringing_permission.yaml
+  yaml_tc_name: SS_TC03_ringing_permission
+- blocker_bindings:
+  - blocker_step_index: 18
+    source_no: TC-04
+    step_projection:
+      action: shell
+      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+      expected: null
+  source_selectors:
+  - functionality_effective: OFFHOOK 도중 권한 허용 시 seed 복구 확인
+    source_content_hash: 6438881a5b36c2062348a44f01fff7c35b82b63715ea8ed565da63f38de4539f
+    source_no: TC-04
+    workbook_physical_row: 5
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC04_offhook_seed_recovery.yaml
+  yaml_tc_name: SS_TC04_offhook_seed_recovery
+- blocker_bindings:
+  - blocker_step_index: 9
+    source_no: TC-05A
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION
+      expected: null
+  source_selectors:
+  - functionality_effective: 9초 경계값 검증
+    source_content_hash: c5fdc3c48ea06f5713a488ff398b5c70360ed32a6a653b2ebae8158d09bcdaba
+    source_no: TC-05A
+    workbook_physical_row: 6
+  - functionality_effective: 10초 경계값 검증
+    source_content_hash: 622ae6ba742537a67085d32279e8052770d0758be54562b64b9c7b91224b3e0f
+    source_no: TC-05B
+    workbook_physical_row: 7
+  - functionality_effective: 11초 경계값 검증
+    source_content_hash: b6e1cd6c24ae3373c4d117b1fae1be5fdfa23c5c07aae936bbb219e49cc8308e
+    source_no: TC-05C
+    workbook_physical_row: 8
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC05_boundary_values.yaml
+  yaml_tc_name: SS_TC05_boundary_values
+- blocker_bindings:
+  - blocker_step_index: 10
+    source_no: TC-06
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION
+      expected: null
+  - blocker_step_index: 11
+    source_no: TC-06
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'event'
+      expected: null
+  source_selectors:
+  - functionality_effective: 부재중/거절 통화 처리 확인
+    source_content_hash: e6028c93abc0ea30584faf4b54c6bdcd32686aee58d045f554657bdc4ed2c4c2
+    source_no: TC-06
+    workbook_physical_row: 9
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC06_missed_rejected.yaml
+  yaml_tc_name: SS_TC06_missed_rejected
+- blocker_bindings:
+  - blocker_step_index: 9
+    source_no: TC-07
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION
+      expected: null
+  source_selectors:
+  - functionality_effective: 짧은 정상 통화 오탐 방지
+    source_content_hash: cd4f98a24075af81967cab3fa3b2527c35a02ebd4f15e83f4aa9db76a580e32d
+    source_no: TC-07
+    workbook_physical_row: 10
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC07_short_call_no_false_positive.yaml
+  yaml_tc_name: SS_TC07_short_call_no_false_positive
+- blocker_bindings:
+  - blocker_step_index: 20
+    source_no: TC-09
+    step_projection:
+      action: shell
+      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+      expected: null
+  source_selectors:
+  - functionality_effective: OFFHOOK 중 권한 허용 후 금융 앱 개입 확인
+    source_content_hash: 676cdbe820c79158356d5427dbd33f672fffa6938436b7f33726a9e4e2118ceb
+    source_no: TC-09
+    workbook_physical_row: 12
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC09_offhook_permission_banking.yaml
+  yaml_tc_name: SS_TC09_offhook_permission_banking
+- blocker_bindings:
+  - blocker_step_index: 15
+    source_no: T/C-01
+    step_projection:
+      action: shell
+      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+      expected: null
+  source_selectors:
+  - functionality_effective: 경고 팝업의 "지금 전화 끊기" 버튼 경로에서 다이얼러 크래시 재발 여부와 dismiss→suppression→delayed endCall→IDLE→suppression release 순서 검증
+    source_content_hash: b89d4dcf0bc7a52f5893665fa7323f1c10290237344d657b79e088eb47bb1ef4
+    source_no: T/C-01
+    workbook_physical_row: 2
+  source_sheet: SS-TC 0
+  yaml_path: exported_ss_call/SS_TC0_P0_endcall_crash.yaml
+  yaml_tc_name: SS_TC0_P0_endcall_crash
+- blocker_bindings:
+  - blocker_step_index: 24
+    source_no: TC-10
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
+      expected: null
+  source_selectors:
+  - functionality_effective: true→false→true 권한 흔들기
+    source_content_hash: 709c515abc99febaf2f42f89a4682a2f055c218fce3cc124062bd29954757cab
+    source_no: TC-10
+    workbook_physical_row: 13
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC10_permission_toggle.yaml
+  yaml_tc_name: SS_TC10_permission_toggle
+- blocker_bindings:
+  - blocker_step_index: 20
+    source_no: TC-11
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-CallMonitor:D | grep -c 'LONG_CALL_DURATION'
+      expected: null
+  - blocker_step_index: 21
+    source_no: TC-11
+    step_projection:
+      action: shell
+      command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'notification escalation'
+      expected: null
+  source_selectors:
+  - functionality_effective: 다중 구독 안전성 확인
+    source_content_hash: de24dc5f0ba85ec17b1e64bb16e1e8d3d24c1e464d4c9caeca0967a1f001a1f3
+    source_no: TC-11
+    workbook_physical_row: 14
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC11_multi_subscription.yaml
+  yaml_tc_name: SS_TC11_multi_subscription
+- blocker_bindings:
+  - blocker_step_index: 19
+    source_no: TC-12
+    step_projection:
+      action: shell
+      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
+      expected: null
+  source_selectors:
+  - functionality_effective: Legacy 경로 현재 상태 반영 확인
+    source_content_hash: 8f67d904224aec9727fc1855b43b63b23abd10dce710b3b174382dbbb3d4063c
+    source_no: TC-12
+    workbook_physical_row: 15
+  source_sheet: SS-TC 1
+  yaml_path: exported_ss_call/SS_TC12_legacy_path.yaml
+  yaml_tc_name: SS_TC12_legacy_path
+origin:
+  directive_id: RB-20260728-shellrc-p0p1
+  evidence_head: 99ee58b176718805b38e3e9ed916a19beaf4a00e
+  evidence_raw_sha256: f3e62fe3dee4c8b1213aff7827eadcf2ccdf046348229bbf810cccab30ce487a
+  verdict: PROVENANCE_MISMATCH
+schema_version: 1
+subject: ss_call shell-rc blocker provenance
+workbook:
+  path: tc_samples/TC_1.xlsx
+  raw_sha256: 160cdf4ad3e4fd25c470ad9e3ae1681e8cc7b350e59fdc5acb5b196b480304fa
