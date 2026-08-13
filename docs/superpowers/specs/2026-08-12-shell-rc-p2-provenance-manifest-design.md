@@ -1,8 +1,13 @@
 # Shell-RC P2 — curated authoritative + tracked provenance manifest 설계
 
-> **STATUS: DESIGN APPROVED + IMPLEMENTATION AUTHORIZED (2026-08-12) — Codex
-> 구현 지시문 발급됨. 허용 산출물 = §3의 신규 4파일만, 기존 tracked 편집 0.
-> staging, commit, push, cleanup, campaign 재실행 미승인.**
+> **STATUS: IMPLEMENTED + TESTED + COMMITTED + PUSHED (2026-08-12) —
+> scope record reconciled (2026-08-13)**
+>
+> 최초 구현 승인은 §3의 신규 4파일, 기존 tracked 편집 0이었다. 구현 중 기계
+> 게이트가 inventory 오염과 Full-access Windows의 spawn-failure simulation 문제를
+> 발견했고, 각 수정은 편집 전에 별도 사용자 amendment 승인을 받았다. 최종 유효
+> 범위와 승인 순서는 §8.1에 기록한다. cleanup, campaign 재실행, CLAUDE.md 편집은
+> P2 구현 commit 범위에 포함되지 않았다.
 >
 > 방향 승인 근거 대화: campaign evidence `f3e62fe3…` 독립 재검토 후 Claude 제안
 > (a) source-first / (b) curated authoritative / (c) baseline 종결 중 (b) 채택.
@@ -50,7 +55,7 @@
   `PRODUCER_RUNNABILITY_GAP`은 이 규정 하에서 결함이 아니라 예상 동작.
 - evidence `f3e62fe3…`는 공식 baseline으로 본 문서 §1에 등재 (재실행 불요).
 
-## 3. 산출물 (전부 신규 파일 — 기존 tracked 파일 편집 0)
+## 3. 최초 승인 산출물 (신규 4파일)
 
 | 산출물 | 경로 (권고) | 역할 |
 |---|---|---|
@@ -62,8 +67,11 @@
 **위치 근거**: `exported_ss_call/`은 corpus 카운트 pin(16 files,
 `tests/test_anchor_corpus_audit.py:36`)이 있고, `tc_samples/`는 contract drift
 ledger가 legacy corpus로 수집(`tests/test_contract_drift_ledger.py`) — 양쪽 모두
-yaml 추가 시 기존 게이트 파손. 신규 `provenance/` 루트 디렉터리는 어떤 collector도
-글롭하지 않음(구현 시 전체 tests/ GREEN으로 기계 확인).
+yaml 추가 시 기존 게이트 파손. 최초 설계에서는 신규 `provenance/` 루트 디렉터리를
+어떤 collector도 글롭하지 않는다고 판단했으나, 구현 중
+`scripts/canonical_shell_rc_inventory.py`가 모든 tracked YAML을 suffix로 수집한다는
+사실을 회귀 게이트가 검출했다. 이 최초 단언은 superseded되며, 편집 전 승인된
+inventory scope amendment로 `provenance/`를 TC inventory에서 제외했다(§8.1).
 
 ## 4. Manifest 스키마 v1
 
@@ -148,18 +156,41 @@ campaign D2의 교훈 — 측정이 loader 실동작과 어긋나면 부정합�
 
 ## 8. Scope / Immutables
 
-**허용 (전부 신규)**: §3 표의 4 파일만. 기존 tracked 파일 편집 0.
+**최초 허용**: §3 표의 신규 4파일만. 기존 tracked 파일 편집 0.
+
+### 8.1 Implementation-discovered, pre-edit amendment approvals
+
+최초 범위 밖 필요 변경은 발견 즉시 정지·보고한 뒤, 다음 두 amendment를 각각
+사용자가 **수정 전에 승인**한 후에만 적용했다.
+
+1. **Inventory scope amendment** (`진행해` 승인):
+   `scripts/canonical_shell_rc_inventory.py`와
+   `tests/test_canonical_shell_rc_inventory.py`를 허용했다. 변경은
+   `provenance/` 제외, 현재 HEAD tracked YAML pin `615 → 619`, 제외 회귀 테스트로
+   한정했다.
+2. **Full-access dispatch test-simulation amendment**
+   (`P2 FULL-ACCESS DISPATCH TEST-SIMULATION AMENDMENT APPROVED`):
+   `tests/test_dispatch_capsule.py`만 허용했다. 두 git spawn-failure 테스트의
+   `PATH=""` simulation을 `subprocess.run`의 직접 `FileNotFoundError` monkeypatch로
+   교체했다. 제품 capsule generator와 기술 계약은 변경하지 않았다.
+
+따라서 최종 유효 commit 범위는 **신규 4 + 후속 승인 tracked 3 = 정확히 7경로**다.
+commit `4c484d53e4227933b43fffad3f1846435a70c995`는 이 7경로만 포함하며,
+전체 회귀는 `1545 passed, 1 warning`이었다.
 
 **Immutable**: workbook, `exported_ss_call/*.yaml`, `src/mmi_converter/`(import만
 허용·수정 금지), 캠페인 문서 전체(directive·2026-07-27 spec·amendment specs),
 controller·capsule generator, campaign temp/evidence roots.
 
-**금지 유지**: stage, commit, push, campaign 재실행, cleanup, CLAUDE.md 편집
-(§5.3 도구 등록·§8.2 row는 별도 §8.3 승인 게이트).
+**구현 당시 금지**: stage, commit, push, campaign 재실행, cleanup, CLAUDE.md 편집
+(§5.3 도구 등록·§8.2 row는 별도 §8.3 승인 게이트). stage, commit, push는 구현
+검증 뒤 별도 명시 승인을 받아 완료했다. campaign 재실행, cleanup, CLAUDE.md 편집은
+위 commit에 포함하지 않았다.
 
 ## 9. 후속 (본 P2 범위 밖)
 
 - CLAUDE.md §5.3에 seeding 도구·게이트 등록 + §8.2 row (§8.3 게이트)
 - campaign roots cleanup + 완주 run 아카이브 (`20260812-final`) — 별도 승인
-- §9 이력 rewrite 정정 (2026-08-11 amendment doc, "당시 값+superseded 주석")
+- 2026-08-11 amendment doc §9 이력 rewrite 정정 — 당시 값 보존 + superseded
+  주석 추가 (2026-08-13 기록 정정 batch)
 - qa-suite 이주 시 manifest·게이트 동반 이동 (설계 v2 provenance manifest 개념과 정렬)

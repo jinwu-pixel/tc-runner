@@ -338,7 +338,13 @@ Run-A 완주 전에는 P2 source-first 교정으로 넘어가지 않는다.
 | D | TDD 구현 + regression | **IMPLEMENTED + TESTED (2026-08-12)** |
 | E | 명시 path stage + commit | **COMMITTED** |
 | F | push audit + fast-forward push | **PUSHED — origin/master 0/0** |
-| G | fresh capsule + Run-A campaign | **SPEC_REVIEW_APPROVED 대기 — capsule/campaign 미승인** |
+| G | fresh capsule + Run-A campaign | **당시 상태: SPEC_REVIEW_APPROVED 대기 — capsule/campaign 미승인 (후속 승인·완주로 superseded)** |
+
+> **HISTORICAL SNAPSHOT:** 위 표는 producer reconcile post-push 시점의 게이트를
+> 보존한다. row G의 당시 값은 이후 `SPEC_REVIEW_APPROVED`
+> `af800c57d81f25b3419e51d522247f83956858b57f2d14157e546bd5a6e48ef6`
+> 발급, fresh capsule·공식 campaign의 별도 승인과 완주, P2 commit `4c484d5`로
+> superseded됐다. 당시 미승인을 현재 미완료 상태로 해석하지 않는다.
 
 ### 9.1 Qualification 측정 결과
 
@@ -353,7 +359,7 @@ Run-A 완주 전에는 P2 source-first 교정으로 넘어가지 않는다.
 - producer regression: `52 passed`, exit `0`
 - materialized Appendix A/B/C/R SHA-256:
   - A `f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa`
-  - B `516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267`
+  - B `63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b`
   - C `eda7da101e254ce7dde5eebbdc53861390891761748f75ff6d7af83aa9b692fa`
   - R `d57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64`
 - base spec raw SHA-256 / no-filter blob:
@@ -364,11 +370,17 @@ Run-A 완주 전에는 P2 source-first 교정으로 넘어가지 않는다.
   staged는 비어 있다.
 
 위 결과는 superseded된 Task 5의 historical uncommitted qualification이며
-campaign/runtime provenance 완주를 의미하지 않는다. 당시 다음 게이트는 Task 7의
-identity refreeze와 전체 fresh requalification이었다. Task 7은 현재 완료됐으며,
-현재 게이트는 명시 path stage + commit의 별도 승인이다.
+campaign/runtime provenance 완주를 의미하지 않는다. **당시** 다음 게이트는
+Task 7의 identity refreeze와 전체 fresh requalification이었다. 이후 Task 7·8,
+명시 path commit/push, fresh capsule·공식 campaign, P2 manifest 구현이 순차
+완료됐으므로 당시 게이트 문장은 현재 상태로 사용하지 않는다.
 
 ### 9.2 Task 7 fresh qualification 결과
+
+> **SUPERSEDED (Task 8 + official campaign + P2):** 아래 수치와 Git 상태는 Task 7
+> 종료 당시 값으로 보존한다. 후속 계약 amendment와 identity refreeze, commit/push,
+> fresh capsule·공식 campaign, P2 manifest 구현의 현재 qualification을 대체하지
+> 않는다.
 
 Task 7은 base-spec identity를 fresh rederive한 뒤 directive의 모든 consumer와
 Appendix C 외부 pin을 순서대로 refreeze하고, 제품·테스트 파일을 추가 변경하지 않은
@@ -384,8 +396,8 @@ Appendix C 외부 pin을 순서대로 refreeze하고, 제품·테스트 파일�
 - real Appendix B 3-scenario selection: `3 passed, 73 deselected`, exit `0`
 - materialized Appendix A/B/C/R SHA-256:
   - A `f6e046c74f1b002bfe05d15788ccef4693015df7bd2e774ae20db60fdcb7b2aa`
-  - B `516feffaa4522ba67d1864c5467ce7ff45505d9c8efb9b126d9d988dfbc0a267`
-  - C `6182cbaa8962d43965e3b34eebfd600a19d1bd7410b7e4e70b2630fb75f0cc54`
+  - B `63f48a6c88a19bcf5f57679ce0facf18231513590ad2722dc53ebc6a4448981b`
+  - C `62261c533481982b707903ecd00bdb149de670b4aadb133aa7180adb0eff1728`
   - R `d57734b2131cfaf548c28c68d1febbbada6236e49ed8aa21474351f3067f7e64`
 - base spec raw SHA-256 / no-filter blob:
   `881008154f34b954379e8745998432744ab911fdcd2a692dbba1c3c4634d8fce` /
@@ -405,9 +417,11 @@ Task 7 중 두 번의 read-only audit-command construction 오류는 제품/cont
 교정한 Gate 7 최종 실행은 GREEN이다. 상세 command·duration·실패 이력은
 `task-7-report.md`에 보존한다.
 
-이 qualification은 uncommitted 구현 검증이다. campaign/runtime provenance는 아직
-완주하지 않았고, staging, commit, push, capsule capture, campaign 실행은 모두
-승인되지 않았다.
+이 qualification을 기록한 **당시에는** uncommitted 구현 검증이었고,
+campaign/runtime provenance는 미완주였으며 staging, commit, push, capsule
+capture, campaign 실행도 승인되지 않았다. 그 뒤 각 게이트는 별도 승인으로
+진행됐고 공식 campaign과 P2까지 완료됐으므로, 이 문장은 historical snapshot으로만
+보존한다.
 
 ---
 
