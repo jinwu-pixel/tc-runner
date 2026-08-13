@@ -291,6 +291,8 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 | `ims_sip_digest.py` | QCAT 0x156E IMS SIP 텍스트 → override 검증용 KB digest (KST 타임스탬프) |
 | `eng_mode_runner.py` + `eng_mode_profiles.py` | 동일한 gate→tab→flat-list UI 구조의 Engineer-Mode 앱 런너 (preflight wrong-device 가드·caseset 앱-1회 batch·capture 상태-게이트·adb 0 `plan`; selector/라벨/좌표 프로파일 외부화). host-TDD/dry-run 완료, 범용 경로 device smoke pending |
 | `evidence_verifier.py` | runbook 증거 검증기 (capture-baseline/verify 2모드, C0~C5 fail-closed·exit `0/1/2/3`, git hash-object·JUnit·결정론 bundle, baseline 바이트 결박). runbook Tier 0 검토를 attestation+spot-check로 축소. Tier-1 검증·T0-CHAR 파일럿 GREEN (2026-07-23) |
+| `gen_provenance_manifest.py` | frozen shell-RC campaign evidence JSON → tracked provenance manifest 결정론 seed (mapping/selector/binding `12/14/15`·workbook raw SHA pin·타임스탬프/난수/절대경로 0, 동일 입력 byte-identical) |
+| `tests/test_provenance_manifest.py` (pytest gate) | shell-RC provenance G1~G5 fail-closed 게이트 (manifest schema·기수, workbook pin·production loader row hash, curated `tc_name`·step projection, campaign evidence baseline) |
 
 ### 5.4 운영 도구 (`tools/`)
 
@@ -440,6 +442,17 @@ batch10 dir 직접 기록 = phantom side-effect + 슬라이스 over-read 53/29).
 - force / force-with-lease 금지
 - 도구: `tools/git_safe_push_audit.py`
 
+**위임 commit/push relay (명시 승인 후)**:
+1. 승인된 exact path를 각각 `git add -- <path>`로 개별 stage한다 (broad add 금지).
+2. commit 전에 `tools/git_safe_push_audit.py --expected-path <path>...`로 staged path의 missing/unexpected가 0인지 확인한다.
+3. exact staged-set PASS와 사용자 commit 승인을 확인한 뒤 commit한다.
+4. `git fetch origin`으로 remote 기준을 갱신한다.
+5. `ahead=1`, `behind=0` 및 `origin/master..HEAD` committed path exact-set을 감사한다.
+6. force 옵션 없이 fast-forward push한다.
+7. push 후 remote/`HEAD`/`origin/master` 일치, `ahead=0`·`behind=0`, tracked/staged clean을 확인한다.
+
+commit과 push는 각각 사용자 명시 승인 범위 안에서만 수행하며, relay는 그 승인을 대체하지 않는다.
+
 **SMOKE TC runtime 연속 진행** (§3.5 reference):
 - validate → runtime 무중단 진행 허용
 - 그러나 **commit / push는 항상 명시 승인** (§7.1)
@@ -485,6 +498,9 @@ batch10 dir 직접 기록 = phantom side-effect + 슬라이스 over-read 53/29).
 | 2026-07-02 | TalkBack×하드키 검증 방법론 | THOR2_J×LINE 이슈 2건 규명(SPEC_GAP)에서 앱 무관 방법론 정립: 포커스 2축(입력≠a11y, non-speaking 컨테이너 무피드백 구간)·FocusFinder shadowing(전폭 컨테이너가 자식 가림·ViewPager 수평키 소비)·adb 함정 3종(uiautomator dump=TalkBack 일시 억제→키 시퀀스 중 dump 금지 / input tap·swipe=터치탐색 우회 즉시클릭→탐색 발화는 keyevent로 대체 / MSYS·PS5.1 깨짐)·발화 정량(TTS Synthesis+오디오포커스 세션+대조군 2종)·레이어 분리 절차·단말측 3rd-party a11y 수정 경로 부재(트리=앱 소유·RRO 무력·TalkBack=Google/Play·bare D-PAD 키맵 없음, 리서치 확정). 정적 스크리닝 S1~S8 도구화는 승인 대기 | docs/talkback_dpad_verification.md(신설 완료)·memory([[reference_talkback_hardkey_verification]]·[[project_thor2j_line_talkback]]) 반영, §4/§5 본문 등록은 갱신 대기 | proposed |
 | 2026-07-23 | 이중 게이트 병목 축소 | Codex 검토+사용자 승인 이중 게이트를 blast-radius별 재배치: RUNBOOK 템플릿 v2(Tier 0/1/2 + exact-bytes 실행 캡슐 + evidence bundle) + `scripts/evidence_verifier.py`(baseline 결박·fail-closed·결정론) 신설. T0-CHAR 파일럿 1회로 (A)검토 절반이 attestation+spot-check로 collapse 실증. 파일럿 도중 백슬래시 param 정규화 실버그를 exit 3(fail-closed)로 flush → 도구 신뢰 실증. **§3.x 자동연속 정책 본문 lock은 보류**(파일럿 1회=mechanism만 증명, 다중-task 자동연속 미실행 — 실 Tier-0 작업 축적 후 승격) | §5.3(evidence_verifier 등록)·RUNBOOK_DIRECTIVE_TEMPLATE.md·§3.x/§8.4(정책 보류) | proposed |
 | 2026-07-25 | canonical execution contract cutover | G0~G2-device 및 Cutover 승인 충족: 2026-07-24 THOR2_J Settings legacy↔canonical 4-run 48/48·action/step/passed mismatch 0·canonical shell message rc=0·serial pin 일치. `cli run` argparse default만 canonical로 승격(`78b3ac3`); explicit `--contract-mode legacy`와 library default는 유지. legacy 제거·corpus rewrite·qa-suite cutover·신규 device campaign은 미승인 | `src/cli.py`·`THOR2_J - Settings/RESULT_2026-07-24.md`·canonical design §8.5/§11 | applied |
+| 2026-08-12 | shell-RC provenance campaign | 공식 P0/P1 campaign이 mapping 12·selector 14·binding 15의 관계를 복원하고, P1 mismatch를 category-wide target-source gap의 측정 baseline으로 남겼다. mismatch 관찰은 campaign 실패가 아니라 후속 remediation 입력이며 evidence bundle을 보존한다. | `HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md`·`reports/canonical_shell_rc_provenance/RB-20260728-shellrc-p0p1/PROVENANCE_EVIDENCE.json` | applied |
+| 2026-08-12 | P2 provenance manifest | frozen campaign evidence를 tracked manifest로 승격하고 결정론 seed와 G1~G5 게이트를 도입했다. production loader 의미론·workbook pin·curated projection을 fail-closed로 결박하며, provenance YAML은 canonical TC inventory 수집에서 제외한다. 최종 범위는 신규 4 + pre-edit amendment 승인 tracked 3 = 7경로, 전체 회귀 1545 passed. | §5.3·`provenance/ss_call_shell_rc_manifest.yaml`·P2 design §8.1 | applied |
+| 2026-08-13 | 위임 scope·승인 감사 | reviewer가 자기 채널에서 승인 이력을 보지 못한 경우 `무승인`으로 단정하지 않고 `승인 이력 확인 필요`로 보고한다. 구현 중 발견 변경은 편집 전 amendment 승인을 받고, commit 전 exact-path staged audit를 강제하며, 과거 기록은 당시 값과 superseded 주석을 함께 보존한다. | §7.2·P2 design §8.1·producer reconcile amendment §9 | applied |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
