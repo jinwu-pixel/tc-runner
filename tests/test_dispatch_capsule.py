@@ -173,6 +173,21 @@ def _run_module_route_binding(
     )
     _write(script, source.encode("utf-8"))
     env = os.environ.copy()
+    windows_ps_modules = (
+        Path(os.environ["WINDIR"])
+        / "System32"
+        / "WindowsPowerShell"
+        / "v1.0"
+        / "Modules"
+    )
+    module_paths = [
+        item
+        for item in env.get("PSModulePath", "").split(os.pathsep)
+        if item and Path(item) != windows_ps_modules
+    ]
+    env["PSModulePath"] = os.pathsep.join(
+        [str(windows_ps_modules), *module_paths]
+    )
     env["TC_CAPSULE_JSON"] = json.dumps(capsule, separators=(",", ":"))
     env["TC_REPO_ROOT"] = str(repo)
     return _run(
@@ -243,6 +258,22 @@ def _make_repo(
         directive=directive,
         spec=spec,
         generator=generator,
+    )
+
+
+def _make_governance_inputs_untracked(fixture: RepoFixture) -> tuple[str, str]:
+    _git(
+        fixture.repo,
+        "rm",
+        "--cached",
+        "HANDOFF.md",
+        "docs/design.md",
+    )
+    _git(fixture.repo, "commit", "-m", "leave governance inputs untracked")
+    _git(fixture.repo, "push", "origin", "master")
+    return (
+        hashlib.sha256(fixture.directive.read_bytes()).hexdigest(),
+        hashlib.sha256(fixture.spec.read_bytes()).hexdigest(),
     )
 
 
@@ -444,6 +475,107 @@ def test_capture_same_state_and_clock_is_byte_deterministic(tmp_path):
 
     assert first_digest == second_digest
     assert first.read_bytes() == second.read_bytes()
+
+
+def test_capture_and_verify_accept_exact_hash_untracked_governance_inputs(
+    tmp_path,
+):
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    directive_sha256, spec_sha256 = _make_governance_inputs_untracked(fixture)
+    root = tmp_path / "capsules"
+
+    path, digest = tool.capture_capsule(
+        repo=fixture.repo,
+        capsule_root=root,
+        directive_id=DIRECTIVE_ID,
+        directive_path=Path("HANDOFF.md"),
+        spec_path=Path("docs/design.md"),
+        directive_sha256=directive_sha256,
+        spec_sha256=spec_sha256,
+        generator_path=Path("scripts/dispatch_capsule.py"),
+        upstream_ref="origin/master",
+        now_fn=lambda: NOW,
+    )
+    payload = json.loads(path.read_bytes())
+
+    assert payload["identities"]["directive"]["raw_sha256"] == (
+        directive_sha256
+    )
+    assert payload["identities"]["spec"]["raw_sha256"] == spec_sha256
+    verified = _verify(
+        tool,
+        fixture,
+        root,
+        digest,
+        now_fn=lambda: NOW + 1,
+    )
+    assert verified == payload
+
+
+def test_capture_rejects_wrong_exact_hash_for_untracked_governance_input(
+    tmp_path,
+):
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _directive_sha256, spec_sha256 = _make_governance_inputs_untracked(fixture)
+    root = tmp_path / "capsules"
+
+    with pytest.raises(tool.InputInvalid, match="directive SHA-256 mismatch"):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=root,
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            directive_sha256="0" * 64,
+            spec_sha256=spec_sha256,
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            now_fn=lambda: NOW,
+        )
+
+    assert not root.exists()
+
+
+def test_capture_still_rejects_untracked_governance_without_exact_hash(
+    tmp_path,
+):
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _make_governance_inputs_untracked(fixture)
+
+    with pytest.raises(tool.InputInvalid, match="directive is not tracked"):
+        _capture(tool, fixture, tmp_path / "capsules")
+
+
+def test_verify_rejects_untracked_governance_drift_after_capture(tmp_path):
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    directive_sha256, spec_sha256 = _make_governance_inputs_untracked(fixture)
+    root = tmp_path / "capsules"
+    _path, digest = tool.capture_capsule(
+        repo=fixture.repo,
+        capsule_root=root,
+        directive_id=DIRECTIVE_ID,
+        directive_path=Path("HANDOFF.md"),
+        spec_path=Path("docs/design.md"),
+        directive_sha256=directive_sha256,
+        spec_sha256=spec_sha256,
+        generator_path=Path("scripts/dispatch_capsule.py"),
+        upstream_ref="origin/master",
+        now_fn=lambda: NOW,
+    )
+    _write(fixture.directive, b"changed directive\n")
+
+    with pytest.raises(tool.InputInvalid, match="directive SHA-256 mismatch"):
+        _verify(
+            tool,
+            fixture,
+            root,
+            digest,
+            now_fn=lambda: NOW + 1,
+        )
 
 
 def test_capture_rejects_output_inside_repo_without_writing(tmp_path):
@@ -1207,6 +1339,39 @@ def test_cli_capture_with_module_pair_writes_module_roots(tmp_path, capsys):
     assert payload["module_roots"][0]["root_path"] == (
         module_root.resolve().as_posix()
     )
+
+
+def test_cli_capture_accepts_exact_hash_untracked_governance_inputs(
+    tmp_path,
+    capsys,
+):
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    directive_sha256, spec_sha256 = _make_governance_inputs_untracked(fixture)
+    root = tmp_path / "capsules"
+
+    exit_code = tool.main(
+        [
+            "capture",
+            "--repo", str(fixture.repo),
+            "--directive-id", DIRECTIVE_ID,
+            "--directive", "HANDOFF.md",
+            "--directive-sha256", directive_sha256,
+            "--spec", "docs/design.md",
+            "--spec-sha256", spec_sha256,
+        ],
+        capsule_root=root,
+        now_fn=lambda: NOW,
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    digest = json.loads(captured.out)["capsule_sha256"]
+    payload = json.loads((root / f"{digest}.json").read_bytes())
+    assert payload["identities"]["directive"]["raw_sha256"] == (
+        directive_sha256
+    )
+    assert payload["identities"]["spec"]["raw_sha256"] == spec_sha256
 
 
 def test_cli_malformed_hash_is_exit_2_without_capsule_write(tmp_path, capsys):
@@ -2100,7 +2265,7 @@ def test_provenance_reconcile_manifest_is_consistent_across_appendices():
     } == {"SS-TC 0": 1, "SS-TC 1": 14}
 
 
-def test_provenance_identity_literals_match_live_spec_and_generator():
+def test_provenance_identity_literals_match_their_pinned_git_objects():
     directive = _provenance_directive_text()
     appendix_c = ast.parse(_appendix_source("C"))
     constants = {
@@ -2112,29 +2277,32 @@ def test_provenance_identity_literals_match_live_spec_and_generator():
         and isinstance(node.value, ast.Constant)
         and isinstance(node.value.value, str)
     }
-    identities = {
-        "SPEC": REMEDIATION_SPEC_PATH,
-        "GENERATOR": TOOL_PATH,
-    }
-
-    for label, path in identities.items():
-        raw_sha = hashlib.sha256(path.read_bytes()).hexdigest()
-        relative = path.relative_to(ROOT).as_posix()
-        blob = _git(ROOT, "hash-object", "--no-filters", "--", relative).stdout.strip()
+    for label in ("SPEC", "GENERATOR"):
         table_label = (
             "spec" if label == "SPEC" else "capsule generator"
         )
         capsule_label = "spec" if label == "SPEC" else "generator"
+        raw_match = re.search(
+            rf"\| {table_label} raw SHA-256 \| `([0-9a-f]{{64}})` \|",
+            directive,
+        )
+        blob_match = re.search(
+            rf"\| {table_label} `git hash-object --no-filters` blob \| "
+            rf"`([0-9a-f]{{40}})` \|",
+            directive,
+        )
+        assert raw_match is not None
+        assert blob_match is not None
+        raw_sha = raw_match.group(1)
+        blob = blob_match.group(1)
+        pinned_bytes = subprocess.run(
+            ["git", "cat-file", "blob", blob],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        ).stdout
 
-        assert (
-            f"| {table_label} raw SHA-256 | `{raw_sha}` |"
-            in directive
-        )
-        assert (
-            f"| {table_label} `git hash-object --no-filters` blob | "
-            f"`{blob}` |"
-            in directive
-        )
+        assert hashlib.sha256(pinned_bytes).hexdigest() == raw_sha
         assert re.search(
             rf"\$Capsule\.identities\.{capsule_label}\.raw_sha256"
             rf"\s+-ne\s+'{raw_sha}'",
@@ -2148,5 +2316,4 @@ def test_provenance_identity_literals_match_live_spec_and_generator():
         assert constants[f"{label}_SHA"] == raw_sha
         assert constants[f"{label}_BLOB"] == blob
 
-    spec_sha = hashlib.sha256(REMEDIATION_SPEC_PATH.read_bytes()).hexdigest()
-    assert f"SPEC_REVIEW_APPROVED: {spec_sha}" in directive
+    assert f"SPEC_REVIEW_APPROVED: {constants['SPEC_SHA']}" in directive

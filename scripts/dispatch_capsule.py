@@ -360,19 +360,43 @@ def _file_identity(
     relative_path: Path,
     *,
     label: str,
+    expected_raw_sha256: str | None = None,
 ) -> dict[str, str]:
     relative = _relative_path(relative_path, label=label)
+    if (
+        expected_raw_sha256 is not None
+        and LOWER_SHA256_RE.fullmatch(expected_raw_sha256) is None
+    ):
+        raise InputInvalid(
+            f"{label} expected SHA-256 must be lowercase SHA-256"
+        )
     tracked = _run_git(
         repo, "ls-files", "--error-unmatch", "--", relative
     )
     if tracked.returncode == 1:
-        raise InputInvalid(f"{label} is not tracked: {relative}")
-    if tracked.returncode != 0:
+        if expected_raw_sha256 is None:
+            raise InputInvalid(f"{label} is not tracked: {relative}")
+        untracked = _git(
+            repo,
+            "-c",
+            "core.quotepath=false",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            relative,
+        )
+        if untracked != relative.encode("utf-8") + b"\0":
+            raise InputInvalid(
+                f"{label} is not an unignored untracked file: {relative}"
+            )
+    elif tracked.returncode != 0:
         message = tracked.stderr.decode("utf-8", "replace").strip()
         raise InfrastructureFailure(
             f"{label} tracking check failed: {message}"
         )
-    if tracked.stderr:
+    if tracked.returncode == 0 and tracked.stderr:
         message = tracked.stderr.decode("utf-8", "replace").strip()
         raise InfrastructureFailure(
             f"{label} tracking check emitted stderr: {message}"
@@ -382,6 +406,12 @@ def _file_identity(
         raw = path.read_bytes()
     except OSError as exc:
         raise InfrastructureFailure(f"{label} could not be read") from exc
+    raw_sha256 = _sha256_bytes(raw)
+    if (
+        expected_raw_sha256 is not None
+        and raw_sha256 != expected_raw_sha256
+    ):
+        raise InputInvalid(f"{label} SHA-256 mismatch")
     blob = _git_text(
         repo,
         "hash-object",
@@ -389,14 +419,15 @@ def _file_identity(
         "--",
         relative,
     )
-    head_blob = _git_text(repo, "rev-parse", f"HEAD:{relative}")
     if LOWER_OID_RE.fullmatch(blob) is None:
         raise InfrastructureFailure(f"{label} Git blob is invalid")
-    if blob != head_blob:
-        raise InputInvalid(f"{label} worktree bytes differ from HEAD")
+    if tracked.returncode == 0:
+        head_blob = _git_text(repo, "rev-parse", f"HEAD:{relative}")
+        if blob != head_blob:
+            raise InputInvalid(f"{label} worktree bytes differ from HEAD")
     return {
         "path": relative,
-        "raw_sha256": _sha256_bytes(raw),
+        "raw_sha256": raw_sha256,
         "git_blob_no_filters": blob,
     }
 
@@ -515,6 +546,8 @@ def measure_repo_state(
     directive_path: Path,
     spec_path: Path,
     generator_path: Path,
+    directive_sha256: str | None = None,
+    spec_sha256: str | None = None,
     upstream_ref: str = UPSTREAM_REF,
 ) -> dict[str, Any]:
     repo = _require_directory(repo, label="repository")
@@ -568,9 +601,17 @@ def measure_repo_state(
         },
         "identities": {
             "directive": _file_identity(
-                repo, directive_path, label="directive"
+                repo,
+                directive_path,
+                label="directive",
+                expected_raw_sha256=directive_sha256,
             ),
-            "spec": _file_identity(repo, spec_path, label="spec"),
+            "spec": _file_identity(
+                repo,
+                spec_path,
+                label="spec",
+                expected_raw_sha256=spec_sha256,
+            ),
             "generator": _file_identity(
                 repo, generator_path, label="generator"
             ),
@@ -684,6 +725,8 @@ def capture_capsule(
     directive_id: str,
     directive_path: Path,
     spec_path: Path,
+    directive_sha256: str | None = None,
+    spec_sha256: str | None = None,
     generator_path: Path = GENERATOR_PATH,
     upstream_ref: str = UPSTREAM_REF,
     module_specs: Sequence[tuple[Path, str]] = (),
@@ -691,6 +734,17 @@ def capture_capsule(
 ) -> tuple[Path, str]:
     if DIRECTIVE_ID_RE.fullmatch(directive_id) is None:
         raise InputInvalid("directive ID is invalid")
+    for label, expected_sha256 in (
+        ("directive", directive_sha256),
+        ("spec", spec_sha256),
+    ):
+        if (
+            expected_sha256 is not None
+            and LOWER_SHA256_RE.fullmatch(expected_sha256) is None
+        ):
+            raise InputInvalid(
+                f"{label} expected SHA-256 must be lowercase SHA-256"
+            )
     repo_resolved = _require_directory(repo, label="repository")
     root = _validate_capsule_root(
         repo_resolved, capsule_root, require_exists=False
@@ -701,6 +755,8 @@ def capture_capsule(
         directive_path=directive_path,
         spec_path=spec_path,
         generator_path=generator_path,
+        directive_sha256=directive_sha256,
+        spec_sha256=spec_sha256,
         upstream_ref=upstream_ref,
     )
     _require_dispatchable(first)
@@ -709,6 +765,8 @@ def capture_capsule(
         directive_path=directive_path,
         spec_path=spec_path,
         generator_path=generator_path,
+        directive_sha256=directive_sha256,
+        spec_sha256=spec_sha256,
         upstream_ref=upstream_ref,
     )
     _require_dispatchable(second)
@@ -984,6 +1042,8 @@ def verify_capsule(
             directive_path=Path(identities["directive"]["path"]),
             spec_path=Path(identities["spec"]["path"]),
             generator_path=Path(identities["generator"]["path"]),
+            directive_sha256=identities["directive"]["raw_sha256"],
+            spec_sha256=identities["spec"]["raw_sha256"],
             upstream_ref=expected_upstream_ref,
         )
         if canonical_json_bytes(state) != canonical_json_bytes(expected_state):
@@ -1002,7 +1062,9 @@ def _parser() -> argparse.ArgumentParser:
     capture.add_argument("--repo", required=True)
     capture.add_argument("--directive-id", required=True)
     capture.add_argument("--directive", required=True)
+    capture.add_argument("--directive-sha256")
     capture.add_argument("--spec", required=True)
+    capture.add_argument("--spec-sha256")
     capture.add_argument("--module-root", action="append", default=[])
     capture.add_argument("--module-package", action="append", default=[])
     verify = subparsers.add_parser("verify")
@@ -1039,6 +1101,8 @@ def main(
                 directive_id=args.directive_id,
                 directive_path=Path(args.directive),
                 spec_path=Path(args.spec),
+                directive_sha256=args.directive_sha256,
+                spec_sha256=args.spec_sha256,
                 module_specs=module_specs,
                 now_fn=now_fn,
             )
