@@ -347,6 +347,58 @@ def _canonical_variant(root: Path, value: object) -> tuple[Path, str]:
     return path, digest
 
 
+def _expected_tracked_worktree_sha256(
+    relative: str,
+    content: bytes,
+) -> str:
+    """Hand-build the external anchor for one controlled dirty file."""
+
+    blob = hashlib.sha1(
+        f"blob {len(content)}\0".encode("ascii") + content
+    ).hexdigest()
+    rows = [
+        {
+            "git_blob_no_filters": blob,
+            "path": relative,
+            "raw_sha256": hashlib.sha256(content).hexdigest(),
+        }
+    ]
+    raw = json.dumps(
+        rows,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def _expected_invariant_scope_sha256(
+    *,
+    exact_paths: list[str],
+    prefixes: list[str],
+    verifier_owned_ignored_prefixes: list[str] | None = None,
+    scope_version: int = 1,
+) -> str:
+    """Hand-build the external anchor for controlled scope selectors."""
+
+    payload = {
+        "exact_paths": exact_paths,
+        "prefixes": prefixes,
+        "scope_version": scope_version,
+    }
+    if scope_version == 2:
+        payload["verifier_owned_ignored_prefixes"] = (
+            verifier_owned_ignored_prefixes or []
+        )
+    raw = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
 def test_canonical_json_bytes_is_utf8_compact_sorted_without_trailing_lf():
     tool = _load_tool()
 
@@ -475,6 +527,583 @@ def test_capture_same_state_and_clock_is_byte_deterministic(tmp_path):
 
     assert first_digest == second_digest
     assert first.read_bytes() == second.read_bytes()
+
+
+def test_continuation_capture_seals_exact_dirty_worktree_and_verifies(tmp_path):
+    """Catches accepting dirty files without binding their exact bytes."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"approved continuation bytes\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    root = tmp_path / "capsules"
+    expected_worktree_sha256 = _expected_tracked_worktree_sha256(
+        "tracked.txt", changed
+    )
+
+    path, digest = tool.capture_capsule(
+        repo=fixture.repo,
+        capsule_root=root,
+        directive_id=DIRECTIVE_ID,
+        directive_path=Path("HANDOFF.md"),
+        spec_path=Path("docs/design.md"),
+        generator_path=Path("scripts/dispatch_capsule.py"),
+        upstream_ref="origin/master",
+        allowed_dirty_paths=(Path("tracked.txt"),),
+        tracked_worktree_sha256=expected_worktree_sha256,
+        now_fn=lambda: NOW,
+    )
+    payload = json.loads(path.read_bytes())
+    expected_blob = hashlib.sha1(
+        f"blob {len(changed)}\0".encode("ascii") + changed
+    ).hexdigest()
+
+    assert payload["schema_version"] == 3
+    assert payload["repo"]["tracked_clean"] is False
+    assert payload["tracked_worktree"]["count"] == 1
+    assert payload["tracked_worktree"]["canonical_json_sha256"] == (
+        expected_worktree_sha256
+    )
+    assert payload["tracked_worktree"]["rows"] == [
+        {
+            "git_blob_no_filters": expected_blob,
+            "path": "tracked.txt",
+            "raw_sha256": hashlib.sha256(changed).hexdigest(),
+        }
+    ]
+    assert _verify(
+        tool, fixture, root, digest, now_fn=lambda: NOW + 1
+    ) == payload
+
+    _write(fixture.repo / "tracked.txt", b"drift after capture\n")
+    with pytest.raises(tool.InputInvalid, match="live repository state"):
+        _verify(tool, fixture, root, digest, now_fn=lambda: NOW + 2)
+
+
+def test_continuation_capture_requires_tracked_worktree_sha256(tmp_path):
+    """Catches accepting dirty bytes that have no user-authenticated digest."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _write(fixture.repo / "tracked.txt", b"changed\n")
+
+    with pytest.raises(
+        tool.InputInvalid,
+        match="tracked worktree expected SHA-256 is required",
+    ):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=tmp_path / "capsules",
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            allowed_dirty_paths=(Path("tracked.txt"),),
+            now_fn=lambda: NOW,
+        )
+
+
+def test_continuation_capture_rejects_malformed_tracked_worktree_sha256(
+    tmp_path,
+):
+    """Catches treating a non-canonical external digest as authorization."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _write(fixture.repo / "tracked.txt", b"changed\n")
+
+    with pytest.raises(
+        tool.InputInvalid,
+        match="tracked worktree expected SHA-256 must be lowercase SHA-256",
+    ):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=tmp_path / "capsules",
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            allowed_dirty_paths=(Path("tracked.txt"),),
+            tracked_worktree_sha256="NOT-A-SHA256",
+            now_fn=lambda: NOW,
+        )
+
+
+def test_continuation_capture_rejects_unapproved_dirty_bytes(tmp_path):
+    """Catches sealing self-consistent dirty bytes different from user approval."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _write(fixture.repo / "tracked.txt", b"changed\n")
+    root = tmp_path / "capsules"
+
+    with pytest.raises(
+        tool.InputInvalid,
+        match="tracked worktree SHA-256 mismatch",
+    ):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=root,
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            allowed_dirty_paths=(Path("tracked.txt"),),
+            tracked_worktree_sha256="0" * 64,
+            now_fn=lambda: NOW,
+        )
+
+    assert not root.exists()
+
+
+def test_clean_capture_rejects_tracked_worktree_sha256_without_dirty_paths(
+    tmp_path,
+):
+    """Catches silently ignoring a continuation digest in schema-v2 mode."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+
+    with pytest.raises(
+        tool.InputInvalid,
+        match="tracked worktree expected SHA-256 requires allowed dirty paths",
+    ):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=tmp_path / "capsules",
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            tracked_worktree_sha256="0" * 64,
+            now_fn=lambda: NOW,
+        )
+
+
+@pytest.mark.parametrize("mode", ["missing", "extra", "duplicate", "absolute"])
+def test_continuation_capture_rejects_non_exact_dirty_path_contract(
+    tmp_path, mode
+):
+    """Catches continuation capture with an incomplete or ambiguous dirty set."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _write(fixture.repo / "tracked.txt", b"changed\n")
+    paths: tuple[Path, ...]
+    if mode == "missing":
+        paths = ()
+    elif mode == "extra":
+        paths = (Path("tracked.txt"), Path(".gitignore"))
+    elif mode == "duplicate":
+        paths = (Path("tracked.txt"), Path("tracked.txt"))
+    else:
+        paths = ((fixture.repo / "tracked.txt").resolve(),)
+
+    with pytest.raises(tool.InputInvalid):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=tmp_path / "capsules",
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            allowed_dirty_paths=paths,
+            tracked_worktree_sha256="0" * 64,
+            now_fn=lambda: NOW,
+        )
+
+
+def test_cli_continuation_capture_accepts_repeatable_exact_dirty_path(
+    tmp_path, capsys
+):
+    """Catches a library-only feature that the approved CLI cannot invoke."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _write(fixture.repo / "tracked.txt", b"changed\n")
+    root = tmp_path / "capsules"
+    expected_worktree_sha256 = _expected_tracked_worktree_sha256(
+        "tracked.txt", b"changed\n"
+    )
+
+    exit_code = tool.main(
+        [
+            "capture",
+            "--repo", str(fixture.repo),
+            "--directive-id", DIRECTIVE_ID,
+            "--directive", "HANDOFF.md",
+            "--spec", "docs/design.md",
+            "--allow-dirty-path", "tracked.txt",
+            "--tracked-worktree-sha256", expected_worktree_sha256,
+        ],
+        capsule_root=root,
+        now_fn=lambda: NOW,
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    digest = json.loads(captured.out)["capsule_sha256"]
+    payload = json.loads((root / f"{digest}.json").read_bytes())
+    assert payload["schema_version"] == 3
+    assert payload["tracked_worktree"]["rows"][0]["path"] == "tracked.txt"
+
+
+def test_cli_continuation_capture_requires_tracked_worktree_sha256(
+    tmp_path, capsys
+):
+    """Catches the CLI bypassing the library's external-anchor requirement."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    _write(fixture.repo / "tracked.txt", b"changed\n")
+    root = tmp_path / "capsules"
+
+    exit_code = tool.main(
+        [
+            "capture",
+            "--repo", str(fixture.repo),
+            "--directive-id", DIRECTIVE_ID,
+            "--directive", "HANDOFF.md",
+            "--spec", "docs/design.md",
+            "--allow-dirty-path", "tracked.txt",
+        ],
+        capsule_root=root,
+        now_fn=lambda: NOW,
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert "tracked worktree expected SHA-256 is required" in captured.err
+    assert not root.exists()
+
+
+def test_scoped_continuation_capture_records_scope_and_ignores_out_of_scope_content(
+    tmp_path,
+):
+    """Catches scoped mode still sealing unrelated untracked file contents."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"approved continuation bytes\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    scope_sha256 = _expected_invariant_scope_sha256(
+        exact_paths=["backlog/ascii.txt"],
+        prefixes=["ignored/"],
+    )
+    root = tmp_path / "capsules"
+
+    path, digest = tool.capture_capsule(
+        repo=fixture.repo,
+        capsule_root=root,
+        directive_id=DIRECTIVE_ID,
+        directive_path=Path("HANDOFF.md"),
+        spec_path=Path("docs/design.md"),
+        generator_path=Path("scripts/dispatch_capsule.py"),
+        upstream_ref="origin/master",
+        allowed_dirty_paths=(Path("tracked.txt"),),
+        tracked_worktree_sha256=_expected_tracked_worktree_sha256(
+            "tracked.txt", changed
+        ),
+        invariant_paths=(Path("backlog/ascii.txt"),),
+        invariant_prefixes=(Path("ignored"),),
+        invariant_scope_sha256=scope_sha256,
+        now_fn=lambda: NOW,
+    )
+    payload = json.loads(path.read_bytes())
+
+    assert payload["schema_version"] == 4
+    assert payload["invariant_scope"] == {
+        "canonical_json_sha256": scope_sha256,
+        "exact_paths": ["backlog/ascii.txt"],
+        "prefixes": ["ignored/"],
+        "scope_version": 1,
+    }
+    assert payload["untracked"]["count"] == 1
+    assert payload["untracked"]["excluded_count"] == 1
+    assert payload["ignored"]["count"] == 2
+    assert payload["ignored"]["excluded_count"] == 0
+    assert "excluded_paths" not in payload["untracked"]
+
+    _write(fixture.repo / "backlog" / "한글.txt", b"outside scope drift\n")
+    assert _verify(
+        tool, fixture, root, digest, now_fn=lambda: NOW + 1
+    ) == payload
+
+
+def test_scoped_continuation_verify_rejects_in_scope_content_drift(tmp_path):
+    """Catches verify trusting selectors without rehashing selected content."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"approved continuation bytes\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    scope_sha256 = _expected_invariant_scope_sha256(
+        exact_paths=["backlog/ascii.txt"],
+        prefixes=[],
+    )
+    root = tmp_path / "capsules"
+    _path, digest = tool.capture_capsule(
+        repo=fixture.repo,
+        capsule_root=root,
+        directive_id=DIRECTIVE_ID,
+        directive_path=Path("HANDOFF.md"),
+        spec_path=Path("docs/design.md"),
+        generator_path=Path("scripts/dispatch_capsule.py"),
+        upstream_ref="origin/master",
+        allowed_dirty_paths=(Path("tracked.txt"),),
+        tracked_worktree_sha256=_expected_tracked_worktree_sha256(
+            "tracked.txt", changed
+        ),
+        invariant_paths=(Path("backlog/ascii.txt"),),
+        invariant_scope_sha256=scope_sha256,
+        now_fn=lambda: NOW,
+    )
+
+    _write(fixture.repo / "backlog" / "ascii.txt", b"inside scope drift\n")
+    with pytest.raises(tool.InputInvalid, match="live repository state"):
+        _verify(tool, fixture, root, digest, now_fn=lambda: NOW + 1)
+
+
+@pytest.mark.parametrize(
+    ("scope_sha256", "match"),
+    [
+        (None, "invariant scope expected SHA-256 is required"),
+        ("NOT-A-SHA256", "must be lowercase SHA-256"),
+        ("0" * 64, "invariant scope SHA-256 mismatch"),
+    ],
+)
+def test_scoped_continuation_capture_rejects_unbound_scope(
+    tmp_path, scope_sha256, match
+):
+    """Catches accepting selectors not bound by an external canonical digest."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"changed\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    root = tmp_path / "capsules"
+
+    with pytest.raises(tool.InputInvalid, match=match):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=root,
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            allowed_dirty_paths=(Path("tracked.txt"),),
+            tracked_worktree_sha256=_expected_tracked_worktree_sha256(
+                "tracked.txt", changed
+            ),
+            invariant_paths=(Path("backlog/ascii.txt"),),
+            invariant_scope_sha256=scope_sha256,
+            now_fn=lambda: NOW,
+        )
+
+    assert not root.exists()
+
+
+def test_scoped_capture_rejects_clean_schema_mode(tmp_path):
+    """Catches silently changing clean full-scope schema-v2 semantics."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    scope_sha256 = _expected_invariant_scope_sha256(
+        exact_paths=["backlog/ascii.txt"],
+        prefixes=[],
+    )
+
+    with pytest.raises(
+        tool.InputInvalid,
+        match="invariant scope requires continuation dirty paths",
+    ):
+        tool.capture_capsule(
+            repo=fixture.repo,
+            capsule_root=tmp_path / "capsules",
+            directive_id=DIRECTIVE_ID,
+            directive_path=Path("HANDOFF.md"),
+            spec_path=Path("docs/design.md"),
+            generator_path=Path("scripts/dispatch_capsule.py"),
+            upstream_ref="origin/master",
+            invariant_paths=(Path("backlog/ascii.txt"),),
+            invariant_scope_sha256=scope_sha256,
+            now_fn=lambda: NOW,
+        )
+
+
+def test_cli_scoped_continuation_capture_accepts_exact_and_prefix_selectors(
+    tmp_path, capsys
+):
+    """Catches scoped behavior being unavailable through the approved CLI."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"changed\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    scope_sha256 = _expected_invariant_scope_sha256(
+        exact_paths=["backlog/ascii.txt"],
+        prefixes=["ignored/"],
+    )
+    root = tmp_path / "capsules"
+
+    exit_code = tool.main(
+        [
+            "capture",
+            "--repo", str(fixture.repo),
+            "--directive-id", DIRECTIVE_ID,
+            "--directive", "HANDOFF.md",
+            "--spec", "docs/design.md",
+            "--allow-dirty-path", "tracked.txt",
+            "--tracked-worktree-sha256",
+            _expected_tracked_worktree_sha256("tracked.txt", changed),
+            "--invariant-path", "backlog/ascii.txt",
+            "--invariant-prefix", "ignored",
+            "--invariant-scope-sha256", scope_sha256,
+        ],
+        capsule_root=root,
+        now_fn=lambda: NOW,
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    digest = json.loads(captured.out)["capsule_sha256"]
+    payload = json.loads((root / f"{digest}.json").read_bytes())
+    assert payload["schema_version"] == 4
+    assert payload["invariant_scope"]["canonical_json_sha256"] == (
+        scope_sha256
+    )
+
+
+def test_v5_capture_excludes_verifier_owned_ignored_subtree_and_verifies(
+    tmp_path,
+):
+    """Binds v5 scope while deliberately omitting verifier-owned ignored files."""
+
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"approved v5 continuation bytes\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    scope_sha256 = _expected_invariant_scope_sha256(
+        exact_paths=["backlog/ascii.txt"],
+        prefixes=[],
+        verifier_owned_ignored_prefixes=["ignored/"],
+        scope_version=2,
+    )
+    root = tmp_path / "capsules"
+
+    path, digest = tool.capture_capsule(
+        repo=fixture.repo,
+        capsule_root=root,
+        directive_id=DIRECTIVE_ID,
+        directive_path=Path("HANDOFF.md"),
+        spec_path=Path("docs/design.md"),
+        generator_path=Path("scripts/dispatch_capsule.py"),
+        upstream_ref="origin/master",
+        allowed_dirty_paths=(Path("tracked.txt"),),
+        tracked_worktree_sha256=_expected_tracked_worktree_sha256(
+            "tracked.txt", changed
+        ),
+        invariant_paths=(Path("backlog/ascii.txt"),),
+        verifier_owned_ignored_prefixes=(Path("ignored"),),
+        invariant_scope_sha256=scope_sha256,
+        now_fn=lambda: NOW,
+    )
+    payload = json.loads(path.read_bytes())
+
+    assert payload["schema_version"] == 5
+    assert payload["invariant_scope"] == {
+        "canonical_json_sha256": scope_sha256,
+        "exact_paths": ["backlog/ascii.txt"],
+        "prefixes": [],
+        "scope_version": 2,
+        "verifier_owned_ignored_prefixes": ["ignored/"],
+    }
+    assert payload["ignored"] == {
+        "canonical_json_sha256": hashlib.sha256(b"[]").hexdigest(),
+        "count": 0,
+        "excluded_count": 0,
+    }
+
+    _write(fixture.repo / "ignored" / "new-evidence.txt", b"unbound evidence\n")
+    assert _verify(
+        tool, fixture, root, digest, now_fn=lambda: NOW + 1
+    ) == payload
+
+
+def test_cli_v5_capture_accepts_verifier_owned_ignored_prefix(
+    tmp_path, capsys
+):
+    tool = _load_tool()
+    fixture = _make_repo(tmp_path)
+    changed = b"changed\n"
+    _write(fixture.repo / "tracked.txt", changed)
+    scope_sha256 = _expected_invariant_scope_sha256(
+        exact_paths=["backlog/ascii.txt"],
+        prefixes=[],
+        verifier_owned_ignored_prefixes=["ignored/"],
+        scope_version=2,
+    )
+    root = tmp_path / "capsules"
+
+    exit_code = tool.main(
+        [
+            "capture",
+            "--repo", str(fixture.repo),
+            "--directive-id", DIRECTIVE_ID,
+            "--directive", "HANDOFF.md",
+            "--spec", "docs/design.md",
+            "--allow-dirty-path", "tracked.txt",
+            "--tracked-worktree-sha256",
+            _expected_tracked_worktree_sha256("tracked.txt", changed),
+            "--invariant-path", "backlog/ascii.txt",
+            "--verifier-owned-ignored-prefix", "ignored",
+            "--invariant-scope-sha256", scope_sha256,
+        ],
+        capsule_root=root,
+        now_fn=lambda: NOW,
+    )
+
+    assert exit_code == 0
+    digest = json.loads(capsys.readouterr().out)["capsule_sha256"]
+    payload = json.loads((root / f"{digest}.json").read_bytes())
+    assert payload["schema_version"] == 5
+
+
+@pytest.mark.parametrize(
+    ("exact_paths", "prefixes", "owned_prefixes", "match"),
+    [
+        (
+            [Path("backlog/ascii.txt")],
+            [],
+            [Path("ignored"), Path("ignored")],
+            "duplicates",
+        ),
+        (
+            [Path("backlog/ascii.txt")],
+            [],
+            [Path("ignored"), Path("ignored/cache")],
+            "overlap",
+        ),
+        ([Path("ignored/cache.bin")], [], [Path("ignored")], "overlap"),
+        ([], [Path("ignored")], [Path("ignored")], "overlap"),
+    ],
+)
+def test_v5_scope_rejects_duplicate_nested_or_cross_selector_overlap(
+    exact_paths, prefixes, owned_prefixes, match
+):
+    tool = _load_tool()
+    with pytest.raises(tool.InputInvalid, match=match):
+        tool._normalize_invariant_scope(
+            exact_paths,
+            prefixes,
+            owned_prefixes,
+        )
 
 
 def test_capture_and_verify_accept_exact_hash_untracked_governance_inputs(

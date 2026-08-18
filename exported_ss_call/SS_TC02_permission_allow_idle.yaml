@@ -46,6 +46,7 @@ steps:
   command: logcat -d -s SeniorShield-CallMonitor:D
   expected: IDLE
   description: Idle 상태 emit 확인
-- action: shell
-  command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
+- action: verify_shell
+  command: "tmp=\"/data/local/tmp/tc_runner_rc_668056c3c37f_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'registered' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 1 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==1\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_668056c3c37f__'"
+  expected: "__TC_ASSERT_OK_668056c3c37f__"
   description: register 횟수 확인 (1이어야 정상)

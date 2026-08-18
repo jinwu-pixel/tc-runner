@@ -4,14 +4,14 @@ mappings:
     source_no: TC-01
     step_projection:
       action: verify_shell
-      command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'callSignals=\[\]'
-      expected: '0'
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_2df969689db6_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-Coordinator:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'callSignals=\\[\\]' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_2df969689db6__'"
+      expected: "__TC_ASSERT_OK_2df969689db6__"
   - blocker_step_index: 11
     source_no: TC-01
     step_projection:
-      action: shell
-      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_5c1a0dffeac5_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s AndroidRuntime:E >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'FATAL' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_5c1a0dffeac5__'"
+      expected: "__TC_ASSERT_OK_5c1a0dffeac5__"
   source_selectors:
   - functionality_effective: 권한 미부여 기본 동작 확인
     source_content_hash: 7e8868cf1bde7491e8e0ef9c6cb30f2b014b8a74276b7e565162266c6e7241ca
@@ -24,9 +24,9 @@ mappings:
   - blocker_step_index: 11
     source_no: TC-02
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_668056c3c37f_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'registered' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 1 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==1\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_668056c3c37f__'"
+      expected: "__TC_ASSERT_OK_668056c3c37f__"
   source_selectors:
   - functionality_effective: 권한 허용 후 Idle 진입 확인
     source_content_hash: 3fdc5ed06ddc5c6f683a6ffdcf8e45ccee300ad58e2f1322ee4d57f0cc463f4b
@@ -39,9 +39,9 @@ mappings:
   - blocker_step_index: 15
     source_no: TC-03
     step_projection:
-      action: shell
-      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_2e715759abc1_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s AndroidRuntime:E >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'FATAL' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_2e715759abc1__'"
+      expected: "__TC_ASSERT_OK_2e715759abc1__"
   source_selectors:
   - functionality_effective: RINGING 중 권한 허용 시 현재 통화 감지
     source_content_hash: 65902f1020e1d82c3ae0aba1f09238fabcfe10c4854332b0a02bd979dd86f8a9
@@ -54,9 +54,9 @@ mappings:
   - blocker_step_index: 18
     source_no: TC-04
     step_projection:
-      action: shell
-      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_56d371d34e8e_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s AndroidRuntime:E >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'FATAL' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_56d371d34e8e__'"
+      expected: "__TC_ASSERT_OK_56d371d34e8e__"
   source_selectors:
   - functionality_effective: OFFHOOK 도중 권한 허용 시 seed 복구 확인
     source_content_hash: 6438881a5b36c2062348a44f01fff7c35b82b63715ea8ed565da63f38de4539f
@@ -69,9 +69,9 @@ mappings:
   - blocker_step_index: 9
     source_no: TC-05A
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_ce4c415f5467_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'LONG_CALL_DURATION' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_ce4c415f5467__'"
+      expected: "__TC_ASSERT_OK_ce4c415f5467__"
   source_selectors:
   - functionality_effective: 9초 경계값 검증
     source_content_hash: c5fdc3c48ea06f5713a488ff398b5c70360ed32a6a653b2ebae8158d09bcdaba
@@ -92,15 +92,15 @@ mappings:
   - blocker_step_index: 10
     source_no: TC-06
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_1ef9029cb992_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'LONG_CALL_DURATION' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_1ef9029cb992__'"
+      expected: "__TC_ASSERT_OK_1ef9029cb992__"
   - blocker_step_index: 11
     source_no: TC-06
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'event'
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_7ca524e83ee0_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-Coordinator:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'event' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_7ca524e83ee0__'"
+      expected: "__TC_ASSERT_OK_7ca524e83ee0__"
   source_selectors:
   - functionality_effective: 부재중/거절 통화 처리 확인
     source_content_hash: e6028c93abc0ea30584faf4b54c6bdcd32686aee58d045f554657bdc4ed2c4c2
@@ -113,9 +113,9 @@ mappings:
   - blocker_step_index: 9
     source_no: TC-07
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_92d84e51cc4b_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'LONG_CALL_DURATION' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_92d84e51cc4b__'"
+      expected: "__TC_ASSERT_OK_92d84e51cc4b__"
   source_selectors:
   - functionality_effective: 짧은 정상 통화 오탐 방지
     source_content_hash: cd4f98a24075af81967cab3fa3b2527c35a02ebd4f15e83f4aa9db76a580e32d
@@ -128,9 +128,9 @@ mappings:
   - blocker_step_index: 20
     source_no: TC-09
     step_projection:
-      action: shell
-      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_411b6f94e23b_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s AndroidRuntime:E >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'FATAL' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_411b6f94e23b__'"
+      expected: "__TC_ASSERT_OK_411b6f94e23b__"
   source_selectors:
   - functionality_effective: OFFHOOK 중 권한 허용 후 금융 앱 개입 확인
     source_content_hash: 676cdbe820c79158356d5427dbd33f672fffa6938436b7f33726a9e4e2118ceb
@@ -143,9 +143,9 @@ mappings:
   - blocker_step_index: 15
     source_no: T/C-01
     step_projection:
-      action: shell
-      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_f87078fa02b2_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s AndroidRuntime:E >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'FATAL' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_f87078fa02b2__'"
+      expected: "__TC_ASSERT_OK_f87078fa02b2__"
   source_selectors:
   - functionality_effective: 경고 팝업의 "지금 전화 끊기" 버튼 경로에서 다이얼러 크래시 재발 여부와 dismiss→suppression→delayed endCall→IDLE→suppression release 순서 검증
     source_content_hash: b89d4dcf0bc7a52f5893665fa7323f1c10290237344d657b79e088eb47bb1ef4
@@ -158,9 +158,9 @@ mappings:
   - blocker_step_index: 24
     source_no: TC-10
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-CallMonitor:D | grep -c registered
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_0f01b111301b_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'registered' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 1 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==1\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_0f01b111301b__'"
+      expected: "__TC_ASSERT_OK_0f01b111301b__"
   source_selectors:
   - functionality_effective: true→false→true 권한 흔들기
     source_content_hash: 709c515abc99febaf2f42f89a4682a2f055c218fce3cc124062bd29954757cab
@@ -173,15 +173,15 @@ mappings:
   - blocker_step_index: 20
     source_no: TC-11
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-CallMonitor:D | grep -c 'LONG_CALL_DURATION'
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_73137415c833_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-CallMonitor:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'LONG_CALL_DURATION' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 1 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==1\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_73137415c833__'"
+      expected: "__TC_ASSERT_OK_73137415c833__"
   - blocker_step_index: 21
     source_no: TC-11
     step_projection:
-      action: shell
-      command: logcat -d -s SeniorShield-Coordinator:D | grep -c 'notification escalation'
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_8c384311ba05_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s SeniorShield-Coordinator:D >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'notification escalation' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -le 1 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count<=1\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_8c384311ba05__'"
+      expected: "__TC_ASSERT_OK_8c384311ba05__"
   source_selectors:
   - functionality_effective: 다중 구독 안전성 확인
     source_content_hash: de24dc5f0ba85ec17b1e64bb16e1e8d3d24c1e464d4c9caeca0967a1f001a1f3
@@ -194,9 +194,9 @@ mappings:
   - blocker_step_index: 19
     source_no: TC-12
     step_projection:
-      action: shell
-      command: logcat -d -s AndroidRuntime:E | grep -c FATAL
-      expected: null
+      action: verify_shell
+      command: "tmp=\"/data/local/tmp/tc_runner_rc_2fee7f0ac136_$$.txt\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; logcat -d -s AndroidRuntime:E >\"$tmp\"; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'FATAL' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_2fee7f0ac136__'"
+      expected: "__TC_ASSERT_OK_2fee7f0ac136__"
   source_selectors:
   - functionality_effective: Legacy 경로 현재 상태 반영 확인
     source_content_hash: 8f67d904224aec9727fc1855b43b63b23abd10dce710b3b174382dbbb3d4063c

@@ -210,8 +210,8 @@ steps:
     compile_status: OK
 
   - action: verify_shell
-    command: "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c viewSelectionOverlay /sdcard/ui.xml"
-    expected: "0"
+    command: "tmp=\"/data/local/tmp/tc_runner_rc_a22abbba8627_$$.xml\"; rm -f \"$tmp\"; pre_cleanup_rc=$?; if [ \"$pre_cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_PRE_CLEANUP_RC=$pre_cleanup_rc\" >&2; exit \"$pre_cleanup_rc\"; fi; uiautomator dump \"$tmp\" >/dev/null 2>&1; source_rc=$?; if [ \"$source_rc\" -ne 0 ]; then echo \"TC_ASSERT_SOURCE_RC=$source_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$source_rc\"; fi; count=$(grep -c 'viewSelectionOverlay' \"$tmp\"); grep_rc=$?; if [ \"$grep_rc\" -gt 1 ]; then echo \"TC_ASSERT_GREP_RC=$grep_rc\" >&2; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$grep_rc\"; fi; case \"$count\" in ''|*[!0-9]*) echo \"TC_ASSERT_COUNT_INVALID=$count\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\";; esac; if ! [ \"$count\" -eq 0 ]; then echo \"TC_ASSERT_COUNT=$count EXPECTED=count==0\" >&2; primary_rc=1; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; fi; exit \"$primary_rc\"; fi; rm -f \"$tmp\"; cleanup_rc=$?; if [ \"$cleanup_rc\" -ne 0 ]; then echo \"TC_ASSERT_CLEANUP_RC=$cleanup_rc\" >&2; exit \"$cleanup_rc\"; fi; printf '%s\\n' '__TC_ASSERT_OK_a22abbba8627__'"
+    expected: "__TC_ASSERT_OK_a22abbba8627__"
     description: "선택 오버레이 전부 해제"
     execution_mode: SHELL_AUTO
     step_role: ASSERT

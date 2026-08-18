@@ -1,0 +1,422 @@
+{
+  "baseline": {
+    "inventory_csv_sha256": "b0c5552c4a3d20590c85ce701c46061a7c6cd5e2cf589bc1cfa5395382880b7f",
+    "inventory_head": "78b3ac34e9f8bacabe926172dd199342b7eb58c5",
+    "p2_evidence_sha256": "f3e62fe3dee4c8b1213aff7827eadcf2ccdf046348229bbf810cccab30ce487a",
+    "p2_manifest_pre_remediation_sha256": "b4544cf636bf7be22fc9ba0a05c0b217c35710eceb92db9994e28ce0b3d88e3c",
+    "risk_matrix_sha256": "81b44a584f2b1cf83955545c7b2898c93f1a8f2a000872d1fb8576d768ffd8e4",
+    "risk_policy_sha256": "f41adf36600b027b1bcb4d4f2cb27ba852af0e9121ae4f276c5e670c299e90ed"
+  },
+  "runtime_review_dispositions": [
+    {
+      "disposition": "STATIC_ADJUDICATED_REQUIRE_ZERO",
+      "row_key": "ODIN2 - My gallary/functional/photo/GAL_FUNC_05_photo_multi_delete_trash_flow.yaml#23"
+    },
+    {
+      "disposition": "STATIC_ADJUDICATED_REQUIRE_ZERO",
+      "row_key": "ODIN2 - My gallary/functional/photo/GAL_FUNC_12_photo_edit_save_copy.yaml#18"
+    },
+    {
+      "disposition": "STATIC_ADJUDICATED_OBSERVE_ONLY",
+      "row_key": "ODIN2 - My gallary/functional/video/GAL_FUNC_16_video_orientation.yaml#8"
+    },
+    {
+      "disposition": "CORPUS_DESIGN_REQUIRED",
+      "row_key": "ODIN2 - minifile/functional/ops/MNF_FUNC_12_ops_rename.yaml#22"
+    },
+    {
+      "disposition": "DEVICE_EVIDENCE_REQUIRED",
+      "row_key": "exported_tc1/BUG_25175_LGU_APN_menu.yaml#75"
+    },
+    {
+      "disposition": "DEVICE_EVIDENCE_REQUIRED",
+      "row_key": "exported_tc1/BUG_5426_airplane_reboot_apn.yaml#15"
+    }
+  ],
+  "schema_version": 1,
+  "semantic_identity": {
+    "runtime_review_dispositions_sha256": "5417edf5cf97e9f5ae4a4ebf6703e34ff68480fa72a23aef8c3a625cabda2759",
+    "targets_sha256": "40d743b59cdee1815369bea3b6c7cf75b4ca865b35ae5bff1dd0c7b00d1a3e23"
+  },
+  "subject": "canonical shell-rc blocker remediation",
+  "targets": [
+    {
+      "baseline_action": "verify_shell",
+      "baseline_command": "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c viewSelectionOverlay /sdcard/ui.xml",
+      "baseline_command_sha256": "89a4bf8b0978e9e686bb648e5b6ec044db96c9da21bcf055140f8d370883308c",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "viewSelectionOverlay",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "local",
+        "source_no": null,
+        "yaml_path": null
+      },
+      "renderer_kind": "uiautomator_dump_count",
+      "row_key": "ODIN2 - My gallary/functional/photo/GAL_FUNC_03_photo_multi_select.yaml#24",
+      "sentinel": "__TC_ASSERT_OK_a22abbba8627__",
+      "source_command": "uiautomator dump",
+      "source_path": "ODIN2 - My gallary/functional/photo/GAL_FUNC_03_photo_multi_select.yaml",
+      "step_index": 24,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 && grep -c 'rv_files' /sdcard/ui.xml || echo 0",
+      "baseline_command_sha256": "dda7fcb0be569a399506f7da1f6d0532a012046fcfbd2043d014d32cdadc66d3",
+      "classification": "MASKED_ASSERTION",
+      "grep_pattern": "rv_files",
+      "predicate_kind": "EQ_1",
+      "predicate_value": 1,
+      "provenance": {
+        "mode": "local",
+        "source_no": null,
+        "yaml_path": null
+      },
+      "renderer_kind": "uiautomator_dump_count",
+      "row_key": "ODIN2 - minifile/functional/trash/MNF_FUNC_27_trash_enter.yaml#11",
+      "sentinel": "__TC_ASSERT_OK_dba44bf7c584__",
+      "source_command": "uiautomator dump",
+      "source_path": "ODIN2 - minifile/functional/trash/MNF_FUNC_27_trash_enter.yaml",
+      "step_index": 11,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "verify_shell",
+      "baseline_command": "logcat -d -s SeniorShield-Coordinator:D | grep -c 'callSignals=\\[\\]'",
+      "baseline_command_sha256": "86926ba3bf1c2298477b83eada4929c946d466cdc002fa02e31c6fb422a9b168",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "callSignals=\\[\\]",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-01",
+        "yaml_path": "exported_ss_call/SS_TC01_permission_denied.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC01_permission_denied.yaml#10",
+      "sentinel": "__TC_ASSERT_OK_2df969689db6__",
+      "source_command": "logcat -d -s SeniorShield-Coordinator:D",
+      "source_path": "exported_ss_call/SS_TC01_permission_denied.yaml",
+      "step_index": 10,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-01",
+        "yaml_path": "exported_ss_call/SS_TC01_permission_denied.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC01_permission_denied.yaml#11",
+      "sentinel": "__TC_ASSERT_OK_5c1a0dffeac5__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC01_permission_denied.yaml",
+      "step_index": 11,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-CallMonitor:D | grep -c registered",
+      "baseline_command_sha256": "5d0c363c31ad4ab71fbc1457594582783e8ac070ef3c393dc550ee599d465b67",
+      "classification": "COUNT_EQ_1",
+      "grep_pattern": "registered",
+      "predicate_kind": "EQ_1",
+      "predicate_value": 1,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-02",
+        "yaml_path": "exported_ss_call/SS_TC02_permission_allow_idle.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC02_permission_allow_idle.yaml#11",
+      "sentinel": "__TC_ASSERT_OK_668056c3c37f__",
+      "source_command": "logcat -d -s SeniorShield-CallMonitor:D",
+      "source_path": "exported_ss_call/SS_TC02_permission_allow_idle.yaml",
+      "step_index": 11,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-03",
+        "yaml_path": "exported_ss_call/SS_TC03_ringing_permission.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC03_ringing_permission.yaml#15",
+      "sentinel": "__TC_ASSERT_OK_2e715759abc1__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC03_ringing_permission.yaml",
+      "step_index": 15,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-04",
+        "yaml_path": "exported_ss_call/SS_TC04_offhook_seed_recovery.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC04_offhook_seed_recovery.yaml#18",
+      "sentinel": "__TC_ASSERT_OK_56d371d34e8e__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC04_offhook_seed_recovery.yaml",
+      "step_index": 18,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION",
+      "baseline_command_sha256": "3be300a023647d2a2659a134bcd472321fee03fb60ea1ad83895cf77b0b84548",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "LONG_CALL_DURATION",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-05A",
+        "yaml_path": "exported_ss_call/SS_TC05_boundary_values.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC05_boundary_values.yaml#9",
+      "sentinel": "__TC_ASSERT_OK_ce4c415f5467__",
+      "source_command": "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D",
+      "source_path": "exported_ss_call/SS_TC05_boundary_values.yaml",
+      "step_index": 9,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION",
+      "baseline_command_sha256": "3be300a023647d2a2659a134bcd472321fee03fb60ea1ad83895cf77b0b84548",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "LONG_CALL_DURATION",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-06",
+        "yaml_path": "exported_ss_call/SS_TC06_missed_rejected.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC06_missed_rejected.yaml#10",
+      "sentinel": "__TC_ASSERT_OK_1ef9029cb992__",
+      "source_command": "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D",
+      "source_path": "exported_ss_call/SS_TC06_missed_rejected.yaml",
+      "step_index": 10,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-Coordinator:D | grep -c 'event'",
+      "baseline_command_sha256": "239f9ac82ddfbfddb8c434d02bfc0e6a83e1b5bc3e0da00c07f1320fad4138de",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "event",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-06",
+        "yaml_path": "exported_ss_call/SS_TC06_missed_rejected.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC06_missed_rejected.yaml#11",
+      "sentinel": "__TC_ASSERT_OK_7ca524e83ee0__",
+      "source_command": "logcat -d -s SeniorShield-Coordinator:D",
+      "source_path": "exported_ss_call/SS_TC06_missed_rejected.yaml",
+      "step_index": 11,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D | grep -c LONG_CALL_DURATION",
+      "baseline_command_sha256": "3be300a023647d2a2659a134bcd472321fee03fb60ea1ad83895cf77b0b84548",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "LONG_CALL_DURATION",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-07",
+        "yaml_path": "exported_ss_call/SS_TC07_short_call_no_false_positive.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC07_short_call_no_false_positive.yaml#9",
+      "sentinel": "__TC_ASSERT_OK_92d84e51cc4b__",
+      "source_command": "logcat -d -s SeniorShield-CallMonitor:D SeniorShield-Coordinator:D",
+      "source_path": "exported_ss_call/SS_TC07_short_call_no_false_positive.yaml",
+      "step_index": 9,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-09",
+        "yaml_path": "exported_ss_call/SS_TC09_offhook_permission_banking.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC09_offhook_permission_banking.yaml#20",
+      "sentinel": "__TC_ASSERT_OK_411b6f94e23b__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC09_offhook_permission_banking.yaml",
+      "step_index": 20,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "T/C-01",
+        "yaml_path": "exported_ss_call/SS_TC0_P0_endcall_crash.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC0_P0_endcall_crash.yaml#15",
+      "sentinel": "__TC_ASSERT_OK_f87078fa02b2__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC0_P0_endcall_crash.yaml",
+      "step_index": 15,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "verify_shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "manual",
+        "source_no": null,
+        "yaml_path": null
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC0_P0_telebanking_offhook.yaml#24",
+      "sentinel": "__TC_ASSERT_OK_bb168621d595__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC0_P0_telebanking_offhook.yaml",
+      "step_index": 24,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-CallMonitor:D | grep -c registered",
+      "baseline_command_sha256": "5d0c363c31ad4ab71fbc1457594582783e8ac070ef3c393dc550ee599d465b67",
+      "classification": "COUNT_EQ_1",
+      "grep_pattern": "registered",
+      "predicate_kind": "EQ_1",
+      "predicate_value": 1,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-10",
+        "yaml_path": "exported_ss_call/SS_TC10_permission_toggle.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC10_permission_toggle.yaml#24",
+      "sentinel": "__TC_ASSERT_OK_0f01b111301b__",
+      "source_command": "logcat -d -s SeniorShield-CallMonitor:D",
+      "source_path": "exported_ss_call/SS_TC10_permission_toggle.yaml",
+      "step_index": 24,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-CallMonitor:D | grep -c 'LONG_CALL_DURATION'",
+      "baseline_command_sha256": "b7fdf5d0f6929b0fb5345b790714d0e7c950c4c25c9963a4fac9dc6fe68291fd",
+      "classification": "COUNT_EQ_1",
+      "grep_pattern": "LONG_CALL_DURATION",
+      "predicate_kind": "EQ_1",
+      "predicate_value": 1,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-11",
+        "yaml_path": "exported_ss_call/SS_TC11_multi_subscription.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC11_multi_subscription.yaml#20",
+      "sentinel": "__TC_ASSERT_OK_73137415c833__",
+      "source_command": "logcat -d -s SeniorShield-CallMonitor:D",
+      "source_path": "exported_ss_call/SS_TC11_multi_subscription.yaml",
+      "step_index": 20,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s SeniorShield-Coordinator:D | grep -c 'notification escalation'",
+      "baseline_command_sha256": "abfa4fbdf56c323a37d7e483bea8971006419b2253eaaeda3c7b9d6d52fc0f49",
+      "classification": "COUNT_LE_1",
+      "grep_pattern": "notification escalation",
+      "predicate_kind": "LE_1",
+      "predicate_value": 1,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-11",
+        "yaml_path": "exported_ss_call/SS_TC11_multi_subscription.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC11_multi_subscription.yaml#21",
+      "sentinel": "__TC_ASSERT_OK_8c384311ba05__",
+      "source_command": "logcat -d -s SeniorShield-Coordinator:D",
+      "source_path": "exported_ss_call/SS_TC11_multi_subscription.yaml",
+      "step_index": 21,
+      "timeout_policy": "verify_shell_default_30s"
+    },
+    {
+      "baseline_action": "shell",
+      "baseline_command": "logcat -d -s AndroidRuntime:E | grep -c FATAL",
+      "baseline_command_sha256": "34c92bf2f01b3caa4a63e8c71893cfbf1af393e700865cfc788457157e2237df",
+      "classification": "COUNT_EQ_0",
+      "grep_pattern": "FATAL",
+      "predicate_kind": "EQ_0",
+      "predicate_value": 0,
+      "provenance": {
+        "mode": "p2_manifest",
+        "source_no": "TC-12",
+        "yaml_path": "exported_ss_call/SS_TC12_legacy_path.yaml"
+      },
+      "renderer_kind": "stream_count",
+      "row_key": "exported_ss_call/SS_TC12_legacy_path.yaml#19",
+      "sentinel": "__TC_ASSERT_OK_2fee7f0ac136__",
+      "source_command": "logcat -d -s AndroidRuntime:E",
+      "source_path": "exported_ss_call/SS_TC12_legacy_path.yaml",
+      "step_index": 19,
+      "timeout_policy": "verify_shell_default_30s"
+    }
+  ]
+}

@@ -293,6 +293,7 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 | `evidence_verifier.py` | runbook 증거 검증기 (capture-baseline/verify 2모드, C0~C5 fail-closed·exit `0/1/2/3`, git hash-object·JUnit·결정론 bundle, baseline 바이트 결박). runbook Tier 0 검토를 attestation+spot-check로 축소. Tier-1 검증·T0-CHAR 파일럿 GREEN (2026-07-23) |
 | `gen_provenance_manifest.py` | frozen shell-RC campaign evidence JSON → tracked provenance manifest 결정론 seed (mapping/selector/binding `12/14/15`·workbook raw SHA pin·타임스탬프/난수/절대경로 0, 동일 입력 byte-identical) |
 | `tests/test_provenance_manifest.py` (pytest gate) | shell-RC provenance G1~G5 fail-closed 게이트 (manifest schema·기수, workbook pin·production loader row hash, curated `tc_name`·step projection, campaign evidence baseline) |
+| `canonical_shell_rc_remediation_check.py` + `canonical_shell_rc_remediation_manifest_v1.json` | curated shell-RC 18개 blocker의 baseline/transformation manifest와 host-only fail-closed 검증 gate (P2 current projection `12/14/15`, 비대상 의미론·index·capsule scope 결박, 결정론 evidence 발행) |
 
 ### 5.4 운영 도구 (`tools/`)
 
@@ -501,6 +502,9 @@ commit과 push는 각각 사용자 명시 승인 범위 안에서만 수행하�
 | 2026-08-12 | shell-RC provenance campaign | 공식 P0/P1 campaign이 mapping 12·selector 14·binding 15의 관계를 복원하고, P1 mismatch를 category-wide target-source gap의 측정 baseline으로 남겼다. mismatch 관찰은 campaign 실패가 아니라 후속 remediation 입력이며 evidence bundle을 보존한다. | `HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md`·`reports/canonical_shell_rc_provenance/RB-20260728-shellrc-p0p1/PROVENANCE_EVIDENCE.json` | applied |
 | 2026-08-12 | P2 provenance manifest | frozen campaign evidence를 tracked manifest로 승격하고 결정론 seed와 G1~G5 게이트를 도입했다. production loader 의미론·workbook pin·curated projection을 fail-closed로 결박하며, provenance YAML은 canonical TC inventory 수집에서 제외한다. 최종 범위는 신규 4 + pre-edit amendment 승인 tracked 3 = 7경로, 전체 회귀 1545 passed. | §5.3·`provenance/ss_call_shell_rc_manifest.yaml`·P2 design §8.1 | applied |
 | 2026-08-13 | 위임 scope·승인 감사 | reviewer가 자기 채널에서 승인 이력을 보지 못한 경우 `무승인`으로 단정하지 않고 `승인 이력 확인 필요`로 보고한다. 구현 중 발견 변경은 편집 전 amendment 승인을 받고, commit 전 exact-path staged audit를 강제하며, 과거 기록은 당시 값과 superseded 주석을 함께 보존한다. | §7.2·P2 design §8.1·producer reconcile amendment §9 | applied |
+| 2026-08-18 | shell-RC curated remediation | curated YAML을 권위 source로 유지하고 P2 current projection과 분리된 baseline/transformation manifest로 provenance를 보존하면서 shell-RC blocker 18건을 runner/schema/validator 변경 없이 fail-closed `verify_shell`로 전환했다. | §5.3·`canonical_shell_rc_remediation_check.py`·`canonical_shell_rc_remediation_manifest_v1.json` | applied |
+| 2026-08-18 | shell-RC safety reclassification | audited `exported_ss_call` corpus의 16 step이 결정론적 rc 포착용 bounded scratch로 `READ_ONLY_SHELL`→`UNKNOWN_UNSAFE`, audit adapter상 `FULL_AUTO`→`MANUAL_REQUIRED`로 재분류됐다. production `execution_contract`/저장 `execution_type`에는 전파되지 않으며 두 계층 연결은 별도 정책 승인이 필요하다. | §3.3·`tests/fixtures/anchor/corpus_audit_baseline.json` | applied |
+| 2026-08-18 | capsule v5 evidence ownership | `reports/canonical_shell_rc_remediation/` verifier-owned ignored subtree는 schema-v5 capsule invariant에서 제외하고 generator/consumer가 동일 산식으로 계산한다. 무결박 subtree는 Task 9 전수 보상감사로 통제한다. | `dispatch_capsule.py`·`canonical_shell_rc_remediation_check.py` | applied |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 

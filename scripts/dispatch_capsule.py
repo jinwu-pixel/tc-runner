@@ -22,6 +22,11 @@ from typing import Any, Callable, Sequence
 
 
 SCHEMA_VERSION = 2
+CONTINUATION_SCHEMA_VERSION = 3
+SCOPED_CONTINUATION_SCHEMA_VERSION = 4
+VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION = 5
+INVARIANT_SCOPE_VERSION = 1
+VERIFIER_OWNED_INVARIANT_SCOPE_VERSION = 2
 CAPSULE_TYPE = "tc-runner.dispatch-entry"
 TTL_SECONDS = 1800
 CAPSULE_ROOT = Path(r"C:\tmp\tc-runner-dispatch-capsules")
@@ -132,6 +137,101 @@ def _relative_path(value: Path, *, label: str) -> str:
     ):
         raise InputInvalid(f"{label} must be an exact repo-relative path")
     return raw
+
+
+def _normalize_invariant_scope(
+    exact_paths: Sequence[Path],
+    prefixes: Sequence[Path],
+    verifier_owned_ignored_prefixes: Sequence[Path] | None = None,
+) -> dict[str, Any]:
+    normalized_exact = [
+        _relative_path(path, label="invariant path")
+        for path in exact_paths
+    ]
+    normalized_prefixes = [
+        f"{_relative_path(path, label='invariant prefix')}/"
+        for path in prefixes
+    ]
+    normalized_owned_prefixes = (
+        [
+            f"{_relative_path(path, label='verifier-owned ignored prefix')}/"
+            for path in verifier_owned_ignored_prefixes
+        ]
+        if verifier_owned_ignored_prefixes is not None
+        else []
+    )
+    if not normalized_exact and not normalized_prefixes:
+        raise InputInvalid("invariant scope selectors are empty")
+    if (
+        verifier_owned_ignored_prefixes is not None
+        and not normalized_owned_prefixes
+    ):
+        raise InputInvalid("verifier-owned ignored prefixes are empty")
+    if len(normalized_exact) != len(set(normalized_exact)):
+        raise InputInvalid("invariant paths contain duplicates")
+    if len(normalized_prefixes) != len(set(normalized_prefixes)):
+        raise InputInvalid("invariant prefixes contain duplicates")
+    if len(normalized_owned_prefixes) != len(set(normalized_owned_prefixes)):
+        raise InputInvalid("verifier-owned ignored prefixes contain duplicates")
+    normalized_exact.sort(key=lambda value: value.encode("utf-8"))
+    normalized_prefixes.sort(key=lambda value: value.encode("utf-8"))
+    normalized_owned_prefixes.sort(key=lambda value: value.encode("utf-8"))
+    for index, prefix in enumerate(normalized_prefixes):
+        if any(
+            other != prefix and prefix.startswith(other)
+            for other in normalized_prefixes[:index]
+        ):
+            raise InputInvalid("invariant prefixes overlap")
+    if any(
+        exact.startswith(prefix)
+        for exact in normalized_exact
+        for prefix in normalized_prefixes
+    ):
+        raise InputInvalid("invariant path is redundant with prefix")
+    for index, prefix in enumerate(normalized_owned_prefixes):
+        if any(
+            other != prefix and prefix.startswith(other)
+            for other in normalized_owned_prefixes[:index]
+        ):
+            raise InputInvalid("verifier-owned ignored prefixes overlap")
+    if any(
+        owned.startswith(prefix) or prefix.startswith(owned)
+        for owned in normalized_owned_prefixes
+        for prefix in normalized_prefixes
+    ):
+        raise InputInvalid("verifier-owned ignored prefix overlaps invariant prefix")
+    if any(
+        exact.startswith(owned) or owned.startswith(f"{exact}/")
+        for exact in normalized_exact
+        for owned in normalized_owned_prefixes
+    ):
+        raise InputInvalid("verifier-owned ignored prefix overlaps invariant path")
+    payload = {
+        "exact_paths": normalized_exact,
+        "prefixes": normalized_prefixes,
+        "scope_version": (
+            VERIFIER_OWNED_INVARIANT_SCOPE_VERSION
+            if verifier_owned_ignored_prefixes is not None
+            else INVARIANT_SCOPE_VERSION
+        ),
+    }
+    if verifier_owned_ignored_prefixes is not None:
+        payload["verifier_owned_ignored_prefixes"] = normalized_owned_prefixes
+    return {
+        **payload,
+        "canonical_json_sha256": _sha256_bytes(
+            canonical_json_bytes(payload)
+        ),
+    }
+
+
+def _path_is_in_invariant_scope(
+    relative: str,
+    scope: dict[str, Any],
+) -> bool:
+    return relative in scope["exact_paths"] or any(
+        relative.startswith(prefix) for prefix in scope["prefixes"]
+    )
 
 
 def _path_is_within(candidate: Path, parent: Path) -> bool:
@@ -292,6 +392,7 @@ def measure_path_map(
     repo: Path,
     *,
     ignored: bool,
+    invariant_scope: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     args = [
         "-c",
@@ -314,11 +415,37 @@ def measure_path_map(
                 "Git path list contains non-UTF-8 bytes"
             ) from exc
         _relative_path(Path(relative), label="Git path")
-        _ordinary_repo_file(repo, relative)
         paths.append(relative)
     if len(paths) != len(set(paths)):
         raise InputInvalid("Git path map contains duplicate paths")
-    hash_input = "".join(f"{path}\n" for path in paths).encode("utf-8")
+    if (
+        ignored
+        and invariant_scope is not None
+        and invariant_scope.get("scope_version")
+        == VERIFIER_OWNED_INVARIANT_SCOPE_VERSION
+    ):
+        owned_prefixes = invariant_scope[
+            "verifier_owned_ignored_prefixes"
+        ]
+        paths = [
+            path
+            for path in paths
+            if not any(path.startswith(prefix) for prefix in owned_prefixes)
+        ]
+    selected_paths = (
+        paths
+        if invariant_scope is None
+        else [
+            path
+            for path in paths
+            if _path_is_in_invariant_scope(path, invariant_scope)
+        ]
+    )
+    for relative in selected_paths:
+        _ordinary_repo_file(repo, relative)
+    hash_input = "".join(
+        f"{path}\n" for path in selected_paths
+    ).encode("utf-8")
     hashes_raw = _git(
         repo,
         "hash-object",
@@ -332,7 +459,7 @@ def measure_path_map(
         raise InfrastructureFailure(
             "git hash-object emitted non-ASCII"
         ) from exc
-    if len(hashes) != len(paths):
+    if len(hashes) != len(selected_paths):
         raise InfrastructureFailure("path/hash cardinality mismatch")
     rows = [
         {
@@ -340,19 +467,22 @@ def measure_path_map(
             "git_hash_object_no_filters": digest,
             "path": relative,
         }
-        for relative, digest in zip(paths, hashes, strict=True)
+        for relative, digest in zip(selected_paths, hashes, strict=True)
     ]
     if any(LOWER_OID_RE.fullmatch(row["git_hash_object_no_filters"]) is None
            for row in rows):
         raise InfrastructureFailure("git hash-object emitted invalid object id")
     rows.sort(key=lambda row: row["path"].encode("utf-8"))
-    return {
+    result = {
         "count": len(rows),
         "canonical_json_sha256": _sha256_bytes(
             canonical_json_bytes(rows)
         ),
         "rows": rows,
     }
+    if invariant_scope is not None:
+        result["excluded_count"] = len(paths) - len(selected_paths)
+    return result
 
 
 def _file_identity(
@@ -361,6 +491,7 @@ def _file_identity(
     *,
     label: str,
     expected_raw_sha256: str | None = None,
+    allow_worktree_dirty: bool = False,
 ) -> dict[str, str]:
     relative = _relative_path(relative_path, label=label)
     if (
@@ -421,7 +552,7 @@ def _file_identity(
     )
     if LOWER_OID_RE.fullmatch(blob) is None:
         raise InfrastructureFailure(f"{label} Git blob is invalid")
-    if tracked.returncode == 0:
+    if tracked.returncode == 0 and not allow_worktree_dirty:
         head_blob = _git_text(repo, "rev-parse", f"HEAD:{relative}")
         if blob != head_blob:
             raise InputInvalid(f"{label} worktree bytes differ from HEAD")
@@ -540,6 +671,83 @@ def _measure_module_specs(
     ]
 
 
+def measure_tracked_worktree(
+    repo: Path,
+    allowed_dirty_paths: Sequence[Path],
+) -> dict[str, Any]:
+    """Bind an exact unstaged tracked-file set and its current bytes."""
+
+    normalized = [
+        _relative_path(path, label="allowed dirty path")
+        for path in allowed_dirty_paths
+    ]
+    if len(normalized) != len(set(normalized)):
+        raise InputInvalid("allowed dirty paths contain duplicates")
+    normalized.sort(key=lambda value: value.encode("utf-8"))
+    raw = _git(
+        repo,
+        "-c",
+        "core.quotepath=false",
+        "diff-index",
+        "--name-only",
+        "-z",
+        "HEAD",
+        "--",
+    )
+    actual: list[str] = []
+    for item in raw.split(b"\0"):
+        if not item:
+            continue
+        try:
+            relative = item.decode("utf-8", "strict").replace("\\", "/")
+        except UnicodeDecodeError as exc:
+            raise InfrastructureFailure(
+                "tracked dirty path contains non-UTF-8 bytes"
+            ) from exc
+        _relative_path(Path(relative), label="tracked dirty path")
+        actual.append(relative)
+    actual.sort(key=lambda value: value.encode("utf-8"))
+    if actual != normalized:
+        raise InputInvalid("tracked dirty path set differs from authorization")
+    rows: list[dict[str, str]] = []
+    for relative in actual:
+        tracked = _run_git(
+            repo, "ls-files", "--error-unmatch", "--", relative
+        )
+        if tracked.returncode != 0 or tracked.stderr:
+            raise InputInvalid(f"allowed dirty path is not tracked: {relative}")
+        path = _ordinary_repo_file(repo, relative)
+        try:
+            content = path.read_bytes()
+        except OSError as exc:
+            raise InfrastructureFailure(
+                f"allowed dirty path could not be read: {relative}"
+            ) from exc
+        blob = _git_text(
+            repo,
+            "hash-object",
+            "--no-filters",
+            "--",
+            relative,
+        )
+        if LOWER_OID_RE.fullmatch(blob) is None:
+            raise InfrastructureFailure(
+                f"allowed dirty path Git blob is invalid: {relative}"
+            )
+        rows.append(
+            {
+                "git_blob_no_filters": blob,
+                "path": relative,
+                "raw_sha256": _sha256_bytes(content),
+            }
+        )
+    return {
+        "count": len(rows),
+        "canonical_json_sha256": _sha256_bytes(canonical_json_bytes(rows)),
+        "rows": rows,
+    }
+
+
 def measure_repo_state(
     repo: Path,
     *,
@@ -548,6 +756,8 @@ def measure_repo_state(
     generator_path: Path,
     directive_sha256: str | None = None,
     spec_sha256: str | None = None,
+    allowed_dirty_paths: Sequence[Path] | None = None,
+    invariant_scope: dict[str, Any] | None = None,
     upstream_ref: str = UPSTREAM_REF,
 ) -> dict[str, Any]:
     repo = _require_directory(repo, label="repository")
@@ -571,9 +781,36 @@ def measure_repo_state(
         raise InfrastructureFailure("ahead/behind output is invalid")
     behind, ahead = (int(value) for value in counts)
     index = measure_index(repo)
-    untracked = measure_path_map(repo, ignored=False)
-    ignored = measure_path_map(repo, ignored=True)
-    return {
+    tracked_worktree = (
+        measure_tracked_worktree(repo, allowed_dirty_paths)
+        if allowed_dirty_paths is not None
+        else {"count": 0, "canonical_json_sha256": _sha256_bytes(b"[]"), "rows": []}
+    )
+    untracked = measure_path_map(
+        repo,
+        ignored=False,
+        invariant_scope=invariant_scope,
+    )
+    ignored = measure_path_map(
+        repo,
+        ignored=True,
+        invariant_scope=invariant_scope,
+    )
+    if invariant_scope is not None:
+        selected = {
+            row["path"] for row in untracked["rows"] + ignored["rows"]
+        }
+        for exact in invariant_scope["exact_paths"]:
+            if exact not in selected:
+                raise InputInvalid(
+                    f"invariant path matches no untracked/ignored file: {exact}"
+                )
+        for prefix in invariant_scope["prefixes"]:
+            if not any(path.startswith(prefix) for path in selected):
+                raise InputInvalid(
+                    f"invariant prefix matches no untracked/ignored file: {prefix}"
+                )
+    state = {
         "repo": {
             "root": repo.as_posix(),
             "upstream_ref": upstream_ref,
@@ -587,18 +824,36 @@ def measure_repo_state(
             ),
         },
         "index": index,
-        "untracked": {
-            "count": untracked["count"],
-            "canonical_json_sha256":
-                untracked["canonical_json_sha256"],
-            "excluded_paths": [],
-        },
-        "ignored": {
-            "count": ignored["count"],
-            "canonical_json_sha256":
-                ignored["canonical_json_sha256"],
-            "excluded_paths": [],
-        },
+        "untracked": (
+            {
+                "count": untracked["count"],
+                "canonical_json_sha256":
+                    untracked["canonical_json_sha256"],
+                "excluded_count": untracked["excluded_count"],
+            }
+            if invariant_scope is not None
+            else {
+                "count": untracked["count"],
+                "canonical_json_sha256":
+                    untracked["canonical_json_sha256"],
+                "excluded_paths": [],
+            }
+        ),
+        "ignored": (
+            {
+                "count": ignored["count"],
+                "canonical_json_sha256":
+                    ignored["canonical_json_sha256"],
+                "excluded_count": ignored["excluded_count"],
+            }
+            if invariant_scope is not None
+            else {
+                "count": ignored["count"],
+                "canonical_json_sha256":
+                    ignored["canonical_json_sha256"],
+                "excluded_paths": [],
+            }
+        ),
         "identities": {
             "directive": _file_identity(
                 repo,
@@ -613,20 +868,36 @@ def measure_repo_state(
                 expected_raw_sha256=spec_sha256,
             ),
             "generator": _file_identity(
-                repo, generator_path, label="generator"
+                repo,
+                generator_path,
+                label="generator",
+                allow_worktree_dirty=(
+                    _relative_path(generator_path, label="generator")
+                    in {
+                        _relative_path(path, label="allowed dirty path")
+                        for path in (allowed_dirty_paths or ())
+                    }
+                ),
             ),
         },
     }
+    if tracked_worktree["count"]:
+        state["tracked_worktree"] = tracked_worktree
+    if invariant_scope is not None:
+        state["invariant_scope"] = invariant_scope
+    return state
 
 
 def _require_dispatchable(state: dict[str, Any]) -> None:
     repo = state["repo"]
+    continuation = "tracked_worktree" in state
     if (
         repo["head_sha"] != repo["upstream_sha"]
         or repo["ahead"] != 0
         or repo["behind"] != 0
-        or repo["tracked_clean"] is not True
         or repo["staged_clean"] is not True
+        or (continuation and repo["tracked_clean"] is not False)
+        or (not continuation and repo["tracked_clean"] is not True)
     ):
         raise InputInvalid("repository is not dispatchable")
 
@@ -647,7 +918,9 @@ def _capsule_payload(
     module_roots: list[dict[str, Any]],
     issued_at: int,
 ) -> dict[str, Any]:
-    return {
+    continuation = "tracked_worktree" in state
+    scoped = "invariant_scope" in state
+    payload = {
         "capsule_type": CAPSULE_TYPE,
         "directive_id": directive_id,
         "expires_at_epoch_s": issued_at + TTL_SECONDS,
@@ -657,10 +930,25 @@ def _capsule_payload(
         "issued_at_epoch_s": issued_at,
         "module_roots": module_roots,
         "repo": state["repo"],
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": (
+            VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION
+            if scoped
+            and state["invariant_scope"].get("scope_version")
+            == VERIFIER_OWNED_INVARIANT_SCOPE_VERSION
+            else SCOPED_CONTINUATION_SCHEMA_VERSION
+            if scoped
+            else CONTINUATION_SCHEMA_VERSION
+            if continuation
+            else SCHEMA_VERSION
+        ),
         "ttl_seconds": TTL_SECONDS,
         "untracked": state["untracked"],
     }
+    if continuation:
+        payload["tracked_worktree"] = state["tracked_worktree"]
+    if scoped:
+        payload["invariant_scope"] = state["invariant_scope"]
+    return payload
 
 
 def _publish_content_addressed(
@@ -730,6 +1018,12 @@ def capture_capsule(
     generator_path: Path = GENERATOR_PATH,
     upstream_ref: str = UPSTREAM_REF,
     module_specs: Sequence[tuple[Path, str]] = (),
+    allowed_dirty_paths: Sequence[Path] | None = None,
+    tracked_worktree_sha256: str | None = None,
+    invariant_paths: Sequence[Path] | None = None,
+    invariant_prefixes: Sequence[Path] | None = None,
+    verifier_owned_ignored_prefixes: Sequence[Path] | None = None,
+    invariant_scope_sha256: str | None = None,
     now_fn: Callable[[], int] = lambda: int(time.time()),
 ) -> tuple[Path, str]:
     if DIRECTIVE_ID_RE.fullmatch(directive_id) is None:
@@ -745,6 +1039,52 @@ def capture_capsule(
             raise InputInvalid(
                 f"{label} expected SHA-256 must be lowercase SHA-256"
             )
+    if allowed_dirty_paths is None:
+        if tracked_worktree_sha256 is not None:
+            raise InputInvalid(
+                "tracked worktree expected SHA-256 requires allowed dirty paths"
+            )
+    elif tracked_worktree_sha256 is None:
+        raise InputInvalid(
+            "tracked worktree expected SHA-256 is required"
+        )
+    elif LOWER_SHA256_RE.fullmatch(tracked_worktree_sha256) is None:
+        raise InputInvalid(
+            "tracked worktree expected SHA-256 must be lowercase SHA-256"
+        )
+    scope_requested = (
+        invariant_paths is not None
+        or invariant_prefixes is not None
+        or verifier_owned_ignored_prefixes is not None
+    )
+    invariant_scope: dict[str, Any] | None = None
+    if scope_requested:
+        if allowed_dirty_paths is None:
+            raise InputInvalid(
+                "invariant scope requires continuation dirty paths"
+            )
+        if invariant_scope_sha256 is None:
+            raise InputInvalid(
+                "invariant scope expected SHA-256 is required"
+            )
+        if LOWER_SHA256_RE.fullmatch(invariant_scope_sha256) is None:
+            raise InputInvalid(
+                "invariant scope expected SHA-256 must be lowercase SHA-256"
+            )
+        invariant_scope = _normalize_invariant_scope(
+            invariant_paths or (),
+            invariant_prefixes or (),
+            verifier_owned_ignored_prefixes,
+        )
+        if (
+            invariant_scope["canonical_json_sha256"]
+            != invariant_scope_sha256
+        ):
+            raise InputInvalid("invariant scope SHA-256 mismatch")
+    elif invariant_scope_sha256 is not None:
+        raise InputInvalid(
+            "invariant scope expected SHA-256 requires selectors"
+        )
     repo_resolved = _require_directory(repo, label="repository")
     root = _validate_capsule_root(
         repo_resolved, capsule_root, require_exists=False
@@ -757,9 +1097,16 @@ def capture_capsule(
         generator_path=generator_path,
         directive_sha256=directive_sha256,
         spec_sha256=spec_sha256,
+        allowed_dirty_paths=allowed_dirty_paths,
+        invariant_scope=invariant_scope,
         upstream_ref=upstream_ref,
     )
     _require_dispatchable(first)
+    if tracked_worktree_sha256 is not None and (
+        first.get("tracked_worktree", {}).get("canonical_json_sha256")
+        != tracked_worktree_sha256
+    ):
+        raise InputInvalid("tracked worktree SHA-256 mismatch")
     second = measure_repo_state(
         repo_resolved,
         directive_path=directive_path,
@@ -767,6 +1114,8 @@ def capture_capsule(
         generator_path=generator_path,
         directive_sha256=directive_sha256,
         spec_sha256=spec_sha256,
+        allowed_dirty_paths=allowed_dirty_paths,
+        invariant_scope=invariant_scope,
         upstream_ref=upstream_ref,
     )
     _require_dispatchable(second)
@@ -831,27 +1180,52 @@ def _validate_capsule_schema(
     expected_upstream_ref: str,
     repo: Path,
 ) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise InputInvalid("capsule schema is invalid")
+    schema_version = value.get("schema_version")
+    continuation_versions = {
+        CONTINUATION_SCHEMA_VERSION,
+        SCOPED_CONTINUATION_SCHEMA_VERSION,
+        VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION,
+    }
+    scoped_versions = {
+        SCOPED_CONTINUATION_SCHEMA_VERSION,
+        VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION,
+    }
+    if schema_version not in {
+        SCHEMA_VERSION,
+        *continuation_versions,
+    }:
+        raise InputInvalid("capsule fixed fields are invalid")
+    capsule_keys = {
+        "capsule_type",
+        "directive_id",
+        "expires_at_epoch_s",
+        "identities",
+        "ignored",
+        "index",
+        "issued_at_epoch_s",
+        "module_roots",
+        "repo",
+        "schema_version",
+        "ttl_seconds",
+        "untracked",
+    }
+    if schema_version in continuation_versions:
+        capsule_keys.add("tracked_worktree")
+    if schema_version in scoped_versions:
+        capsule_keys.add("invariant_scope")
     capsule = _exact_keys(
         value,
-        {
-            "capsule_type",
-            "directive_id",
-            "expires_at_epoch_s",
-            "identities",
-            "ignored",
-            "index",
-            "issued_at_epoch_s",
-            "module_roots",
-            "repo",
-            "schema_version",
-            "ttl_seconds",
-            "untracked",
-        },
+        capsule_keys,
         label="capsule",
     )
     if (
         not _is_non_bool_int(capsule["schema_version"])
-        or capsule["schema_version"] != SCHEMA_VERSION
+        or capsule["schema_version"] not in {
+            SCHEMA_VERSION,
+            *continuation_versions,
+        }
         or capsule["capsule_type"] != CAPSULE_TYPE
         or capsule["directive_id"] != expected_directive_id
         or not _is_non_bool_int(capsule["ttl_seconds"])
@@ -904,18 +1278,140 @@ def _validate_capsule_schema(
     ):
         raise InputInvalid("capsule.index fields are invalid")
     for name in ("untracked", "ignored"):
+        mapping_keys = (
+            {"count", "canonical_json_sha256", "excluded_count"}
+            if schema_version in scoped_versions
+            else {"count", "canonical_json_sha256", "excluded_paths"}
+        )
         mapping = _exact_keys(
             capsule[name],
-            {"count", "canonical_json_sha256", "excluded_paths"},
+            mapping_keys,
             label=f"capsule.{name}",
         )
         if (
             not _is_non_bool_int(mapping["count"])
             or mapping["count"] < 0
             or not _is_lower_sha256(mapping["canonical_json_sha256"])
-            or mapping["excluded_paths"] != []
+            or (
+                schema_version in scoped_versions
+                and (
+                    not _is_non_bool_int(mapping["excluded_count"])
+                    or mapping["excluded_count"] < 0
+                )
+            )
+            or (
+                schema_version not in scoped_versions
+                and mapping["excluded_paths"] != []
+            )
         ):
             raise InputInvalid(f"capsule.{name} fields are invalid")
+    if schema_version in scoped_versions:
+        scope_keys = {
+            "canonical_json_sha256",
+            "exact_paths",
+            "prefixes",
+            "scope_version",
+        }
+        if (
+            schema_version
+            == VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION
+        ):
+            scope_keys.add("verifier_owned_ignored_prefixes")
+        scope = _exact_keys(
+            capsule["invariant_scope"],
+            scope_keys,
+            label="capsule.invariant_scope",
+        )
+        expected_scope_version = (
+            VERIFIER_OWNED_INVARIANT_SCOPE_VERSION
+            if schema_version
+            == VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION
+            else INVARIANT_SCOPE_VERSION
+        )
+        if (
+            scope["scope_version"] != expected_scope_version
+            or not isinstance(scope["exact_paths"], list)
+            or not isinstance(scope["prefixes"], list)
+            or (
+                schema_version
+                == VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION
+                and not isinstance(
+                    scope["verifier_owned_ignored_prefixes"], list
+                )
+            )
+            or not _is_lower_sha256(scope["canonical_json_sha256"])
+        ):
+            raise InputInvalid("capsule.invariant_scope fields are invalid")
+        try:
+            normalized_scope = _normalize_invariant_scope(
+                tuple(Path(path) for path in scope["exact_paths"]),
+                tuple(Path(prefix) for prefix in scope["prefixes"]),
+                (
+                    tuple(
+                        Path(prefix)
+                        for prefix in scope[
+                            "verifier_owned_ignored_prefixes"
+                        ]
+                    )
+                    if schema_version
+                    == VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION
+                    else None
+                ),
+            )
+        except (TypeError, ValueError) as exc:
+            raise InputInvalid(
+                "capsule.invariant_scope fields are invalid"
+            ) from exc
+        if scope != normalized_scope:
+            raise InputInvalid("capsule.invariant_scope is not canonical")
+    if schema_version in continuation_versions:
+        tracked_worktree = _exact_keys(
+            capsule["tracked_worktree"],
+            {"count", "canonical_json_sha256", "rows"},
+            label="capsule.tracked_worktree",
+        )
+        rows = tracked_worktree["rows"]
+        if (
+            not _is_non_bool_int(tracked_worktree["count"])
+            or tracked_worktree["count"] <= 0
+            or not _is_lower_sha256(
+                tracked_worktree["canonical_json_sha256"]
+            )
+            or not isinstance(rows, list)
+            or len(rows) != tracked_worktree["count"]
+        ):
+            raise InputInvalid("capsule.tracked_worktree fields are invalid")
+        paths: list[str] = []
+        for row in rows:
+            item = _exact_keys(
+                row,
+                {"git_blob_no_filters", "path", "raw_sha256"},
+                label="capsule.tracked_worktree.rows[]",
+            )
+            if (
+                not isinstance(item["path"], str)
+                or not _is_lower_sha256(item["raw_sha256"])
+                or not _is_lower_oid(item["git_blob_no_filters"])
+            ):
+                raise InputInvalid(
+                    "capsule.tracked_worktree row fields are invalid"
+                )
+            paths.append(
+                _relative_path(
+                    Path(item["path"]),
+                    label="capsule.tracked_worktree.rows[].path",
+                )
+            )
+        if (
+            paths != sorted(paths, key=lambda item: item.encode("utf-8"))
+            or len(paths) != len(set(paths))
+            or tracked_worktree["canonical_json_sha256"]
+            != _sha256_bytes(canonical_json_bytes(rows))
+            or repo_value["tracked_clean"] is not False
+        ):
+            raise InputInvalid("capsule.tracked_worktree is not canonical")
+    elif repo_value["tracked_clean"] is not True:
+        raise InputInvalid("clean capsule records a dirty worktree")
     modules = capsule["module_roots"]
     if not isinstance(modules, list):
         raise InputInvalid("capsule.module_roots is invalid")
@@ -1036,6 +1532,24 @@ def verify_capsule(
         "ignored": capsule["ignored"],
         "identities": capsule["identities"],
     }
+    allowed_dirty_paths: tuple[Path, ...] | None = None
+    invariant_scope: dict[str, Any] | None = None
+    if capsule["schema_version"] in {
+        CONTINUATION_SCHEMA_VERSION,
+        SCOPED_CONTINUATION_SCHEMA_VERSION,
+        VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION,
+    }:
+        expected_state["tracked_worktree"] = capsule["tracked_worktree"]
+        allowed_dirty_paths = tuple(
+            Path(row["path"])
+            for row in capsule["tracked_worktree"]["rows"]
+        )
+    if capsule["schema_version"] in {
+        SCOPED_CONTINUATION_SCHEMA_VERSION,
+        VERIFIER_OWNED_SCOPED_CONTINUATION_SCHEMA_VERSION,
+    }:
+        invariant_scope = capsule["invariant_scope"]
+        expected_state["invariant_scope"] = invariant_scope
     for _snapshot_number in range(2):
         state = measure_repo_state(
             repo_resolved,
@@ -1044,6 +1558,8 @@ def verify_capsule(
             generator_path=Path(identities["generator"]["path"]),
             directive_sha256=identities["directive"]["raw_sha256"],
             spec_sha256=identities["spec"]["raw_sha256"],
+            allowed_dirty_paths=allowed_dirty_paths,
+            invariant_scope=invariant_scope,
             upstream_ref=expected_upstream_ref,
         )
         if canonical_json_bytes(state) != canonical_json_bytes(expected_state):
@@ -1065,6 +1581,15 @@ def _parser() -> argparse.ArgumentParser:
     capture.add_argument("--directive-sha256")
     capture.add_argument("--spec", required=True)
     capture.add_argument("--spec-sha256")
+    capture.add_argument("--allow-dirty-path", action="append")
+    capture.add_argument("--tracked-worktree-sha256")
+    capture.add_argument("--invariant-path", action="append")
+    capture.add_argument("--invariant-prefix", action="append")
+    capture.add_argument(
+        "--verifier-owned-ignored-prefix",
+        action="append",
+    )
+    capture.add_argument("--invariant-scope-sha256")
     capture.add_argument("--module-root", action="append", default=[])
     capture.add_argument("--module-package", action="append", default=[])
     verify = subparsers.add_parser("verify")
@@ -1104,6 +1629,31 @@ def main(
                 directive_sha256=args.directive_sha256,
                 spec_sha256=args.spec_sha256,
                 module_specs=module_specs,
+                allowed_dirty_paths=(
+                    tuple(Path(path) for path in args.allow_dirty_path)
+                    if args.allow_dirty_path is not None
+                    else None
+                ),
+                tracked_worktree_sha256=args.tracked_worktree_sha256,
+                invariant_paths=(
+                    tuple(Path(path) for path in args.invariant_path)
+                    if args.invariant_path is not None
+                    else None
+                ),
+                invariant_prefixes=(
+                    tuple(Path(path) for path in args.invariant_prefix)
+                    if args.invariant_prefix is not None
+                    else None
+                ),
+                verifier_owned_ignored_prefixes=(
+                    tuple(
+                        Path(path)
+                        for path in args.verifier_owned_ignored_prefix
+                    )
+                    if args.verifier_owned_ignored_prefix is not None
+                    else None
+                ),
+                invariant_scope_sha256=args.invariant_scope_sha256,
                 now_fn=now_fn,
             )
             print(

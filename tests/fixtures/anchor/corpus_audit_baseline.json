@@ -4,9 +4,9 @@
     "NAVIGATION_ONLY": 202,
     "PRIVILEGED_SHELL": 54,
     "READ_ONLY": 541,
-    "READ_ONLY_SHELL": 128,
+    "READ_ONLY_SHELL": 112,
     "SELECTION_GATED": 171,
-    "UNKNOWN_UNSAFE": 91
+    "UNKNOWN_UNSAFE": 107
   },
   "baseline": {
     "mapped_actions": [
