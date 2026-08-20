@@ -86,6 +86,48 @@ driver 는 이 전체 시퀀스를 무조건 재생하지 않고 매 키 뒤 dum
 - **transient 대응**: 화면 터치 잠금 타일은 page2 에서 **즉시 dump 미포함**(3초 settle 후
   `화면 터치 잠금, 꺼짐` 으로 gate) — `settle_gate` 는 최대 3.0초, 0.5초 간격 재-dump 로 구현한다.
   조건 충족 즉시 종료하며 선행 고정 sleep 은 금지한다.
+  transient 는 043/044 한정이 아니라 **page2 일반 속성**이므로 page2 inventory 를 읽는
+  QPN_001 도 동일 gate 를 선행한다.
+
+### 4.1 TILE_LONGOK verify 재설계 (초판 결함 정정)
+
+초판은 롱탭 직후 `verify literal` 하나로 목적지를 판정했다. 실측 결과 두 결함이 겹쳤다.
+
+| tc | 목적지 dump | 원문 literal 이 진입 **전** QS 패널에도 존재 | 결함 |
+|---|---|---|---|
+| 133 | 있음 | `Wi-Fi` 존재 | 비판별 |
+| 146 | **없음** | 아니오 | 근거 부재 |
+| 149 | **없음** | **예** | 비판별 + 근거 부재 |
+| 153 | **없음** | 아니오 | 근거 부재 |
+| 155 | **없음** | **예** | 비판별 + 근거 부재 |
+
+149/155 는 롱탭이 no-op 이어서 QS 패널에 그대로 있어도 verify 가 통과한다(위양성).
+146/149/153/155 는 목적지 XML 이 없고 증거가 `_00_target.xml`(진입 **전**) + `.png` 뿐이다.
+
+→ gate 체인을 판별력 순서로 재구성한다:
+
+1. `state_unchanged(axis)` — scalar mutation guard (롱탭 오해석 포착, 최우선)
+2. `qs_stage == none` — 퀵패널 이탈 (구조적 판별자, 전 TC 공통)
+3. `activity_contains(<per-TC activity>)` — discovery 실측 목적지 activity
+   (`SoundSettings`/`SmartAutoRotateSettings`/`DataSaverSummary`/`ZenModeSettings`;
+   133 은 activity 미캡처라 목적지 dump 의 package 실측값 사용)
+4. `literal_probe(<canonical 원문 literal>)` — bounded 재-dump
+
+**`literal_probe` 는 미확보 시 FAIL 이 아니라 `LITERAL_PENDING`** 이며, 실패 경로에서도 목적지
+dump 를 evidence 로 남긴다(backfill 판단의 유일한 근거). **activity 만으로 literal 을 대신
+증명하지 않는다.** 원문 literal 을 실측값으로 미리 완화(backfill)하지 않는다 — 목적지 dump 확보
+후 사용자 승인 영역.
+
+### 4.2 QPN_002 inventory — 합집합 + BUG-GAP 종료 어휘
+
+edit candidate 는 스크롤에 분산돼 단일 dump 로는 행이 잘린다(초판이 핫스팟을 놓친 원인).
+→ `scroll_inventory` bounded DOWN 합집합(합집합이 2회 연속 정체하면 budget 을 남기고 정지).
+
+원문 후보 11 = **관찰 10 + 부재 1(`취침 모드`)**. 부재는 미검증이 아니라 **결론**이므로 plan
+완주 판정을 `runtime PASS` 로 두면 안 된다 → `expected_verdict()` 가 QPN_002 에 대해
+**`BUG-GAP observed`** 를 반환한다. 2-run 이 모두 성공해도 RUNNABLE_NOW 승격 대상이 아니다.
+`evaluate_inventory` 는 `missing`(관찰돼야 할 것의 부재 = 캡처 실패)과 `unexpected`(부재 판정
+literal 의 출현 = divergence)를 분리해 FAIL 사유를 구분한다.
 
 ## 5. 안전 (코드 강제)
 
@@ -125,7 +167,7 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 - [x] 설계 lock (본 문서)
 - [x] host-TDD 구현 (thor2j — Codex, 5-suite 172 passed)
 - [x] Claude 독립 재검증 (dry-run 44/44 · disposition mismatch 0 · 계약 8/8 코드 확인)
-- [ ] **device 2-run 진입 전 선결 2건** (아래)
+- [x] **B1/B2 해소** (§4.1·§4.2, 5-suite **184 passed** · dry-run 매핑 무변화 44/44)
 - [ ] device 2-run (별도 승인)
 
 ### 8.1 device 2-run blocker (2026-08-20 재검증에서 발견)
@@ -135,5 +177,52 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 | B1 | QPN_002 | edit candidate 는 **스크롤 분산 13종**인데 driver 는 단일 dump 로 9종만 검증 — 원문 11종 대비 미달인 채 GREEN 가능 | inventory 를 bounded scroll 합집합으로 재설계 (`ensure_focus_at` 와 같은 조건형) |
 | B2 | QPN_146 | 목적지 증거가 `Settings$SoundSettingsActivity` **activity 뿐** — literal `소리 및 진동` 의 dump 근거 0 | 목적지 dump 확보 후 backfill, 또는 verifier 를 `activity_contains` 로 전환 |
 
-B1/B2 미해소 시 해당 2건은 2-run 대상에서 제외하고 drivable 31 → 29 로 축소 운영한다.
+> **정정 2026-08-20 (사용자 검토 반영)**
+> - B1 은 "13종을 찾는 문제"가 아니다. 원문 11종 중 핫스팟 포함 **10종은 관찰, `취침 모드`는
+>   실제 부재**다. 따라서 합집합으로 10종을 확인하고 부재는 `BUG-GAP observed` 로 판정한다.
+>   QPN_002 를 `runtime PASS` 로 만들면 안 된다. → §4.2
+> - B2 의 "verifier 를 `activity_contains` 로 전환"은 **채택하지 않는다**. activity 는 진입
+>   경로만 증명하므로 literal 검증을 대체할 수 없다. 미확보 시 `LITERAL_PENDING` 을 유지한다.
+> - B2 는 QPN_146 단독이 아니라 **TILE_LONGOK 5건 전부의 구조 결함**이었다. → §4.1
+> - 두 건 모두 해소됐으므로 drivable 31 → 29 축소 운영은 **불필요**하다.
 - 커밋: batch 대기
+
+## 9. `취침 모드` 부재 판별 계획 (2-run 동반, 비파괴)
+
+QPN_002 의 `BUG-GAP observed` 는 **판정 어휘**이지 root cause 가 아니다. 현재 근거로는 세 갈래를
+구분할 수 없다 — 단말 결함 / 원문 스펙 불일치 / precondition 미비. §4.2 가 `SPEC_GAP` 결론에
+"단말 결함 아님 입증"을 요구하므로 어느 쪽이든 판별이 선행돼야 한다. **판별 전 BUG_LOG 등록 안 함.**
+
+### 9.1 이미 확보된 사실
+
+- `취침 모드` 를 언급하는 canonical 은 batch10 전체에서 QPN_002 **한 건뿐**(교차 근거 없음).
+- 원문 11 과 단말 13 은 포함관계가 아니라 **양방향 어긋남**:
+  원문에만 `취침 모드`(1) / 단말에만 `노래 검색`·`텍스트 읽어주기`·`TV 리모컨`(3).
+  → 원문 리스트가 이 빌드 기준이 아닐 가능성을 시사한다.
+- [추론·미측정] `집중 모드` 와 `취침 모드` 는 통상 같은 Digital Wellbeing 계열인데
+  **집중 모드는 단말에 실재**한다 → "provider 자체 부재" 가설은 약해져 있다.
+  판별 전 결론으로 쓰지 않는다.
+
+### 9.2 2-run 동반 관찰 (판정 불변·기록 전용)
+
+`_capture_diagnostics()` 가 run 당 1회 비파괴 수집한다. 실패해도 run 을 막지 않되 실패 사실을 남긴다.
+
+| 축 | 명령 | 판별 용도 |
+|---|---|---|
+| `packages` | `pm list packages` | provider 존재 여부 (1차 판별) |
+| `qs_tiles` | `settings get secure sysui_qs_tiles` | active tile spec 실측 |
+
+추가로 QPN_002 inventory 단계가 `registry_probe` 를 남긴다 — `취침 모드` + CANDIDATE_ONLY 4건의
+대상(`핫스팟`/`Quick Share`/`QR 코드 스캐너`/`알람`) present/absent 지도.
+**네 건은 판별 대상이 아니라 사유가 이미 확정된 상태**(candidate 실재·active QS 부재 → 추가 =
+mutation)이므로, 이 기록은 그 사유가 매 run 여전히 유효한지(stale 가정 아님)를 확인하는 용도다.
+
+### 9.3 결과 매핑
+
+| 관찰 | 결론 | 후속 |
+|---|---|---|
+| provider 부재 | `SPEC_GAP` | TC 를 모델 비적용 표기. BUG_LOG 등록 안 함 |
+| provider·기능 존재 + 타일만 부재 | `OBSERVED` | BUG_LOG `OPEN` 등록 |
+| 기능 미설정이 원인 | 결함 아님 | TC 원문 precondition 정정 |
+
+어느 쪽이든 QPN_002 는 **RUNNABLE_NOW 승격 대상이 아니다**(§4.2).

@@ -102,9 +102,11 @@ edit candidate에서 추가 관찰:
 > 정정 2026-08-20 (Claude 재검증): 최초 inventory 는 스크롤 단일 dump(`QPN_002_scan_after14/22`)에서 계산돼 행이 잘렸다. `QPN_002_101~114_scan_down` 합집합으로 재추출한 결과 edit 화면 `tile_label` 전수는 **25종 = active 12 + candidate 13**이다.
 > 영향: QPN_157 `TARGET_ABSENT` → `CANDIDATE_ONLY` 재분류, QPN_066 divergence 정정, QPN_002 원문 11종 중 미관찰은 `취침 모드` 1종뿐.
 
-- 핫스팟·취침 모드는 active/candidate 양쪽 미관찰.
-- Quick Share·QR·집중 모드·알람은 candidate에만 있어 full QS focus precondition 불일치.
-- QPN_002 원문 후보 11종 중 9종 관찰, 2종 미관찰 → `LITERAL_PENDING`.
+- **취침 모드만** active/candidate 양쪽 미관찰. (핫스팟은 candidate 에 실재 — `QPN_002_108~113_scan_down`)
+- 핫스팟·Quick Share·QR·집중 모드·알람은 candidate 에만 있어 full QS focus precondition 불일치.
+- QPN_002 원문 후보 11종 중 **10종 관찰 / 1종(`취침 모드`) 부재** → `LITERAL_PENDING`.
+  단순 미검증이 아니라 **부재 자체가 결론**이므로 2-run 판정은 `runtime PASS` 가 아니라
+  `BUG-GAP observed` 여야 한다(10종 관찰은 bounded scroll 합집합으로 확인).
 
 ### 3.2 편집 화면 focus
 
@@ -119,6 +121,22 @@ edit candidate에서 추가 관찰:
 - 3초 settle 후 clickable parent text=`화면 터치 잠금, 꺼짐`으로 gate.
 - QPN_043/044 모두 팝업 `화면 터치 잠금 켜기 / 취소 / 확인` 관찰, `취소` 후 `꺼짐` 유지.
 - `확인` tap 0.
+
+### 3.3b tile-longtap 목적지 증거 정정 (2026-08-20 Claude 재검증)
+
+> ledger 의 QPN_149/153/155 `LITERAL_CONFIRMED` 는 **목적지 dump 근거가 없다**. 세 TC 의 증거는
+> `QPN_1xx_00_target.xml`(롱탭 **이전** QS 패널) + `_01_after_longpress.png` 뿐이고 목적지 XML 은
+> 캡처되지 않았다. 즉 §2.2 기준 `manual evidence observed`(스크린샷 관찰)이지 dump 로 확정된
+> literal 이 아니다. 목적지 dump 가 실재하는 것은 QPN_133 하나뿐이다.
+>
+> 추가로 QPN_149(`화면 자동 회전`)·QPN_155(`방해 금지 모드`)·QPN_133(`Wi-Fi`)은 해당 literal 이
+> **진입 전 QS 패널 dump 에도 존재**한다 → literal 단독 verify 는 롱탭 no-op 과 목적지 도달을
+> 구분하지 못하는 **비판별 verifier**다.
+>
+> ledger 원값은 당시 판정으로 보존하고 본 블록을 superseded 주석으로 둔다. driver 는 이탈
+> (`qs_stage none`) + `activity_contains` gate 를 literal 앞에 두고, literal 은 bounded probe 로
+> 옮겨 미확보 시 `LITERAL_PENDING` 을 유지한다(설계문 §4.1).
+
 
 ### 3.4 전원 안전
 
@@ -142,7 +160,8 @@ edit candidate에서 추가 관찰:
 2. split/full anchor는 unconditional key가 아니라 현재 focus 기반 bounded seek로 구현한다.
 3. `--longpress 23`은 candidate로 유지하되 target focus exact gate와 상태 pre/post를 TC별로 둔다.
 4. touch-longtap 5건과 QPN_163은 별도 mutation-risk 승인 전 driver에서 fail-closed registry로 유지한다.
-5. inactive candidate(QPN_158/159/165)와 absent target(QPN_157)을 분리한다.
+5. inactive candidate 는 **QPN_157/158/159/165 4건 동일 축**이다(157 도 candidate 에 실재 —
+   `TARGET_ABSENT` 분리 불필요). 타일 추가는 mutation 이므로 전부 fail-closed registry 유지.
 6. QPN_145는 dynamic Settings 화면용 screenshot/activity capture 전략을 별도 설계한 뒤 재검증한다.
 7. edit/touch-lock처럼 entry mode·settle에 따라 tree가 달라지는 화면은 조건형 wait와 postcondition exact compare를 적용한다.
 
@@ -152,4 +171,5 @@ edit candidate에서 추가 관찰:
 - ledger: `DISCOVERY_C03_QPN_LEDGER_2026-08-20.csv`
 - summary: 본 문서
 
-canonical/backfill/driver/commit/push는 수행하지 않았다.
+canonical/backfill/driver/commit/push 는 discovery 시점에는 수행하지 않았다.
+(이후 2026-08-20 Claude 재검증에서 canonical backfill·driver 구현·정정 커밋이 별도 수행됐다.)
