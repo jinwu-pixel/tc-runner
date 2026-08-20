@@ -32,16 +32,16 @@ procedure_steps:
       value: null
     expected:
       - { type: verify_text, target: "핫스팟", value: null }
-      - { type: verify_text, target: "Quick share", value: null }
-      - { type: verify_text, target: "QR코드 스캐너", value: null }
+      - { type: verify_text, target: "Quick Share", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): tile_label 실측 "Quick Share" (대소문자)
+      - { type: verify_text, target: "QR 코드 스캐너", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): tile_label 실측 "QR 코드 스캐너" (띄어쓰기)
       - { type: verify_text, target: "기기 컨트롤", value: null }
       - { type: verify_text, target: "화면 녹화", value: null }
       - { type: verify_text, target: "화면 전송", value: null }
       - { type: verify_text, target: "집중 모드", value: null }
-      - { type: verify_text, target: "취침 모드", value: null }
+      - { type: verify_text, target: "취침 모드", value: null }   # BUG-GAP observed 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): edit 화면 tile_label 전수 25종(active 12 + candidate 13)에 "취침 모드" 부재 — 원문 기대 미충족. 실측 backfill 하지 않고 갭으로 보존
       - { type: verify_text, target: "마이크 사용", value: null }
       - { type: verify_text, target: "알람", value: null }
-      - { type: verify_text, target: "색상보정", value: null }
+      - { type: verify_text, target: "색상 보정", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): tile_label 실측 "색상 보정" (띄어쓰기)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -50,8 +50,8 @@ procedure_steps:
 expected_result_raw: "추가 가능한 퀵 패널 아이콘 핫스팟 / Quick share / QR코드 스캐너 / 기기 컨트롤 / 화면 녹화 / 화면 전송 / 집중 모드 / 취침 모드 / 마이크 사용 / 알람 / 색상보정 메뉴 노출된다."
 expected_texts_candidate:
   - "핫스팟"
-  - "Quick share"
-  - "QR코드 스캐너"
+  - "Quick Share"
+  - "QR 코드 스캐너"
   - "기기 컨트롤"
   - "화면 녹화"
   - "화면 전송"
@@ -59,7 +59,7 @@ expected_texts_candidate:
   - "취침 모드"
   - "마이크 사용"
   - "알람"
-  - "색상보정"
+  - "색상 보정"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 2

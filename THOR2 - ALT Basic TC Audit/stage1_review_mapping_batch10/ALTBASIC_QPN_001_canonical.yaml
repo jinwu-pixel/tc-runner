@@ -31,11 +31,11 @@ procedure_steps:
       target: "기본 퀵 패널 항목"
       value: null
     expected:
-      - { type: verify_text, target: "WIFI", value: null }
+      - { type: verify_text, target: "Wi-Fi", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): tile_label 실측 "Wi-Fi" (원문 "WIFI" 미노출)
       - { type: verify_text, target: "블루투스", value: null }
       - { type: verify_text, target: "모바일 데이터", value: null }
-      - { type: verify_text, target: "소리모드", value: null }
-      - { type: verify_text, target: "비행기모드", value: null }
+      - { type: verify_text, target: "소리 모드", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): tile_label 실측 "소리 모드" (띄어쓰기)
+      - { type: verify_text, target: "비행기 모드", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): tile_label 실측 "비행기 모드" (띄어쓰기)
       - { type: verify_text, target: "손전등", value: null }
       - { type: verify_text, target: "위치", value: null }
       - { type: verify_text, target: "화면 터치 잠금", value: null }
@@ -45,7 +45,7 @@ procedure_steps:
       - { type: verify_text, target: "방해 금지", value: null }
       - { type: verify_text, target: "수정", value: null }
       - { type: verify_text, target: "설정", value: null }
-      - { type: verify_text, target: "종료", value: null }
+      - { type: verify_text, target: "전원", value: null }   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): 동일 슬롯 라벨 상이 — 원문 "종료" 미노출, 실측 "전원"(pm_lite)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -53,12 +53,12 @@ procedure_steps:
     source_trace: { raw_segment: "기본 퀵 패널 항목 확인한다", source_phase: procedure, position: 2, total_segments: 2 }
 expected_result_raw: "밝기 조절바 (Default)1페이지 : WIFI / 블루투스 / 모바일 데이터 / 소리모드 / 비행기모드 / 손전등 (Default)2페이지 : 위치 / 화면 터치 잠금 / 자동 회전 / 절전 모드 / 데이터 절약 / 방해 금지 / 수정 / 설정 / 종료 아이콘 노출된다."
 expected_texts_candidate:
-  - "밝기 조절바"
-  - "WIFI"
+  - "밝기"   # backfill 2026-08-20 C03 discovery 실측(F0 codex_run_20260820T141522KST): 실측 컨트롤 라벨 "밝기" (원문 "밝기 조절바" 미노출)
+  - "Wi-Fi"
   - "블루투스"
   - "모바일 데이터"
-  - "소리모드"
-  - "비행기모드"
+  - "소리 모드"
+  - "비행기 모드"
   - "손전등"
   - "위치"
   - "화면 터치 잠금"
@@ -68,7 +68,7 @@ expected_texts_candidate:
   - "방해 금지"
   - "수정"
   - "설정"
-  - "종료"
+  - "전원"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 2
