@@ -19,7 +19,7 @@ procedure_steps:
       target: "Navi 키(OK) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "소리& 진동", value: null }
+      - { type: verify_text, target: "미디어 볼륨", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S): 목적지 페이지 title 부재 → 실측 볼륨 컨트롤 최상단 "미디어 볼륨"으로 확정 ("소리& 진동" 미노출)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -27,7 +27,7 @@ procedure_steps:
     source_trace: { raw_segment: "Navi 키(OK) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "진입하자마자 초점 포인트는 소리 & 진동으로 설정되어 있기 때문에 버튼을 누르면 소리& 진동 관련 설정 페이지로 이동한다."
 expected_texts_candidate:
-  - "소리& 진동"
+  - "미디어 볼륨"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

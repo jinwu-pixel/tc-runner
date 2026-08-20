@@ -19,7 +19,7 @@ procedure_steps:
       target: "Navi 키(OK) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "디스플레이", value: null }
+      - { type: verify_text, target: "밝기", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S): 목적지 페이지 title "디스플레이" 부재 → 실측 컨트롤 최상단 "밝기"로 확정 ("잠금 디스플레이" substring 위양성 회피)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -27,7 +27,7 @@ procedure_steps:
     source_trace: { raw_segment: "1. Navi 키(OK) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "1. 디스플레이 페이지로 이동한다."
 expected_texts_candidate:
-  - "디스플레이"
+  - "밝기"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

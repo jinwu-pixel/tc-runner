@@ -18,7 +18,7 @@ procedure_steps:
       target: "연락처 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "연락처가 없습니다", value: null }
+      - { type: verify_text, target: "연락처가\n없습니다.", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S kc207): "연락처가 없습니다"→"연락처가\n없습니다." (개행+마침표)
       - { type: verify_text, target: "새 연락처 만들기", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
@@ -27,7 +27,7 @@ procedure_steps:
     source_trace: { raw_segment: "연락처 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "연락처 화면으로 이동한다. 연락처에 저장된 번호가 없을때 '연락처가 없습니다'가 노출되며 하단에 '새 연락처 만들기'가 파란색 텍스트로 활성화되어 있다."
 expected_texts_candidate:
-  - "연락처가 없습니다"
+  - "연락처가\n없습니다."
   - "새 연락처 만들기"
 automation_summary:
   tc_class: SEMI_AUTO

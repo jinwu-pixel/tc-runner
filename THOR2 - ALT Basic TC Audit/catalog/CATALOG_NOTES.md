@@ -6,8 +6,8 @@
 
 | 컬럼 | 의미 |
 |---|---|
-| id | LIT(literal) / PAT(검증 패턴) / STR(구조 함정) / FIT(단말 기능 부재) + 일련번호 |
-| kind | literal / verify_pattern / structure / device_fit |
+| id | LIT(literal) / PAT(검증 패턴) / STR(구조 함정) / FIT(단말 기능 부재) / KEY(하드키 keycode) + 일련번호 |
+| kind | literal / verify_pattern / structure / device_fit / keycode |
 | fact | 단말 관찰 사실 (발명 0 — 출처 = RESULT_RECOVERY 회수 문서) |
 | automation_usage | STAGE2/verifier/runner 적용 지점 |
 | evidence_tc / evidence_ref | 근거 TC·회수 문서 (`—` = 문서 총괄 기재, tc 미특정) |
@@ -49,3 +49,5 @@
 | 3 | "화면 도달 판정 = parent-marker 소멸 게이트" 표준화 | PAT-001 | R3 |
 | 4 | "토글 상태 검증 = dump checked 속성 (무접촉)" 표준화 | PAT-003 | R4 |
 | 5 | status bar 텍스트류 = screenshot axis 명시 (dump 비포함) | STR-001, LIT-016 | R5 |
+- 2026-08-19 C02: keycode 5 (KEY-001~005) — 물리 하드키 3-way 판별(getevent 압인 + keylayout + 주입). build_id `RY07260601S`
+- 2026-08-19 C02 (2차): keycode 5 (KEY-006~010, SOS=134 는 소거법 추론·미압인) + structure 2 (STR-010 퀵패널 진입 미확정 / STR-011 QS 취소키 시작상태 의존)

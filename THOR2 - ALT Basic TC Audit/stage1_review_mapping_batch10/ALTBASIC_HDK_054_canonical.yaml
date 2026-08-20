@@ -33,7 +33,7 @@ procedure_steps:
       target: "Navi 키( ↓) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "재시작", value: null }
+      - { type: verify_text, target: "다시 시작", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S 전원메뉴): "재시작"→"다시 시작"
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -46,7 +46,7 @@ procedure_steps:
       target: "Navi 키( ↑) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "응급전화", value: null }
+      - { type: verify_text, target: "긴급 전화", value: null }   # backfill 2026-08-19: "응급전화"→"긴급 전화"
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -54,8 +54,8 @@ procedure_steps:
     source_trace: { raw_segment: "Navi 키( ↑) 버튼을 누른다.", source_phase: procedure, position: 3, total_segments: 3 }
 expected_result_raw: "기본값은 응급전화에서 초점이 활성화된다. 재시작 버튼으로 초점 포인트가 활성화된다. 응급전화 버튼으로 초점 포인트가 활성화된다."
 expected_texts_candidate:
-  - "응급전화"
-  - "재시작"
+  - "긴급 전화"
+  - "다시 시작"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 3

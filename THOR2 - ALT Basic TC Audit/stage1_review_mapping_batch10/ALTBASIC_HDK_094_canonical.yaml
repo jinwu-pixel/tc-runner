@@ -24,7 +24,7 @@ procedure_steps:
       - { type: verify_text, target: "Wifi", value: null }
       - { type: verify_text, target: "디스플레이", value: null }
       - { type: verify_text, target: "배경화면 및 스타일", value: null }
-      - { type: verify_text, target: "안심기능", value: null }
+      - { type: verify_text, target: "안심 기능", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S Settings root): "안심기능"→"안심 기능" (공백). "텍스트 크기"/"Wifi"는 root 부재 실측 = 미치환(divergence 재판정 대기)
       - { type: verify_text, target: "안전 및 긴급 상황", value: null }
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
@@ -38,7 +38,7 @@ expected_texts_candidate:
   - "Wifi"
   - "디스플레이"
   - "배경화면 및 스타일"
-  - "안심기능"
+  - "안심 기능"
   - "안전 및 긴급 상황"
 automation_summary:
   tc_class: SEMI_AUTO

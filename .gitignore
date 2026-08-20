@@ -60,3 +60,6 @@ doc/**/probe_samples*.csv
 # C. redaction local-only artifacts (defense-in-depth; path policy + redaction_gate already block commit) — 2026-06-08
 **/_redaction_keymap.json
 THOR2_K - Settings/catalog/**/raw/
+# 일반화 (2026-08-19): 단말 raw dump(uiautomator xml / screencap png)는 트랙 무관 catalog/**/raw/ 아래 두고 미추적.
+#   근거 = 메시지/연락처 화면 dump 에 PII(문자 본문·발신번호) 포함 가능. 큐레이션 자산(카탈로그 CSV·NOTES·manifest)은 raw/ 밖에 두어 추적 유지.
+**/catalog/**/raw/

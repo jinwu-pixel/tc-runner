@@ -19,7 +19,7 @@ procedure_steps:
       target: "Navi 키(OK) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "WIFI 설정", value: null }
+      - { type: verify_text, target: "Wi-Fi", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S): "WIFI 설정"→"Wi-Fi". ★root에 WI-FI 단독 항목 부재 — 실경로 = 네트워크 및 인터넷→Wi-Fi 2-depth (precondition re-scope 재판정 대기)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -27,7 +27,7 @@ procedure_steps:
     source_trace: { raw_segment: "Navi 키(OK) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "WIFI 설정 페이지로 이동한다."
 expected_texts_candidate:
-  - "WIFI 설정"
+  - "Wi-Fi"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

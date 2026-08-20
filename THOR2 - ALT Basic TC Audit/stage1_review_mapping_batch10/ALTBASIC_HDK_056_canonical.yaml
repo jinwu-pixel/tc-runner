@@ -20,7 +20,7 @@ procedure_steps:
       target: "Navi 키( → ) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "설정 버튼", value: null }
+      - { type: verify_text, target: "옵션 더보기", value: null }   # backfill 2026-08-19 device discovery 실측(F0 RY07260601S, 메시지 하드키 kc132): "설정 버튼"→content-desc "옵션 더보기" (text 속성 부재 → desc 기반 verifier)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -28,7 +28,7 @@ procedure_steps:
     source_trace: { raw_segment: "Navi 키( → ) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "더이상 오른쪽으로 이동하지 않으며 여전히 설정 버튼에서 초점 포인트가 활성되어 있다."
 expected_texts_candidate:
-  - "설정 버튼"
+  - "옵션 더보기"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

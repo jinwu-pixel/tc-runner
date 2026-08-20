@@ -19,7 +19,7 @@ procedure_steps:
       target: "Navi 키(OK) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "배경 화면 및 스타일", value: null }
+      - { type: verify_text, target: "배경화면 및 스타일", value: null }   # backfill 2026-08-19 run1 discovery 실측(F0 RY07260601S): "배경 화면 및 스타일"→"배경화면 및 스타일" (공백)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -27,7 +27,7 @@ procedure_steps:
     source_trace: { raw_segment: "Navi 키(OK) 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "배경 화면 및 스타일 페이지로 이동한다."
 expected_texts_candidate:
-  - "배경 화면 및 스타일"
+  - "배경화면 및 스타일"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

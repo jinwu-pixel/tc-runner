@@ -19,7 +19,7 @@ procedure_steps:
       target: "Navi 키(전체) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "+메시지 작성", value: null }
+      - { type: verify_text, target: "메시지 작성", value: null }   # backfill 2026-08-19 device discovery 실측(F0 RY07260601S, 메시지 하드키 kc132): "+메시지 작성"→"메시지 작성"(+ 없음)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -45,7 +45,7 @@ procedure_steps:
       target: "Navi 키( → ) 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "더보기", value: null }
+      - { type: verify_text, target: "옵션 더보기", value: null }   # backfill 2026-08-19 device discovery 실측(F0 RY07260601S, 메시지 하드키 kc132): "더보기"→content-desc "옵션 더보기" (ImageButton, text 속성 부재 → desc 기반 verifier 필요)
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -66,9 +66,9 @@ procedure_steps:
     source_trace: { raw_segment: "Navi 키( ↓ ) 버튼을 누른다.", source_phase: procedure, position: 4, total_segments: 4 }
 expected_result_raw: "+메시지 작성에 포커스가 맞춰진다. 검색 버튼으로 초점 포인트가 활성화된다. 더보기로 초점 포인트가 활성화된다. +메시지 작성에 포커스가 맞춰진다."
 expected_texts_candidate:
-  - "+메시지 작성"
+  - "메시지 작성"
   - "검색"
-  - "더보기"
+  - "옵션 더보기"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 4

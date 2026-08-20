@@ -1,0 +1,21 @@
+﻿direction,cycle,baseline,after_short,after_long,focus_retained,page_after_long,nodes_after_long
+left,1,NONE,rl_home_app|전화,rl_first|1 - 30,YES,p0_speeddial,75
+left,2,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,3,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,4,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,5,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,6,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,7,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,8,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,9,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+left,10,rl_home_app|전화,rl_first|1 - 30,rl_first|1 - 30,YES,p0_speeddial,75
+right,1,rl_home_app|전화,rl_home_app|6,t_all_apps|모든 앱,YES,p1_home,62
+right,2,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,3,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,4,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,5,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,6,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,7,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,8,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,9,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
+right,10,rl_home_app|카메라,t_all_apps|모든 앱,t_switch_mode|모드 전환,YES,p1_home,62
