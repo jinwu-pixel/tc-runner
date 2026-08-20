@@ -51,3 +51,4 @@
 | 5 | status bar 텍스트류 = screenshot axis 명시 (dump 비포함) | STR-001, LIT-016 | R5 |
 - 2026-08-19 C02: keycode 5 (KEY-001~005) — 물리 하드키 3-way 판별(getevent 압인 + keylayout + 주입). build_id `RY07260601S`
 - 2026-08-19 C02 (2차): keycode 5 (KEY-006~010, SOS=134 는 소거법 추론·미압인) + structure 2 (STR-010 퀵패널 진입 미확정 / STR-011 QS 취소키 시작상태 의존)
+- 2026-08-20 QPN 진입 게이트 해소: keycode 1 (KEY-011 adb --longpress ≠ 물리 홀드) + structure 3 (STR-012 2단 셰이드 / STR-013 진입 3경로 등가 / STR-014 focus 는 DPAD 1회 후). **STR-010 supersede**

@@ -19,8 +19,8 @@ procedure_steps:
       target: "뒤로가기/지움/취소 버튼"
       value: null
     expected:
-      - { type: verify_text, target: "WIFI 버튼", value: null }
-      - { type: verify_text, target: "알림 영역", value: null }
+      - { type: verify_text, target: "알림 영역", value: null }   # backfill 2026-08-20 실측: 알림 영역 = expandableNotificationRow/'관리' 노드 존재(qs_stage=split)로 판정 — 화면 literal 아님
+      - { type: verify_text, target: "Wi-Fi", value: null }   # backfill 2026-08-20 실측: "WIFI 버튼"→Wi-Fi 타일 content-desc `Wi-Fi,<SSID>` prefix. ★진입 직후 아닌 DPAD 1회 후 focus 획득(STR-014), SSID 포함이라 exact 금지
     execution_candidate: { mode: UI_AUTO, role: ACTION }
     ambiguity: true
     ambiguity_reason: "entry/verify strings are source paraphrase or 단말 literal 미확정"
@@ -28,8 +28,8 @@ procedure_steps:
     source_trace: { raw_segment: "뒤로가기 / 지움| 취소 버튼을 누른다.", source_phase: procedure, position: 1, total_segments: 1 }
 expected_result_raw: "전체화면에서 다시 분할화면으로 변경되며 하단에는 알림 영역이 생성된다. 퀵패널의 WIFI 버튼에 초점 포인트가 활성화된다."
 expected_texts_candidate:
-  - "WIFI 버튼"
   - "알림 영역"
+  - "Wi-Fi"
 automation_summary:
   tc_class: SEMI_AUTO
   total_steps: 1

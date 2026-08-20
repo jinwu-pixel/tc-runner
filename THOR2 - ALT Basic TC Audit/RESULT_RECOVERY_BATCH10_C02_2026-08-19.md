@@ -4,7 +4,8 @@
 
 ## 결론
 
-- **TWO_RUN_GREEN 12 / drivable 13** → **RUNNABLE_NOW 후보 +12** (C02 chunk).
+- **TWO_RUN_GREEN 14 / drivable 15** → **RUNNABLE_NOW 후보 +14** (C02 chunk).
+  · 초판 12/13 → 후속 측정 6~7 로 HDK_050·056 추가 승격(§7).
 - **HDK_037 = 미승격** (`VERIFIER_FAILED` run2) — driver 결함 아님, **focus 유지 비결정성 `OBSERVED`** (§아래).
 - registry 16 = 무접촉 사유 기록만 (device 미접촉 정상).
 - mutation 0: pkg 219==219 diff 0 · io.appium 잔존 0 · 세션 remote temp 0 · MediaStore 신규 0.
@@ -188,6 +189,100 @@ discovery 는 ⓐ precondition 을 `expand-notifications`(=분할화면, 원문�
 
 **영향 범위가 크다** — batch10 잔여 청크 중 **C03/C04 = Quick panel 44건**이 같은 진입에 의존한다.
 즉 이 경로 확정은 C02 잔여 2건이 아니라 **44건의 선행 게이트**다. 다음 device 창 최우선 후보.
+
+## 후속 측정 6 — ★퀵패널 진입 게이트 **해소** (2026-08-20, 사용자 협업)
+
+STR-010(진입 경로 미확정)이 **QPN 44건 선행 게이트**였다. 사용자 제보("상단 스와이프 또는 홈 버튼
+길게로 열 수 있다")로 방향이 잡혀 전 경로를 실측 매핑했다. 카탈로그 = `KEY-011`·`STR-012~014`
+(**STR-010 supersede**). evidence = `catalog/f0_c02_hdk_nav_2026-08-19/raw/qp_entry_2026-08-20/`.
+
+### 6.1 ★adb `--longpress` 는 물리 홀드와 등가가 아니다 (KEY-011)
+
+물리 '홈' 길게는 퀵패널을 **연다**(사용자 실기 확인 + 열린 상태 dump 채록). 그러나
+`input keyevent --longpress 3` 은 열지 못한다(simplemode 잔류). `sendevent` 로 진짜 홀드를
+합성하려 했으나 **Permission denied**(user 빌드).
+
+→ **HDK_019 의 `LONGPRESS_UNSUPPORTED` / spec-device gap 판정은 무효** — 단말 거동이 아니라
+**주입 방식의 한계**였다. HDK_050 에 이어 **두 번째로 뒤집힌 divergence**이며, 원인 계열이 다르다
+(050=시작 상태 오설정 / 019=주입 한계). long-press 계열 TC 전반에 적용되는 함정으로 등재.
+
+### 6.2 퀵패널 = 2단 셰이드 (STR-012)
+
+| 단계 | 판별자 | 규모 |
+|---|---|---|
+| 1단 = 분할화면 | `expandableNotificationRow` 존재, `brightness_slider` 부재 | 89~90 node |
+| 2단 = 전체화면 QS | `brightness_slider`·`tile_page` 존재, 알림 행 부재 | 92 node, selected 34 |
+
+### 6.3 진입 경로 3종 등가성 (STR-013)
+
+| 대조 | 결과 |
+|---|---|
+| **물리 홈 길게 ≡ 상단 스와이프 1회** | resource-id 집합 차이 = 동적 상태 아이콘 `wifi_out` **1개뿐** |
+| **스와이프 2회 ≡ `cmd statusbar expand-settings`** | resource-id 집합 **완전 동일**(`ID_SET_IDENTICAL`) |
+
+→ **`input swipe` 가 자연 진입의 충실한 자동화 대체 경로**다. QPN 44건 자동화 가능.
+단 **keyevent-only 계약에 QPN 한정 swipe 예외 승인 필요**.
+경계: natural 2단(물리 경로로 전체화면 직접 도달) 채록은 **미실시** — 등가는 1단 실측 + 2단
+ID 일치로부터의 **추론**이다.
+
+### 6.4 focus 는 진입 직후가 아니라 DPAD 1회 후 (STR-014)
+
+3경로 **모두 진입 직후 focused 부재**(selected = `shade_carrier_text`). **DPAD DOWN 1회에
+`Wi-Fi` 타일 focus 획득**(content-desc `Wi-Fi,<SSID>`) · RIGHT=`블루투스` · LEFT=`Wi-Fi` ·
+UP=`alternate_expand_target`.
+
+→ HDK_050 의 "WIFI 버튼 초점" 은 **진입 직후 상태가 아니라 DPAD 1회 후** 판정해야 한다.
+타일은 text 속성이 없어 **content-desc 기반 verifier 필수**(오늘 추가한 `desc_focus` 재사용).
+
+### 6.5 HDK_050 전 구간 자동화 매핑 완료 (승인 시 즉시 구현 가능)
+
+`swipe×2`(전체화면 precondition) → `취소(67)` → 분할+알림영역 확인 → `DPAD DOWN` →
+`desc_focus == "Wi-Fi,<SSID>"`. 남은 것은 **swipe 예외 승인**뿐.
+
+## 후속 측정 7 — QPN swipe 예외 적용 + HDK_050/056 승격 (2026-08-20)
+
+§6 진입 매핑을 driver 로 구현하고 fresh 2-run 실행. **오늘 누적 TWO_RUN_GREEN 12 → 14.**
+
+| tc_id | disposition | run1 | run2 | 판정 |
+|---|---|---|---|---|
+| HDK_050 | `HDK_QP_NAV` (신규) | PASS | PASS | **TWO_RUN_GREEN** |
+| HDK_056 | `HDK_MSG_FOCUS` | PASS | PASS | **TWO_RUN_GREEN** |
+
+run1/run2 dump 독립 확인: 04 단계 `brightness_slider` 존재(전체화면) · 06 단계
+`expandableNotificationRow` 존재(분할+알림) · 08 단계 focused desc `Wi-Fi,<SSID>` — 양 run 일치.
+
+### 7.1 keyevent-only 계약의 QPN 한정 예외 (코드 결박)
+
+`_assert_swipe_scope()` — swipe step 은 `HDK_QP_NAV` **에서만** 허용, 그 외 disposition 에서
+생성 시 pure 단계 예외. 근거는 §6.3 등가 실측이며, 예외 범위를 문서가 아니라 **코드가 강제**한다.
+`QP_SWIPE_OPEN`/`QP_SWIPE_EXPAND` 좌표는 480×800 뷰포트 실측값.
+
+### 7.2 신규 verifier 2종
+
+- **`qs_stage`** (full/split/none) — STR-012 판별자(`brightness_slider` vs `expandableNotificationRow`)
+  를 그대로 계약화. HDK_050 은 `split → full → split` 3점 검증.
+- **`desc_focus_prefix`** — Wi-Fi 타일 desc 가 **접속 SSID 를 포함**(`Wi-Fi,<SSID>`)해 exact 매칭은
+  환경 의존이다. prefix 판정으로 환경 독립성 확보. (SSID 는 tracked 문서 전량 마스킹, raw dump 는
+  `evidence/*`·`catalog/**/raw/` gitignore 로 격리 — 유출 0 확인)
+
+### 7.3 HDK_019 = 신규 버킷 `C02_INPUT_UNAUTOMATABLE`
+
+물리 홈 길게가 **단말에서는 작동**하나 adb 로 재현 불가(KEY-011). 본 TC 의 검증 대상이 '홈 길게'
+라는 **입력 자체**이므로 swipe 대체는 의미 훼손이다 → spec-gap 도 driver 대상도 아닌 **수동 검증**
+으로 분류. `C02_DIVERGENCE`(단말 거동 불일치)와 **원인이 다르므로 버킷을 분리**한다.
+
+### 7.4 최종 분류 (29)
+
+drivable **15** (LAUNCH 2 · HOME_FOCUS 4 · POWER 1 · SETTINGS_NAV 6 · MSG_FOCUS 1 · QP_NAV 1)
+/ registry **14** (RESCOPE 6 · FIXTURE 3 · DIVERGENCE 3 · KEYCODE 1 · INPUT_UNAUTOMATABLE 1).
+
+device 검증 상태: **TWO_RUN_GREEN 14** · HDK_037 미승격(§후속 1) · 나머지 registry 무접촉.
+
+### 7.5 종료 게이트 (재연결 후 정식 확인)
+
+`AT-M140`/`RY07260601S` · pkg **219** · io.appium **0** · 세션 remote temp **0** ·
+MediaStore **17**(신규 0) · HOME 복귀. host 회귀 **137 passed**.
+NOTE: 056 run 직후 USB 일시 단절이 있었고 **재연결 후** 위 게이트를 측정했다.
 
 ## 미실행 / 다음
 
