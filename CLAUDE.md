@@ -18,7 +18,7 @@ tc-runner는 단순 자동화 실행기가 아닌 **누적 학습 루프**다.
 
 ### 1.3 본 repo의 정체성
 - tc-runner = 학습 루프 · 탐색 · 핀포인트 · 사용자와의 파트너 작업
-- 정형 spec compliance / CI/CD / Jira 정형 자동화 = `thor2j-tc-appium` 분기 (§2.5)
+- write 위치는 고정 역할표가 아닌 **자산별 권위 원장**으로 결정 (§2.5)
 
 ### 1.4 개선 훅
 본 vision 자체의 작동·해석 변경 발견 시 §8에 기록.
@@ -47,6 +47,8 @@ tc-runner는 단순 자동화 실행기가 아닌 **누적 학습 루프**다.
 - 비파괴 단말 관찰 (`dumpsys`, `uiautomator dump`, `logcat -d`)
 
 "별도 티켓" 합의된 구조 수정은 **범위 결정(A/B) 먼저 확정**. 임의 통합 금지.
+
+**exact-bytes 실행 캡슐 (RUNBOOK 템플릿 v2)**: 사용자가 승인한 exact-bytes 캡슐 실행도 본 승인 게이트 틀 안에서만 유효하다. `scripts/evidence_verifier.py` **exit 0** 인 Tier 0 작업은 검토를 **attestation + spot-check 로 축소** 가능. **multi-task 자동연속은 미승격** — 실 Tier-0 다중-task 증거 축적 전까지 개별 승인 유지 (§8.2 2026-07-23). Tier 1/2 · device · commit / push 는 항상 별도 명시 승인.
 
 ### 2.2 보고 어휘
 
@@ -98,16 +100,18 @@ FAIL과 NOTE 분리 — 외부 정책·환경 요인은 NOTE 처리하고 본 BU
 - 누적 데이터는 다음 TC 작성·delta 판단의 입력으로 재사용
 - 데이터가 남지 않는 자동화는 도입하지 않는다 (단기 속도 개선이 정확성·재현성을 훼손하면 채택 X)
 - planned 항목을 implemented 인 척 보고하지 않는다 (planned는 그대로 표기)
+- **파생로그 provenance 예외**: 원본 캡처(qmdl / dump / 스크린샷)는 보존. 재생성 가능한 대용량 파생로그는 source hash · 도구/필터 버전 · digest · 재생성 경로를 남길 때만 **digest-only 보존** 허용 (§8.2 2026-06-01)
 - **구체 경로 enumeration은 §5.6 참조** (본 섹션은 원칙만)
 
-### 2.5 Branch Policy
+### 2.5 Branch Policy — qa-suite 권위 원장 routing
 
-| repo | 역할 |
-|---|---|
-| **tc-runner** (본 repo) | 학습 루프 · 탐색 · 핀포인트 검증 · 사용자 파트너 작업 |
-| **thor2j-tc-appium** (`C:\Users\momen\Projects\thor2j-tc-appium`) | 사내 AI 자동화 pilot baseline · 정형 spec compliance · CI/CD · Jira 정형 자동화 |
+통합 목적지 = 형제 repo `C:\Users\momen\Projects\qa-suite` (설계 SoT: qa-suite `ARCHITECTURE.md` · `MIGRATION.md`). 이주 프로그램은 개시됐으나 **"통합 완료" 일반화 금지** — canonical `MIGRATION.md` §4.4 원장 기준 cutover `[O]` = 거버넌스 문서 4행뿐이고, 코드·데이터 `[V]` 자산의 **writer 는 여전히 원본 repo** 다.
 
-새 요청이 정형 자동화·CI/CD 영역이면 분기로 안내. 학습 루프·탐색이면 본 repo. **cross-commit 금지**.
+- write 위치 결정 = 고정 tc-runner↔thor2j 역할표가 아닌 **자산별 `[O]`/`[V]` 권위 원장** (`qa-suite/MIGRATION.md` §4.4)
+- `[V]` 자산 수정 = 원본 repo 에 write (qa-suite 본 = 검증 스냅샷, 드리프트는 refresh 규칙으로 봉합)
+- `[O]` 자산 수정 = qa-suite 에 write (원본 = deprecated)
+- **cross-commit 금지 유지** — 한 변경을 두 repo 에 동시 커밋하지 않는다
+- tc-runner 내 staging `qa-suite/` 디렉토리 = **deprecated 사본** (write 금지)
 
 ### 2.6 개선 훅
 본 섹션 5개 소항목은 운영 frame source. 작동 부정합·예외 누적 발견 시 §8 기록 → batch 개정.
@@ -211,6 +215,12 @@ venv/Scripts/python.exe gen_excel.py
 
 **핵심 axes vs 보강 axes 분리**:
 multi-phase 검증 TC는 **핵심 axes 충족 시 `runtime PASS`**, 보강 axes 미수집은 명시하되 PASS blocker 아님. 보조 분석 자료(예: QXDM hdf)도 PASS 근거 아님 / 후속 분석용 보존. 적용 패턴 상세: `feedback_scope_note_and_pass_blockers.md`.
+
+**모뎀 산출물 판정 경계**:
+모뎀 산출물의 권위는 판정 축에 따라 다르다 — IMS 등록/코덱처럼 모뎀이 ground truth 인 축이 있는 반면(§4.6 IMS SIP), **정상경로 PASS 판정을 모뎀 산출물 단독으로 내리지 않는다** (모뎀 분석 = failure discriminator, 정상경로 판정 병행). 단말 특이성 여부는 **REF 단말 negative-control** 로 가른다. (§8.2 2026-06-01)
+
+**레이어 분리·대조군 판정 (a11y/TalkBack 류)**:
+관찰 도구가 피관찰 상태를 교란하는 영역(TalkBack×하드키 등)은 입력 포커스≠a11y 포커스 분리, 키 시퀀스 중 dump 금지, tap/swipe 의 터치탐색 우회를 전제로 절차를 짜고, 발화·포커스 판정은 **정상 앱/유휴 대조군** 동반 시에만 결론화한다. 상세 SoT = `docs/talkback_dpad_verification.md`. (§8.2 2026-07-02)
 
 ### 4.3 정량 측정
 - 발생률 분자/분모 명시 (`20/21 = 95%` 식)
@@ -317,6 +327,7 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 - bat 블록 내 `()` parenthesis는 escape 필요
 - bat 파일은 CRLF 유지 (LF 저장 시 일부 환경 실패)
 - bash CWD 잔존 — `cd` 후 상대경로 mkdir/Write 금지, **절대경로 우선**
+- TalkBack 검증 중 adb 함정 3종: `uiautomator dump` = TalkBack 일시 억제(키 시퀀스 중 dump 금지) / `input tap·swipe` = 터치탐색 우회 즉시클릭 / MSYS `/sdcard` 인자 변환 + PowerShell 5.1 바이너리 리다이렉트 UTF-16 오염 — 상세 `docs/talkback_dpad_verification.md`
 
 ### 5.6 누적 경로 (status)
 
@@ -489,15 +500,15 @@ commit과 push는 각각 사용자 명시 승인 범위 안에서만 수행하�
 | 2026-05-21 | 분량 가드 | 1차 작성 결과 447 lines · spec 가드 250~350 lines 대비 초과 | §8.4 archive 정책 가동 검토 | applied |
 | 2026-05-22 | §2.3/§7.2 drift | push-audit가 catalog(append-only 누적상태)를 generated류 재생성물로 오분류 → staging FAIL ↔ §2.4/§5.6 핵심가치 충돌. catalog 재분류(audit FORBIDDEN 제거 + PR6C drift baseline test 동기) + Music/gallery catalog track (commit `0b817db`) | tools/git_safe_push_audit.py · test baseline (CLAUDE.md 본문 무변경 — §5.6 이미 정합) | applied |
 | 2026-05-28 | diagnostic verification | BTS18697 2차 검증에서 DebugScreen/dumpsys/ip 3-way 정합, scope NOTE, RESULT 시리즈 운영을 일반 패턴으로 승격 | §2.2/§4/§6 + memory | applied |
-| 2026-06-01 | diagnostic / QXDM | BUG-25796 추가검증: QXDM offline diag workflow(reference memory 신규) + REF negative-control(단말특이성) + 모뎀분석은 실패 discriminator + 정상경로 병행 판정 + 대용량 파생로그 digest-only | §4/§2.4 후보 (2차 사례 시 본문 승격) | proposed |
-| 2026-06-12 | §2.5 통합 | tc-runner×thor2j-tc-appium 통합 qa-suite 확정: staging(`qa-suite/` — Track A/B-1 fail-closed 러너 selftest 111) + 설계 v2(형제 repo `C:\Users\momen\Projects\qa-suite`, learning/synthesis/contracts/campaigns 책임 구조, provenance manifest, bugs 유일입력 bug-repro 한정). 이주 개시 시 §2.5 cross-commit 분기 정책 supersede 필요 | §2.5 (supersede 예정) · qa-suite/ARCHITECTURE.md v2 | proposed |
+| 2026-06-01 | diagnostic evidence 경계 | BUG-25796 QXDM offline 추가검증 뒤 ODIN2 IMS/QCAT 사례까지 재확인: 모뎀 산출물은 failure discriminator·후속 분석 자료이고 정상경로 판정과 분리해야 하며, REF negative-control 로 단말 특이성을 가른다. 원본 캡처는 보존하되 재생성 가능한 대용량 파생로그는 source hash·도구/필터·digest·재생성 경로를 남길 때만 digest-only 허용 | §2.4(파생로그 provenance 예외)·§4.2(모뎀 산출물 단독 정상경로 PASS 금지 + REF negative-control 병행) — 본문 반영 2026-08-27 | applied |
+| 2026-06-12 | qa-suite 권위 전환 | 형제 repo `C:\Users\momen\Projects\qa-suite` 이주 프로그램 개시·거버넌스 문서 4건 cutover 완료. 다만 canonical `MIGRATION.md` §4.4 기준 코드·데이터는 아직 `[V]` 이며 원본 repo 가 writer 이므로 “통합 완료” 일반화 금지. 고정 tc-runner↔thor2j 역할표 대신 자산별 `[O]`/`[V]` 권위 원장으로 write 위치를 결정하고 cross-commit 은 계속 금지 | §1.3·§2.5를 qa-suite 권위 원장 routing 으로 교체; staging `qa-suite/` 는 deprecated 사본으로 명시 — 본문 반영 2026-08-27 | applied |
 | 2026-06-16 | workflow agent 안전 | ALT batch11 합성 중 워크플로 agent가 구조화 반환 대신 yaml 4개를 batch10 dir 직접 기록(file side-effect) + 슬라이스 over-read(53/29 반환). git 추적 검증으로 phantom(untracked·`fc56cf8` 미포함) 확정·삭제·정정. → 합성 agent read-only/return-only 제약 + 실행 후 untracked 오염 스캔 필요 | §5.7·§5.4 (workflow 운영규칙+오염 스캔 도구) | applied |
 | 2026-06-16 | tc_id 무결성 | tc_id `ALTBASIC_<PREFIX>_<excel_row3>` 비단사 + Excel 4 sheet(Safety/Launcher/Call/Camera) 중복 TC ID 83건 = **잠재(latent) 구조 위험**(실발현 0). batch11 실충돌 4건(CALC_027/028·SST_010/011)의 실제 원인 = 워크플로 phantom side-effect(위 row — batch11분을 batch10 dir 오기록)이지 Excel dup 아님(근거 3중: 충돌 row_key가 KEEP_CONFIRMED 271에 부재·충돌 sheet가 dup 4 sheet 미포함·phantom 삭제 후 gate 충돌 0). gate 포착·최종 실충돌 0/29. 도구화 `scratch/altbasic_tcid_collision_check.py`(cross-batch + Excel dup 감사, prep 선행 게이트). 정정 근거: FAILURE_TAXONOMY_2026-07-03 C7 FM1 | §5.3 (collision_check 도구 등록)·§8.2 인과정정(31a1d64) | applied |
 | 2026-06-16 | diagnostic / IMS 검증 | ODIN2 Engineer IMS 복합 기능 TC 검증: AP logcat reg-state·callProfile(`audioCodecAttribute=null`)은 IMS 등록/코덱 **비권위** — 모뎀 `.qmdl` SIP(log `0x156E`) REGISTER↔resp **Call-ID 매칭**이 ground truth. TC1 임의값(bare Domain `sktelecom2`→req-URI `sip:sktelecom2`)→`404`×3 등록실패 관찰(누락 신호 0). + "복합 시험" = 필드격리 아닌 기능 시나리오(임의값 동시→실호/재등록→신호 반영) | §4.6 대표 사례 + memory([[reference_ims_sip_qcat_verification]]·[[feedback_combined_test_functional_scenario]]) | applied |
 | 2026-06-17 | 단말 런타임 효율·정확도 | Engineer IMS 8케이스 실기가 과다 소요 — 항목별 앱 cold 재기동·불필요 reboot(둘이 최대급 손실; reboot는 호 파라미터 환원까지)·조기 qmdl pull·단말정체 미확인(self-call·USIM 교체)·Way1·2≠Way3 매번 재판별. 도구화(런너 caseset/preflight+wrong-device 가드/capture 상태-게이트) + 카탈로그 RUNTIME_PLAYBOOK Override Applicability Matrix + feedback 메모리 | §5.3 (`eng_mode_runner.py`+profile, host-TDD/dry-run) + §4.2(applicability 재사용) + `RUNTIME_PLAYBOOK.md`; 범용 경로 device smoke pending | applied |
 | 2026-06-17 | QCAT 파싱 단축 도구 | 대용량 qmdl(155M/131만p) QCAT 파싱 병목 = OpenLog 전수 인덱싱(~148s, 86%가 불요 0x1FEB debug). 단축법 정립·실측: filter-first(SaveAsText 전 SetAll(false)+Set+Commit, 564MB→KB) + ISF 캐시(SaveAsISF 1회→재오픈 0.2s, ~740×, 무손실) + 단일 포그라운드 세션(0x80080005 진짜 원인=QCAT 첫기동 DirectPlay 모달 launch 블록, 백그라운드 금지). `scripts/qcat_fast_extract.ps1` 승격 + BTS15068·40M 양 캡처 검증. 0xB193=RSRP/RSRQ per-antenna ground truth | §5.3 (qcat_fast_extract.ps1·ims_sip_digest.py)·docs/qcat_parsing.md·memory([[reference_qcat_fast_extraction]]·[[project_bts15068_antbar]]) | applied |
-| 2026-07-02 | TalkBack×하드키 검증 방법론 | THOR2_J×LINE 이슈 2건 규명(SPEC_GAP)에서 앱 무관 방법론 정립: 포커스 2축(입력≠a11y, non-speaking 컨테이너 무피드백 구간)·FocusFinder shadowing(전폭 컨테이너가 자식 가림·ViewPager 수평키 소비)·adb 함정 3종(uiautomator dump=TalkBack 일시 억제→키 시퀀스 중 dump 금지 / input tap·swipe=터치탐색 우회 즉시클릭→탐색 발화는 keyevent로 대체 / MSYS·PS5.1 깨짐)·발화 정량(TTS Synthesis+오디오포커스 세션+대조군 2종)·레이어 분리 절차·단말측 3rd-party a11y 수정 경로 부재(트리=앱 소유·RRO 무력·TalkBack=Google/Play·bare D-PAD 키맵 없음, 리서치 확정). 정적 스크리닝 S1~S8 도구화는 승인 대기 | docs/talkback_dpad_verification.md(신설 완료)·memory([[reference_talkback_hardkey_verification]]·[[project_thor2j_line_talkback]]) 반영, §4/§5 본문 등록은 갱신 대기 | proposed |
-| 2026-07-23 | 이중 게이트 병목 축소 | Codex 검토+사용자 승인 이중 게이트를 blast-radius별 재배치: RUNBOOK 템플릿 v2(Tier 0/1/2 + exact-bytes 실행 캡슐 + evidence bundle) + `scripts/evidence_verifier.py`(baseline 결박·fail-closed·결정론) 신설. T0-CHAR 파일럿 1회로 (A)검토 절반이 attestation+spot-check로 collapse 실증. 파일럿 도중 백슬래시 param 정규화 실버그를 exit 3(fail-closed)로 flush → 도구 신뢰 실증. **§3.x 자동연속 정책 본문 lock은 보류**(파일럿 1회=mechanism만 증명, 다중-task 자동연속 미실행 — 실 Tier-0 작업 축적 후 승격) | §5.3(evidence_verifier 등록)·RUNBOOK_DIRECTIVE_TEMPLATE.md·§3.x/§8.4(정책 보류) | proposed |
+| 2026-07-02 | TalkBack×하드키 검증 방법론 | THOR2_J×LINE 이슈 2건의 SPEC_GAP 규명으로 앱 무관 절차 확립: 입력/a11y 포커스 분리, FocusFinder shadowing·ViewPager 키 소비, 키 시퀀스 중 dump 금지, tap/swipe 의 터치탐색 우회, TTS·오디오포커스 타임라인과 정상 앱/유휴 대조군. 상세 플레이북과 S1~S8 체크리스트는 문서화됐으나 자동 스크리닝 도구는 미구현 | §4.2에 레이어 분리·대조군 판정 원칙, §5.5에 adb/PowerShell 오염 함정 등록; `docs/talkback_dpad_verification.md`를 상세 SoT로 연결. S1~S8 도구화는 별도 승인 유지 — 본문 반영 2026-08-27 | applied |
+| 2026-07-23 | exact-bytes 실행 캡슐 | RUNBOOK v2(Tier 0/1/2 + exact-bytes capsule)와 `scripts/evidence_verifier.py`가 T0-CHAR 단일-task 파일럿에서 baseline drift·백슬래시 정규화 버그를 fail-closed로 포착해 mechanism은 증명했다. 다만 multi-task 자동연속은 미실행이므로 일반 정책 승격 근거는 아직 없다. Tier 1/2와 device·commit·push는 계속 별도 명시 승인 | §2.1에 “사용자가 승인한 exact-bytes 캡슐도 명시 승인”과 attestation+spot-check 검토 축소만 등록; §3.x 자동연속 lock은 실 multi-task 증거 전까지 보류(§3.5 SMOKE 규칙과 별개). §5.3 도구 설명은 현행 유지 — 본문 반영 2026-08-27 | applied |
 | 2026-07-25 | canonical execution contract cutover | G0~G2-device 및 Cutover 승인 충족: 2026-07-24 THOR2_J Settings legacy↔canonical 4-run 48/48·action/step/passed mismatch 0·canonical shell message rc=0·serial pin 일치. `cli run` argparse default만 canonical로 승격(`78b3ac3`); explicit `--contract-mode legacy`와 library default는 유지. legacy 제거·corpus rewrite·qa-suite cutover·신규 device campaign은 미승인 | `src/cli.py`·`THOR2_J - Settings/RESULT_2026-07-24.md`·canonical design §8.5/§11 | applied |
 | 2026-08-12 | shell-RC provenance campaign | 공식 P0/P1 campaign이 mapping 12·selector 14·binding 15의 관계를 복원하고, P1 mismatch를 category-wide target-source gap의 측정 baseline으로 남겼다. mismatch 관찰은 campaign 실패가 아니라 후속 remediation 입력이며 evidence bundle을 보존한다. | `HANDOFF_2026-07-28_SHELL_RC_PROVENANCE_DIRECTIVE.md`·`reports/canonical_shell_rc_provenance/RB-20260728-shellrc-p0p1/PROVENANCE_EVIDENCE.json` | applied |
 | 2026-08-12 | P2 provenance manifest | frozen campaign evidence를 tracked manifest로 승격하고 결정론 seed와 G1~G5 게이트를 도입했다. production loader 의미론·workbook pin·curated projection을 fail-closed로 결박하며, provenance YAML은 canonical TC inventory 수집에서 제외한다. 최종 범위는 신규 4 + pre-edit amendment 승인 tracked 3 = 7경로, 전체 회귀 1545 passed. | §5.3·`provenance/ss_call_shell_rc_manifest.yaml`·P2 design §8.1 | applied |
