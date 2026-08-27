@@ -91,6 +91,7 @@ FAIL과 NOTE 분리 — 외부 정책·환경 요인은 NOTE 처리하고 본 BU
 - 스키마·문서·loader·runner·테스트 중 일부만 갱신 = **drift**
 - drift 감지 시 동작 변경 시도 전 정렬 PR 우선
 - 임시 예외 필요 시 drift risk와 후속 정리 티켓을 보고서에 명시
+- **과거 baseline 참조는 immutable 결박**: 검증기·테스트가 참조하는 과거 시점 baseline은 이동 ref(`HEAD` 등)가 아닌 **immutable object(OID) + content hash 이중 pin** 으로 고정. 부재·불일치 = fail-closed, 이동 ref fallback 금지 (근거: `6b7213b` verifier 자기무효화 → `099c0db` 보정, §8.2 2026-08-27)
 - 근거 사례: PR 0 `verify_gone` drift
 
 ### 2.4 Evidence Accumulation (원칙)
@@ -454,6 +455,8 @@ batch10 dir 직접 기록 = phantom side-effect + 슬라이스 over-read 53/29).
 - force / force-with-lease 금지
 - 도구: `tools/git_safe_push_audit.py`
 
+**Post-commit 재검증**: git 상태(`HEAD` blob·커밋 이력)를 읽는 검증은 **pre-commit GREEN 으로 완결 주장 불가** — commit 후 재실행해야 유효. push 게이트의 전체 회귀 실행이 이 계층의 안전망이다 (근거: §8.2 2026-08-27, pre-commit GREEN → post-commit 3 FAIL 발현).
+
 **위임 commit/push relay (명시 승인 후)**:
 1. 승인된 exact path를 각각 `git add -- <path>`로 개별 stage한다 (broad add 금지).
 2. commit 전에 `tools/git_safe_push_audit.py --expected-path <path>...`로 staged path의 missing/unexpected가 0인지 확인한다.
@@ -516,6 +519,7 @@ commit과 push는 각각 사용자 명시 승인 범위 안에서만 수행하�
 | 2026-08-18 | shell-RC curated remediation | curated YAML을 권위 source로 유지하고 P2 current projection과 분리된 baseline/transformation manifest로 provenance를 보존하면서 shell-RC blocker 18건을 runner/schema/validator 변경 없이 fail-closed `verify_shell`로 전환했다. | §5.3·`canonical_shell_rc_remediation_check.py`·`canonical_shell_rc_remediation_manifest_v1.json` | applied |
 | 2026-08-18 | shell-RC safety reclassification | audited `exported_ss_call` corpus의 16 step이 결정론적 rc 포착용 bounded scratch로 `READ_ONLY_SHELL`→`UNKNOWN_UNSAFE`, audit adapter상 `FULL_AUTO`→`MANUAL_REQUIRED`로 재분류됐다. production `execution_contract`/저장 `execution_type`에는 전파되지 않으며 두 계층 연결은 별도 정책 승인이 필요하다. | §3.3·`tests/fixtures/anchor/corpus_audit_baseline.json` | applied |
 | 2026-08-18 | capsule v5 evidence ownership | `reports/canonical_shell_rc_remediation/` verifier-owned ignored subtree는 schema-v5 capsule invariant에서 제외하고 generator/consumer가 동일 산식으로 계산한다. 무결박 subtree는 Task 9 전수 보상감사로 통제한다. | `dispatch_capsule.py`·`canonical_shell_rc_remediation_check.py` | applied |
+| 2026-08-27 | post-commit baseline identity | shell-RC remediation 커밋 `6b7213b`가 반영된 뒤 verifier/test가 pre-remediation P2를 moving `HEAD`에서 읽어 자기무효화되고, HEAD blob 기반 inventory 기대값도 commit 전에는 새 worktree를 보지 못해 전체 회귀 3건이 뒤늦게 FAIL. `099c0db`에서 immutable full OID `4c484d53…` + raw SHA 이중 pin, object/path/hash 불일치 fail-closed, inventory 정렬과 post-commit 전체 1638 passed로 보정 | §2.3(과거 baseline 참조 immutable object+content hash 이중 pin)·§7.2(post-commit 재검증) — 본문 반영 2026-08-27 | applied |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 
