@@ -468,9 +468,9 @@ def test_current_head_inventory_matches_reviewed_target_set() -> None:
         "runner_dispatched_rc_steps": 692,
         "manual_routed_rc_steps": 0,
         "action_shell_files": 112,
-        "action_shell_steps": 470,
-        "verify_shell_files": 73,
-        "verify_shell_steps": 222,
+        "action_shell_steps": 455,
+        "verify_shell_files": 74,
+        "verify_shell_steps": 237,
     }
     assert report.rejection_reason_counts == {}
     assert len(report.rows) == 692

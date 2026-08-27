@@ -1,5 +1,13 @@
 # Canonical Shell-RC Curated Remediation Successor Design
 
+> **2026-08-27 post-commit baseline resolver amendment:** The verifier resolves
+> pre-remediation P2 from immutable Git object `4c484d53…`, then checks the frozen
+> raw SHA-256. It never treats moving `HEAD` as the P2 baseline.
+> This amendment supersedes the conflicting P2-baseline construction language in
+> `docs/superpowers/plans/2026-08-13-shell-rc-curated-remediation.md` lines 68 and
+> 324–326. That plan remains historical execution provenance; its hash-only baseline
+> description must not be used to reconstruct P2 without the immutable object OID.
+>
 > **2026-08-18 schema-v5 recovery amendment:** The schema-v5 contract in §1.2A
 > supersedes conflicting schema-v4 recovery/count/write-boundary clauses. The
 > historical v4 design remains as execution provenance.
@@ -425,13 +433,20 @@ inventory_head
 inventory_csv_sha256
 risk_matrix_sha256
 risk_policy_sha256
+p2_manifest_pre_remediation_head
 p2_manifest_pre_remediation_sha256
 p2_evidence_sha256
 ```
 
 Values are the full lowercase hashes from the base design and §1. The manifest does
 not pin a candidate commit, current HEAD, timestamp, absolute repo path, mtime or
-dispatch nonce.
+dispatch nonce. `p2_manifest_pre_remediation_head` is the immutable full Git commit
+OID `4c484d53e4227933b43fffad3f1846435a70c995`, whose P2 blob must match
+`p2_manifest_pre_remediation_sha256`; it is a baseline identity, not a candidate.
+For P2 baseline construction, this pinned-object rule supersedes the historical
+implementation plan's hash-only baseline-object instructions. A verifier must fail
+closed when that object or path is unavailable or its raw bytes do not match; it
+must not fall back to `HEAD`, `HEAD^`, another ancestor or worktree bytes.
 
 ### 5.2 Target objects
 
@@ -597,6 +612,8 @@ For each target the verifier:
 - requires candidate `action=verify_shell`, `command=rendered`, and
   `expected=sentinel`;
 - compares parsed file semantics and permits only the three target fields;
+- loads pre-remediation P2 from `p2_manifest_pre_remediation_head` and verifies its
+  raw bytes against `p2_manifest_pre_remediation_sha256` before comparison;
 - verifies P2 rows equal the updated P2 manifest projection;
 - verifies manual/local rows are absent from P2 mappings;
 - requires 692 baseline rows, 692 candidate rows, 18 remediated rows, 674 non-target

@@ -39,6 +39,7 @@ BASELINE_KEYS = {
     "inventory_csv_sha256",
     "risk_matrix_sha256",
     "risk_policy_sha256",
+    "p2_manifest_pre_remediation_head",
     "p2_manifest_pre_remediation_sha256",
     "p2_evidence_sha256",
 }
@@ -102,6 +103,9 @@ EXPECTED_BASELINE = {
     ),
     "risk_policy_sha256": (
         "f41adf36600b027b1bcb4d4f2cb27ba852af0e9121ae4f276c5e670c299e90ed"
+    ),
+    "p2_manifest_pre_remediation_head": (
+        "4c484d53e4227933b43fffad3f1846435a70c995"
     ),
     "p2_manifest_pre_remediation_sha256": (
         "b4544cf636bf7be22fc9ba0a05c0b217c35710eceb92db9994e28ce0b3d88e3c"
@@ -859,8 +863,9 @@ def verify_repository_candidate(
     comparison = compare_candidate_documents(
         baseline_documents, candidate_documents, manifest
     )
+    baseline_p2_head = manifest["baseline"]["p2_manifest_pre_remediation_head"]
     baseline_p2_raw = _git_bytes(
-        repo, "show", f"HEAD:{P2_PATH}"
+        repo, "show", f"{baseline_p2_head}:{P2_PATH}"
     )
     if hashlib.sha256(baseline_p2_raw).hexdigest() != manifest["baseline"][
         "p2_manifest_pre_remediation_sha256"

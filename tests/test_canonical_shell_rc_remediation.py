@@ -16,6 +16,7 @@ MANIFEST_PATH = (
     REPO / "scripts" / "canonical_shell_rc_remediation_manifest_v1.json"
 )
 BASELINE_HEAD = "78b3ac34e9f8bacabe926172dd199342b7eb58c5"
+P2_BASELINE_HEAD = "4c484d53e4227933b43fffad3f1846435a70c995"
 TARGET_ROW_KEYS = [
     "ODIN2 - My gallary/functional/photo/GAL_FUNC_03_photo_multi_select.yaml#24",
     "ODIN2 - minifile/functional/trash/MNF_FUNC_27_trash_enter.yaml#11",
@@ -141,6 +142,10 @@ def test_manifest_contract_and_semantic_identities_are_exact() -> None:
     ]
     assert manifest["schema_version"] == 1
     assert manifest["subject"] == "canonical shell-rc blocker remediation"
+    assert (
+        manifest["baseline"]["p2_manifest_pre_remediation_head"]
+        == P2_BASELINE_HEAD
+    )
     assert [target["row_key"] for target in manifest["targets"]] == TARGET_ROW_KEYS
     assert [
         (row["row_key"], row["disposition"])
@@ -483,7 +488,8 @@ def test_p2_transition_is_red_then_green_without_identity_drift(
     gates = _load_provenance_tests()
     remediation = check.load_and_validate_manifest(MANIFEST_PATH)
     old_p2 = _load_from_git(
-        "HEAD", "provenance/ss_call_shell_rc_manifest.yaml"
+        remediation["baseline"]["p2_manifest_pre_remediation_head"],
+        "provenance/ss_call_shell_rc_manifest.yaml",
     )
     candidate_p2 = copy.deepcopy(old_p2)
     baseline = _baseline_documents(remediation)
@@ -906,6 +912,57 @@ def test_invalid_cli_input_returns_two_without_final_evidence(
     )
     assert code == 2
     assert not output.exists()
+
+
+@pytest.mark.parametrize("reason", ["missing object", "missing path"])
+def test_p2_baseline_unavailable_fails_closed_without_moving_ref_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+    reason: str,
+) -> None:
+    check = load_check_module()
+    manifest = check.load_and_validate_manifest(MANIFEST_PATH)
+    expected_ref = f"{P2_BASELINE_HEAD}:{check.P2_PATH}"
+    original_git_bytes = check._git_bytes
+    p2_show_refs: list[str] = []
+
+    def fail_pinned_p2(
+        repo: Path, *args: str, input_bytes: bytes | None = None
+    ) -> bytes:
+        if (
+            len(args) == 2
+            and args[0] == "show"
+            and args[1].endswith(f":{check.P2_PATH}")
+        ):
+            p2_show_refs.append(args[1])
+            if args[1] == expected_ref:
+                raise check.InfrastructureFailure(reason)
+        return original_git_bytes(repo, *args, input_bytes=input_bytes)
+
+    monkeypatch.setattr(check, "_git_bytes", fail_pinned_p2)
+    with pytest.raises(check.InfrastructureFailure, match=reason):
+        check.verify_repository_candidate(REPO, manifest, mode="worktree")
+
+    assert p2_show_refs == [expected_ref]
+
+
+def test_p2_baseline_raw_identity_mismatch_fails_before_yaml_comparison(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    check = load_check_module()
+    manifest = check.load_and_validate_manifest(MANIFEST_PATH)
+    expected_ref = f"{P2_BASELINE_HEAD}:{check.P2_PATH}"
+    original_git_bytes = check._git_bytes
+
+    def return_wrong_p2_bytes(
+        repo: Path, *args: str, input_bytes: bytes | None = None
+    ) -> bytes:
+        if args == ("show", expected_ref):
+            return b"schema_version: 1\n"
+        return original_git_bytes(repo, *args, input_bytes=input_bytes)
+
+    monkeypatch.setattr(check, "_git_bytes", return_wrong_p2_bytes)
+    with pytest.raises(check.InputInvalid, match="P2 baseline identity mismatch"):
+        check.verify_repository_candidate(REPO, manifest, mode="worktree")
 
 
 def test_live_worktree_is_fully_remediated() -> None:
