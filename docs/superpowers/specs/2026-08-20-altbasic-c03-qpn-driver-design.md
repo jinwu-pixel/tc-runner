@@ -5,7 +5,7 @@
 catalog `KEY-011`·`STR-012~014`).
 **선례**: C02 driver (`runner/altbasic_c02*.py`) — adb-only·no-guess·fail-closed·hard guard 승계.
 
-## 1. 스코프 — drivable 31 / registry 13
+## 1. 스코프 — drivable 34 / registry 10
 
 ### 1.1 drivable (device 2-run 대상)
 
@@ -18,20 +18,21 @@ catalog `KEY-011`·`STR-012~014`).
 | `QPN_CONTROL_OK` (4) | 010 · 176 · 167 · 168 | 비타일 control navigation (010=tap, 176·167=OK, 168=UP) |
 | `QPN_POPUP_EXPOSE` (5) | 011 · 175 · 141 · 043 · 044 | 팝업/제어 **노출·focus 만**. 175만 gated entry OK 1회, 팝업 내부 OK 금지 |
 | `QPN_EDIT_VIEW` (2) | 002 · 008 | 편집 화면 노출·복귀 (**타일 구성 exact diff 0 postcondition**) |
+| `QPN_TILE_TOUCH_LONGTAP` (3) | 026 · 053 · 056 | 타일 **터치** 롱탭 → 설정 화면. **D1 승인 2026-08-21** (§11.3). 원문 입력 축이 하드키와 다름 (§11.6) |
 
-합 **31**.
+합 **34**.
 
 ### 1.2 registry (device 무접촉 — 사유 기록)
 
 | bucket | tc_id | 해소 조건 |
 |---|---|---|
-| `QPN_LONGTAP_PENDING` (5) | 026 · 053 · 056 · 066 · 102 | 터치 롱탭 = mutation-risk. **별도 runsheet + 사용자 승인** 전 미실행 |
-| `QPN_CANDIDATE_ONLY` (4) | 157 · 158 · 159 · 165 | active QS 부재, edit candidate 에만 존재 → precondition 불일치. 타일 추가는 mutation |
-| `QPN_CAPTURE_BLOCKED` (1) | 145 | 목적지에서 `uiautomator dump` = `could not get idle state`. **capture 전략 선설계 필요** |
+| `QPN_LONGTAP_PENDING` (2) | 066 · 102 | 대상 타일이 active QS 부재 = **D2(타일 추가) 선행**. D1 만으로 해소되지 않는 이중 게이트 (§11.1) |
+| `QPN_CANDIDATE_ONLY` (4) | 157 · 158 · 159 · 165 | active QS 부재, edit candidate 에만 존재 → precondition 불일치. 타일 추가는 mutation. **158·159·165 는 타일 short OK 라 §5 전역 금지와도 충돌** (§11) |
+| `QPN_CAPTURE_BLOCKED` (1) | 145 | 목적지에서 `uiautomator dump` = `could not get idle state`. adb 전용 계층 채널 **부재 확인** → 채널 결정 필요 (§10) |
 | `C02_INPUT_UNAUTOMATABLE` (1) | 122 | 물리 홈 길게 — adb 재현 불가(KEY-011). HDK_019 와 동일 축 |
 | `QPN_SAFETY_BLOCKED` (2) | 012 · 163 | 012 = 긴급 전화 발신 위험 / 163 = 안전 제한. **원문 대상 실행 금지** |
 
-합 **13**. 31 + 13 = 44 (chunk 전수, 상호배타).
+합 **10**. 34 + 10 = 44 (chunk 전수, 상호배타).
 
 ## 2. ★핵심 설계 원칙 — 조건형 anchor (고정 시퀀스 금지)
 
@@ -168,6 +169,8 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 - [x] host-TDD 구현 (thor2j — Codex, 5-suite 172 passed)
 - [x] Claude 독립 재검증 (dry-run 44/44 · disposition mismatch 0 · 계약 8/8 코드 확인)
 - [x] **B1/B2 해소** (§4.1·§4.2, 5-suite **184 passed** · dry-run 매핑 무변화 44/44)
+- [x] **registry 13 재구조화 + 145 채널 조사** (§10·§11, 2026-08-21 — 결정 축 3개로 압축)
+- [x] **D1 슬라이스 호스트 구현** (`QPN_TILE_TOUCH_LONGTAP` 3건, §11.6 — 5-suite 200 passed · dry-run 34/10)
 - [ ] device 2-run (별도 승인)
 
 ### 8.1 device 2-run blocker (2026-08-20 재검증에서 발견)
@@ -226,3 +229,175 @@ mutation)이므로, 이 기록은 그 사유가 매 run 여전히 유효한지(s
 | 기능 미설정이 원인 | 결함 아님 | TC 원문 precondition 정정 |
 
 어느 쪽이든 QPN_002 는 **RUNNABLE_NOW 승격 대상이 아니다**(§4.2).
+
+---
+
+## 10. `QPN_145` 계층 캡처 채널 조사 (2026-08-21)
+
+### 10.1 차단의 정확한 범위
+
+§4.1 gate 4단 중 UI 계층을 요구하는 것은 2·4단이다.
+
+| gate | 채널 | 145 에서 |
+|---|---|---|
+| 1 `state_unchanged(mobile_data)` | `settings get global mobile_data` | 가능 — discovery 에서 `1→1` 관찰 |
+| 2 `qs_stage == none` | **UI dump** | 차단 |
+| 3 `activity_contains` | `dumpsys window` `mCurrentFocus` | 가능 — 단 §4.1 이 비판별로 규정 |
+| 4 `literal_probe` | **UI dump** | 차단 → `LITERAL_PENDING` |
+
+판별력을 가진 두 gate 가 모두 계층에 의존한다. 드라이버는 이미 dump 실패를
+`LiteralPendingError` → `LITERAL_PENDING` 으로 매핑하므로
+(`tests/test_altbasic_c03.py::test_driver_probe_unobtainable_dump_is_pending_not_fail`),
+**채널 없이 145 를 drivable 로 승격하면 scalar guard 와 비판별 activity gate 만 남아 판정이
+성립하지 않는다.** "capture 전략 필요" 는 형식 요건이 아니라 실차단이다.
+
+### 10.2 adb 전용 대안 — 전수 제거 (측정)
+
+[측정: AT-M150 `alt_odin2-userdebug 14 UKQ1.240227.001` — **도구 표면 확인 용도**.
+F0 상태 근거로 쓰지 않는다. 양 단말 모두 Android 14 이므로 플랫폼 도구 표면은 이전된다고 본다.]
+
+| 후보 | 실측 | 판정 |
+|---|---|---|
+| `uiautomator dump` idle 우회 플래그 | 옵션 = `--verbose` / `--compressed` / `[file]` **뿐**. idle 대기 knob 없음 | 불가 |
+| `dumpsys activity top` View Hierarchy | 섹션 존재 — 클래스·플래그·bounds·resource-id 출력. **text / content-desc 미출력** | literal 대체 불가 |
+| `dumpsys window` `mCurrentFocus` | activity 명만 | §4.1 이 명시 거부 (진입 경로만 증명) |
+
+→ **adb 전용 계층 채널은 존재하지 않는다.**
+
+### 10.3 미확정 — 판별이 선행한다
+
+`could not get idle state` 가 **영구**(주기 갱신 뷰가 접근성 이벤트를 계속 발생)인지
+**일시**(로딩 스피너)인지 discovery 2 회 시도로는 구분되지 않는다. 갈래에 따라 해법이 정반대다.
+
+**판별 수단**: `uiautomator events` (비파괴·adb 전용, `uiautomator help` 에 존재) 를 목적지에서
+bounded 시간 동안 읽어 이벤트 소스의 주기성을 관찰한다.
+
+관찰기 산출물은 총 이벤트 수·inter-event interval·마지막 이벤트 이후 경과의 **raw digest 로
+한정**한다. 영구/일시 후보 분류와 후속 채널 결정은 출력하지 않으며, 사용자·Claude 가 digest 를
+근거로 아래 표를 판정한다.
+
+| 관찰 | 결론 | 후속 |
+|---|---|---|
+| 이벤트가 주기적으로 계속 발생 | 영구 | retry 무의미 — §10.4 채널 결정 |
+| 수 초 내 정지 | 일시 | `settle_gate` budget 확대로 해소, 아키텍처 변경 불필요 |
+
+**판별 전에 채널을 고르지 않는다** — §2 "1회 관찰 시퀀스를 driver 상수로 승격 금지" 와 같은 근거.
+
+### 10.4 영구 확정 시 — 사용자 결정 항목
+
+adb 전용 대안이 §10.2 에서 전수 제거됐으므로 남는 것은 하나뿐이다.
+
+- **Appium UiAutomator2 `waitForIdleTimeout=0`** — idle 대기를 실제로 우회하고 text 포함 계층을
+  반환한다. 단 C03 의 **adb-only 승계를 깨는 아키텍처 변경**이며, Appium 세션 생성 자체가
+  상태를 건드릴 수 있다(포그라운드 앱 전환·키 입력). 채택 여부는 **사용자 결정 영역**.
+- 미채택 시 145 는 `QPN_CAPTURE_BLOCKED` 유지가 정상 종결이다 — 회피 채널을 만들어
+  판별력 없는 gate 로 승격시키지 않는다.
+
+### 10.5 상태
+
+- [x] adb 전용 대안 전수 제거 (§10.2)
+- [ ] `uiautomator events` 판별 — **F0 device 관찰 필요**, 2-run 동반 1건으로 등록
+- [ ] 영구 확정 시 채널 결정 — 사용자
+
+---
+
+## 11. registry 13 재구조화 — 결정 축 3개 (2026-08-21)
+
+§1.2 는 registry 를 5 bucket 으로 나눴다. ledger `divergence` 열 재확인 결과 **bucket 경계와
+실제 차단 요인이 일치하지 않는다.** 차단 요인 기준으로 다시 묶으면 결정은 3개다.
+
+### 11.1 측정 — 이중 게이트
+
+| tc | bucket | ledger `desc_observed` | ledger `divergence` |
+|---|---|---|---|
+| 066 | `QPN_LONGTAP_PENDING` | 핫스팟은 edit candidate 에만 존재 | 입력 미확정 + **active precondition 불일치** |
+| 102 | `QPN_LONGTAP_PENDING` | 집중 모드는 edit candidate 에만 존재 | 입력 미확정 + **active precondition 불일치** |
+| 157 | `QPN_CANDIDATE_ONLY` | 핫스팟은 edit candidate 에만 존재 | full QS active tile 아님 |
+
+066 과 157 은 **같은 타일(Wi-Fi 핫스팟)** 이며 입력 방식만 다르다(066 = touch long-tap,
+157 = OK longpress). 102 도 같은 타일 부재 축을 갖는다. 즉 `QPN_LONGTAP_PENDING` 5 건 중
+**2 건은 롱탭 승인만으로 해소되지 않는다.**
+
+### 11.2 측정 — 타일 short OK 충돌
+
+| tc | ledger `input_used` | 대상 | §5 "타일 위 short OK 전역 금지" |
+|---|---|---|---|
+| 157 | `OK longpress 0` | 핫스팟 타일 | 저촉 없음 — `--longpress` 는 승인된 기전 |
+| 158 | `OK 0` | Quick Share 타일 | **저촉** |
+| 159 | `OK 0` | QR 코드 스캐너 타일 | **저촉** |
+| 165 | `OK 0` | 알람 타일 | **저촉** |
+
+158·159·165 는 타일을 추가해도 **여전히 실행 불가**다 — 원문이 요구하는 입력이 §5 가 전역
+금지한 타일 short OK 이기 때문이다. 해소하려면 타일 추가 승인 **외에** 해당 타일이 toggle 형이
+아니라 launch 형임을 근거로 한 **개별 예외 승인**이 추가로 필요하다.
+원문 기대값이 각각 `Quick Share 설정 창` / `QR 코드 스캔` / `알람앱` 이라 launch 형으로
+보이나 실측 근거가 없다 — [추론·미측정], 예외 승인 전 확인 대상.
+
+### 11.3 결정 축 3개
+
+| # | 결정 | 해소 대상 | 비고 |
+|---|---|---|---|
+| D1 | **터치 롱탭 입력 승인** — **승인됨 2026-08-21 (026·053·056 한정)** | 026 · 053 · 056 완전 / 066 · 102 부분 | 호스트 구현 완료 (§11.6). device 2-run 미실행 |
+| D2 | **타일 추가 mutation 승인** (`sysui_qs_tiles` 변경 + 복원) | 066 · 102 · 157 완전 / 158 · 159 · 165 부분 | 6 건 공통 |
+| D3 | **145 계층 채널** | 145 | §10.4 — 판별 후 결정 |
+| — | (D2 후속) 타일 short OK 개별 예외 | 158 · 159 · 165 | launch 형 실측 근거 선행 |
+| — | 종결 (결정 대상 아님) | 122 (adb 재현 불가) · 012 · 163 (실행 금지) | — |
+
+### 11.4 D1 신규 state 축 — 2 확보 / 1 부재
+
+`state_unchanged` 는 `read_state(dev, axis)` 가 exact 비교 문자열을 반환하는 계약이다
+(`runner/altbasic_c03_driver.py`). LONGTAP 5 건 중 기존 축으로 덮이는 것은 2 건뿐이다.
+
+| tc | 목적지 | axis | 채널 | 상태 |
+|---|---|---|---|---|
+| 026 | 모바일 데이터 설정 | `mobile_data` | `settings get global mobile_data` | 기존 축 |
+| 053 | 자동 회전 설정 | `accelerometer_rotation` | `settings get system accelerometer_rotation` | 기존 축 |
+| 056 | 절전 모드 메뉴 | `low_power` | `settings get global low_power` | **신규 — 확보** (scalar) |
+| 066 | Wi-Fi 핫스팟 설정 | `hotspot` | `dumpsys tethering` → `Tether state:` 블록 정규화 | **신규 — 확보** (안정 상태행) |
+| 102 | 집중 모드 설정 | — | global/secure 에 focus-mode scalar **부재** | **부재 — guard 미구성** |
+
+[측정: AT-M150, 채널 표면 확인 용도] `low_power` = scalar 응답 확인.
+`dumpsys tethering` 의 `Tether state:` 블록은 iface 당 1 행
+(`wlan0 - AvailableState - lastError = 0`)으로 exact 비교 가능. **F0 에서 동일 포맷인지는
+실행 시 확인 대상**이며, USB tethering 등으로 iface 집합이 변하면 위양성이 되므로
+`wifi` 축과 동일하게 "정확히 예상 행수" 를 강제한다.
+
+102 는 집중 모드 상태가 Digital Wellbeing 앱 내부에 있어 adb scalar 로 읽히지 않는다.
+**scalar guard 를 만들 수 없으므로 D1·D2 가 모두 승인돼도 102 는 registry 유지가 기본값**이며,
+비-scalar guard 를 별도 설계하지 않는 한 승격 대상이 아니다. 대체 guard 를 추측으로 만들지 않는다.
+
+### 11.5 산출물
+
+- 실행 절차·승인 요청: `THOR2 - ALT Basic TC Audit/RUNSHEET_C03_QPN_LONGTAP_2026-08-21.md`
+- 본 절은 구조 기록이며, **승인은 runsheet 에서 받는다**. 본 절 자체는 어떤 실행도 허가하지 않는다.
+
+### 11.6 D1 슬라이스 구현 (2026-08-21, 사용자 승인 후)
+
+`QPN_TILE_TOUCH_LONGTAP` 신설 — 026 · 053 · 056. registry 13 → 10, drivable 31 → 34.
+
+**입력 축이 원문에서 갈린다** (측정):
+`TILE_LONGOK` 5건 원문 = `<타일> focus > Press OK 길게 입력` (하드키) /
+본 3건 = `퀵 패널 > <아이콘> Long 탭` (터치, focus 언급 없음).
+053 목적지는 149 와 같으므로 하드키로 대체하면 **053 은 149 의 중복**이 된다.
+→ `build_qpn_plan` 이 본 disposition 에서 **하드키 OK 존재 자체를 assert 거부**한다.
+
+| 항목 | 결정 | 근거 |
+|---|---|---|
+| 주입 기전 | `input swipe x y x y 1200` (동일좌표) | 단일 호출 원자적·self-terminating. `motionevent` DOWN/UP 은 UP 실패 시 **터치 고착** |
+| 최소 지속 | **1000ms 강제** (`_touch_longpress` 가 미만을 `ValueError`) | `ViewConfiguration` 롱프레스 임계 기본 500ms 대비 여유 |
+| 좌표 | 실행 시 `find_clickable_bounds` **exact-one** → bounds 중심 | §5 하드코딩 좌표 금지 승계 |
+| selector | 신규 `desc_prefix` | 타일 content-desc 는 상태/SSID suffix 포함 (STR-014) — `desc_exact` 불가 |
+| `tap` 사용 | **전 경로 금지** | short tap = 타일 토글 |
+| 신규 state 축 | `low_power` (`settings get global low_power`) | 056 |
+| **목적지 activity gate** | **두지 않음** | discovery 가 3건 모두 `NOT_EXECUTED` — 실측 activity 가 없다. 추측 금지(§4.1). 149 실측값을 053 에 전용하지도 않는다. 첫 run evidence 확보 후 backfill = 사용자 승인 영역 |
+
+gate 순서 = `snapshot → touch_longpress → state_unchanged → qs_stage none → literal_probe → BACK`.
+activity gate 부재로 판별은 **이탈 gate + 각 TC 자신의 canonical literal** 이 담당한다
+(026 `모바일 데이터 설정` / 053 `화면 자동 회전 메뉴` / 056 `절전 모드 메뉴`).
+literal 미확보 시 `LITERAL_PENDING` — FAIL 아님.
+
+disposition 사유 문자열도 정정했다 — 3건은 discovery 실측이 아니라 **승인**이 근거이므로
+`D1 touch long-tap approval 2026-08-21 (discovery NOT_EXECUTED)` 를 쓴다.
+
+**검증**: host-TDD 5-suite **200 passed** (기존 188 → 신규 12) · dry-run `drivable=34 registry=10`.
+**device 실행 0회** — F0 2-run 은 여전히 별도 게이트다.
