@@ -171,6 +171,8 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 - [x] **B1/B2 해소** (§4.1·§4.2, 5-suite **184 passed** · dry-run 매핑 무변화 44/44)
 - [x] **registry 13 재구조화 + 145 채널 조사** (§10·§11, 2026-08-21 — 결정 축 3개로 압축)
 - [x] **D1 슬라이스 호스트 구현** (`QPN_TILE_TOUCH_LONGTAP` 3건, §11.6 — 5-suite 200 passed · dry-run 34/10)
+- [x] **T1 bounded 관찰기 host 구현** (`thor2j` `e225639` — 신규 22; 2026-08-28 T0 재자격
+  5-suite+probe **222 passed** · dry-run 34/10 · device 호출 0회)
 - [ ] device 2-run (별도 승인)
 
 ### 8.1 device 2-run blocker (2026-08-20 재검증에서 발견)
@@ -296,6 +298,8 @@ adb 전용 대안이 §10.2 에서 전수 제거됐으므로 남는 것은 하�
 ### 10.5 상태
 
 - [x] adb 전용 대안 전수 제거 (§10.2)
+- [x] `uiautomator events` bounded 관찰기 **host 구현** (`runner/altbasic_c03_idle_probe.py`,
+  `thor2j` `e225639`; raw digest 만 출력, 영구/일시 판정 미출력, device 호출 0회)
 - [ ] `uiautomator events` 판별 — **F0 device 관찰 필요**, 2-run 동반 1건으로 등록
 - [ ] 영구 확정 시 채널 결정 — 사용자
 
