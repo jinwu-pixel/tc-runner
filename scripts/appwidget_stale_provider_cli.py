@@ -13,6 +13,7 @@ from appwidget_stale_provider_orchestrator import (
     arm,
     bind,
     capture,
+    reset_fixture,
     restore,
     trigger,
     verify,
@@ -21,8 +22,13 @@ from appwidget_stale_provider_profiles import PROFILES
 from appwidget_stale_provider_transport import AdbTransport
 
 
-COMMANDS = ("plan", "capture", "bind", "arm", "trigger", "verify", "restore")
-MUTATING_COMMANDS = frozenset({"bind", "arm", "trigger", "restore"})
+COMMANDS = (
+    "plan", "capture", "bind", "arm", "trigger", "verify", "restore",
+    "reset-fixture",
+)
+MUTATING_COMMANDS = frozenset(
+    {"bind", "arm", "trigger", "restore", "reset-fixture"}
+)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -43,7 +49,12 @@ def render_plan(profile_name: str, profile: dict[str, Any]) -> dict[str, Any]:
                     "action": "install-multiple",
                     "condition": "interrupted lifecycle left the exact package absent",
                     "requires_flag": "--recover-package",
-                }
+                },
+                {
+                    "action": "cmd role add-role-holder",
+                    "condition": "verified General HOME crash loop blocks UI restore",
+                    "requires_flag": "--direct-home-role-recovery",
+                },
             ]
         phases.append(phase)
     return {
@@ -70,10 +81,25 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--expected-model")
     parser.add_argument("--expected-fingerprint")
     parser.add_argument("--run-id")
+    parser.add_argument("--next-profile")
+    parser.add_argument("--next-run-id")
+    parser.add_argument("--after-reset-run-id")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument(
+        "--adopt-existing",
+        action="store_true",
+        help=(
+            "with bind --execute, adopt one exact binding already pinned by the "
+            "capture baseline instead of placing another widget"
+        ),
+    )
+    parser.add_argument(
         "--lifecycle",
-        choices=("uninstall-reinstall", "clear-force-stop-reboot"),
+        choices=(
+            "uninstall-reinstall",
+            "remove-widget-uninstall-reinstall",
+            "clear-force-stop-reboot",
+        ),
     )
     parser.add_argument("--preserve-armed-state", action="store_true")
     parser.add_argument(
@@ -82,6 +108,14 @@ def _parser() -> argparse.ArgumentParser:
         help=(
             "with restore --execute, explicitly approve install-multiple only when "
             "a live exact-package probe proves the interrupted lifecycle left it absent"
+        ),
+    )
+    parser.add_argument(
+        "--direct-home-role-recovery",
+        action="store_true",
+        help=(
+            "with restore --execute, explicitly approve exact HOME role recovery "
+            "when the verified Launcher crash dialog blocks UI mode switching"
         ),
     )
     parser.add_argument("--json", action="store_true")
@@ -138,6 +172,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     }
     if args.command != "capture":
         required["--run-id"] = args.run_id
+    if args.command == "reset-fixture":
+        required["--next-profile"] = args.next_profile
+        required["--next-run-id"] = args.next_run_id
+    if args.command == "capture" and args.after_reset_run_id:
+        required["--run-id"] = args.run_id
     missing = [flag for flag, value in required.items() if not value]
     if missing:
         return _error("missing required arguments: " + ", ".join(missing))
@@ -149,6 +188,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _error("--preserve-armed-state is valid only with restore")
     if args.recover_package and args.command != "restore":
         return _error("--recover-package is valid only with restore")
+    if args.direct_home_role_recovery and args.command != "restore":
+        return _error("--direct-home-role-recovery is valid only with restore")
+    if args.adopt_existing and args.command != "bind":
+        return _error("--adopt-existing is valid only with bind")
+    if (args.next_profile or args.next_run_id) and args.command != "reset-fixture":
+        return _error("--next-profile/--next-run-id are valid only with reset-fixture")
+    if args.after_reset_run_id and args.command != "capture":
+        return _error("--after-reset-run-id is valid only with capture")
+    next_profile = None
+    if args.command == "reset-fixture":
+        next_profile = PROFILES.get(str(args.next_profile))
+        if next_profile is None:
+            return _error(f"unknown next profile: {args.next_profile}")
 
     transport = AdbTransport(str(args.serial))
     common = {
@@ -161,9 +213,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     }
     try:
         if args.command == "capture":
-            payload = capture(**common, run_id=args.run_id)
+            payload = capture(
+                **common,
+                run_id=args.run_id,
+                profile_name=args.profile,
+                after_reset_run_id=args.after_reset_run_id,
+            )
         elif args.command == "bind":
-            payload = bind(**common, run_id=args.run_id, execute=args.execute)
+            payload = bind(
+                **common,
+                run_id=args.run_id,
+                execute=args.execute,
+                adopt_existing=args.adopt_existing,
+            )
         elif args.command == "arm":
             payload = arm(
                 **common,
@@ -175,13 +237,24 @@ def main(argv: Sequence[str] | None = None) -> int:
             payload = trigger(**common, run_id=args.run_id, execute=args.execute)
         elif args.command == "verify":
             payload = verify(**common, run_id=args.run_id)
-        else:
+        elif args.command == "restore":
             payload = restore(
                 **common,
                 run_id=args.run_id,
                 execute=args.execute,
                 preserve_armed_state=args.preserve_armed_state,
                 recover_package=args.recover_package,
+                direct_home_role_recovery=args.direct_home_role_recovery,
+            )
+        else:
+            assert next_profile is not None
+            payload = reset_fixture(
+                **common,
+                run_id=args.run_id,
+                next_profile=next_profile,
+                next_profile_name=str(args.next_profile),
+                next_run_id=str(args.next_run_id),
+                execute=args.execute,
             )
     except (GateFailure, ValueError, OSError, RuntimeError) as exc:
         state = None

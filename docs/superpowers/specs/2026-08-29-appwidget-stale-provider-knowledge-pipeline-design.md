@@ -348,8 +348,14 @@ source manifest나 split hash가 다르면 실행 전 fail-closed한다.
 - `widget_bound_after`
 - `launcher_stale_record_evidence`
 - `crash_signature_count`
+- `launcher_crash_exit_count`
+- `launcher_crash_exit_pids`
+- `launcher_loader_record_count`
+- `launcher_loop_observed`
+- `launcher_loop_basis`
 - `home_rendered`
 - `launcher_process_stable`
+- `launcher_stability_window_s`
 - `final_home_role`
 - `mutations_remaining`
 
@@ -552,3 +558,45 @@ fake ADB transcript로 다음을 검증한다.
 - 보류: core action 추가
 - 보류: 무인 multi-cycle
 - 보류: SEL-J 일반화
+
+## 16. 2026-09-01 실기 amendment — 일반성과 해소책 우선
+
+### 16.1 현재 결론
+
+- Weather 7.7.8, Weather 7.8.2, 패키지·서명이 다른 AccuWeather, 비날씨 SimpleClock 2.1.6에서 동일 `LauncherAppWidgetHostView.java:185` → `PendingAppWidgetHostView.java:88` 크래시가 관찰됐다.
+- SimpleClock 정방향은 독립 binding 3개에서 3/3이다. AccuWeather와의 formal A/B는 각 셀 n=1이므로, 특정 날씨앱·버전·날씨 데이터만으로 발생한다는 가설을 지지하지 않는 수준으로 한정한다.
+- 직접 관찰된 공통 축은 `Launcher DB stale widget record ↔ AppWidgetService binding 부재`이며, 진단 상태는 known-bad 정량 반복과 exact fixed build A/B 전까지 `OBSERVED`로 유지한다.
+
+### 16.2 남은 실험의 중심
+
+1. 예방 우회: 앱 제거·교체 전 위젯을 제거한 조건에서 stale record와 크래시가 생성되지 않는지 정·역 확인
+2. 상태 정리 우회: stale widget을 개별 격리·정리할 수 있는 경로와 Launcher data clear의 영향·손실 범위 분리
+3. 펌웨어 수정: exact fixed build에서 동일 stale 상태를 보존한 채 HOME 렌더링, Launcher process 안정성, line185/88 NPE 0건, 안전 placeholder 표시 또는 stale record 정리를 함께 검증
+4. 정상 회귀: 수정후 Weather·SimpleClock·Google Go의 정상 bind/update/tap 경로가 유지되는지 별도 회귀 검증
+
+### 16.3 크래시 루프 안전 복구
+
+- UI mode switch가 Launcher 재크래시 주기보다 느려 실패하는 경우에만 `restore --direct-home-role-recovery --execute`를 허용한다.
+- 실행 전 exact device identity, 현재 General HOME role, `home_role:general` mutation 원장, `android:id/alertTitle`의 exact allowlist 제목(`MIVE Home이(가) 중지됨`, `MIVE Home이(가) 계속 중단됨`), `android:id/aerr_close`를 모두 요구한다.
+- 변경은 `cmd role add-role-holder --user 0 android.app.role.HOME com.hnlens.simplemode` 후 `KEYCODE_HOME`로 한정하며 대화상자 tap·Launcher data clear·앱 설치/제거를 포함하지 않는다.
+- 성공은 HOME role, resumed activity, UI hierarchy의 exact `com.hnlens.simplemode` package 3-way 일치로만 판정한다. 일치하지 않으면 mutation 원장을 남기고 fail-closed한다.
+- direct role write 후 3-way가 실패해 `home_role:unverified`가 남은 run을 기본 restore로 재시도해도, fresh 3-way 일치 전에는 HOME mutation 원장을 제거하거나 `RESTORED_SAFE`를 선언하지 않는다.
+- 본 경로는 실험 지속을 위한 안전 인프라이며 BUG27084 해소책이나 fixed-build 검증 결과로 계수하지 않는다.
+
+### 16.4 AccuWeather 정·역 A/B 실기 반영 (2026-09-01)
+
+- `AT_M140_BUG27084_ACCUWEATHER_V1` 프로파일을 추가했다. package/version/signature, `accuweather_apk` split 4개, source manifest, `36시간 예보` 카드와 exact provider component를 pin한다.
+- config activity의 `저장` 버튼은 exact resource-id로 self-verify한 뒤 tap한다. provider variant가 preview에 없거나 removal 시작점이 exact widget selector bounds 밖이면 mutation 전에 fail-closed한다.
+- A `20260901T060745Z`: 위젯 ID 50 UI 제거와 binding 소멸을 먼저 증명한 뒤 동일 APK uninstall/reinstall. 일반 HOME 10초 안정, line185/88 신규 signature 0, `NO_TRIGGER_OBSERVED`, 최종 `RESTORED_SAFE`/mutation 0.
+- B `20260901T061739Z`: 위젯 ID 51을 Launcher에 남긴 채 동일 lifecycle. stale precondition `PASS`, 일반 HOME에서 신규 signature 1, `TRIGGERED_BUG`, `BUG-GAP observed`, 최종 Simple HOME `RESTORED_SAFE`.
+- 두 bundle manifest는 독립 재검증을 통과했고 events target serial은 AT-M140 단일값이다. 이 결과는 예방 우회가 SimpleClock뿐 아니라 다른 날씨앱·서명의 AccuWeather에서도 성립함을 직접 지지한다.
+- 결론 경계는 유지한다. 두 provider A/B는 특정 Weather 앱 전용 결함이라는 설명을 약화하지만, 각 formal 셀이 n=1이고 B는 단일 crash 뒤 10초 내 회복했으며 stale 증거도 `INFERRED_ONLY`다. 따라서 field crash loop 재현, 발생률, 모든 3rd-party 위젯에 대한 보편성은 주장하지 않는다.
+
+### 16.5 정량 반복과 loop 증거 게이트
+
+- fixed build 비교 전에 known-bad의 SimpleClock·AccuWeather A/B 각 셀을 독립 fixture **n=5**로 반복한다. 발생률이 불안정하거나 판정 경계이면 n=10으로 확장한다.
+- 매 cycle은 신규 run_id와 신규 widget ID를 사용한다. 이전 Launcher record를 재사용한 연속 trigger는 독립 시행으로 세지 않는다.
+- 관찰 창 기본값은 30초다. 창 종료 시 active-boot baseline 대비 BUG27084 signature 수와 exact launcher package의 신규 `ApplicationExitInfo reason=4 (APP CRASH)` PID를 함께 집계한다.
+- `launcher_loop_observed`는 같은 관찰 창에서 BUG27084 signature가 2건 이상이거나 exact launcher APP CRASH exit가 2건 이상일 때만 true다. 단일 crash 후 회복은 crash 재현으로만 계수한다.
+- exact old widget ID의 phase-new `Widget provider not found for id=<id>` delta를 별도 집계한다. 0이면 stale-record evidence는 계속 `INFERRED_ONLY`이며, fixed 판정의 직접 근거로 승격하지 않는다.
+- known-bad와 fixed build는 provider, lifecycle, 관찰 창, 독립 fixture 수를 맞춘다. known-bad 1/1 대 fixed 0/1은 수정 효과의 근거로 사용하지 않는다.

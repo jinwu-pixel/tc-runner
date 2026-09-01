@@ -475,6 +475,10 @@ def verify_inputs(repo_root: Path | str, profile: Mapping[str, Any]) -> dict[str
         raise EvidenceInputError("source evidence manifest SHA-256 mismatch")
 
     verified_splits: list[dict[str, Any]] = []
+    apk_dir_relative = _safe_repo_relative(
+        app.get("apk_dir", "simpleclock_apk"),
+        "apk_dir",
+    )
     try:
         declared_splits = app["splits"]
     except KeyError as exc:
@@ -488,7 +492,7 @@ def verify_inputs(repo_root: Path | str, profile: Mapping[str, Any]) -> dict[str
         if not isinstance(expected_size, int) or isinstance(expected_size, bool) or expected_size < 0:
             raise EvidenceInputError(f"split[{index}] size must be a non-negative integer")
         expected_digest = _require_sha256(expected_digest_raw, f"split[{index}] sha256")
-        relative = PurePosixPath("simpleclock_apk", checked_name)
+        relative = apk_dir_relative / checked_name
         split_path = _resolve_contained(source, relative, f"split[{index}]")
         if not split_path.is_file():
             raise EvidenceInputError(f"split[{index}] must identify a regular file")

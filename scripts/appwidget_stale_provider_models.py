@@ -30,6 +30,14 @@ class WidgetBinding:
 
 
 @dataclass(frozen=True)
+class LauncherHostBinding:
+    widget_id: int
+    provider_component: str | None
+    host_package: str
+    remote_views_present: bool
+
+
+@dataclass(frozen=True)
 class AppWidgetState:
     provider_registered: bool
     provider_uid: int | None
@@ -40,6 +48,14 @@ class AppWidgetState:
 class CrashSignature:
     count: int
     matched_records: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class LauncherCrashExit:
+    timestamp: str
+    pid: int
+    process: str
+    reason_code: int
 
 
 @dataclass(frozen=True)
@@ -81,6 +97,8 @@ class Event:
 class UiNode:
     text: str
     content_description: str
+    resource_id: str
+    checked: bool | None
     bounds: tuple[int, int, int, int] | None
 
     @property
@@ -96,6 +114,9 @@ class Phase(str, Enum):
     BOUND_GENERAL = "BOUND_GENERAL"
     SAFE_SIMPLE = "SAFE_SIMPLE"
     STALE_ARMED = "STALE_ARMED"
+    CLEAN_CONTROL_ARMED = "CLEAN_CONTROL_ARMED"
     TRIGGERED_BUG = "TRIGGERED_BUG"
     TRIGGERED_FIXED = "TRIGGERED_FIXED"
+    TRIGGERED_CONTROL_NO_BUG = "TRIGGERED_CONTROL_NO_BUG"
+    TRIGGERED_CONTROL_BUG = "TRIGGERED_CONTROL_BUG"
     RESTORED_SAFE = "RESTORED_SAFE"

@@ -83,18 +83,106 @@ def test_profile_has_exact_known_bad_identity_and_apk_pins():
         ),
     )
     assert profile["ui"] == {
-        "home_long_press": (240, 450, 1200),
+        "home_long_press": (240, 350, 1200),
         "widget_menu_text": "위젯",
         "widget_search_text": "검색",
         "provider_label": "SimpleClock",
         "widget_drag": (240, 560, 240, 240, 1200),
+        "widget_remove_drag": (240, 240, 150, 70, 1200),
+        "widget_education_close_resource_id": "com.hnlens.launcher3:id/edu_close_button",
+        "widget_drag_tip_text": "길게 터치하여 위젯을 이동하세요.",
         "provider_confirm_text": "OK",
         "provider_confirm_fallback": (346, 741),
     }
     assert profile["mode_ui"] == {
-        "switch_to_general_text": "일반모드",
-        "switch_to_simple_text": "간편모드",
+        "switch_to_general_resource_id": "com.hnlens.simplemode:id/rb_normal",
+        "switch_to_simple_resource_id": "com.hnlens.simplemode:id/rb_simple",
+        "confirm_resource_id": "com.hnlens.simplemode:id/tv_confirm",
         "always_allow_text": "항상 허용",
+    }
+    assert profile["recovery_ui"] == {
+        "launcher_crash_titles": (
+            "MIVE Home이(가) 중지됨",
+            "MIVE Home이(가) 계속 중단됨",
+        ),
+        "title_resource_id": "android:id/alertTitle",
+        "close_resource_id": "android:id/aerr_close",
+    }
+    assert profile["evidence_root"] == "AT-M140 - Launcher BUG27084/evidence"
+
+
+def test_accuweather_profile_has_exact_calibrated_identity_apk_pins_and_ui():
+    profiles = _load_script("appwidget_stale_provider_profiles")
+
+    profile = profiles.PROFILES["AT_M140_BUG27084_ACCUWEATHER_V1"]
+
+    assert profile["model"] == "AT-M140"
+    assert profile["fingerprint"] == (
+        "ALT/alt_thor2/thor2:14/UP1A.231005.007/"
+        "RY07260901S:user/release-keys"
+    )
+    assert profile["incremental"] == "RY07260901S"
+    assert profile["viewport"] == (480, 800)
+    assert profile["app"] == {
+        "package": "com.accuweather.android",
+        "provider": (
+            "com.accuweather.android/"
+            "com.accuweather.android.widgets.todaytonighttomorrow.ui."
+            "TodayTonightTomorrowWidgetProvider"
+        ),
+        "version_name": "21.1.15-3-rc",
+        "version_code": 210115003,
+        "signature_token": "d4f22e39",
+        "source_bundle": (
+            "AT-M140 - Launcher BUG27084/evidence/"
+            "20260828T221502KST_widget_generality"
+        ),
+        "source_manifest_sha256": (
+            "53306F644019EE361CFE13E404CC0116DC95E91CE42B88928032DC61AB33D0A8"
+        ),
+        "apk_dir": "accuweather_apk",
+        "splits": (
+            (
+                "base.apk",
+                29421672,
+                "D1E0FE5245F94D9538823F7BFA79864EE6D802CFFABE11D813A5D07834A55C41",
+            ),
+            (
+                "split_config.armeabi_v7a.apk",
+                53779,
+                "8B5E10EF5404C646D72E097AE0882FA3756C31192C546307F45F98ED7C9E1125",
+            ),
+            (
+                "split_config.ko.apk",
+                74137,
+                "03D0D7B0DDCA87F4A34D47D389AAAC1ABB0EA4761C866A979618B0B76FEC2E63",
+            ),
+            (
+                "split_config.tvdpi.apk",
+                612677,
+                "7D3D6A8D987CD3FCB53F99C1D69A863C2F340B6B4B64A02B2FD1EBF8255E2B2A",
+            ),
+        ),
+    }
+    assert profile["ui"] == {
+        "home_long_press": (240, 250, 1200),
+        "widget_menu_text": "위젯",
+        "widget_search_text": "검색",
+        "provider_label": "AccuWeather",
+        "provider_variant_text": "36시간 예보",
+        "widget_drag": (240, 485, 240, 240, 1500),
+        "widget_remove_drag": (297, 187, 150, 70, 1200),
+        "widget_remove_selector": "36시간 예보",
+        "widget_education_close_resource_id": (
+            "com.hnlens.launcher3:id/edu_close_button"
+        ),
+        "widget_drag_tip_text": "길게 터치하여 위젯을 이동하세요.",
+        "provider_confirm_required": True,
+        "provider_confirm_resource_id": (
+            "com.accuweather.android:id/widget_confirm_submit_button"
+        ),
+        "provider_confirm_text": "저장",
+        "provider_confirm_fallback": (240, 736),
     }
     assert profile["evidence_root"] == "AT-M140 - Launcher BUG27084/evidence"
 
@@ -286,6 +374,30 @@ FATAL EXCEPTION: main
     assert parsers.parse_crash_signature(split_records).count == 0
 
 
+def test_launcher_crash_exit_parser_uses_stable_identity_and_exact_package():
+    parsers = _load_script("appwidget_stale_provider_parsers")
+    transcript = """ApplicationExitInfo #0:
+  timestamp=2026-09-01 15:19:23.986 pid=23363 realUid=10151
+  process=com.hnlens.launcher3 reason=4 (APP CRASH(EXCEPTION)) subreason=0
+ApplicationExitInfo #1:
+  timestamp=2026-09-01 15:18:52.665 pid=22527 realUid=10151
+  process=com.hnlens.launcher3 reason=13 (OTHER KILLS BY SYSTEM) subreason=11
+ApplicationExitInfo #2:
+  timestamp=2026-09-01 15:18:10.000 pid=22000 realUid=10152
+  process=com.example.other reason=4 (APP CRASH(EXCEPTION)) subreason=0
+"""
+
+    exits = parsers.parse_launcher_crash_exits(
+        transcript, "com.hnlens.launcher3"
+    )
+
+    assert len(exits) == 1
+    assert exits[0].timestamp == "2026-09-01 15:19:23.986"
+    assert exits[0].pid == 23363
+    assert exits[0].process == "com.hnlens.launcher3"
+    assert exits[0].reason_code == 4
+
+
 def test_import_has_no_subprocess_side_effect(monkeypatch):
     def forbidden(*_args, **_kwargs):
         raise AssertionError("module import invoked subprocess")
@@ -329,16 +441,24 @@ def test_plan_is_default_and_adb_free(monkeypatch, capsys):
         "trigger",
         "verify",
         "restore",
+        "reset-fixture",
     ]
     assert payload["phases"][0]["mutating"] is False
     assert payload["phases"][1]["requires_execute"] is True
-    restore_phase = payload["phases"][-1]
+    restore_phase = next(
+        phase for phase in payload["phases"] if phase["command"] == "restore"
+    )
     assert restore_phase["conditional_actions"] == [
         {
             "action": "install-multiple",
             "condition": "interrupted lifecycle left the exact package absent",
             "requires_flag": "--recover-package",
-        }
+        },
+        {
+            "action": "cmd role add-role-holder",
+            "condition": "verified General HOME crash loop blocks UI restore",
+            "requires_flag": "--direct-home-role-recovery",
+        },
     ]
     assert payload["source_manifest_sha256"] == (
         "53306F644019EE361CFE13E404CC0116DC95E91CE42B88928032DC61AB33D0A8"
@@ -387,6 +507,49 @@ def test_transport_prefixes_exact_serial_and_rejects_selector_injection():
         with pytest.raises(transport_module.TransportInputError):
             transport.run_target(unsafe)
     assert calls == [result.argv]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"),
+        ("shell", "logcat", "-t", "10", "-v", "threadtime"),
+    ],
+)
+def test_transport_allows_subcommand_options_after_exact_target_boundary(args):
+    """Catch validation that mistakes logcat options for ADB selectors."""
+    models = _load_script("appwidget_stale_provider_models")
+    transport_module = _load_script("appwidget_stale_provider_transport")
+    calls: list[tuple[str, ...]] = []
+
+    def runner(argv, timeout_s, binary):
+        calls.append(tuple(argv))
+        return models.CommandResult(tuple(argv), 0, "ok\n", "")
+
+    transport = transport_module.AdbTransport("SER", runner=runner)
+
+    result = transport.run_target(args)
+
+    assert result.argv == ("adb", "-s", "SER", *args)
+    assert calls == [("adb", "-s", "SER", *args)]
+
+
+def test_transport_rejects_unlisted_global_option_before_subcommand():
+    """Catch future ADB global options bypassing the exact-target boundary."""
+    models = _load_script("appwidget_stale_provider_models")
+    transport_module = _load_script("appwidget_stale_provider_transport")
+    calls: list[tuple[str, ...]] = []
+
+    def runner(argv, timeout_s, binary):
+        calls.append(tuple(argv))
+        return models.CommandResult(tuple(argv), 0, "ok\n", "")
+
+    transport = transport_module.AdbTransport("SER", runner=runner)
+
+    with pytest.raises(transport_module.TransportInputError):
+        transport.run_target(("-H", "other-host", "shell", "id"))
+
+    assert calls == []
 
 
 def test_only_device_listing_may_omit_serial_and_binary_is_separate():
@@ -601,11 +764,20 @@ def test_phase_machine_rejects_illegal_order_and_models_negative_control():
         models.Phase.SAFE_SIMPLE, "arm-lifecycle"
     ) is models.Phase.STALE_ARMED
     assert state.assert_transition(
+        models.Phase.SAFE_SIMPLE, "arm-clean-control"
+    ) is models.Phase.CLEAN_CONTROL_ARMED
+    assert state.assert_transition(
         models.Phase.STALE_ARMED, "trigger", outcome="bug"
     ) is models.Phase.TRIGGERED_BUG
     assert state.assert_transition(
         models.Phase.STALE_ARMED, "trigger", outcome="fixed"
     ) is models.Phase.TRIGGERED_FIXED
+    assert state.assert_transition(
+        models.Phase.CLEAN_CONTROL_ARMED, "trigger-control", outcome="no-bug"
+    ) is models.Phase.TRIGGERED_CONTROL_NO_BUG
+    assert state.assert_transition(
+        models.Phase.CLEAN_CONTROL_ARMED, "trigger-control", outcome="bug"
+    ) is models.Phase.TRIGGERED_CONTROL_BUG
     assert state.assert_transition(
         models.Phase.BOUND_GENERAL, "negative-control-failed"
     ) is models.Phase.BOUND_GENERAL
@@ -841,14 +1013,19 @@ def test_manifest_is_sorted_and_excludes_its_own_digest(tmp_path):
     assert all("evidence_sha256.txt" not in line for line in lines)
 
 
-def _profile_for_input_fixture(source_bundle: str, source_manifest: Path):
-    apk_dir = source_manifest.parent / "simpleclock_apk"
+def _profile_for_input_fixture(
+    source_bundle: str,
+    source_manifest: Path,
+    apk_dir_name: str = "simpleclock_apk",
+):
+    apk_dir = source_manifest.parent / apk_dir_name
     splits = []
     for name in ("base.apk", "split_config.ko.apk", "split_config.tvdpi.apk"):
         data = (apk_dir / name).read_bytes()
         splits.append((name, len(data), hashlib.sha256(data).hexdigest().upper()))
     return {
         "app": {
+            "apk_dir": apk_dir_name,
             "source_bundle": source_bundle,
             "source_manifest_sha256": hashlib.sha256(
                 source_manifest.read_bytes()
@@ -954,13 +1131,28 @@ def _capture_profile_and_repo(tmp_path):
             "launcher_package": "com.hnlens.launcher3",
             "evidence_root": "out",
             "ui": {
-                "home_long_press": (240, 450, 1200),
+                "home_long_press": (240, 350, 1200),
                 "widget_menu_text": "위젯",
                 "widget_search_text": "검색",
                 "provider_label": "SimpleClock",
                 "widget_drag": (240, 560, 240, 240, 1200),
+                "widget_remove_drag": (240, 240, 150, 70, 1200),
+                "widget_education_close_resource_id": (
+                    "com.hnlens.launcher3:id/edu_close_button"
+                ),
+                "widget_drag_tip_text": "길게 터치하여 위젯을 이동하세요.",
                 "provider_confirm_text": "OK",
                 "provider_confirm_fallback": (346, 741),
+            },
+            "mode_ui": {
+                "switch_to_general_resource_id": (
+                    "com.hnlens.simplemode:id/rb_normal"
+                ),
+                "switch_to_simple_resource_id": (
+                    "com.hnlens.simplemode:id/rb_simple"
+                ),
+                "confirm_resource_id": "com.hnlens.simplemode:id/tv_confirm",
+                "always_allow_text": "항상 허용",
             },
         }
     )
@@ -976,33 +1168,50 @@ class _ScriptedTransport:
     def __init__(self, models, responses, *, serial="SER"):
         self.serial = serial
         self._models = models
+        transport_module = _load_script("appwidget_stale_provider_transport")
         self._responses = {
             tuple(key): list(value) if isinstance(value, list) else [value]
             for key, value in responses.items()
         }
         self.calls = []
+        self._transport = transport_module.AdbTransport(serial, runner=self._runner)
 
     def list_devices(self):
-        self.calls.append(("devices",))
-        return {self.serial: "device", "ODIN2": "device"}
+        return self._transport.list_devices()
 
-    def _result(self, args, binary):
-        key = tuple(args)
+    def _runner(self, argv, timeout_s, binary):
+        full_argv = tuple(argv)
+        if full_argv == ("adb", "devices", "-l"):
+            self.calls.append(("devices",))
+            stdout = (
+                "List of devices attached\n"
+                f"{self.serial} device model:TEST\n"
+                "ODIN2 device model:ODIN2\n"
+            )
+            return self._models.CommandResult(full_argv, 0, stdout, "")
+        prefix = ("adb", "-s", self.serial)
+        if full_argv[:3] != prefix:
+            raise AssertionError(f"unexpected ADB target prefix: {full_argv}")
+        key = full_argv[3:]
         self.calls.append(key)
         if key not in self._responses or not self._responses[key]:
             raise AssertionError(f"unexpected transport call: {key}")
         value = self._responses[key].pop(0)
+        if isinstance(value, Exception):
+            raise value
+        if callable(value):
+            value = value(full_argv, binary)
         if isinstance(value, self._models.CommandResult):
             return value
         stdout = value
         stderr = b"" if binary else ""
-        return self._models.CommandResult(("adb", "-s", self.serial, *key), 0, stdout, stderr)
+        return self._models.CommandResult(full_argv, 0, stdout, stderr)
 
     def run_target(self, args, timeout_s=60):
-        return self._result(args, False)
+        return self._transport.run_target(args, timeout_s)
 
     def run_target_binary(self, args, timeout_s=60):
-        return self._result(args, True)
+        return self._transport.run_target_binary(args, timeout_s)
 
 
 def _capture_responses(profile, *, screenshot=b"\x89PNG\r\n\x1a\nPNG"):
@@ -1040,9 +1249,129 @@ def _capture_responses(profile, *, screenshot=b"\x89PNG\r\n\x1a\nPNG"):
         ("exec-out", "uiautomator", "dump", "/dev/tty"): (
             '<?xml version="1.0"?><hierarchy><node text="간편모드" '
             'bounds="[0,0][480,800]" /></hierarchy>'
+            "UI hierchary dumped to: /dev/tty\n"
         ),
         ("exec-out", "screencap", "-p"): screenshot,
     }
+
+
+def test_verify_inputs_and_install_paths_support_profile_apk_directory(tmp_path):
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    source = tmp_path / "evidence" / "source"
+    apk_dir = source / "accuweather_apk"
+    apk_dir.mkdir(parents=True)
+    for name, data in (
+        ("base.apk", b"accu-base"),
+        ("split_config.ko.apk", b"accu-ko"),
+        ("split_config.tvdpi.apk", b"accu-tvdpi"),
+    ):
+        (apk_dir / name).write_bytes(data)
+    manifest = source / "evidence_sha256.txt"
+    manifest.write_bytes(b"accuweather source manifest\n")
+    profile = _profile_for_input_fixture(
+        "evidence/source",
+        manifest,
+        apk_dir_name="accuweather_apk",
+    )
+
+    verified = evidence.verify_inputs(tmp_path, profile)
+    install_paths = orchestrator._verified_apk_paths(tmp_path, profile, verified)
+
+    assert [item["logical_id"] for item in verified["splits"]] == [
+        "accuweather_apk/base.apk",
+        "accuweather_apk/split_config.ko.apk",
+        "accuweather_apk/split_config.tvdpi.apk",
+    ]
+    assert install_paths == tuple(
+        str((apk_dir / name).resolve())
+        for name in (
+            "base.apk",
+            "split_config.ko.apk",
+            "split_config.tvdpi.apk",
+        )
+    )
+
+
+def _mode_switch_raw(*, normal_checked: bool, simple_checked: bool) -> str:
+    return (
+        '<hierarchy rotation="0">'
+        f'<node text="일반 모드" resource-id="com.hnlens.simplemode:id/rb_normal" '
+        f'checkable="true" checked="{str(normal_checked).lower()}" '
+        'bounds="[35,320][445,408]" />'
+        f'<node text="간편 모드" resource-id="com.hnlens.simplemode:id/rb_simple" '
+        f'checkable="true" checked="{str(simple_checked).lower()}" '
+        'bounds="[35,409][445,497]" />'
+        '<node text="취소" resource-id="com.hnlens.simplemode:id/tv_cancel" '
+        'checkable="false" checked="false" bounds="[202,510][284,575]" />'
+        '<node text="확인" resource-id="com.hnlens.simplemode:id/tv_confirm" '
+        'checkable="false" checked="false" bounds="[318,510][401,575]" />'
+        "</hierarchy>UI hierchary dumped to: /dev/tty\n"
+    )
+
+
+def _permission_raw() -> str:
+    return (
+        '<hierarchy><node text="항상 허용" bounds="[100,600][380,760]" />'
+        "</hierarchy>UI hierchary dumped to: /dev/tty\n"
+    )
+
+
+def _launcher_crash_dialog_raw(
+    *,
+    title: str = "MIVE Home이(가) 중지됨",
+    decoy_text: str | None = None,
+    title_resource_id: str = "android:id/alertTitle",
+    close_resource_id: str = "android:id/aerr_close",
+) -> str:
+    decoy = (
+        f'<node text="{decoy_text}" resource-id="android:id/message" '
+        'package="android" bounds="[64,310][416,350]" />'
+        if decoy_text is not None
+        else ""
+    )
+    return (
+        '<hierarchy rotation="0">'
+        f'<node text="{title}" resource-id="{title_resource_id}" '
+        'package="android" bounds="[64,246][416,310]" />'
+        f"{decoy}"
+        f'<node text="앱 닫기" resource-id="{close_resource_id}" '
+        'package="android" bounds="[156,454][322,520]" />'
+        "</hierarchy>UI hierchary dumped to: /dev/tty\n"
+    )
+
+
+def _simple_home_raw() -> str:
+    return (
+        '<hierarchy rotation="0"><node text="간편 홈" '
+        'package="com.hnlens.simplemode" bounds="[0,0][480,800]" />'
+        "</hierarchy>UI hierchary dumped to: /dev/tty\n"
+    )
+
+
+def test_ui_dump_preserves_raw_output_and_returns_normalized_xml(tmp_path):
+    """Catch evidence writers overwriting raw framing or parsing it directly."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    bundle = evidence.EvidenceBundle.create(tmp_path / "out", "20260829T050618Z")
+    command = ("exec-out", "uiautomator", "dump", "/dev/tty")
+    hierarchy = '<hierarchy><node text="일반 모드" /></hierarchy>'
+    raw = hierarchy + "UI hierchary dumped to: /dev/tty\n"
+    transport = _ScriptedTransport(models, {command: raw})
+
+    normalized = orchestrator._ui_dump(
+        bundle, transport, "SER", "bind", "mode_switch"
+    )
+
+    assert normalized == hierarchy
+    assert (bundle.directory / "snapshots" / "mode_switch.raw.txt").read_text(
+        encoding="utf-8"
+    ) == raw
+    assert (bundle.directory / "snapshots" / "mode_switch.xml").read_text(
+        encoding="utf-8"
+    ) == hierarchy
+    evidence.verify_evidence_manifest(bundle.directory)
 
 
 def test_capture_collects_complete_read_only_snapshot_and_durable_state(tmp_path):
@@ -1080,7 +1409,13 @@ def test_capture_collects_complete_read_only_snapshot_and_durable_state(tmp_path
     assert (bundle / "result.json").is_file()
     assert (bundle / "snapshots" / "package_baseline.txt").is_file()
     assert (bundle / "snapshots" / "appwidget_baseline.txt").is_file()
+    assert (bundle / "snapshots" / "ui_baseline.raw.txt").read_text(
+        encoding="utf-8"
+    ).endswith("UI hierchary dumped to: /dev/tty\n")
     assert (bundle / "snapshots" / "ui_baseline.xml").is_file()
+    assert "UI hierchary dumped" not in (
+        bundle / "snapshots" / "ui_baseline.xml"
+    ).read_text(encoding="utf-8")
     assert (bundle / "screenshots" / "baseline.png").read_bytes().startswith(b"\x89PNG")
     assert (bundle / "evidence_sha256.txt").is_file()
     events = [
@@ -1094,6 +1429,91 @@ def test_capture_collects_complete_read_only_snapshot_and_durable_state(tmp_path
     forbidden = {"uninstall", "install-multiple", "reboot", "force-stop", "clear", "tap", "swipe"}
     assert not any(forbidden.intersection(call) for call in transport.calls)
     assert all("ODIN2" not in call for call in transport.calls)
+
+
+def test_capture_transport_exception_records_durable_failure_context(tmp_path):
+    """Catch transport exceptions leaving an unexplained partial bundle."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    failing_command = (
+        "shell",
+        "logcat",
+        "-d",
+        "-b",
+        "crash",
+        "-v",
+        "threadtime",
+    )
+    responses = _capture_responses(profile)
+    responses[failing_command] = RuntimeError("simulated capture transport failure")
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(RuntimeError, match="simulated capture transport failure"):
+        orchestrator.capture(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+        )
+
+    bundle = tmp_path / "out" / "20260829T050618Z"
+    state = json.loads((bundle / "run.json").read_text(encoding="utf-8"))
+    error = json.loads(
+        (bundle / "capture_error.json").read_text(encoding="utf-8")
+    )
+    assert state["capture_complete"] is False
+    assert error == {
+        "artifact": "snapshots/crash_baseline.txt",
+        "command_category": "crash_baseline.txt",
+        "error_type": "RuntimeError",
+        "logical_command": list(failing_command),
+        "message": "simulated capture transport failure",
+        "phase": "capture",
+        "schema_version": 1,
+        "target_serial": "SER",
+    }
+    evidence.verify_evidence_manifest(bundle)
+
+
+def test_capture_binary_transport_exception_records_durable_failure_context(
+    tmp_path,
+):
+    """Catch screenshot transport exceptions leaving an unexplained bundle."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    failing_command = ("exec-out", "screencap", "-p")
+    responses = _capture_responses(profile)
+    responses[failing_command] = RuntimeError("simulated screenshot failure")
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(RuntimeError, match="simulated screenshot failure"):
+        orchestrator.capture(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+        )
+
+    bundle = tmp_path / "out" / "20260829T050618Z"
+    error = json.loads(
+        (bundle / "capture_error.json").read_text(encoding="utf-8")
+    )
+    assert error["artifact"] == "screenshots/baseline.png"
+    assert error["command_category"] == "baseline.png"
+    assert error["logical_command"] == list(failing_command)
+    assert error["error_type"] == "RuntimeError"
+    assert error["message"] == "simulated screenshot failure"
+    evidence.verify_evidence_manifest(bundle)
 
 
 @pytest.mark.parametrize("broken", ["screenshot", "ui"])
@@ -1142,6 +1562,67 @@ def test_ui_parser_requires_exact_selector_and_returns_node_center():
     assert parsers.find_ui_node(xml, "Simple") is None
 
 
+def test_normalize_ui_dump_strips_uiautomator_status_suffix():
+    """Catch raw /dev/tty framing being passed to the XML parser."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+    hierarchy = (
+        '<hierarchy rotation="0"><node text="일반 모드" '
+        'resource-id="com.hnlens.simplemode:id/rb_normal" '
+        'checked="false" bounds="[35,320][445,408]" /></hierarchy>'
+    )
+    raw = (
+        "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>"
+        + hierarchy
+        + "UI hierchary dumped to: /dev/tty\n"
+    )
+
+    assert parsers.normalize_ui_dump(raw) == hierarchy
+
+
+def test_find_ui_node_raises_for_malformed_xml_instead_of_returning_none():
+    """Catch infrastructure parse failures masquerading as selector misses."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+
+    with pytest.raises(ValueError, match="UI dump XML is malformed"):
+        parsers.find_ui_node("<hierarchy><node></hierarchy>", "일반 모드")
+
+
+def test_ui_parser_finds_exact_resource_id_and_checked_state():
+    """Catch mode switching falling back to localized text or adjacent bounds."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+    xml = (
+        '<hierarchy rotation="0">'
+        '<node text="일반 모드" resource-id="com.hnlens.simplemode:id/rb_normal" '
+        'checkable="true" checked="false" bounds="[35,320][445,408]" />'
+        '<node text="간편 모드" resource-id="com.hnlens.simplemode:id/rb_simple" '
+        'checkable="true" checked="true" bounds="[35,409][445,497]" />'
+        '<node text="취소" resource-id="com.hnlens.simplemode:id/tv_cancel" '
+        'checkable="false" checked="false" bounds="[202,510][284,575]" />'
+        '<node text="확인" resource-id="com.hnlens.simplemode:id/tv_confirm" '
+        'checkable="false" checked="false" bounds="[318,510][401,575]" />'
+        "</hierarchy>"
+    )
+
+    normal = parsers.find_ui_node_by_resource_id(
+        xml, "com.hnlens.simplemode:id/rb_normal"
+    )
+    simple = parsers.find_ui_node_by_resource_id(
+        xml, "com.hnlens.simplemode:id/rb_simple"
+    )
+    confirm = parsers.find_ui_node_by_resource_id(
+        xml, "com.hnlens.simplemode:id/tv_confirm"
+    )
+
+    assert normal.resource_id == "com.hnlens.simplemode:id/rb_normal"
+    assert normal.checked is False
+    assert normal.center == (240, 364)
+    assert simple.checked is True
+    assert confirm.center == (359, 542)
+    assert parsers.find_ui_node_by_resource_id(
+        xml, "com.hnlens.simplemode:id/missing"
+    ) is None
+
+
 def _seed_run(tmp_path, profile, phase="BASELINE_CAPTURED", **updates):
     evidence = _load_script("appwidget_stale_provider_evidence")
     bundle = evidence.EvidenceBundle.create(
@@ -1173,6 +1654,11 @@ def _seed_run(tmp_path, profile, phase="BASELINE_CAPTURED", **updates):
         "evidence_term": "manual evidence observed",
         "final_home_role": state["final_home_role"],
         "home_rendered": None,
+        "launcher_crash_exit_count": 0,
+        "launcher_crash_exit_pids": [],
+        "launcher_loader_record_count": 0,
+        "launcher_loop_basis": [],
+        "launcher_loop_observed": False,
         "launcher_process_stable": None,
         "launcher_stale_record_evidence": "INFERRED_ONLY",
         "mutations_remaining": state["mutations_remaining"],
@@ -1202,7 +1688,19 @@ def _identity_responses():
     }
 
 
-def _bind_responses(profile, before_appwidget: str, after_appwidget: str):
+def _bind_responses(
+    profile,
+    before_appwidget: str,
+    after_appwidget: str,
+    *,
+    education=False,
+    education_before_menu=False,
+    drag_tip_after_row=False,
+    provider_confirm_transient_null=False,
+    preview_variant_text=None,
+    include_provider_confirm=True,
+    provider_confirm_resource_id=None,
+):
     responses = _identity_responses()
     responses = {key: [value, value] for key, value in responses.items()}
     responses.update(
@@ -1210,18 +1708,74 @@ def _bind_responses(profile, before_appwidget: str, after_appwidget: str):
             ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
                 "com.hnlens.launcher3\n"
             ),
-            ("shell", "input", "touchscreen", "swipe", "240", "450", "240", "450", "1200"): "",
+            ("shell", "input", "touchscreen", "swipe", "240", "350", "240", "350", "1200"): (
+                ["", ""] if education_before_menu else ""
+            ),
             ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                *(
+                    [
+                        '<hierarchy><node text="확인" '
+                        'resource-id="com.hnlens.launcher3:id/edu_close_button" '
+                        'bounds="[33,646][447,723]" /></hierarchy>',
+                    ]
+                    if education_before_menu
+                    else []
+                ),
                 '<hierarchy><node text="위젯" bounds="[10,20][110,120]" /></hierarchy>',
+                *(
+                    [
+                        '<hierarchy><node text="확인" '
+                        'resource-id="com.hnlens.launcher3:id/edu_close_button" '
+                        'bounds="[33,646][447,723]" /></hierarchy>',
+                    ]
+                    if education
+                    else []
+                ),
                 '<hierarchy><node text="검색" bounds="[20,30][120,130]" /></hierarchy>',
                 '<hierarchy><node text="SimpleClock" bounds="[30,40][130,140]" /></hierarchy>',
-                '<hierarchy><node text="SimpleClock" bounds="[40,50][140,150]" /></hierarchy>',
-                '<hierarchy><node text="OK" bounds="[300,700][390,780]" /></hierarchy>',
+                *(
+                    [
+                        '<hierarchy><node text="길게 터치하여 위젯을 이동하세요." '
+                        'resource-id="com.hnlens.launcher3:id/text" '
+                        'bounds="[98,332][383,403]" /></hierarchy>',
+                    ]
+                    if drag_tip_after_row
+                    else []
+                ),
+                (
+                    '<hierarchy><node text="SimpleClock" bounds="[40,50][140,150]" />'
+                    + (
+                        f'<node text="{preview_variant_text}" bounds="[150,50][250,150]" />'
+                        if preview_variant_text
+                        else ""
+                    )
+                    + '</hierarchy>'
+                ),
+                *(
+                    ["ERROR: null root node returned by UiTestAutomationBridge."]
+                    if provider_confirm_transient_null
+                    else []
+                ),
+                *(
+                    [
+                        '<hierarchy><node text="OK" '
+                        + (
+                            f'resource-id="{provider_confirm_resource_id}" '
+                            if provider_confirm_resource_id
+                            else ""
+                        )
+                        + 'bounds="[300,700][390,780]" /></hierarchy>'
+                    ]
+                    if include_provider_confirm
+                    else []
+                ),
             ],
             ("shell", "input", "tap", "60", "70"): "",
+            ("shell", "input", "tap", "240", "684"): "",
             ("shell", "input", "tap", "70", "80"): "",
             ("shell", "input", "text", "SimpleClock"): "",
             ("shell", "input", "tap", "80", "90"): "",
+            ("shell", "input", "tap", "240", "367"): "",
             (
                 "shell", "input", "touchscreen", "draganddrop",
                 "240", "560", "240", "240", "1200",
@@ -1232,6 +1786,209 @@ def _bind_responses(profile, before_appwidget: str, after_appwidget: str):
         }
     )
     return responses
+
+
+def test_bind_requires_exact_provider_variant_before_drag(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["ui"]["provider_variant_text"] = "3×2"
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(models, _bind_responses(profile, before, after))
+
+    with pytest.raises(orchestrator.GateFailure, match="provider variant"):
+        orchestrator.bind(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    assert not any("draganddrop" in call for call in transport.calls)
+
+
+def test_bind_can_poll_binding_without_provider_confirmation_activity(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["ui"]["provider_confirm_required"] = False
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(
+        models,
+        _bind_responses(
+            profile,
+            before,
+            after,
+            include_provider_confirm=False,
+        ),
+    )
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert result["current_phase"] == "BOUND_GENERAL"
+    assert ("shell", "input", "tap", "345", "740") not in transport.calls
+
+
+def test_bind_can_confirm_provider_by_exact_resource_id(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    confirm_rid = "com.accuweather.android:id/widget_confirm_submit_button"
+    profile["ui"]["provider_confirm_resource_id"] = confirm_rid
+    profile["ui"]["provider_confirm_text"] = "저장"
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(
+        models,
+        _bind_responses(
+            profile,
+            before,
+            after,
+            provider_confirm_resource_id=confirm_rid,
+        ),
+    )
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert result["current_phase"] == "BOUND_GENERAL"
+    assert ("shell", "input", "tap", "345", "740") in transport.calls
+
+
+def test_bind_retries_transient_incomplete_provider_confirmation_ui(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(
+        models,
+        _bind_responses(
+            profile,
+            before,
+            after,
+            provider_confirm_transient_null=True,
+        ),
+    )
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+        poll_attempts=2,
+        poll_interval_s=0,
+    )
+
+    snapshots = tmp_path / "out" / "20260829T050618Z" / "snapshots"
+    assert result["current_phase"] == "BOUND_GENERAL"
+    assert "null root node" in (
+        snapshots / "bind-0001_provider_confirm_attempt_1.raw.txt"
+    ).read_text(encoding="utf-8")
+    assert "text=\"OK\"" in (
+        snapshots / "bind-0001_provider_confirm_attempt_2.xml"
+    ).read_text(encoding="utf-8")
+
+
+def test_bind_can_adopt_one_exact_existing_binding_without_placing_another(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(tmp_path, profile, baseline={"binding_ids": [39]})
+    component = profile["app"]["provider"]
+    existing = (
+        f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+        f" AppWidgetId{{appWidgetId=39, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
+                f"{profile['general_home']}\n"
+            ),
+            ("shell", "dumpsys", "appwidget"): existing,
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+        adopt_existing=True,
+    )
+
+    state = json.loads(
+        (tmp_path / "out" / "20260829T050618Z" / "run.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert result == {
+        "binding_origin": "ADOPTED_EXISTING",
+        "current_phase": "BOUND_GENERAL",
+        "old_widget_id": 39,
+        "run_id": "20260829T050618Z",
+    }
+    assert state["old_widget_id"] == 39
+    assert "widget_binding:39" in state["mutations_remaining"]
+    assert not any("draganddrop" in call for call in transport.calls)
 
 
 def test_bind_uses_selector_gated_drag_and_persists_exact_binding(tmp_path):
@@ -1279,6 +2036,187 @@ def test_bind_uses_selector_gated_drag_and_persists_exact_binding(tmp_path):
         "240", "560", "240", "240", "1200",
     ) in transport.calls
     assert all("ODIN2" not in call for call in transport.calls)
+
+
+def test_bind_waits_for_general_home_three_way_after_mode_switch(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(
+        tmp_path,
+        profile,
+        baseline={"binding_ids": []},
+        final_home_role=profile["simple_home"],
+    )
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    responses = _bind_responses(profile, before, after)
+    normal_ui = responses[("exec-out", "uiautomator", "dump", "/dev/tty")]
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): [
+                f"{profile['simple_home']}\n",
+                f"{profile['general_home']}\n",
+                f"{profile['general_home']}\n",
+            ],
+            ("shell", "am", "start", "-n", profile["switch_activity"]): "Starting\n",
+            ("shell", "input", "tap", "240", "364"): "",
+            ("shell", "input", "tap", "359", "542"): "",
+            ("shell", "dumpsys", "activity", "activities"): (
+                f"mResumedActivity: {profile['general_home']}/.Home\n"
+            ),
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                '<hierarchy><node package="com.hnlens.launcher3" text="Launcher" '
+                'bounds="[0,0][480,800]" /></hierarchy>',
+                *normal_ui,
+            ],
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert result["current_phase"] == "BOUND_GENERAL"
+    activity_call = ("shell", "dumpsys", "activity", "activities")
+    long_press = (
+        "shell", "input", "touchscreen", "swipe", "240", "350", "240", "350", "1200"
+    )
+    assert transport.calls.index(activity_call) < transport.calls.index(long_press)
+
+
+def test_bind_dismisses_exact_first_run_widget_education_before_search(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(
+        models,
+        _bind_responses(profile, before, after, education=True),
+    )
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert result["current_phase"] == "BOUND_GENERAL"
+    education_tap = ("shell", "input", "tap", "240", "684")
+    search_tap = ("shell", "input", "tap", "70", "80")
+    assert transport.calls.index(education_tap) < transport.calls.index(search_tap)
+
+
+def test_bind_retry_dismisses_existing_widget_education_before_home_menu(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(
+        models,
+        _bind_responses(
+            profile,
+            before,
+            after,
+            education_before_menu=True,
+        ),
+    )
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert result["current_phase"] == "BOUND_GENERAL"
+    long_press = (
+        "shell", "input", "touchscreen", "swipe", "240", "350", "240", "350", "1200"
+    )
+    assert transport.calls.count(long_press) == 2
+    education_tap = ("shell", "input", "tap", "240", "684")
+    widget_menu_tap = ("shell", "input", "tap", "60", "70")
+    assert transport.calls.index(education_tap) < transport.calls.index(widget_menu_tap)
+
+
+def test_bind_dismisses_exact_widget_drag_tip_before_preview(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(tmp_path, profile, baseline={"binding_ids": []})
+    component = profile["app"]["provider"]
+    before = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    after = (
+        before
+        + f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    transport = _ScriptedTransport(
+        models,
+        _bind_responses(
+            profile,
+            before,
+            after,
+            drag_tip_after_row=True,
+        ),
+    )
+
+    result = orchestrator.bind(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert result["current_phase"] == "BOUND_GENERAL"
+    tip_tap = ("shell", "input", "tap", "240", "367")
+    drag = (
+        "shell", "input", "touchscreen", "draganddrop",
+        "240", "560", "240", "240", "1200",
+    )
+    assert transport.calls.index(tip_tap) < transport.calls.index(drag)
 
 
 def test_bind_retry_rejects_binding_that_existed_before_this_attempt(tmp_path):
@@ -1552,7 +2490,7 @@ def test_bind_failure_persists_general_home_mutation_before_widget_actions(tmp_p
             ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
                 f"{profile['general_home']}\n"
             ),
-            ("shell", "input", "touchscreen", "swipe", "240", "450", "240", "450", "1200"): "",
+            ("shell", "input", "touchscreen", "swipe", "240", "350", "240", "350", "1200"): "",
             ("exec-out", "uiautomator", "dump", "/dev/tty"): (
                 '<hierarchy><node text="다른 메뉴" bounds="[0,0][100,100]" /></hierarchy>'
             ),
@@ -1751,8 +2689,9 @@ def test_bind_mode_switch_poll_failure_persists_unverified_home_intent(tmp_path)
     orchestrator = _load_script("appwidget_stale_provider_orchestrator")
     profile = _capture_profile_and_repo(tmp_path)
     profile["mode_ui"] = {
-        "switch_to_general_text": "일반모드",
-        "switch_to_simple_text": "간편모드",
+        "switch_to_general_resource_id": "com.hnlens.simplemode:id/rb_normal",
+        "switch_to_simple_resource_id": "com.hnlens.simplemode:id/rb_simple",
+        "confirm_resource_id": "com.hnlens.simplemode:id/tv_confirm",
         "always_allow_text": "",
     }
     _seed_run(tmp_path, profile)
@@ -1764,10 +2703,12 @@ def test_bind_mode_switch_poll_failure_persists_unverified_home_intent(tmp_path)
                 f"{profile['simple_home']}\n",
             ],
             ("shell", "am", "start", "-n", profile["switch_activity"]): "Starting\n",
-            ("exec-out", "uiautomator", "dump", "/dev/tty"): (
-                '<hierarchy><node text="일반모드" bounds="[100,200][300,300]" /></hierarchy>'
-            ),
-            ("shell", "input", "tap", "200", "250"): "",
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+            ],
+            ("shell", "input", "tap", "240", "364"): "",
+            ("shell", "input", "tap", "359", "542"): "",
         }
     )
 
@@ -1790,6 +2731,63 @@ def test_bind_mode_switch_poll_failure_persists_unverified_home_intent(tmp_path)
         )
     )
     assert "home_role:unverified" in state["mutations_remaining"]
+    result = json.loads(
+        (tmp_path / "out" / "20260829T050618Z" / "result.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert result["mutations_remaining"] == state["mutations_remaining"]
+    assert result["final_home_role"] == state["final_home_role"]
+
+
+def test_bind_missing_mode_resource_id_does_not_record_mutation_intent(tmp_path):
+    """Catch non-mutating selector failures contaminating the mutation ledger."""
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["mode_ui"] = {
+        "switch_to_general_resource_id": "com.hnlens.simplemode:id/rb_normal",
+        "switch_to_simple_resource_id": "com.hnlens.simplemode:id/rb_simple",
+        "confirm_resource_id": "com.hnlens.simplemode:id/tv_confirm",
+        "always_allow_text": "항상 허용",
+    }
+    _seed_run(tmp_path, profile)
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
+                f"{profile['simple_home']}\n"
+            ),
+            ("shell", "am", "start", "-n", profile["switch_activity"]): "Starting\n",
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): (
+                '<hierarchy><node text="확인" '
+                'resource-id="com.hnlens.simplemode:id/tv_confirm" '
+                'checked="false" bounds="[318,510][401,575]" />'
+                "</hierarchy>UI hierchary dumped to: /dev/tty\n"
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(orchestrator.GateFailure, match="resource ID"):
+        orchestrator.bind(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    state = json.loads(
+        (tmp_path / "out" / "20260829T050618Z" / "run.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert state["mutations_remaining"] == []
+    assert not any("tap" in call for call in transport.calls)
 
 
 def test_arm_uninstall_reinstall_verifies_inputs_then_establishes_stale_state(tmp_path):
@@ -1861,6 +2859,164 @@ def test_arm_uninstall_reinstall_verifies_inputs_then_establishes_stale_state(tm
     assert (run_dir / "snapshots" / "package_after_arm-0001.txt").is_file()
     assert (run_dir / "snapshots" / "appwidget_after_arm-0001.txt").is_file()
     assert not any("ODIN2" in call for call in transport.calls)
+
+
+def test_arm_clean_control_removes_binding_before_package_lifecycle(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["ui"]["widget_remove_drag"] = (297, 187, 150, 70, 1200)
+    profile["ui"]["widget_remove_selector"] = "36시간 예보"
+    _seed_run(
+        tmp_path,
+        profile,
+        phase="BOUND_GENERAL",
+        old_widget_id=17,
+        completed_phases=["BASELINE_CAPTURED", "BOUND_GENERAL"],
+        final_home_role=profile["general_home"],
+        mutations_remaining=["widget_binding:17", "home_role:general"],
+    )
+    component = profile["app"]["provider"]
+    package = profile["app"]["package"]
+    with_binding = (
+        f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+        f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    without_binding = f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+    reinstalled_without_binding = (
+        f"Providers:\n Provider{{uid=20234 cmp={component}}}\nWidgets:\n"
+    )
+    install_key = (
+        "install-multiple",
+        str((tmp_path / "source" / "simpleclock_apk" / "base.apk").resolve()),
+        str((tmp_path / "source" / "simpleclock_apk" / "split_config.ko.apk").resolve()),
+        str((tmp_path / "source" / "simpleclock_apk" / "split_config.tvdpi.apk").resolve()),
+    )
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): [
+                f"{profile['general_home']}\n",
+                f"{profile['general_home']}\n",
+                f"{profile['simple_home']}\n",
+            ],
+            ("shell", "dumpsys", "appwidget"): [
+                with_binding,
+                without_binding,
+                reinstalled_without_binding,
+            ],
+            (
+                "shell", "input", "touchscreen", "draganddrop",
+                "297", "187", "150", "70", "1200",
+            ): "",
+            ("shell", "am", "start", "-n", profile["switch_activity"]): "Starting\n",
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                (
+                    '<hierarchy><node content-desc="36시간 예보" '
+                    'bounds="[126,48][468,326]" /></hierarchy>'
+                ),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+            ],
+            ("shell", "input", "tap", "240", "453"): "",
+            ("shell", "input", "tap", "359", "542"): "",
+            ("uninstall", package): "Success\n",
+            install_key: "Success\n",
+            ("shell", "dumpsys", "package", package): (
+                "userId=20234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    result = orchestrator.arm(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        lifecycle="remove-widget-uninstall-reinstall",
+        execute=True,
+    )
+
+    run_dir = tmp_path / "out" / "20260829T050618Z"
+    state = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    verdict = json.loads((run_dir / "result.json").read_text(encoding="utf-8"))
+    assert result == {
+        "current_phase": "CLEAN_CONTROL_ARMED",
+        "precondition_status": "CLEAN_CONTROL_READY",
+        "run_id": "20260829T050618Z",
+    }
+    assert state["current_phase"] == "CLEAN_CONTROL_ARMED"
+    assert state["control_kind"] == "WIDGET_REMOVED_BEFORE_LIFECYCLE"
+    assert "widget_binding:17" not in state["mutations_remaining"]
+    assert "stale_launcher_record:17" not in state["mutations_remaining"]
+    assert verdict["precondition_status"] == "CLEAN_CONTROL_READY"
+    assert verdict["widget_removed_before_lifecycle"] is True
+    assert verdict["widget_bound_before"] is True
+    assert verdict["widget_bound_after"] is False
+    remove_index = transport.calls.index(
+        ("shell", "input", "touchscreen", "draganddrop", "297", "187", "150", "70", "1200")
+    )
+    uninstall_index = transport.calls.index(("uninstall", package))
+    assert remove_index < uninstall_index
+
+
+def test_arm_clean_control_blocks_uninstall_when_widget_binding_remains(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(
+        tmp_path,
+        profile,
+        phase="BOUND_GENERAL",
+        old_widget_id=17,
+        completed_phases=["BASELINE_CAPTURED", "BOUND_GENERAL"],
+        final_home_role=profile["general_home"],
+        mutations_remaining=["widget_binding:17", "home_role:general"],
+    )
+    component = profile["app"]["provider"]
+    package = profile["app"]["package"]
+    with_binding = (
+        f"Providers:\n Provider{{uid=10234 cmp={component}}}\nWidgets:\n"
+        f" AppWidgetId{{appWidgetId=17, hostId=HostId{{pkg={profile['launcher_package']}}}, "
+        f"provider={component}, views=android.widget.RemoteViews}}\n"
+    )
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
+                f"{profile['general_home']}\n"
+            ),
+            ("shell", "dumpsys", "appwidget"): [with_binding, with_binding],
+            (
+                "shell", "input", "touchscreen", "draganddrop",
+                "240", "240", "150", "70", "1200",
+            ): "",
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(orchestrator.GateFailure, match="widget removal did not remove"):
+        orchestrator.arm(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            lifecycle="remove-widget-uninstall-reinstall",
+            execute=True,
+            poll_attempts=1,
+        )
+
+    assert ("uninstall", package) not in transport.calls
 
 
 def test_arm_rejects_input_mismatch_before_any_device_call(tmp_path):
@@ -2309,6 +3465,55 @@ def test_phase_crash_delta_ignores_baseline_and_includes_exit_info():
     ) == 1
 
 
+def test_launcher_crash_exit_delta_ignores_record_renumbering():
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    old = """ApplicationExitInfo #0:
+  timestamp=2026-09-01 15:18:52.665 pid=22527 realUid=10151
+  process=com.hnlens.launcher3 reason=4 (APP CRASH(EXCEPTION)) subreason=0
+"""
+    current = """ApplicationExitInfo #0:
+  timestamp=2026-09-01 15:19:23.986 pid=23363 realUid=10151
+  process=com.hnlens.launcher3 reason=4 (APP CRASH(EXCEPTION)) subreason=0
+ApplicationExitInfo #1:
+  timestamp=2026-09-01 15:18:52.665 pid=22527 realUid=10151
+  process=com.hnlens.launcher3 reason=4 (APP CRASH(EXCEPTION)) subreason=0
+"""
+
+    exits = orchestrator._phase_launcher_crash_exits(
+        current_exit_info=current,
+        baseline_exit_info=old,
+        launcher_package="com.hnlens.launcher3",
+        same_boot=True,
+    )
+
+    assert [item.pid for item in exits] == [23363]
+
+
+@pytest.mark.parametrize(
+    ("signature_count", "crash_exit_count", "observed", "basis"),
+    [
+        (1, 1, False, []),
+        (2, 1, True, ["BUG27084_SIGNATURES"]),
+        (1, 2, True, ["LAUNCHER_APP_CRASH_EXITS"]),
+        (
+            2,
+            2,
+            True,
+            ["BUG27084_SIGNATURES", "LAUNCHER_APP_CRASH_EXITS"],
+        ),
+    ],
+)
+def test_loop_evidence_requires_repeated_events(
+    signature_count, crash_exit_count, observed, basis
+):
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+
+    assert orchestrator._classify_loop_evidence(
+        crash_signature_count=signature_count,
+        launcher_crash_exit_count=crash_exit_count,
+    ) == (observed, basis)
+
+
 def test_loader_delta_is_scoped_to_old_widget_id_and_baseline():
     """Catch stale evidence borrowed from another widget or an earlier phase."""
     orchestrator = _load_script("appwidget_stale_provider_orchestrator")
@@ -2332,6 +3537,138 @@ def test_loader_delta_is_scoped_to_old_widget_id_and_baseline():
         old_widget_id=17,
         same_boot=True,
     )
+    assert orchestrator._new_loader_record_count(
+        old_line + old_line,
+        old_line,
+        old_widget_id=17,
+        same_boot=True,
+    ) == 1
+
+
+@pytest.mark.parametrize(
+    ("crash_count", "phase", "evidence_term", "control_outcome"),
+    [
+        (0, "TRIGGERED_CONTROL_NO_BUG", "manual evidence observed", "NO_TRIGGER_OBSERVED"),
+        (1, "TRIGGERED_CONTROL_BUG", "BUG-GAP observed", "BUG_OBSERVED"),
+    ],
+)
+def test_clean_control_classifier_never_reports_runtime_pass(
+    crash_count, phase, evidence_term, control_outcome
+):
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+
+    result = orchestrator.classify_clean_control(
+        home_rendered=True,
+        launcher_process_stable=True,
+        crash_signature_count=crash_count,
+    )
+
+    assert result == {
+        "control_outcome": control_outcome,
+        "diagnosis_status": "OBSERVED",
+        "evidence_term": evidence_term,
+        "phase": phase,
+    }
+    assert result["evidence_term"] != "runtime PASS"
+
+
+def test_trigger_clean_control_observes_no_bug_without_stale_pass(tmp_path, monkeypatch):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(
+        tmp_path,
+        profile,
+        phase="CLEAN_CONTROL_ARMED",
+        old_widget_id=17,
+        completed_phases=[
+            "BASELINE_CAPTURED",
+            "BOUND_GENERAL",
+            "SAFE_SIMPLE",
+            "CLEAN_CONTROL_ARMED",
+        ],
+        final_home_role=profile["simple_home"],
+        mutations_remaining=[],
+        precondition_status="CLEAN_CONTROL_READY",
+        control_kind="WIDGET_REMOVED_BEFORE_LIFECYCLE",
+    )
+    run_dir = tmp_path / "out" / "20260829T050618Z"
+    verdict = json.loads((run_dir / "result.json").read_text(encoding="utf-8"))
+    verdict.update(
+        {
+            "precondition_status": "CLEAN_CONTROL_READY",
+            "control_precondition_status": "PASS",
+        }
+    )
+    (run_dir / "result.json").write_text(json.dumps(verdict), encoding="utf-8")
+    evidence.write_evidence_manifest(run_dir)
+    component = profile["app"]["provider"]
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): [
+                f"{profile['simple_home']}\n",
+                f"{profile['simple_home']}\n",
+                f"{profile['general_home']}\n",
+            ],
+            ("shell", "am", "start", "-n", profile["switch_activity"]): "Starting\n",
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                '<hierarchy><node package="com.hnlens.launcher3" text="Launcher" '
+                'bounds="[0,0][480,800]" /></hierarchy>',
+            ],
+            ("shell", "input", "tap", "240", "364"): "",
+            ("shell", "input", "tap", "359", "542"): "",
+            ("shell", "dumpsys", "activity", "activities"): (
+                f"mResumedActivity: {profile['general_home']}/.Home\n"
+            ),
+            ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\ncontrol",
+            ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): ["", ""],
+            ("shell", "logcat", "-d", "-v", "threadtime"): ["", ""],
+            ("shell", "dumpsys", "activity", "exit-info", profile["launcher_package"]): ["", ""],
+            ("shell", "cat", "/proc/sys/kernel/random/boot_id"): ["boot-1\n", "boot-1\n"],
+            ("shell", "pidof", profile["launcher_package"]): ["123\n", "123\n"],
+            ("shell", "dumpsys", "appwidget"): (
+                f"Providers:\n Provider{{uid=20234 cmp={component}}}\nWidgets:\n"
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+    slept = []
+    monkeypatch.setattr(
+        orchestrator, "_sleep", lambda seconds: slept.append(seconds), raising=False
+    )
+
+    triggered = orchestrator.trigger(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert triggered == {
+        "current_phase": "TRIGGERED_CONTROL_NO_BUG",
+        "evidence_term": "manual evidence observed",
+        "run_id": "20260829T050618Z",
+    }
+    verdict = json.loads((run_dir / "result.json").read_text(encoding="utf-8"))
+    assert verdict["control_outcome"] == "NO_TRIGGER_OBSERVED"
+    assert verdict["precondition_status"] == "CLEAN_CONTROL_READY"
+    assert verdict["launcher_stale_record_evidence"] == "NOT_APPLICABLE"
+    assert verdict["evidence_term"] == "manual evidence observed"
+    assert verdict["launcher_stability_window_s"] == 30.0
+    assert verdict["launcher_crash_exit_count"] == 0
+    assert verdict["launcher_crash_exit_pids"] == []
+    assert verdict["launcher_loop_observed"] is False
+    assert verdict["launcher_loop_basis"] == []
+    assert verdict["launcher_loader_record_count"] == 0
+    assert slept == [30.0]
 
 
 def test_trigger_bug_observation_and_restore_preserve_remaining_stale_ledger(
@@ -2382,16 +3719,20 @@ def test_trigger_bug_observation_and_restore_preserve_remaining_stale_ledger(
                 f"mResumedActivity: {profile['general_home']}/.Home\n"
             ),
             ("exec-out", "uiautomator", "dump", "/dev/tty"): [
-                '<hierarchy><node text="일반모드" bounds="[100,200][300,300]" /></hierarchy>',
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
                 '<hierarchy><node text="Launcher" bounds="[0,0][480,800]" /></hierarchy>',
-                '<hierarchy><node text="간편모드" bounds="[100,200][300,300]" /></hierarchy>',
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
                 '<hierarchy><node text="간편모드" bounds="[0,0][480,800]" /></hierarchy>',
             ],
             ("shell", "am", "start", "-n", profile["switch_activity"]): [
                 "Starting\n",
                 "Starting\n",
             ],
-            ("shell", "input", "tap", "200", "250"): ["", ""],
+            ("shell", "input", "tap", "240", "364"): "",
+            ("shell", "input", "tap", "240", "453"): "",
+            ("shell", "input", "tap", "359", "542"): ["", ""],
             ("exec-out", "screencap", "-p"): [
                 b"\x89PNG\r\n\x1a\ntrigger",
                 b"\x89PNG\r\n\x1a\nrestore",
@@ -2406,9 +3747,21 @@ def test_trigger_bug_observation_and_restore_preserve_remaining_stale_ledger(
                 "Widget provider not found for id=17 PendingAppWidgetHostView\n",
             ],
             ("shell", "dumpsys", "activity", "exit-info", profile["launcher_package"]): [
-                "",
-                "REASON_CRASH\n",
-                "REASON_CRASH\n",
+                """ApplicationExitInfo #0:
+  timestamp=2026-09-01 15:18:52.665 pid=22527 realUid=10151
+  process=com.hnlens.launcher3 reason=13 (OTHER KILLS BY SYSTEM) subreason=11
+""",
+                """ApplicationExitInfo #0:
+  timestamp=2026-09-01 15:19:23.986 pid=23363 realUid=10151
+  process=com.hnlens.launcher3 reason=4 (APP CRASH(EXCEPTION)) subreason=0
+ApplicationExitInfo #1:
+  timestamp=2026-09-01 15:18:52.665 pid=22527 realUid=10151
+  process=com.hnlens.launcher3 reason=13 (OTHER KILLS BY SYSTEM) subreason=11
+""",
+                """ApplicationExitInfo #0:
+  timestamp=2026-09-01 15:19:23.986 pid=23363 realUid=10151
+  process=com.hnlens.launcher3 reason=4 (APP CRASH(EXCEPTION)) subreason=0
+""",
             ],
             ("shell", "cat", "/proc/sys/kernel/random/boot_id"): [
                 "boot-1\n",
@@ -2450,13 +3803,25 @@ def test_trigger_bug_observation_and_restore_preserve_remaining_stale_ledger(
     assert verdict["crash_signature_count"] == 1
     assert verdict["evidence_boot_id"] == "boot-1"
     assert verdict["evidence_same_boot_as_baseline"] is True
-    assert verdict["launcher_stability_window_s"] == 10.0
+    assert verdict["launcher_stability_window_s"] == 30.0
+    assert verdict["launcher_crash_exit_count"] == 1
+    assert verdict["launcher_crash_exit_pids"] == [23363]
+    assert verdict["launcher_loop_observed"] is False
+    assert verdict["launcher_loop_basis"] == []
+    assert verdict["launcher_loader_record_count"] == 1
     assert verdict["safe_placeholder_or_cleanup"] is False
     assert verdict["normal_widget_update"] is False
-    assert slept == [10.0]
+    assert slept == [30.0]
     baseline_call = ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime")
     switch_call = ("shell", "am", "start", "-n", profile["switch_activity"])
     assert transport.calls.index(baseline_call) < transport.calls.index(switch_call)
+    event_categories = [
+        json.loads(line)["command_category"]
+        for line in (run_dir / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert event_categories.index("launcher_pid_after_trigger-0001_window") < (
+        event_categories.index("crash_after_trigger-0001")
+    )
     assert (run_dir / "snapshots" / "crash_before_trigger-0001.txt").is_file()
     assert (run_dir / "snapshots" / "crash_after_trigger-0001.txt").is_file()
     assert (run_dir / "screenshots" / "trigger-0001.png").is_file()
@@ -2611,9 +3976,11 @@ def test_trigger_inconclusive_result_returns_to_simple_home_and_keeps_primary(tm
                 f"mResumedActivity: {profile['general_home']}/.Home\n"
             ),
             ("exec-out", "uiautomator", "dump", "/dev/tty"): [
-                '<hierarchy><node text="일반모드" bounds="[100,200][300,300]" /></hierarchy>',
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
                 '<hierarchy><node text="Launcher" bounds="[0,0][480,800]" /></hierarchy>',
-                '<hierarchy><node text="간편모드" bounds="[100,200][300,300]" /></hierarchy>',
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
             ],
             ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\ninconclusive",
             ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): [
@@ -2640,7 +4007,9 @@ def test_trigger_inconclusive_result_returns_to_simple_home_and_keeps_primary(tm
                 "Starting\n",
                 "Starting\n",
             ],
-            ("shell", "input", "tap", "200", "250"): ["", ""],
+            ("shell", "input", "tap", "240", "364"): "",
+            ("shell", "input", "tap", "240", "453"): "",
+            ("shell", "input", "tap", "359", "542"): ["", ""],
         }
     )
     transport = _ScriptedTransport(models, responses)
@@ -2899,8 +4268,11 @@ def test_verify_repeats_observation_without_mutating_device_or_phase(tmp_path):
     assert error_verdict["verifications"][-1]["attempt_id"] == "verify-0003"
     assert error_verdict["verifications"][-1]["status"] == "ERROR"
     assert (
-        run_dir / "snapshots" / "ui_after_verify-0003.xml"
+        run_dir / "snapshots" / "ui_after_verify-0003.raw.txt"
     ).read_text(encoding="utf-8") == "ERROR"
+    assert not (
+        run_dir / "snapshots" / "ui_after_verify-0003.xml"
+    ).exists()
 
 
 def test_verification_append_does_not_overwrite_canonical_trigger_verdict():
@@ -2919,6 +4291,11 @@ def test_verification_append_does_not_overwrite_canonical_trigger_verdict():
     observation = {
         "crash_signature_count": 0,
         "home_rendered": True,
+        "launcher_crash_exit_count": 0,
+        "launcher_crash_exit_pids": [],
+        "launcher_loader_record_count": 1,
+        "launcher_loop_basis": [],
+        "launcher_loop_observed": False,
         "launcher_process_stable": True,
         "launcher_stale_record_evidence": "LOADER_LOG",
     }
@@ -2942,6 +4319,11 @@ def test_verification_append_does_not_overwrite_canonical_trigger_verdict():
             "diagnosis_status": "OBSERVED",
             "evidence_term": "runtime PASS",
             "home_rendered": True,
+            "launcher_crash_exit_count": 0,
+            "launcher_crash_exit_pids": [],
+            "launcher_loader_record_count": 1,
+            "launcher_loop_basis": [],
+            "launcher_loop_observed": False,
             "launcher_process_stable": True,
             "launcher_stale_record_evidence": "LOADER_LOG",
             "phase_consistent": False,
@@ -2987,6 +4369,11 @@ def test_verify_phase_conflict_records_error_before_closing_attempt(
         lambda **_kwargs: {
             "crash_signature_count": 0,
             "home_rendered": True,
+            "launcher_crash_exit_count": 0,
+            "launcher_crash_exit_pids": [],
+            "launcher_loader_record_count": 1,
+            "launcher_loop_basis": [],
+            "launcher_loop_observed": False,
             "launcher_process_stable": True,
             "launcher_stale_record_evidence": "LOADER_LOG",
             "normal_widget_update": True,
@@ -3040,8 +4427,16 @@ def test_verify_phase_conflict_records_error_before_closing_attempt(
     [
         ("bind", []),
         ("arm", ["--lifecycle", "uninstall-reinstall"]),
+        ("arm", ["--lifecycle", "remove-widget-uninstall-reinstall"]),
         ("trigger", []),
         ("restore", []),
+        (
+            "reset-fixture",
+            [
+                "--next-profile", "AT_M140_BUG27084_KNOWN_BAD_V1",
+                "--next-run-id", "20260829T050619Z",
+            ],
+        ),
     ],
 )
 def test_mutating_cli_requires_execute_before_transport(monkeypatch, capsys, command, extra):
@@ -3202,8 +4597,9 @@ def test_mode_switch_handles_user_observed_always_allow_gate(tmp_path, monkeypat
     orchestrator = _load_script("appwidget_stale_provider_orchestrator")
     profile = _capture_profile_and_repo(tmp_path)
     profile["mode_ui"] = {
-        "switch_to_general_text": "일반모드",
-        "switch_to_simple_text": "간편모드",
+        "switch_to_general_resource_id": "com.hnlens.simplemode:id/rb_normal",
+        "switch_to_simple_resource_id": "com.hnlens.simplemode:id/rb_simple",
+        "confirm_resource_id": "com.hnlens.simplemode:id/tv_confirm",
         "always_allow_text": "항상 허용",
     }
     bundle = evidence.EvidenceBundle.create(tmp_path / "out", "20260829T050618Z")
@@ -3215,14 +4611,17 @@ def test_mode_switch_handles_user_observed_always_allow_gate(tmp_path, monkeypat
         ],
         ("shell", "am", "start", "-n", profile["switch_activity"]): "Starting\n",
         ("exec-out", "uiautomator", "dump", "/dev/tty"): [
-            '<hierarchy><node text="일반모드" bounds="[100,200][300,300]" /></hierarchy>',
-            '<hierarchy><node text="항상 허용" bounds="[100,600][380,760]" /></hierarchy>',
+            _mode_switch_raw(normal_checked=False, simple_checked=True),
+            _mode_switch_raw(normal_checked=True, simple_checked=False),
+            _permission_raw(),
         ],
-        ("shell", "input", "tap", "200", "250"): "",
+        ("shell", "input", "tap", "240", "364"): "",
+        ("shell", "input", "tap", "359", "542"): "",
         ("shell", "input", "tap", "240", "680"): "",
     }
     transport = _ScriptedTransport(models, responses)
     slept = []
+    mutation_intents = []
     monkeypatch.setattr(orchestrator, "_sleep", lambda seconds: slept.append(seconds))
 
     role = orchestrator._ensure_home_role(
@@ -3233,11 +4632,1117 @@ def test_mode_switch_handles_user_observed_always_allow_gate(tmp_path, monkeypat
         profile["general_home"],
         "test-switch",
         poll_attempts=3,
+        before_switch=lambda: mutation_intents.append(list(transport.calls)),
     )
 
     assert role == profile["general_home"]
+    assert mutation_intents[-1][-1] == (
+        "exec-out",
+        "uiautomator",
+        "dump",
+        "/dev/tty",
+    )
+    assert ("shell", "input", "tap", "240", "364") in transport.calls
+    assert ("shell", "input", "tap", "359", "542") in transport.calls
     assert ("shell", "input", "tap", "240", "680") in transport.calls
+    assert ("shell", "input", "tap", "243", "542") not in transport.calls
     assert slept == [1.0]
+
+
+def test_ui_package_match_is_exact_and_fail_closed():
+    """Catch recovery accepting Android's crash dialog or a package prefix as HOME."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+    xml = (
+        '<hierarchy><node package="android" />'
+        '<node package="com.hnlens.simplemode.helper" />'
+        '<node package="com.hnlens.simplemode" /></hierarchy>'
+    )
+
+    assert parsers.ui_contains_exact_package(xml, "com.hnlens.simplemode") is True
+    assert parsers.ui_contains_exact_package(xml, "com.hnlens.launcher3") is False
+
+    with pytest.raises(parsers.UiDumpParseError):
+        parsers.ui_contains_exact_package("not xml", "com.hnlens.simplemode")
+
+
+@pytest.mark.parametrize(
+    ("mutations_remaining", "dialog_title"),
+    [
+        pytest.param(
+            ["home_role:general"],
+            "MIVE Home이(가) 중지됨",
+            id="general-ledger-stopped",
+        ),
+        pytest.param(
+            ["home_role:general"],
+            "MIVE Home이(가) 계속 중단됨",
+            id="general-ledger-keeps-stopping",
+        ),
+        pytest.param(
+            ["home_role:unverified"],
+            "MIVE Home이(가) 중지됨",
+            id="unverified-only-ledger",
+        ),
+    ],
+)
+def test_restore_direct_home_role_recovery_bypasses_crash_loop_and_verifies_three_way(
+    tmp_path, mutations_remaining, dialog_title
+):
+    """Catch emergency restore falling back to slow dialog-dismiss/UI mode switching."""
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["recovery_ui"] = {
+        "launcher_crash_titles": (
+            "MIVE Home이(가) 중지됨",
+            "MIVE Home이(가) 계속 중단됨",
+        ),
+        "title_resource_id": "android:id/alertTitle",
+        "close_resource_id": "android:id/aerr_close",
+    }
+    _seed_run(
+        tmp_path,
+        profile,
+        final_home_role=profile["general_home"],
+        mutations_remaining=mutations_remaining,
+    )
+    package = profile["app"]["package"]
+    responses = _identity_responses()
+    responses.update(
+        {
+            (
+                "shell", "cmd", "role", "get-role-holders",
+                "android.app.role.HOME",
+            ): [
+                f"{profile['general_home']}\n",
+                f"{profile['simple_home']}\n",
+            ],
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                _launcher_crash_dialog_raw(title=dialog_title),
+                _simple_home_raw(),
+                _simple_home_raw(),
+            ],
+            (
+                "shell", "cmd", "role", "add-role-holder", "--user", "0",
+                "android.app.role.HOME", profile["simple_home"],
+            ): "",
+            ("shell", "input", "keyevent", "KEYCODE_HOME"): "",
+            ("shell", "dumpsys", "activity", "activities"): (
+                f"mResumedActivity: {profile['simple_home']}/.Home\n"
+            ),
+            ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\ndirect-restore",
+            ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): "",
+            (
+                "shell", "dumpsys", "activity", "exit-info",
+                profile["launcher_package"],
+            ): "",
+            ("shell", "dumpsys", "appwidget"): "Providers:\nWidgets:\n",
+            ("shell", "dumpsys", "package", package): (
+                "appId=10234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+        direct_home_role_recovery=True,
+        wait=lambda: None,
+    )
+
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    assert restored["final_home_role"] == profile["simple_home"]
+    assert restored["mutations_remaining"] == []
+    assert (
+        "shell", "cmd", "role", "add-role-holder", "--user", "0",
+        "android.app.role.HOME", profile["simple_home"],
+    ) in transport.calls
+    assert ("shell", "input", "keyevent", "KEYCODE_HOME") in transport.calls
+    assert not any(call[:3] == ("shell", "input", "tap") for call in transport.calls)
+    assert ("shell", "am", "start", "-n", profile["switch_activity"]) not in transport.calls
+
+
+@pytest.mark.parametrize(
+    ("mutations", "dialog_title", "decoy_text", "expected_error"),
+    [
+        (
+            ["widget_binding:17"],
+            "MIVE Home이(가) 중지됨",
+            None,
+            "recorded General HOME mutation",
+        ),
+        (
+            ["home_role:general"],
+            "다른 앱이 중지됨",
+            "MIVE Home이(가) 중지됨",
+            "exact Launcher crash dialog",
+        ),
+    ],
+)
+def test_restore_direct_home_role_recovery_rejects_unsafe_preconditions_before_role_write(
+    tmp_path, mutations, dialog_title, decoy_text, expected_error
+):
+    """Catch the emergency role write becoming an unconditional restore path."""
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["recovery_ui"] = {
+        "launcher_crash_titles": (
+            "MIVE Home이(가) 중지됨",
+            "MIVE Home이(가) 계속 중단됨",
+        ),
+        "title_resource_id": "android:id/alertTitle",
+        "close_resource_id": "android:id/aerr_close",
+    }
+    _seed_run(
+        tmp_path,
+        profile,
+        final_home_role=profile["general_home"],
+        mutations_remaining=mutations,
+    )
+    responses = _identity_responses()
+    responses.update(
+        {
+            (
+                "shell", "cmd", "role", "get-role-holders",
+                "android.app.role.HOME",
+            ): f"{profile['general_home']}\n",
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): (
+                _launcher_crash_dialog_raw(
+                    title=dialog_title,
+                    decoy_text=decoy_text,
+                )
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(orchestrator.GateFailure, match=expected_error):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+            direct_home_role_recovery=True,
+        )
+
+    assert not any(
+        call[:5] == ("shell", "cmd", "role", "add-role-holder", "--user")
+        for call in transport.calls
+    )
+
+
+def test_direct_home_role_recovery_rejects_profile_that_redefines_system_dialog_ids(
+    tmp_path,
+):
+    """Catch a profile broadening the emergency recovery gate to arbitrary nodes."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["recovery_ui"] = {
+        "launcher_crash_titles": ("MIVE Home이(가) 계속 중단됨",),
+        "title_resource_id": "example:id/title",
+        "close_resource_id": "example:id/close",
+    }
+    bundle = evidence.EvidenceBundle.create(tmp_path / "direct", "20260901T000000Z")
+    state = {"mutations_remaining": ["home_role:general"]}
+    responses = {
+        (
+            "shell", "cmd", "role", "get-role-holders",
+            "android.app.role.HOME",
+        ): f"{profile['general_home']}\n",
+        ("exec-out", "uiautomator", "dump", "/dev/tty"): (
+            _launcher_crash_dialog_raw(
+                title="MIVE Home이(가) 계속 중단됨",
+                title_resource_id="example:id/title",
+                close_resource_id="example:id/close",
+            )
+        ),
+    }
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(orchestrator.GateFailure, match="exact Launcher crash dialog"):
+        orchestrator._recover_simple_home_role_direct(
+            bundle,
+            transport,
+            "SER",
+            profile,
+            state,
+            "restore",
+        )
+
+    assert not any(
+        call[:5] == ("shell", "cmd", "role", "add-role-holder", "--user")
+        for call in transport.calls
+    )
+
+
+def test_direct_home_role_recovery_rejects_profile_that_expands_title_allowlist(
+    tmp_path,
+):
+    """Catch a profile authorizing crash dialogs beyond the two observed titles."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    profile["recovery_ui"] = {
+        "launcher_crash_titles": (
+            "MIVE Home이(가) 중지됨",
+            "MIVE Home이(가) 계속 중단됨",
+            "다른 앱이 중지됨",
+        ),
+        "title_resource_id": "android:id/alertTitle",
+        "close_resource_id": "android:id/aerr_close",
+    }
+    bundle = evidence.EvidenceBundle.create(tmp_path / "direct", "20260901T000000Z")
+    state = {"mutations_remaining": ["home_role:general"]}
+    responses = {
+        (
+            "shell", "cmd", "role", "get-role-holders",
+            "android.app.role.HOME",
+        ): f"{profile['general_home']}\n",
+        ("exec-out", "uiautomator", "dump", "/dev/tty"): (
+            _launcher_crash_dialog_raw(title="다른 앱이 중지됨")
+        ),
+    }
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(orchestrator.GateFailure, match="exact Launcher crash dialog"):
+        orchestrator._recover_simple_home_role_direct(
+            bundle,
+            transport,
+            "SER",
+            profile,
+            state,
+            "restore",
+        )
+
+    assert not any(
+        call[:5] == ("shell", "cmd", "role", "add-role-holder", "--user")
+        for call in transport.calls
+    )
+
+
+def test_default_restore_keeps_unverified_ledger_when_role_only_is_simple(
+    tmp_path,
+):
+    """Catch a retry declaring RESTORED_SAFE after a partial direct-role recovery."""
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(
+        tmp_path,
+        profile,
+        final_home_role=profile["general_home"],
+        mutations_remaining=["home_role:general", "home_role:unverified"],
+    )
+    package = profile["app"]["package"]
+    responses = _identity_responses()
+    responses.update(
+        {
+            (
+                "shell", "cmd", "role", "get-role-holders",
+                "android.app.role.HOME",
+            ): [
+                f"{profile['simple_home']}\n",
+                f"{profile['simple_home']}\n",
+            ],
+            ("shell", "dumpsys", "activity", "activities"): (
+                f"mResumedActivity: {profile['general_home']}/.Home\n"
+            ),
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): (
+                _launcher_crash_dialog_raw()
+            ),
+            ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\nunsafe",
+            ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): "",
+            (
+                "shell", "dumpsys", "activity", "exit-info",
+                profile["launcher_package"],
+            ): "",
+            ("shell", "dumpsys", "appwidget"): "Providers:\nWidgets:\n",
+            ("shell", "dumpsys", "package", package): (
+                "appId=10234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(orchestrator.GateFailure, match="3-way verification"):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    state = json.loads(
+        (tmp_path / "out" / "20260829T050618Z" / "run.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert state["current_phase"] == "BASELINE_CAPTURED"
+    assert "home_role:general" in state["mutations_remaining"]
+    assert "home_role:unverified" in state["mutations_remaining"]
+    assert ("exec-out", "screencap", "-p") not in transport.calls
+
+
+def test_restore_cli_scopes_and_forwards_direct_home_role_recovery(monkeypatch, capsys):
+    """Catch the emergency recovery flag leaking to non-restore commands or being ignored."""
+    cli = _fresh_script("appwidget_stale_provider_cli")
+    captured = {}
+    monkeypatch.setattr(cli, "AdbTransport", lambda _serial: object())
+
+    def fake_restore(**kwargs):
+        captured.update(kwargs)
+        return {"run_id": kwargs["run_id"]}
+
+    monkeypatch.setattr(cli, "restore", fake_restore)
+    common = [
+        "--profile", "AT_M140_BUG27084_KNOWN_BAD_V1",
+        "--serial", "SER",
+        "--expected-model", "AT-M140",
+        "--expected-fingerprint",
+        cli.PROFILES["AT_M140_BUG27084_KNOWN_BAD_V1"]["fingerprint"],
+        "--run-id", "20260829T050618Z",
+        "--execute",
+        "--direct-home-role-recovery",
+    ]
+
+    assert cli.main(["restore", *common]) == 0
+    assert captured["direct_home_role_recovery"] is True
+    assert "--direct-home-role-recovery" in cli._parser().format_help()
+    assert "add-role-holder" in json.dumps(
+        cli.render_plan(
+            "AT_M140_BUG27084_KNOWN_BAD_V1",
+            cli.PROFILES["AT_M140_BUG27084_KNOWN_BAD_V1"],
+        )
+    )
+
+    assert cli.main(["bind", *common]) == 2
+    assert "valid only with restore" in capsys.readouterr().err
+
+
+def test_parse_launcher_host_bindings_includes_every_provider_and_widget_id():
+    """Catch fixture resets proving absence for only the selected provider."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+    transcript = """Providers:
+  Provider{uid=101 cmp=com.vendor.one/.Widget}
+  Provider{uid=102 cmp=com.vendor.two/.Widget}
+Widgets:
+  [0] id=17
+    host=HostId{user:0, app:10151, hostId:1024, pkg:com.hnlens.launcher3}
+    provider=ProviderId{user:0, app:101, cmp:ComponentInfo{com.vendor.one/.Widget}}
+    views=RemoteViews{one}
+  [1] id=29
+    host=HostId{user:0, app:10151, hostId:1024, pkg:com.hnlens.launcher3}
+    provider=ProviderId{user:0, app:102, cmp:ComponentInfo{com.vendor.two/.Widget}}
+    views=null
+  [2] id=31
+    host=HostId{user:0, app:999, hostId:12, pkg:com.other.launcher}
+    provider=ProviderId{user:0, app:102, cmp:ComponentInfo{com.vendor.two/.Widget}}
+"""
+
+    bindings = parsers.parse_launcher_host_bindings(
+        transcript, "com.hnlens.launcher3"
+    )
+
+    assert [(item.widget_id, item.provider_component) for item in bindings] == [
+        (17, "com.vendor.one/.Widget"),
+        (29, "com.vendor.two/.Widget"),
+    ]
+    assert [item.remote_views_present for item in bindings] == [True, False]
+
+
+def test_parse_launcher_host_bindings_rejects_incomplete_appwidget_transcript(
+):
+    """Catch a truncated dump being misclassified as an empty Launcher host."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+
+    with pytest.raises(ValueError, match="appwidget dump is incomplete"):
+        parsers.parse_launcher_host_bindings(
+            "Providers:\n", "com.hnlens.launcher3"
+        )
+
+
+def test_parse_launcher_host_bindings_counts_orphan_provider_as_a_binding():
+    """Catch stale provider=null host records disappearing from reset evidence."""
+    parsers = _load_script("appwidget_stale_provider_parsers")
+    transcript = (
+        "Providers:\nWidgets:\n  [0] id=17\n"
+        "    host=HostId{pkg:com.hnlens.launcher3}\n"
+        "    provider=null\n"
+    )
+
+    bindings = parsers.parse_launcher_host_bindings(
+        transcript, "com.hnlens.launcher3"
+    )
+
+    assert len(bindings) == 1
+    assert bindings[0].widget_id == 17
+    assert bindings[0].provider_component is None
+
+
+def _general_home_raw(profile):
+    return (
+        '<hierarchy rotation="0"><node text="General home" '
+        f'package="{profile["general_home"]}" bounds="[0,0][480,800]" />'
+        "</hierarchy>UI hierchary dumped to: /dev/tty\n"
+    )
+
+
+def _reset_fixture_responses(profile, *, clear_callback="Success\n"):
+    before = """Providers:
+  Provider{uid=101 cmp=com.vendor.one/.Widget}
+  Provider{uid=102 cmp=com.vendor.two/.Widget}
+Widgets:
+  [0] id=17
+    host=HostId{user:0, app:10151, hostId:1024, pkg:com.hnlens.launcher3}
+    provider=ProviderId{user:0, app:101, cmp:ComponentInfo{com.vendor.one/.Widget}}
+    views=RemoteViews{one}
+  [1] id=29
+    host=HostId{user:0, app:10151, hostId:1024, pkg:com.hnlens.launcher3}
+    provider=ProviderId{user:0, app:102, cmp:ComponentInfo{com.vendor.two/.Widget}}
+    views=null
+"""
+    responses = _identity_responses()
+    responses.update(
+        {
+            (
+                "shell", "cmd", "role", "get-role-holders",
+                "android.app.role.HOME",
+            ): [
+                f"{profile['simple_home']}\n",
+                f"{profile['simple_home']}\n",
+                f"{profile['general_home']}\n",
+                f"{profile['general_home']}\n",
+                f"{profile['general_home']}\n",
+                f"{profile['simple_home']}\n",
+                f"{profile['simple_home']}\n",
+            ],
+            ("shell", "dumpsys", "activity", "activities"): [
+                f"mResumedActivity: {profile['simple_home']}/.Home\n",
+                f"mResumedActivity: {profile['general_home']}/.Home\n",
+                f"mResumedActivity: {profile['simple_home']}/.Home\n",
+            ],
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): [
+                _simple_home_raw(),
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                _general_home_raw(profile),
+                _mode_switch_raw(normal_checked=True, simple_checked=False),
+                _mode_switch_raw(normal_checked=False, simple_checked=True),
+                _simple_home_raw(),
+            ],
+            ("shell", "dumpsys", "appwidget"): [
+                before,
+                "Providers:\nWidgets:\n",
+            ],
+            ("shell", "dumpsys", "package", profile["app"]["package"]): (
+                "appId=10234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+            ("shell", "pm", "clear", profile["launcher_package"]): (
+                clear_callback
+            ),
+            ("shell", "am", "start", "-n", profile["switch_activity"]): [
+                "Starting\n",
+                "Starting\n",
+            ],
+            ("shell", "input", "tap", "240", "364"): "",
+            ("shell", "input", "tap", "240", "453"): "",
+            ("shell", "input", "tap", "359", "542"): ["", ""],
+        }
+    )
+    return responses
+
+
+def test_reset_fixture_clears_only_after_durable_intent_and_records_ready_lineage(
+    tmp_path,
+):
+    """Catch an independent-cycle reset clearing Launcher before a durable ledger."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="RESTORED_SAFE",
+        final_home_role=profile["simple_home"],
+        completed_phases=["BASELINE_CAPTURED", "RESTORED_SAFE"],
+        mutations_remaining=["stale_launcher_record:37"],
+        old_widget_id=41,
+        active_attempts={},
+        attempt_reconciliation_required=[],
+        run_complete=True,
+    )
+
+    def clear_after_ledger(_argv, _binary):
+        state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+        result = json.loads((bundle.directory / "result.json").read_text("utf-8"))
+        assert "launcher_data:clear-unverified" in state["mutations_remaining"]
+        assert state["run_complete"] is False
+        assert state["fixture_reset_status"] == "IN_PROGRESS"
+        assert result["run_complete"] is False
+        assert result["fixture_reset_status"] == "IN_PROGRESS"
+        assert result["mutations_remaining"] == state["mutations_remaining"]
+        return "Success\n"
+
+    transport = _ScriptedTransport(
+        models,
+        _reset_fixture_responses(profile, clear_callback=clear_after_ledger),
+    )
+
+    reset = orchestrator.reset_fixture(
+        repo_root=tmp_path,
+        profile=profile,
+        next_profile=profile,
+        next_profile_name="NEXT_PROFILE",
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        next_run_id="20260829T050619Z",
+        execute=True,
+        wait=lambda: None,
+    )
+
+    state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    record = json.loads(
+        (bundle.directory / "fixture_reset.json").read_text("utf-8")
+    )
+    assert reset["status"] == "READY_FOR_CAPTURE"
+    assert state["current_phase"] == "RESTORED_SAFE"
+    assert state["mutations_remaining"] == []
+    assert state["fixture_reset"]["status"] == "READY_FOR_CAPTURE"
+    assert record["status"] == "READY_FOR_CAPTURE"
+    assert record["source_run_id"] == "20260829T050618Z"
+    assert record["next_run_id"] == "20260829T050619Z"
+    assert record["next_profile_name"] == "NEXT_PROFILE"
+    assert record["prior_launcher_widget_ids"] == [17, 29, 37, 41]
+    assert record["post_clear_launcher_widget_ids"] == []
+    assert record["post_clear_launcher_host_bindings"] == []
+    assert record["markers_remaining"] == []
+    assert record["final_home_role"] == profile["simple_home"]
+    pre_manifest = (
+        bundle.directory / record["pre_reset_manifest_snapshot"]
+    ).read_bytes()
+    assert hashlib.sha256(pre_manifest).hexdigest().upper() == record[
+        "pre_reset_manifest_sha256"
+    ]
+    assert (
+        "shell", "pm", "clear", profile["launcher_package"]
+    ) in transport.calls
+    result_state = json.loads(
+        (bundle.directory / "result.json").read_text("utf-8")
+    )
+    assert result_state["run_complete"] is True
+    assert result_state["fixture_reset_status"] == "READY_FOR_CAPTURE"
+    assert result_state["mutations_remaining"] == []
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+def _seed_ready_fixture_reset(tmp_path, profile):
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="RESTORED_SAFE",
+        final_home_role=profile["simple_home"],
+        completed_phases=["BASELINE_CAPTURED", "RESTORED_SAFE"],
+        mutations_remaining=[],
+        active_attempts={},
+        attempt_reconciliation_required=[],
+        run_complete=True,
+    )
+    inputs = evidence.verify_inputs(tmp_path, profile)
+    receipt = {
+        "final_home_role": profile["simple_home"],
+        "markers_remaining": [],
+        "next_profile_identity": {
+            "inputs": inputs,
+            "profile_identity": {
+                "fingerprint": profile["fingerprint"],
+                "incremental": profile["incremental"],
+                "model": profile["model"],
+                "viewport": list(profile["viewport"]),
+            },
+            "profile_name": "NEXT_PROFILE",
+        },
+        "next_profile_name": "NEXT_PROFILE",
+        "next_run_id": "20260829T050619Z",
+        "post_clear_launcher_host_bindings": [],
+        "post_clear_launcher_widget_ids": [],
+        "pre_reset_manifest_sha256": "A" * 64,
+        "prior_launcher_host_bindings": [],
+        "prior_launcher_widget_ids": [],
+        "reset_attempt_id": "reset-fixture-0001",
+        "schema_version": 1,
+        "source_run_id": "20260829T050618Z",
+        "status": "READY_FOR_CAPTURE",
+    }
+    bundle.write_json("fixture_reset.json", receipt)
+    state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    state.update(
+        {
+            "attempts": [
+                {
+                    "attempt_id": "reset-fixture-0001",
+                    "kind": "reset-fixture",
+                    "status": "COMPLETED",
+                }
+            ],
+            "fixture_reset": {
+                "attempt_id": "reset-fixture-0001",
+                "next_run_id": "20260829T050619Z",
+                "status": "READY_FOR_CAPTURE",
+            },
+            "last_fixture_reset_attempt_id": "reset-fixture-0001",
+        }
+    )
+    bundle.write_json("run.json", state)
+    return bundle
+
+
+def test_capture_consumes_exact_reset_once_and_pins_external_lineage(tmp_path):
+    """Catch a reset receipt being replayed or a child omitting predecessor hashes."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    source = _seed_ready_fixture_reset(tmp_path, profile)
+    transport = _ScriptedTransport(models, _capture_responses(profile))
+
+    result = orchestrator.capture(
+        repo_root=tmp_path,
+        profile=profile,
+        profile_name="NEXT_PROFILE",
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050619Z",
+        after_reset_run_id="20260829T050618Z",
+    )
+
+    child = tmp_path / "out" / "20260829T050619Z"
+    source_state = json.loads((source.directory / "run.json").read_text("utf-8"))
+    lineage = json.loads((child / "lineage.json").read_text("utf-8"))
+    assert result["run_id"] == "20260829T050619Z"
+    assert source_state["fixture_reset"]["status"] == "CONSUMED"
+    assert source_state["fixture_reset"]["consumed_by_run_id"] == (
+        "20260829T050619Z"
+    )
+    assert lineage["source_run_id"] == "20260829T050618Z"
+    assert lineage["reset_attempt_id"] == "reset-fixture-0001"
+    assert lineage["source_manifest_sha256"] == hashlib.sha256(
+        (source.directory / "evidence_sha256.txt").read_bytes()
+    ).hexdigest().upper()
+    assert lineage["reset_receipt_sha256"] == hashlib.sha256(
+        (source.directory / "fixture_reset.json").read_bytes()
+    ).hexdigest().upper()
+    assert lineage["reset_consumption_sha256"] == hashlib.sha256(
+        (source.directory / "fixture_reset_consumption.json").read_bytes()
+    ).hexdigest().upper()
+    evidence.verify_evidence_manifest(source.directory)
+    evidence.verify_evidence_manifest(child)
+    child_state = json.loads((child / "run.json").read_text("utf-8"))
+    orchestrator._assert_run_identity(
+        child,
+        child_state,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        profile=profile,
+    )
+
+    with pytest.raises(orchestrator.GateFailure, match="handed off"):
+        orchestrator.bind(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=object(),
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    replay_transport = _ScriptedTransport(models, _identity_responses())
+    with pytest.raises(orchestrator.GateFailure, match="already consumed"):
+        orchestrator.capture(
+            repo_root=tmp_path,
+            profile=profile,
+            profile_name="NEXT_PROFILE",
+            transport=replay_transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050619Z",
+            after_reset_run_id="20260829T050618Z",
+        )
+
+
+def test_reset_fixture_host_binding_timeout_recovers_simple_and_keeps_reset_marker(
+    tmp_path,
+):
+    """Catch a failed host-zero poll leaving General HOME or erasing reset debt."""
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="RESTORED_SAFE",
+        final_home_role=profile["simple_home"],
+        completed_phases=["BASELINE_CAPTURED", "RESTORED_SAFE"],
+        mutations_remaining=["stale_launcher_record:17"],
+        active_attempts={},
+        attempt_reconciliation_required=[],
+        run_complete=True,
+    )
+    responses = _reset_fixture_responses(profile)
+    stale_dump = responses[("shell", "dumpsys", "appwidget")][0]
+    responses[("shell", "dumpsys", "appwidget")] = [
+        stale_dump,
+        *([stale_dump] * 15),
+    ]
+    role_key = (
+        "shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"
+    )
+    responses[role_key].insert(5, f"{profile['general_home']}\n")
+    transport = _ScriptedTransport(models, responses)
+
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="Launcher host bindings remain",
+    ):
+        orchestrator.reset_fixture(
+            repo_root=tmp_path,
+            profile=profile,
+            next_profile=profile,
+            next_profile_name="NEXT_PROFILE",
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            next_run_id="20260829T050619Z",
+            execute=True,
+            wait=lambda: None,
+        )
+
+    state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    assert state["final_home_role"] == profile["simple_home"]
+    assert "launcher_data:cleared-uninitialized" in state["mutations_remaining"]
+    assert "stale_launcher_record:17" in state["mutations_remaining"]
+    assert "home_role:general" not in state["mutations_remaining"]
+    assert "home_role:unverified" not in state["mutations_remaining"]
+    assert state["attempts"][-1]["attempt_id"] == "reset-fixture-0001"
+    assert state["attempts"][-1]["status"] == "ERROR"
+    assert state["run_complete"] is False
+    assert state["fixture_reset_status"] == "FAILED_SAFE"
+    result = json.loads((bundle.directory / "result.json").read_text("utf-8"))
+    assert result["run_complete"] is False
+    assert result["fixture_reset_status"] == "FAILED_SAFE"
+    assert result["mutations_remaining"] == state["mutations_remaining"]
+    assert not (bundle.directory / "fixture_reset.json").exists()
+
+
+def test_reset_safety_cleanup_runs_for_keyboard_interrupt_and_preserves_primary():
+    """Catch operator interruption bypassing the reset-specific Simple cleanup."""
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    primary = KeyboardInterrupt("operator interrupt")
+    calls = []
+
+    def interrupt():
+        raise primary
+
+    with pytest.raises(KeyboardInterrupt, match="operator interrupt") as raised:
+        orchestrator._run_reset_with_safety_cleanup(
+            interrupt, lambda: calls.append("cleanup")
+        )
+
+    assert raised.value is primary
+    assert calls == ["cleanup"]
+
+
+def test_reset_safety_cleanup_attaches_secondary_failure_to_interrupt():
+    """Catch reset cleanup errors replacing the operator interruption."""
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    primary = KeyboardInterrupt("operator interrupt")
+    cleanup = RuntimeError("cleanup failed")
+
+    def interrupt():
+        raise primary
+
+    def fail_cleanup():
+        raise cleanup
+
+    with pytest.raises(KeyboardInterrupt, match="operator interrupt") as raised:
+        orchestrator._run_reset_with_safety_cleanup(interrupt, fail_cleanup)
+
+    assert raised.value is primary
+    assert raised.value.cleanup_error is cleanup
+
+
+def test_reset_fixture_rejects_existing_next_run_before_transport_or_clear(tmp_path):
+    """Catch a reset mutating Launcher when its exact child bundle is unavailable."""
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_run(
+        tmp_path,
+        profile,
+        phase="RESTORED_SAFE",
+        final_home_role=profile["simple_home"],
+        mutations_remaining=[],
+        active_attempts={},
+        attempt_reconciliation_required=[],
+        run_complete=True,
+    )
+    (tmp_path / "out" / "20260829T050619Z").mkdir()
+
+    with pytest.raises(orchestrator.GateFailure, match="already exists"):
+        orchestrator.reset_fixture(
+            repo_root=tmp_path,
+            profile=profile,
+            next_profile=profile,
+            next_profile_name="NEXT_PROFILE",
+            transport=object(),
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            next_run_id="20260829T050619Z",
+            execute=True,
+        )
+
+
+def test_cli_scopes_reset_fixture_and_capture_lineage_arguments(monkeypatch, capsys):
+    """Catch reset/capture lineage flags being ignored or accepted by other phases."""
+    cli = _fresh_script("appwidget_stale_provider_cli")
+    reset_call = {}
+    capture_call = {}
+    monkeypatch.setattr(cli, "AdbTransport", lambda _serial: object())
+
+    def fake_reset(**kwargs):
+        reset_call.update(kwargs)
+        return {"status": "READY_FOR_CAPTURE"}
+
+    def fake_capture(**kwargs):
+        capture_call.update(kwargs)
+        return {"run_id": kwargs["run_id"]}
+
+    monkeypatch.setattr(cli, "reset_fixture", fake_reset)
+    monkeypatch.setattr(cli, "capture", fake_capture)
+    common = [
+        "--profile", "AT_M140_BUG27084_KNOWN_BAD_V1",
+        "--serial", "SER",
+        "--expected-model", "AT-M140",
+        "--expected-fingerprint",
+        cli.PROFILES["AT_M140_BUG27084_KNOWN_BAD_V1"]["fingerprint"],
+    ]
+
+    assert cli.main(
+        [
+            "reset-fixture",
+            *common,
+            "--run-id", "20260829T050618Z",
+            "--next-profile", "AT_M140_BUG27084_ACCUWEATHER_V1",
+            "--next-run-id", "20260829T050619Z",
+            "--execute",
+        ]
+    ) == 0
+    assert reset_call["next_profile_name"] == (
+        "AT_M140_BUG27084_ACCUWEATHER_V1"
+    )
+    assert reset_call["next_profile"] is cli.PROFILES[
+        "AT_M140_BUG27084_ACCUWEATHER_V1"
+    ]
+    assert reset_call["next_run_id"] == "20260829T050619Z"
+
+    assert cli.main(
+        [
+            "capture",
+            *common,
+            "--run-id", "20260829T050619Z",
+            "--after-reset-run-id", "20260829T050618Z",
+        ]
+    ) == 0
+    assert capture_call["profile_name"] == "AT_M140_BUG27084_KNOWN_BAD_V1"
+    assert capture_call["after_reset_run_id"] == "20260829T050618Z"
+
+    assert cli.main(
+        [
+            "bind",
+            *common,
+            "--run-id", "20260829T050619Z",
+            "--after-reset-run-id", "20260829T050618Z",
+            "--execute",
+        ]
+    ) == 2
+    assert "valid only with capture" in capsys.readouterr().err
+
+
+def test_reset_cleanup_reprobes_live_simple_before_direct_fallback(
+    tmp_path, monkeypatch
+):
+    """Catch a transient normal-path failure invoking direct recovery after Simple won."""
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="RESTORED_SAFE",
+        final_home_role=profile["general_home"],
+        mutations_remaining=[
+            "launcher_data:cleared-uninitialized",
+            "home_role:general",
+            "home_role:unverified",
+        ],
+        run_complete=False,
+        fixture_reset_status="IN_PROGRESS",
+    )
+    state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    roles = iter([profile["general_home"], profile["simple_home"]])
+    monkeypatch.setattr(
+        orchestrator, "_current_role", lambda *_a, **_k: next(roles)
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "_ensure_home_role",
+        lambda *_a, **_k: (_ for _ in ()).throw(
+            orchestrator.GateFailure("transient post-switch check")
+        ),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "_verify_home_role_three_way",
+        lambda *_a, **_k: profile["simple_home"],
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "_recover_simple_home_role_direct",
+        lambda *_a, **_k: (_ for _ in ()).throw(
+            AssertionError("direct recovery must not run for live Simple")
+        ),
+    )
+
+    orchestrator._recover_reset_failure_to_simple(
+        bundle=bundle,
+        state=state,
+        transport=object(),
+        serial="SER",
+        profile=profile,
+        attempt_id="reset-fixture-0001",
+        now=None,
+        wait=lambda: None,
+    )
+
+    persisted = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    result = json.loads((bundle.directory / "result.json").read_text("utf-8"))
+    assert persisted["final_home_role"] == profile["simple_home"]
+    assert persisted["fixture_reset_status"] == "FAILED_SAFE"
+    assert persisted["run_complete"] is False
+    assert persisted["mutations_remaining"] == [
+        "launcher_data:cleared-uninitialized"
+    ]
+    assert result["fixture_reset_status"] == "FAILED_SAFE"
+    assert result["mutations_remaining"] == persisted["mutations_remaining"]
+
+
+def test_restore_reconciles_failed_reset_by_read_only_simple_three_way(tmp_path):
+    """Catch FAILED reset reconciliation re-clearing Launcher or switching HOME."""
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="RESTORED_SAFE",
+        final_home_role=profile["general_home"],
+        mutations_remaining=[
+            "stale_launcher_record:17",
+            "launcher_data:cleared-uninitialized",
+            "home_role:general",
+            "home_role:unverified",
+        ],
+        run_complete=False,
+        fixture_reset_status="FAILED",
+        active_attempts={},
+        attempt_reconciliation_required=[],
+    )
+    responses = _identity_responses()
+    responses.update(
+        {
+            (
+                "shell", "cmd", "role", "get-role-holders",
+                "android.app.role.HOME",
+            ): f"{profile['simple_home']}\n",
+            ("shell", "dumpsys", "activity", "activities"): (
+                f"mResumedActivity: {profile['simple_home']}/.Home\n"
+            ),
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): (
+                _simple_home_raw()
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    result = json.loads((bundle.directory / "result.json").read_text("utf-8"))
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    assert restored["fixture_reset_status"] == "FAILED_SAFE"
+    assert state["final_home_role"] == profile["simple_home"]
+    assert state["fixture_reset_status"] == "FAILED_SAFE"
+    assert state["run_complete"] is False
+    assert state["mutations_remaining"] == [
+        "stale_launcher_record:17",
+        "launcher_data:cleared-uninitialized",
+    ]
+    assert state["attempts"][-1]["kind"] == "restore"
+    assert state["attempts"][-1]["status"] == "COMPLETED"
+    assert result["fixture_reset_status"] == "FAILED_SAFE"
+    assert result["mutations_remaining"] == state["mutations_remaining"]
+    assert not any(call[:3] == ("shell", "pm", "clear") for call in transport.calls)
+    assert ("shell", "am", "start", "-n", profile["switch_activity"]) not in (
+        transport.calls
+    )
+    evidence.verify_evidence_manifest(bundle.directory)
 
 
 def test_boot_poll_retries_transient_offline_with_condition_wait(tmp_path):

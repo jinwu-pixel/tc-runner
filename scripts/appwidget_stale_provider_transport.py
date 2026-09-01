@@ -18,7 +18,6 @@ class TransportTimeout(RuntimeError):
 
 
 Runner = Callable[[Sequence[str], int, bool], CommandResult]
-_SELECTOR_TOKENS = frozenset({"-s", "-d", "-e", "-t", "--transport-id"})
 
 
 def _decode_adb_text(value: bytes) -> str:
@@ -78,8 +77,8 @@ class AdbTransport:
         normalized = tuple(args)
         if not normalized:
             raise TransportInputError("target command is empty")
-        if any(token in _SELECTOR_TOKENS for token in normalized):
-            raise TransportInputError("target selector injection is forbidden")
+        if normalized[0].startswith("-"):
+            raise TransportInputError("target command must begin with an ADB subcommand")
         if any("\0" in token or "\r" in token or "\n" in token for token in normalized):
             raise TransportInputError("target command contains a control character")
         return normalized
