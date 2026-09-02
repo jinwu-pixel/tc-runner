@@ -53,6 +53,198 @@ KST = timezone(timedelta(hours=9))
 _sleep = time.sleep
 _monotonic = time.monotonic
 
+_CAMPAIGN_CELLS = (
+    {
+        "cell": "SIMPLECLOCK_CLEAN_A",
+        "profile_name": "AT_M140_BUG27084_KNOWN_BAD_V1",
+        "lifecycle": "remove-widget-uninstall-reinstall",
+    },
+    {
+        "cell": "SIMPLECLOCK_STALE_B",
+        "profile_name": "AT_M140_BUG27084_KNOWN_BAD_V1",
+        "lifecycle": "uninstall-reinstall",
+    },
+    {
+        "cell": "ACCUWEATHER_CLEAN_A",
+        "profile_name": "AT_M140_BUG27084_ACCUWEATHER_V1",
+        "lifecycle": "remove-widget-uninstall-reinstall",
+    },
+    {
+        "cell": "ACCUWEATHER_STALE_B",
+        "profile_name": "AT_M140_BUG27084_ACCUWEATHER_V1",
+        "lifecycle": "uninstall-reinstall",
+    },
+)
+
+
+def build_campaign_schedule(seed: str, *, blocks: int = 5) -> dict[str, Any]:
+    """Build a reproducible complete-block order without runtime RNG state."""
+    if not isinstance(seed, str) or not seed.strip() or len(seed) > 128:
+        raise ValueError("campaign seed must be 1..128 non-blank characters")
+    if isinstance(blocks, bool) or not isinstance(blocks, int) or not 1 <= blocks <= 20:
+        raise ValueError("campaign blocks must be an integer from 1 through 20")
+    entries: list[dict[str, Any]] = []
+    ordinal = 1
+    for block in range(1, blocks + 1):
+        ordered = sorted(
+            _CAMPAIGN_CELLS,
+            key=lambda item: hashlib.sha256(
+                f"{seed}\0{block}\0{item['cell']}".encode("utf-8")
+            ).digest(),
+        )
+        for position, item in enumerate(ordered, start=1):
+            entries.append(
+                {
+                    **item,
+                    "block": block,
+                    "block_position": position,
+                    "ordinal": ordinal,
+                }
+            )
+            ordinal += 1
+    schedule: dict[str, Any] = {
+        "algorithm": "sha256-cell-order-v1",
+        "blocks": blocks,
+        "entries": entries,
+        "schema_version": 1,
+        "seed": seed,
+    }
+    payload = json.dumps(
+        schedule,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    schedule["schedule_sha256"] = hashlib.sha256(payload).hexdigest().upper()
+    return schedule
+
+
+def summarize_launcher_binding_drift(
+    before,
+    after,
+    *,
+    target_provider: str,
+) -> dict[str, Any]:
+    """Return the complete measured Launcher-host drift for one reset."""
+    before_ids = {item.widget_id for item in before}
+    after_ids = {item.widget_id for item in after}
+    if any(item.host_id is None for item in (*before, *after)):
+        raise ValueError("Launcher binding lacks hostId required for drift accounting")
+
+    def host_sizes(bindings) -> list[dict[str, int]]:
+        counts = Counter(int(item.host_id) for item in bindings)
+        return [
+            {"host_id": host_id, "widgets_size": counts[host_id]}
+            for host_id in sorted(counts)
+        ]
+
+    def provider_counts(bindings) -> list[dict[str, Any]]:
+        counts = Counter(item.provider_component for item in bindings)
+        return [
+            {"provider_component": component, "widgets_size": counts[component]}
+            for component in sorted(counts, key=lambda value: "" if value is None else value)
+        ]
+
+    return {
+        "added_widget_ids": sorted(after_ids - before_ids),
+        "after_host_sizes": host_sizes(after),
+        "after_provider_counts": provider_counts(after),
+        "after_widget_ids": sorted(after_ids),
+        "before_host_sizes": host_sizes(before),
+        "before_provider_counts": provider_counts(before),
+        "before_widget_ids": sorted(before_ids),
+        "removed_widget_ids": sorted(before_ids - after_ids),
+        "retained_widget_ids": sorted(before_ids & after_ids),
+        "target_provider_after_widget_ids": sorted(
+            item.widget_id for item in after if item.provider_component == target_provider
+        ),
+        "target_provider_before_widget_ids": sorted(
+            item.widget_id for item in before if item.provider_component == target_provider
+        ),
+    }
+
+
+def validate_measured_launcher_binding_drift(
+    before,
+    after,
+    *,
+    target_provider: str,
+) -> dict[str, Any]:
+    drift = summarize_launcher_binding_drift(
+        before,
+        after,
+        target_provider=target_provider,
+    )
+    if drift["target_provider_after_widget_ids"]:
+        raise GateFailure("target provider binding remains after measured reset")
+    if len(after) > len(before) + 1:
+        raise GateFailure("Launcher binding drift exceeded the +1 reset envelope")
+    before_providers = {item.provider_component for item in before}
+    added_ids = set(drift["added_widget_ids"])
+    added_providers = {
+        item.provider_component for item in after if item.widget_id in added_ids
+    }
+    if not added_providers.issubset(before_providers):
+        raise GateFailure("Launcher binding drift introduced a new provider")
+    return drift
+
+
+def _validate_campaign_record(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise GateFailure("campaign record is missing or invalid")
+    schedule = value.get("schedule")
+    entry = value.get("entry")
+    digest = value.get("schedule_sha256")
+    if not isinstance(schedule, dict) or not isinstance(entry, dict):
+        raise GateFailure("campaign schedule or entry is missing")
+    canonical = dict(schedule)
+    embedded_digest = canonical.pop("schedule_sha256", None)
+    payload = json.dumps(
+        canonical,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    actual_digest = hashlib.sha256(payload).hexdigest().upper()
+    if digest != actual_digest or embedded_digest != actual_digest:
+        raise GateFailure("campaign schedule hash mismatch")
+    ordinal = entry.get("ordinal")
+    entries = schedule.get("entries")
+    if (
+        isinstance(ordinal, bool)
+        or not isinstance(ordinal, int)
+        or not isinstance(entries, list)
+        or not 1 <= ordinal <= len(entries)
+        or entries[ordinal - 1] != entry
+    ):
+        raise GateFailure("campaign entry differs from the sealed schedule")
+    return value
+
+
+def validate_campaign_predecessor(
+    previous: Any,
+    requested: Any,
+    *,
+    campaign_retry: bool,
+) -> dict[str, Any]:
+    requested = _validate_campaign_record(requested)
+    requested_ordinal = requested["entry"]["ordinal"]
+    if previous is None:
+        if requested_ordinal != 1 or campaign_retry:
+            raise GateFailure("campaign source does not precede the requested cell")
+        return {"retry": False, "retry_of_ordinal": None}
+    previous = _validate_campaign_record(previous)
+    if previous["schedule_sha256"] != requested["schedule_sha256"]:
+        raise GateFailure("campaign source does not precede the requested cell")
+    previous_ordinal = previous["entry"]["ordinal"]
+    if requested_ordinal == previous_ordinal:
+        if not campaign_retry:
+            raise GateFailure("same-cell campaign continuation requires retry approval")
+        return {"retry": True, "retry_of_ordinal": previous_ordinal}
+    if campaign_retry or requested_ordinal != previous_ordinal + 1:
+        raise GateFailure("campaign source does not precede the requested cell")
+    return {"retry": False, "retry_of_ordinal": None}
+
 
 class GateFailure(RuntimeError):
     """A fail-closed precondition was not established."""
@@ -118,6 +310,7 @@ def _initial_result(home_role: str | None = None) -> dict[str, Any]:
         "mutations_remaining": [],
         "precondition_status": "NOT_EVALUATED",
         "provider_registered": None,
+        "stale_outcome": None,
         "widget_bound_after": None,
         "widget_bound_before": None,
     }
@@ -257,6 +450,15 @@ def _assert_run_identity(
         raise GateFailure("run predecessor receipt targets another run")
     if receipt.get("next_profile_identity", {}).get("inputs") != inputs:
         raise GateFailure("run predecessor receipt targets another input profile")
+    lineage_campaign = lineage.get("campaign")
+    if lineage_campaign is not None:
+        _validate_campaign_record(lineage_campaign)
+        if (
+            receipt.get("reset_policy") != "measured-drift"
+            or receipt.get("campaign") != lineage_campaign
+            or state.get("campaign") != lineage_campaign
+        ):
+            raise GateFailure("run campaign differs from predecessor receipt")
 
 
 def _consume_fixture_reset(
@@ -317,16 +519,39 @@ def _consume_fixture_reset(
         expected_profile_identity = _reset_profile_identity(
             profile_name, profile, checked_inputs
         )
+        reset_policy = receipt.get("reset_policy", "strict-empty")
+        strict_receipt = (
+            reset_policy == "strict-empty"
+            and receipt.get("post_clear_launcher_host_bindings") == []
+            and receipt.get("post_clear_launcher_widget_ids") == []
+        )
+        drift = receipt.get("binding_drift")
+        measured_receipt = (
+            reset_policy == "measured-drift"
+            and receipt.get("schema_version") == 2
+            and isinstance(receipt.get("campaign"), dict)
+            and isinstance(drift, dict)
+            and drift.get("target_provider_after_widget_ids") == []
+            and receipt.get("post_clear_launcher_widget_ids")
+            == drift.get("after_widget_ids")
+            and receipt.get("clean_init_crash_signature_count") == 0
+            and receipt.get("clean_init_launcher_crash_exit_count") == 0
+            and all(
+                isinstance(item, dict)
+                and isinstance(item.get("host_id"), int)
+                and not isinstance(item.get("host_id"), bool)
+                for item in receipt.get("post_clear_launcher_host_bindings", [])
+            )
+        )
         if (
-            receipt.get("schema_version") != 1
+            receipt.get("schema_version") not in {1, 2}
             or receipt.get("status") != "READY_FOR_CAPTURE"
             or receipt.get("source_run_id") != source_run_id
             or receipt.get("next_run_id") != next_run_id
             or receipt.get("reset_attempt_id") != reset_attempt_id
             or receipt.get("next_profile_identity") != expected_profile_identity
             or receipt.get("markers_remaining") != []
-            or receipt.get("post_clear_launcher_host_bindings") != []
-            or receipt.get("post_clear_launcher_widget_ids") != []
+            or not (strict_receipt or measured_receipt)
             or receipt.get("final_home_role") != profile["simple_home"]
         ):
             raise GateFailure("fixture reset receipt does not match the next capture")
@@ -365,7 +590,7 @@ def _consume_fixture_reset(
         }
         source_bundle.write_json("run.json", state)
         verify_evidence_manifest(source_directory)
-        return {
+        lineage = {
             "reset_attempt_id": reset_attempt_id,
             "reset_consumption_sha256": hashlib.sha256(
                 (source_directory / "fixture_reset_consumption.json").read_bytes()
@@ -377,6 +602,10 @@ def _consume_fixture_reset(
             ).hexdigest().upper(),
             "source_run_id": source_run_id,
         }
+        if measured_receipt:
+            lineage["campaign"] = receipt["campaign"]
+            lineage["reset_policy"] = "measured-drift"
+        return lineage
 
 
 class _CaptureWriter:
@@ -569,6 +798,8 @@ def capture(
     if lineage is not None:
         state["lineage"] = lineage
         state["profile_name"] = profile_name
+        if isinstance(lineage.get("campaign"), dict):
+            state["campaign"] = lineage["campaign"]
     bundle.write_json("run.json", state)
 
     writer = _CaptureWriter(bundle, transport, serial, now)
@@ -644,6 +875,14 @@ def capture(
         str(profile["app"]["provider"]),
         str(profile["launcher_package"]),
     )
+    try:
+        launcher_host_bindings = parse_launcher_host_bindings(
+            appwidget_text,
+            str(profile["launcher_package"]),
+        )
+    except ValueError:
+        launcher_host_bindings = ()
+        writer.failures.append("appwidget_baseline.txt:launcher-host-parse")
     crash = parse_crash_signature(crash_text)
     result = _initial_result(home_role)
     result.update(
@@ -658,6 +897,9 @@ def capture(
             "baseline": {
                 "binding_ids": [binding.widget_id for binding in widget_state.bindings],
                 "home_role": home_role,
+                "launcher_host_bindings": _launcher_binding_records(
+                    launcher_host_bindings
+                ),
                 "package_uid": package_state.uid,
                 "provider_uid": widget_state.provider_uid,
             },
@@ -1774,6 +2016,63 @@ def _current_role(
     return parse_home_role(text, dict(profile))
 
 
+def find_widget_removal_node(
+    xml_text: str,
+    *,
+    resource_id: str | None,
+    selector: str | None,
+):
+    """Resolve the selected widget in resize or normal Launcher presentation."""
+    node = (
+        find_ui_node_by_resource_id(xml_text, resource_id)
+        if resource_id
+        else None
+    )
+    if node is None and selector:
+        node = find_ui_node(xml_text, selector)
+    return node
+
+
+def _verify_home_role_and_activity(
+    bundle: EvidenceBundle,
+    transport,
+    serial: str,
+    profile: Mapping[str, Any],
+    target_role: str,
+    phase: str,
+    artifact_stem: str,
+    *,
+    now: Clock | None = None,
+) -> str:
+    """Verify HOME without requiring a dynamic widget tree to become idle."""
+    role = _current_role(
+        bundle,
+        transport,
+        serial,
+        profile,
+        phase,
+        f"role_verify_{artifact_stem}",
+        now=now,
+    )
+    activity = _record_command(
+        bundle,
+        transport,
+        serial,
+        phase,
+        f"activity_verify_{artifact_stem}",
+        ("shell", "dumpsys", "activity", "activities"),
+        now=now,
+    )
+    assert isinstance(activity, str)
+    _write_raw(
+        bundle.directory / "snapshots" / f"activity_verify_{artifact_stem}.txt",
+        activity,
+    )
+    if role != target_role or parse_home_role(activity, dict(profile)) != target_role:
+        raise GateFailure("target HOME role and resumed activity do not agree")
+    return target_role
+
+
 def _remove_bound_widget_before_lifecycle(
     *,
     bundle: EvidenceBundle,
@@ -1783,23 +2082,45 @@ def _remove_bound_widget_before_lifecycle(
     state: dict[str, Any],
     old_widget_id: int,
     attempt_id: str,
+    operation_phase: str = "arm",
     now: Clock | None = None,
     poll_attempts: int = 30,
     poll_interval_s: float = 2.0,
     wait: Callable[[], None] | None = None,
 ) -> None:
     """Remove the exact clean-control widget and prove binding loss."""
-    role = _current_role(
+    _record_command(
         bundle,
         transport,
         serial,
-        profile,
-        "arm",
-        f"role_before_{attempt_id}_widget_removal",
+        operation_phase,
+        f"normalize_{attempt_id}_widget_removal_home",
+        ("shell", "input", "keyevent", "KEYCODE_HOME"),
         now=now,
     )
-    if role != profile["general_home"]:
-        raise GateFailure("clean-control widget removal requires verified General HOME")
+    readiness_error: GateFailure | None = None
+    for readiness_attempt in range(1, max(1, poll_attempts) + 1):
+        try:
+            _verify_home_role_and_activity(
+                bundle,
+                transport,
+                serial,
+                profile,
+                str(profile["general_home"]),
+                operation_phase,
+                f"{attempt_id}_widget_removal_home_{readiness_attempt}",
+                now=now,
+            )
+            readiness_error = None
+            break
+        except GateFailure as error:
+            readiness_error = error
+        if readiness_attempt < max(1, poll_attempts):
+            _pause(wait, poll_interval_s)
+    if readiness_error is not None:
+        raise GateFailure(
+            "clean-control widget removal requires normalized General HOME"
+        ) from readiness_error
     stale_marker = f"stale_launcher_record:{old_widget_id}"
     if stale_marker in state.get("mutations_remaining", []):
         raise GateFailure("clean-control fixture already carries a stale-record mutation")
@@ -1808,7 +2129,7 @@ def _remove_bound_widget_before_lifecycle(
         bundle,
         transport,
         serial,
-        "arm",
+        operation_phase,
         f"appwidget_before_{attempt_id}_widget_removal",
         ("shell", "dumpsys", "appwidget"),
         now=now,
@@ -1859,21 +2180,33 @@ def _remove_bound_widget_before_lifecycle(
     ):
         raise GateFailure("clean-control widget removal gesture is outside viewport")
     ui = profile.get("ui", {})
+    remove_resource_id = ui.get("widget_remove_resource_id")
     remove_selector = ui.get("widget_remove_selector")
-    if remove_selector is not None:
-        if not isinstance(remove_selector, str) or not remove_selector.strip():
+    if remove_resource_id is not None or remove_selector is not None:
+        if remove_resource_id is not None and (
+            not isinstance(remove_resource_id, str)
+            or not remove_resource_id.strip()
+        ):
+            raise GateFailure("clean-control widget removal resource ID is invalid")
+        if remove_resource_id is None and (
+            not isinstance(remove_selector, str) or not remove_selector.strip()
+        ):
             raise GateFailure("clean-control widget removal selector is invalid")
         removal_xml = _ui_dump_with_retry(
             bundle,
             transport,
             serial,
-            "arm",
+            operation_phase,
             f"{attempt_id}_widget_removal_target",
             poll_attempts=poll_attempts,
             poll_interval_s=poll_interval_s,
             now=now,
         )
-        removal_node = find_ui_node(removal_xml, remove_selector)
+        removal_node = find_widget_removal_node(
+            removal_xml,
+            resource_id=remove_resource_id,
+            selector=remove_selector,
+        )
         if removal_node is None or removal_node.bounds is None:
             raise GateFailure(
                 "clean-control exact widget removal selector is absent or unbounded"
@@ -1896,7 +2229,7 @@ def _remove_bound_widget_before_lifecycle(
         bundle,
         transport,
         serial,
-        "arm",
+        operation_phase,
         "remove_bound_widget",
         (
             "shell",
@@ -1916,7 +2249,7 @@ def _remove_bound_widget_before_lifecycle(
             bundle,
             transport,
             serial,
-            "arm",
+            operation_phase,
             f"appwidget_after_{attempt_id}_widget_removal_{attempt}",
             ("shell", "dumpsys", "appwidget"),
             now=now,
@@ -1989,6 +2322,13 @@ def arm(
         expected_fingerprint=expected_fingerprint,
         profile=profile,
     )
+    campaign_state = state.get("campaign")
+    if campaign_state is not None:
+        campaign_state = _validate_campaign_record(campaign_state)
+        if campaign_state["entry"].get("lifecycle") != lifecycle:
+            raise GateFailure(
+                "arm lifecycle differs from the sealed campaign lifecycle"
+            )
     old_widget_id = state.get("old_widget_id")
     if not isinstance(old_widget_id, int):
         raise GateFailure("arm requires the exact old widget ID from bind")
@@ -2327,6 +2667,7 @@ def classify_trigger(
             "diagnosis_status": "OBSERVED",
             "evidence_term": "BUG-GAP observed",
             "phase": Phase.TRIGGERED_BUG.value,
+            "stale_outcome": "BUG_OBSERVED",
         }
     fixed_evidence = launcher_stale_record_evidence in {
         "DIRECT_DB",
@@ -2346,8 +2687,16 @@ def classify_trigger(
             "diagnosis_status": "OBSERVED",
             "evidence_term": "runtime PASS",
             "phase": Phase.TRIGGERED_FIXED.value,
+            "stale_outcome": "FIXED_OBSERVED",
         }
-    raise GateFailure("zero crash is inconclusive: fixed verdict gates are incomplete")
+    if home_rendered and launcher_process_stable:
+        return {
+            "diagnosis_status": "OBSERVED",
+            "evidence_term": "manual evidence observed",
+            "phase": Phase.TRIGGERED_STALE_NO_BUG.value,
+            "stale_outcome": "NO_TRIGGER_OBSERVED",
+        }
+    raise GateFailure("zero crash is inconclusive: HOME observation is unstable")
 
 
 def classify_clean_control(
@@ -2856,6 +3205,43 @@ def _verify_home_role_three_way(
     return target_role
 
 
+def _verify_home_role_three_way_with_retry(
+    bundle: EvidenceBundle,
+    transport,
+    serial: str,
+    profile: Mapping[str, Any],
+    target_role: str,
+    phase: str,
+    artifact_stem: str,
+    *,
+    now: Clock | None = None,
+    wait: Callable[[], None] | None = None,
+    attempts: int = 3,
+) -> str:
+    """Retry fresh 3-way reads while a HOME transition is settling."""
+    last_error: GateFailure | None = None
+    for attempt in range(1, max(1, attempts) + 1):
+        suffix = artifact_stem if attempt == 1 else f"{artifact_stem}_retry_{attempt}"
+        try:
+            return _verify_home_role_three_way(
+                bundle,
+                transport,
+                serial,
+                profile,
+                target_role,
+                phase,
+                suffix,
+                now=now,
+            )
+        except GateFailure as exc:
+            last_error = exc
+            if attempt >= max(1, attempts):
+                raise
+            _pause(wait, 1.0)
+    assert last_error is not None
+    raise last_error
+
+
 def _capture_attempt_baseline(
     *,
     bundle: EvidenceBundle,
@@ -3318,9 +3704,12 @@ def trigger(
             outcome=outcome,
         )
     else:
-        outcome = (
-            "bug" if classification["phase"] == Phase.TRIGGERED_BUG.value else "fixed"
-        )
+        if classification["phase"] == Phase.TRIGGERED_BUG.value:
+            outcome = "bug"
+        elif classification["phase"] == Phase.TRIGGERED_FIXED.value:
+            outcome = "fixed"
+        else:
+            outcome = "no-bug"
         phase = assert_transition(Phase.STALE_ARMED, "trigger", outcome=outcome)
     completed = list(state.get("completed_phases", []))
     completed.append(phase.value)
@@ -3377,6 +3766,8 @@ def trigger(
     )
     if clean_control:
         result["control_outcome"] = classification["control_outcome"]
+    else:
+        result["stale_outcome"] = classification["stale_outcome"]
     bundle.write_json("run.json", state)
     bundle.write_json("result.json", result)
     _set_attempt_status(bundle, state, attempt_id, "COMPLETED")
@@ -3498,6 +3889,7 @@ def verify(
         Phase.STALE_ARMED,
         Phase.TRIGGERED_BUG,
         Phase.TRIGGERED_FIXED,
+        Phase.TRIGGERED_STALE_NO_BUG,
     }:
         raise GateFailure("verify requires an armed or triggered run")
     result = _read_result(run_directory)
@@ -3658,6 +4050,7 @@ def restore(
             Phase.STALE_ARMED,
             Phase.TRIGGERED_BUG,
             Phase.TRIGGERED_FIXED,
+            Phase.TRIGGERED_STALE_NO_BUG,
         }:
             raise GateFailure("only an armed/triggered run can be preserved")
         warning = (
@@ -4025,6 +4418,177 @@ def restore(
     }
 
 
+def cleanup_bound_widget(
+    *,
+    repo_root: Path | str,
+    profile: Mapping[str, Any],
+    transport,
+    serial: str,
+    expected_model: str,
+    expected_fingerprint: str,
+    run_id: str,
+    execute: bool,
+    now: Clock | None = None,
+    wait: Callable[[], None] | None = None,
+) -> dict[str, Any]:
+    """Remove one exact residual clean-control widget and return to Simple HOME."""
+    if not execute:
+        raise GateFailure("cleanup-widget requires explicit --execute approval")
+    root = Path(repo_root).resolve(strict=True)
+    run_directory = _run_directory(root, profile, run_id)
+    state = _read_state(run_directory)
+    _assert_run_identity(
+        run_directory,
+        state,
+        serial=serial,
+        expected_model=expected_model,
+        expected_fingerprint=expected_fingerprint,
+        profile=profile,
+    )
+    if state.get("current_phase") != Phase.RESTORED_SAFE.value:
+        raise GateFailure("cleanup-widget requires RESTORED_SAFE")
+    old_widget_id = state.get("old_widget_id")
+    marker = f"widget_binding:{old_widget_id}"
+    if (
+        not isinstance(old_widget_id, int)
+        or isinstance(old_widget_id, bool)
+        or state.get("mutations_remaining") != [marker]
+    ):
+        raise GateFailure("cleanup-widget requires one exact residual widget marker")
+    bundle = EvidenceBundle(run_directory)
+    attempt_id = _reserve_attempt(bundle, state, "cleanup-widget")
+    preflight_identity(
+        transport,
+        serial,
+        expected_model,
+        expected_fingerprint,
+        dict(profile),
+    )
+
+    def mark_switch_intent() -> None:
+        _update_mutation_ledger(
+            bundle,
+            state,
+            add=("home_role:unverified",),
+        )
+
+    def return_simple() -> str:
+        role = _ensure_home_role(
+            bundle,
+            transport,
+            serial,
+            profile,
+            str(profile["simple_home"]),
+            "cleanup-widget",
+            now=now,
+            wait=wait,
+            before_switch=mark_switch_intent,
+            artifact_prefix=f"{attempt_id}_safe_simple",
+        )
+        _update_mutation_ledger(
+            bundle,
+            state,
+            remove=("home_role:general", "home_role:unverified"),
+            updates={"final_home_role": role},
+        )
+        return role
+
+    def remove_and_return() -> str:
+        general_role = _ensure_home_role(
+            bundle,
+            transport,
+            serial,
+            profile,
+            str(profile["general_home"]),
+            "cleanup-widget",
+            now=now,
+            wait=wait,
+            before_switch=mark_switch_intent,
+            artifact_prefix=f"{attempt_id}_general",
+            required_source_role=str(profile["simple_home"]),
+        )
+        _update_mutation_ledger(
+            bundle,
+            state,
+            add=("home_role:general",),
+            remove=("home_role:unverified",),
+            updates={"final_home_role": general_role},
+        )
+        _remove_bound_widget_before_lifecycle(
+            bundle=bundle,
+            transport=transport,
+            serial=serial,
+            profile=profile,
+            state=state,
+            old_widget_id=old_widget_id,
+            attempt_id=attempt_id,
+            operation_phase="cleanup-widget",
+            now=now,
+            wait=wait,
+        )
+        return return_simple()
+
+    final_role = run_with_safety_cleanup(remove_and_return, return_simple)
+    final_role = _verify_home_role_three_way(
+        bundle,
+        transport,
+        serial,
+        profile,
+        str(profile["simple_home"]),
+        "cleanup-widget",
+        f"{attempt_id}_final_simple",
+        now=now,
+    )
+    appwidget_text = _record_command(
+        bundle,
+        transport,
+        serial,
+        "cleanup-widget",
+        f"appwidget_after_{attempt_id}",
+        ("shell", "dumpsys", "appwidget"),
+        now=now,
+    )
+    assert isinstance(appwidget_text, str)
+    _write_raw(
+        bundle.directory / "snapshots" / f"appwidget_after_{attempt_id}.txt",
+        appwidget_text,
+    )
+    widget_state = parse_appwidget_state(
+        appwidget_text,
+        str(profile["app"]["provider"]),
+        str(profile["launcher_package"]),
+    )
+    if any(binding.widget_id == old_widget_id for binding in widget_state.bindings):
+        raise GateFailure("cleanup-widget exact binding remains after UI removal")
+    _update_mutation_ledger(
+        bundle,
+        state,
+        remove=(marker, "home_role:general", "home_role:unverified"),
+        updates={
+            "final_home_role": final_role,
+            "run_complete": True,
+        },
+    )
+    _apply_attempt_status(state, attempt_id, "COMPLETED")
+    bundle.write_json("run.json", state)
+    result = _read_result(run_directory)
+    result.update(
+        {
+            "final_home_role": final_role,
+            "mutations_remaining": [],
+            "run_complete": True,
+        }
+    )
+    bundle.write_json("result.json", result)
+    verify_evidence_manifest(run_directory)
+    return {
+        "current_phase": Phase.RESTORED_SAFE.value,
+        "final_home_role": final_role,
+        "mutations_remaining": [],
+        "run_id": run_id,
+    }
+
+
 def _reset_profile_identity(
     profile_name: str,
     profile: Mapping[str, Any],
@@ -4061,15 +4625,22 @@ def _assert_reset_profile_compatibility(
 
 
 def _launcher_binding_records(bindings) -> list[dict[str, Any]]:
-    return [
+    return sorted(
+        [
         {
+            "host_id": binding.host_id,
             "host_package": binding.host_package,
             "provider_component": binding.provider_component,
             "remote_views_present": binding.remote_views_present,
             "widget_id": binding.widget_id,
         }
         for binding in bindings
-    ]
+        ],
+        key=lambda item: (
+            -1 if item["host_id"] is None else item["host_id"],
+            item["widget_id"],
+        ),
+    )
 
 
 def _sync_fixture_reset_result(
@@ -4129,6 +4700,66 @@ def _poll_launcher_host_empty(
         if attempt < max(1, poll_attempts):
             _pause(wait, poll_interval_s)
     raise GateFailure("Launcher host bindings remain after fixture reset")
+
+
+def _poll_launcher_host_stable(
+    *,
+    bundle: EvidenceBundle,
+    transport,
+    serial: str,
+    profile: Mapping[str, Any],
+    attempt_id: str,
+    now: Clock | None,
+    wait: Callable[[], None] | None,
+    poll_attempts: int = 3,
+    poll_interval_s: float = 1.0,
+):
+    """Require two consecutive canonical post-init Launcher snapshots."""
+    previous_key = None
+    last_bindings = ()
+    for attempt in range(1, max(2, poll_attempts) + 1):
+        text = _record_command(
+            bundle,
+            transport,
+            serial,
+            "reset-fixture",
+            f"appwidget_after_fixture_reset_poll_{attempt}",
+            ("shell", "dumpsys", "appwidget"),
+            now=now,
+        )
+        assert isinstance(text, str)
+        _write_raw(
+            bundle.directory
+            / "snapshots"
+            / f"appwidget_after_{attempt_id}_poll_{attempt}.txt",
+            text,
+        )
+        try:
+            last_bindings = parse_launcher_host_bindings(
+                text, str(profile["launcher_package"])
+            )
+        except ValueError as exc:
+            raise GateFailure("post-reset AppWidget snapshot is incomplete") from exc
+        if any(binding.host_id is None for binding in last_bindings):
+            raise GateFailure("post-reset Launcher binding lacks hostId")
+        current_key = tuple(
+            (
+                binding.host_id,
+                binding.widget_id,
+                binding.provider_component,
+                binding.remote_views_present,
+            )
+            for binding in sorted(
+                last_bindings,
+                key=lambda item: (int(item.host_id), item.widget_id),
+            )
+        )
+        if previous_key == current_key:
+            return last_bindings
+        previous_key = current_key
+        if attempt < max(2, poll_attempts):
+            _pause(wait, poll_interval_s)
+    raise GateFailure("Launcher host bindings did not stabilize after fixture reset")
 
 
 def _recover_reset_failure_to_simple(
@@ -4238,6 +4869,9 @@ def _complete_fixture_reset_device_sequence(
     attempt_id: str,
     prior_ids: list[int],
     stale_markers: tuple[str, ...],
+    reset_policy: str,
+    before_bindings,
+    target_provider: str,
     now: Clock | None,
     wait: Callable[[], None] | None,
 ):
@@ -4273,18 +4907,40 @@ def _complete_fixture_reset_device_sequence(
         remove=("home_role:unverified",),
         updates={"final_home_role": str(profile["general_home"])},
     )
-    after_bindings = _poll_launcher_host_empty(
-        bundle=bundle,
-        transport=transport,
-        serial=serial,
-        profile=profile,
-        attempt_id=attempt_id,
-        now=now,
-        wait=wait,
-    )
+    if reset_policy == "strict-empty":
+        after_bindings = _poll_launcher_host_empty(
+            bundle=bundle,
+            transport=transport,
+            serial=serial,
+            profile=profile,
+            attempt_id=attempt_id,
+            now=now,
+            wait=wait,
+        )
+    else:
+        after_bindings = _poll_launcher_host_stable(
+            bundle=bundle,
+            transport=transport,
+            serial=serial,
+            profile=profile,
+            attempt_id=attempt_id,
+            now=now,
+            wait=wait,
+        )
     after_ids = sorted({binding.widget_id for binding in after_bindings})
-    if set(prior_ids).intersection(after_ids):
+    if reset_policy == "strict-empty" and set(prior_ids).intersection(after_ids):
         raise GateFailure("prior Launcher widget IDs remain after fixture reset")
+    drift = summarize_launcher_binding_drift(
+        before_bindings,
+        after_bindings,
+        target_provider=target_provider,
+    )
+    if reset_policy == "measured-drift":
+        drift = validate_measured_launcher_binding_drift(
+            before_bindings,
+            after_bindings,
+            target_provider=target_provider,
+        )
     _ensure_home_role(
         bundle,
         transport,
@@ -4300,7 +4956,7 @@ def _complete_fixture_reset_device_sequence(
         artifact_prefix=f"{attempt_id}_return_simple",
         required_source_role=str(profile["general_home"]),
     )
-    final_role = _verify_home_role_three_way(
+    final_role = _verify_home_role_three_way_with_retry(
         bundle,
         transport,
         serial,
@@ -4309,6 +4965,7 @@ def _complete_fixture_reset_device_sequence(
         "reset-fixture",
         f"{attempt_id}_final_simple",
         now=now,
+        wait=wait,
     )
     _update_mutation_ledger(
         bundle,
@@ -4324,7 +4981,7 @@ def _complete_fixture_reset_device_sequence(
     )
     if state.get("mutations_remaining"):
         raise GateFailure("fixture reset left unresolved mutation markers")
-    return after_bindings, after_ids, final_role
+    return after_bindings, after_ids, final_role, drift
 
 
 def reset_fixture(
@@ -4340,12 +4997,50 @@ def reset_fixture(
     run_id: str,
     next_run_id: str,
     execute: bool,
+    reset_policy: str = "strict-empty",
+    campaign_seed: str | None = None,
+    campaign_blocks: int | None = None,
+    campaign_ordinal: int | None = None,
+    campaign_retry: bool = False,
+    wake_device: bool = False,
     now: Clock | None = None,
     wait: Callable[[], None] | None = None,
 ) -> dict[str, Any]:
     """Reset Launcher storage and issue one receipt for an exact next capture."""
     if not execute:
         raise GateFailure("reset-fixture requires explicit --execute approval")
+    if reset_policy not in {"strict-empty", "measured-drift"}:
+        raise GateFailure("unknown fixture reset policy")
+    campaign = None
+    if reset_policy == "measured-drift":
+        if (
+            campaign_seed is None
+            or campaign_blocks is None
+            or campaign_ordinal is None
+        ):
+            raise GateFailure(
+                "measured-drift reset requires campaign seed, blocks, and ordinal"
+            )
+        schedule = build_campaign_schedule(campaign_seed, blocks=campaign_blocks)
+        if (
+            isinstance(campaign_ordinal, bool)
+            or not isinstance(campaign_ordinal, int)
+            or not 1 <= campaign_ordinal <= len(schedule["entries"])
+        ):
+            raise GateFailure("campaign ordinal is outside the sealed schedule")
+        entry = schedule["entries"][campaign_ordinal - 1]
+        if entry["profile_name"] != next_profile_name:
+            raise GateFailure("next profile differs from the sealed campaign cell")
+        campaign = {
+            "entry": entry,
+            "schedule_sha256": schedule["schedule_sha256"],
+            "schedule": schedule,
+        }
+    elif any(
+        value is not None
+        for value in (campaign_seed, campaign_blocks, campaign_ordinal)
+    ) or campaign_retry:
+        raise GateFailure("campaign arguments require measured-drift reset policy")
     validate_run_id(next_run_id)
     if next_run_id == run_id:
         raise GateFailure("next run ID must differ from the source run ID")
@@ -4362,20 +5057,41 @@ def reset_fixture(
     )
     if state.get("current_phase") != Phase.RESTORED_SAFE.value:
         raise GateFailure("fixture reset requires a RESTORED_SAFE source run")
-    if state.get("run_complete") is not True:
-        raise GateFailure("fixture reset requires a completed source run")
     if state.get("active_attempts"):
         raise GateFailure("fixture reset source has active attempts")
     if state.get("attempt_reconciliation_required"):
         raise GateFailure("fixture reset source requires attempt reconciliation")
     mutations = list(state.get("mutations_remaining", []))
-    if any(
-        not isinstance(item, str)
-        or re.fullmatch(r"stale_launcher_record:[0-9]+", item) is None
+    stale_only = all(
+        isinstance(item, str)
+        and re.fullmatch(r"stale_launcher_record:[0-9]+", item) is not None
         for item in mutations
-    ):
-        raise GateFailure(
-            "fixture reset source has mutations other than a stale Launcher record"
+    )
+    failed_strict_pilot = (
+        reset_policy == "measured-drift"
+        and state.get("run_complete") is False
+        and state.get("fixture_reset_status") == "FAILED_SAFE"
+        and "launcher_data:cleared-uninitialized" in mutations
+        and all(
+            item == "launcher_data:cleared-uninitialized"
+            or (
+                isinstance(item, str)
+                and re.fullmatch(r"stale_launcher_record:[0-9]+", item)
+                is not None
+            )
+            for item in mutations
+        )
+    )
+    if not (state.get("run_complete") is True and stale_only) and not failed_strict_pilot:
+        raise GateFailure("fixture reset source is not eligible for the selected policy")
+    if campaign is not None:
+        previous_campaign = state.get("campaign")
+        campaign.update(
+            validate_campaign_predecessor(
+                previous_campaign,
+                campaign,
+                campaign_retry=campaign_retry,
+            )
         )
     if (run_directory / "fixture_reset.json").exists() or state.get("fixture_reset"):
         raise GateFailure("source run already owns a fixture-reset receipt")
@@ -4402,6 +5118,27 @@ def reset_fixture(
     )
     bundle = EvidenceBundle(run_directory)
     attempt_id = _reserve_attempt(bundle, state, "reset-fixture")
+    if wake_device:
+        _record_command(
+            bundle,
+            transport,
+            serial,
+            "reset-fixture",
+            "wake_device",
+            ("shell", "input", "keyevent", "KEYCODE_WAKEUP"),
+            now=now,
+        )
+        _pause(wait, 0.5)
+        _record_command(
+            bundle,
+            transport,
+            serial,
+            "reset-fixture",
+            "show_home_after_wake",
+            ("shell", "input", "keyevent", "KEYCODE_HOME"),
+            now=now,
+        )
+        _pause(wait, 0.5)
     _write_raw(
         bundle.directory / f"fixture_reset_pre_manifest_{attempt_id}.txt",
         pre_reset_manifest_bytes,
@@ -4457,6 +5194,25 @@ def reset_fixture(
         )
     except ValueError as exc:
         raise GateFailure("pre-reset AppWidget snapshot is incomplete") from exc
+    cycle_binding_drift = None
+    if reset_policy == "measured-drift":
+        try:
+            baseline_text = (
+                run_directory / "snapshots" / "appwidget_baseline.txt"
+            ).read_text(encoding="utf-8")
+            baseline_launcher_bindings = parse_launcher_host_bindings(
+                baseline_text,
+                str(profile["launcher_package"]),
+            )
+            cycle_binding_drift = summarize_launcher_binding_drift(
+                baseline_launcher_bindings,
+                before_bindings,
+                target_provider=str(profile["app"]["provider"]),
+            )
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise GateFailure(
+                "measured reset requires a complete Launcher binding baseline"
+            ) from exc
     recorded_stale_ids = {
         int(item.rsplit(":", 1)[1])
         for item in mutations
@@ -4468,6 +5224,37 @@ def reset_fixture(
     prior_ids = sorted(
         {binding.widget_id for binding in before_bindings} | recorded_stale_ids
     )
+
+    reset_runtime_baseline: dict[str, str] = {}
+    if reset_policy == "measured-drift":
+        baseline_commands = {
+            "crash": (
+                "shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"
+            ),
+            "exit_info": (
+                "shell", "dumpsys", "activity", "exit-info",
+                str(profile["launcher_package"]),
+            ),
+            "boot_id": ("shell", "cat", "/proc/sys/kernel/random/boot_id"),
+        }
+        for name, command in baseline_commands.items():
+            value = _record_command(
+                bundle,
+                transport,
+                serial,
+                "reset-fixture",
+                f"{name}_before_fixture_reset",
+                command,
+                now=now,
+            )
+            assert isinstance(value, str)
+            reset_runtime_baseline[name] = value
+            _write_raw(
+                bundle.directory
+                / "snapshots"
+                / f"{name}_before_{attempt_id}.txt",
+                value,
+            )
 
     _update_mutation_ledger(
         bundle,
@@ -4499,8 +5286,9 @@ def reset_fixture(
     stale_markers = tuple(
         item for item in mutations if item.startswith("stale_launcher_record:")
     )
-    after_bindings, after_ids, final_role = _run_reset_with_safety_cleanup(
-        lambda: _complete_fixture_reset_device_sequence(
+    def complete_and_measure_reset():
+        after_bindings, after_ids, final_role, drift = (
+            _complete_fixture_reset_device_sequence(
             bundle=bundle,
             state=state,
             transport=transport,
@@ -4509,9 +5297,84 @@ def reset_fixture(
             attempt_id=attempt_id,
             prior_ids=prior_ids,
             stale_markers=stale_markers,
+            reset_policy=reset_policy,
+            before_bindings=before_bindings,
+            target_provider=str(next_profile["app"]["provider"]),
             now=now,
             wait=wait,
-        ),
+            )
+        )
+        crash_count = 0
+        crash_exit_count = 0
+        if reset_policy == "measured-drift":
+            current: dict[str, str] = {}
+            after_commands = {
+                "crash": (
+                    "shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"
+                ),
+                "exit_info": (
+                    "shell", "dumpsys", "activity", "exit-info",
+                    str(profile["launcher_package"]),
+                ),
+                "boot_id": ("shell", "cat", "/proc/sys/kernel/random/boot_id"),
+            }
+            for name, command in after_commands.items():
+                value = _record_command(
+                    bundle,
+                    transport,
+                    serial,
+                    "reset-fixture",
+                    f"{name}_after_fixture_reset",
+                    command,
+                    now=now,
+                )
+                assert isinstance(value, str)
+                current[name] = value
+                _write_raw(
+                    bundle.directory
+                    / "snapshots"
+                    / f"{name}_after_{attempt_id}.txt",
+                    value,
+                )
+            same_boot = (
+                current["boot_id"].strip()
+                == reset_runtime_baseline["boot_id"].strip()
+            )
+            crash_count = _phase_crash_signature_count(
+                current_crash=current["crash"],
+                baseline_crash=reset_runtime_baseline["crash"],
+                current_exit_info=current["exit_info"],
+                baseline_exit_info=reset_runtime_baseline["exit_info"],
+                same_boot=same_boot,
+            )
+            crash_exit_count = len(
+                _phase_launcher_crash_exits(
+                    current_exit_info=current["exit_info"],
+                    baseline_exit_info=reset_runtime_baseline["exit_info"],
+                    launcher_package=str(profile["launcher_package"]),
+                    same_boot=same_boot,
+                )
+            )
+            if crash_count or crash_exit_count:
+                raise GateFailure("Launcher crashed during measured fixture initialization")
+        return (
+            after_bindings,
+            after_ids,
+            final_role,
+            drift,
+            crash_count,
+            crash_exit_count,
+        )
+
+    (
+        after_bindings,
+        after_ids,
+        final_role,
+        binding_drift,
+        clean_init_crash_signature_count,
+        clean_init_launcher_crash_exit_count,
+    ) = _run_reset_with_safety_cleanup(
+        complete_and_measure_reset,
         lambda: _recover_reset_failure_to_simple(
             bundle=bundle,
             state=state,
@@ -4525,6 +5388,10 @@ def reset_fixture(
     )
 
     receipt = {
+        "binding_drift": binding_drift,
+        "campaign": campaign,
+        "clean_init_crash_signature_count": clean_init_crash_signature_count,
+        "clean_init_launcher_crash_exit_count": clean_init_launcher_crash_exit_count,
         "final_home_role": final_role,
         "markers_remaining": [],
         "next_profile_identity": _reset_profile_identity(
@@ -4536,6 +5403,7 @@ def reset_fixture(
             after_bindings
         ),
         "post_clear_launcher_widget_ids": after_ids,
+        "cycle_binding_drift": cycle_binding_drift,
         "pre_reset_manifest_sha256": pre_reset_manifest_sha256,
         "pre_reset_manifest_snapshot": (
             f"fixture_reset_pre_manifest_{attempt_id}.txt"
@@ -4543,9 +5411,11 @@ def reset_fixture(
         "prior_launcher_host_bindings": _launcher_binding_records(before_bindings),
         "prior_launcher_widget_ids": prior_ids,
         "reset_attempt_id": attempt_id,
-        "schema_version": 1,
+        "reset_policy": reset_policy,
+        "schema_version": 2,
         "source_run_id": run_id,
         "status": "READY_FOR_CAPTURE",
+        "wake_device_requested": wake_device,
     }
     bundle.write_json("fixture_reset.json", receipt)
     state.update(
@@ -4553,6 +5423,7 @@ def reset_fixture(
             "fixture_reset": {
                 "attempt_id": attempt_id,
                 "next_run_id": next_run_id,
+                "reset_policy": reset_policy,
                 "status": "READY_FOR_CAPTURE",
             },
             "last_fixture_reset_attempt_id": attempt_id,
@@ -4639,6 +5510,9 @@ arm = _finalize_phase_manifest(arm)
 trigger = _finalize_phase_manifest(trigger)
 verify = _finalize_phase_manifest(verify)
 restore = _finalize_phase_manifest(restore)
+cleanup_bound_widget = _finalize_phase_manifest(
+    cleanup_bound_widget, attempt_kind="cleanup-widget"
+)
 reset_fixture = _finalize_phase_manifest(
     reset_fixture, attempt_kind="reset-fixture"
 )

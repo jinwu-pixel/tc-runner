@@ -32,6 +32,8 @@ def assert_transition(
             return Phase.TRIGGERED_BUG
         if outcome == "fixed":
             return Phase.TRIGGERED_FIXED
+        if outcome == "no-bug":
+            return Phase.TRIGGERED_STALE_NO_BUG
         raise PhaseViolation(f"unknown trigger outcome: {outcome}")
     if current is Phase.CLEAN_CONTROL_ARMED and command == "trigger-control":
         if outcome == "no-bug":
@@ -47,6 +49,7 @@ def assert_transition(
         Phase.CLEAN_CONTROL_ARMED,
         Phase.TRIGGERED_BUG,
         Phase.TRIGGERED_FIXED,
+        Phase.TRIGGERED_STALE_NO_BUG,
         Phase.TRIGGERED_CONTROL_NO_BUG,
         Phase.TRIGGERED_CONTROL_BUG,
     }:

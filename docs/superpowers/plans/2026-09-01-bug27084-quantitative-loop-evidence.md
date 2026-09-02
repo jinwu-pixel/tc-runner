@@ -63,27 +63,30 @@
 - [x] Start with n=5 per cell and preserve numerator/denominator, crash count, loop count, loader-log count, and recovery outcome.
 - [x] Receive explicit aggregate approval for the bounded known-bad campaign; do not infer firmware, commit, or push authorization.
 
-### Task 6: Execute the known-bad independent-fixture matrix
+### Task 6: Execute the known-bad drift-aware repeated-observation matrix
 
 **Evidence root:** `AT-M140 - Launcher BUG27084/evidence/`
 
-- [ ] Run SimpleClock clean-control A with a 30-second observation window for n=5 independent cycles.
-- [ ] Run SimpleClock stale-control B with a 30-second observation window for n=5 independent cycles.
-- [ ] Run AccuWeather clean-control A with a 30-second observation window for n=5 independent cycles.
-- [ ] Run AccuWeather stale-control B with a 30-second observation window for n=5 independent cycles.
-- [ ] Use `trigger` as the sole authoritative 30-second observation. Do not run `verify` as a second sample; clean-control phases do not support it and it would not be an independent fixture.
-- [ ] Between cycles, prove safe Simple HOME recovery, persist exact-serial Launcher-reset evidence, perform clean Launcher first initialization, prove all prior widget IDs/host bindings absent, return to Simple HOME 3-way, and link that reset to the next run before capture.
-- [ ] Stop only on exact-identity, immutable-input, evidence-integrity, selector, package-recovery, or safe-HOME recovery gate failure.
+- [x] Preserve strict all-host-zero reset as the default and add an explicit measured-drift policy rather than retroactively accepting the failed strict pilot.
+- [x] Seal a deterministic five-block × four-cell randomized complete-block schedule and pin its SHA-256 in reset/capture lineage.
+- [x] Record hostId, binding/provider counts, baseline→pre-reset and pre-reset→post-init deltas; fail on target-provider residue, unstable snapshots, new providers, count growth above +1, or clean-init Launcher crash.
+- [x] Run one four-cell checkpoint block (SimpleClock clean/stale, AccuWeather clean/stale) with a 30-second observation window.
+- [x] After checkpoint manifest/serial/lineage review, run the remaining four blocks to reach n=5 per selected cell.
+- [x] Use `trigger` as the sole authoritative 30-second observation. Do not run `verify` as a second sample; clean-control phases do not support it and it would not be an independent fixture.
+- [x] Between cycles, prove safe Simple HOME recovery, persist exact-serial Launcher-reset evidence, perform clean Launcher first initialization, prove the next target provider binding absent, disclose all residual binding drift, return to Simple HOME 3-way, and link the reset/schedule entry to the next run before capture.
+- [x] Stop only on exact-identity, immutable-input, evidence-integrity, selector, package-recovery, or safe-HOME recovery gate failure.
 
 ### Task 7: Reconcile and report the quantitative campaign
 
 **Files:**
 - Modify: `AT-M140 - Launcher BUG27084/RESULT_2026-09-01.md`
 
-- [ ] Verify every completed bundle manifest and exact target serial.
-- [ ] Record per-cell numerator/denominator for BUG27084 crash, loop, loader-log, and successful safe recovery.
-- [ ] Keep diagnosis at `OBSERVED` unless the repository's `CONFIRMED` matrix and quantitative requirements are actually satisfied.
-- [ ] Exclude fixture/capture/precondition failures from the observation denominator with an explicit reason. If `trigger` evidence is valid but later recovery fails, retain that observation in the crash/loop/loader denominator and report recovery against its own attempted-recovery denominator.
+- [x] Verify every completed bundle manifest and exact target serial.
+- [x] Record per-cell numerator/denominator for BUG27084 crash, loop, loader-log, and successful safe recovery.
+- [x] Keep diagnosis at `OBSERVED` unless the repository's `CONFIRMED` matrix and quantitative requirements are actually satisfied.
+- [x] Exclude fixture/capture/precondition failures from the observation denominator with an explicit reason. If `trigger` evidence is valid but later recovery fails, retain that observation in the crash/loop/loader denominator and report recovery against its own attempted-recovery denominator.
+
+Campaign result: the 20 schedule-selected bundles are clean `0/10` versus stale `10/10` for both BUG27084 signature and exact Launcher APP CRASH exit, with loop `0/20` and loader delta `0/20`. All manifests, exact serials, ordinal uniqueness, reset consumption, and final safe state passed independent audit. A conservative sensitivity denominator also retains the technically complete zero-crash ordinal-9 first trigger (`20260901T135852Z`), yielding stale `10/11=90.9%` and loop/loader `0/21`; this prevents the later successful retry from turning a classifier defect into an overstated deterministic rate. Denominator eligibility requires an actual trigger plus complete 30-second evidence, not precondition attainment or cell deduplication. The campaign was adaptive rather than single-revision immutable: clean removal normalization, stale zero-crash classification, and final Simple HOME retry were TDD-hardened between device attempts, while bundle evidence did not pin an execution-source digest.
 
 ### Campaign execution rulings
 

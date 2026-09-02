@@ -35,6 +35,7 @@ class LauncherHostBinding:
     provider_component: str | None
     host_package: str
     remote_views_present: bool
+    host_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -117,6 +118,7 @@ class Phase(str, Enum):
     CLEAN_CONTROL_ARMED = "CLEAN_CONTROL_ARMED"
     TRIGGERED_BUG = "TRIGGERED_BUG"
     TRIGGERED_FIXED = "TRIGGERED_FIXED"
+    TRIGGERED_STALE_NO_BUG = "TRIGGERED_STALE_NO_BUG"
     TRIGGERED_CONTROL_NO_BUG = "TRIGGERED_CONTROL_NO_BUG"
     TRIGGERED_CONTROL_BUG = "TRIGGERED_CONTROL_BUG"
     RESTORED_SAFE = "RESTORED_SAFE"

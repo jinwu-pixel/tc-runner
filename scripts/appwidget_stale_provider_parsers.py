@@ -118,6 +118,7 @@ def parse_launcher_host_bindings(
     for block in _widget_blocks(widget_region):
         widget_id = _matched_int(r"\b(?:appWidgetId[:=]|id=)(\d+)", block)
         host_package = _matched_text(r"\bpkg[:=]([A-Za-z0-9_.]+)", block)
+        host_id = _matched_int(r"\bhostId:(\d+)", block)
         provider_component = _matched_text(
             r"\bcmp[:=](?:ComponentInfo\{)?([A-Za-z0-9_.$]+/[A-Za-z0-9_.$]+)",
             block,
@@ -139,6 +140,7 @@ def parse_launcher_host_bindings(
                 remote_views_present=(
                     views_value is not None and views_value.lower() != "null"
                 ),
+                host_id=host_id,
             )
         )
     return tuple(bindings)

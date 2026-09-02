@@ -242,6 +242,9 @@ AT-M140 전용 값은 profile에 둔다.
 | `SAFE_SIMPLE` | Simple HOME role 확인 | uninstall/reinstall |
 | `STALE_ARMED` | 동일 package/signature 설치, 과거 widget id 없음, provider registry 존재 | `trigger` |
 | `TRIGGERED_BUG` | General HOME 전환 + line185/88 signature | `restore` 또는 보존 |
+| `TRIGGERED_STALE_NO_BUG` | stale precondition PASS + 30초 General HOME 렌더링·process 안정 + 신규 signature/exit 0 | `restore`; known-bad 무발생 관찰로 계수 |
+| `TRIGGERED_CONTROL_NO_BUG` | clean-control precondition PASS + 30초 렌더링·process 안정 + 신규 signature/exit 0 | `restore` |
+| `TRIGGERED_CONTROL_BUG` | clean-control에서 line185/88 signature 관찰 | `restore` 또는 보존 |
 | `TRIGGERED_FIXED` | General HOME 렌더링·process 안정·NPE 0 + stale precondition 증명 | 회귀 축 |
 | `RESTORED_SAFE` | Simple HOME 또는 clean General HOME, final mutation ledger 기록 | 종료 |
 
@@ -594,9 +597,27 @@ fake ADB transcript로 다음을 검증한다.
 
 ### 16.5 정량 반복과 loop 증거 게이트
 
-- fixed build 비교 전에 known-bad의 SimpleClock·AccuWeather A/B 각 셀을 독립 fixture **n=5**로 반복한다. 발생률이 불안정하거나 판정 경계이면 n=10으로 확장한다.
-- 매 cycle은 신규 run_id와 신규 widget ID를 사용한다. 이전 Launcher record를 재사용한 연속 trigger는 독립 시행으로 세지 않는다.
+- fixed build 비교 전에 known-bad의 SimpleClock·AccuWeather A/B 각 셀을 **반복 관찰 n=5**로 수행한다. 발생률이 불안정하거나 판정 경계이면 n=10으로 확장한다. Launcher/AppWidgetService 상태를 완전히 초기화하지 못하므로 `독립 표본`이라는 표현은 사용하지 않는다.
+- 매 cycle은 신규 run_id와 신규 target widget ID를 사용한다. 이전 target Launcher record를 재사용한 연속 trigger는 새 관찰로 세지 않는다.
 - 관찰 창 기본값은 30초다. 창 종료 시 active-boot baseline 대비 BUG27084 signature 수와 exact launcher package의 신규 `ApplicationExitInfo reason=4 (APP CRASH)` PID를 함께 집계한다.
 - `launcher_loop_observed`는 같은 관찰 창에서 BUG27084 signature가 2건 이상이거나 exact launcher APP CRASH exit가 2건 이상일 때만 true다. 단일 crash 후 회복은 crash 재현으로만 계수한다.
 - exact old widget ID의 phase-new `Widget provider not found for id=<id>` delta를 별도 집계한다. 0이면 stale-record evidence는 계속 `INFERRED_ONLY`이며, fixed 판정의 직접 근거로 승격하지 않는다.
-- known-bad와 fixed build는 provider, lifecycle, 관찰 창, 독립 fixture 수를 맞춘다. known-bad 1/1 대 fixed 0/1은 수정 효과의 근거로 사용하지 않는다.
+- stale precondition이 PASS이고 실제 trigger 실행과 30초 관찰·boot/PID/HOME 증거가 완결됐으면 signature/exit 0도 `TRIGGERED_STALE_NO_BUG`의 유효 분모 1이다. 코드가 결과 분류 뒤 실패했거나 복구가 실패해도 이미 완결된 trigger 관찰은 별도 복구 분모와 분리해 보존한다. precondition 도달만으로는 노출 분모에 넣지 않고 cell 단위 중복 제거도 사용하지 않는다. capture/bind/arm/trigger 관찰 자체가 완결되지 않은 시도만 분모 0이다.
+- known-bad와 fixed build는 provider, lifecycle, 관찰 창, 반복 수뿐 아니라 cycle 전후 Launcher-host binding count·ID·hostId·provider 분포의 drift 공변량도 맞춘다. known-bad 1/1 대 fixed 0/1은 수정 효과의 근거로 사용하지 않는다.
+
+### 16.6 measured-drift reset과 randomized complete block
+
+- `pm clear com.hnlens.launcher3`가 AppWidgetService의 Launcher-host binding을 0으로 만들지 않는 것이 `20260901T075920Z`에서 직접 관찰됐다(15→16, 15회 poll 안정). strict `reset-fixture`의 all-zero 기본값은 유지하며 자동 완화하지 않는다.
+- 정량 campaign은 별도 `measured-drift` reset만 사용한다. 각 block은 SimpleClock/AccuWeather × clean A/stale B 네 셀을 exactly once 포함하고, SHA-256 기반 결정론 순서와 전체 schedule hash를 첫 receipt 전에 봉인한다.
+- measured reset은 exact target provider binding 0, 모든 Launcher binding hostId 식별, 연속 두 canonical snapshot의 일치, reset 전 대비 binding count 증가 최대 +1, 기존에 없던 provider 유입 0, clean-init BUG27084 signature/Launcher APP CRASH delta 0을 모두 요구한다.
+- receipt는 capture baseline→cycle 종료 전 상태와 pre-reset→clean-init 후 상태의 widget ID·hostId·provider·RemoteViews delta를 모두 기록한다. 각 child capture는 predecessor receipt/consumption/manifest와 schedule entry를 hash로 결박하며, `arm` lifecycle이 sealed cell과 다르면 단말 호출 전에 차단한다.
+- 첫 block(4셀)은 실행 경로·drift 결박 실기 검증 checkpoint다. 네 bundle이 모두 manifest/serial/lineage GREEN일 때만 같은 sealed schedule의 나머지 네 block으로 확장한다. 유효한 첫 block 관찰은 n=5에 포함하되, precondition/capture/reset 실패는 분모 0으로 명시한다.
+
+### 16.7 known-bad RCBD 실기 결과 (2026-09-01~02 KST)
+
+- schedule seed `BUG27084-KNOWN-BAD-20260901-RCBD-V1`, SHA-256 `850D652F5AA9DAB754896EAA30E85157985C8ED978E1EE47EB889ECB8C71EF75`의 20개 선택 bundle은 ordinal 1~20이 정확히 한 번씩 존재하고 manifest와 event serial 결박을 모두 통과했다.
+- 선택 bundle 집계는 SimpleClock clean `0/5`, stale `5/5`; AccuWeather clean `0/5`, stale `5/5` 신규 BUG27084 signature다. exact Launcher APP CRASH exit도 같은 `0/5` 대 `5/5`다. loop와 old-widget loader delta는 선택 bundle `0/20`, ordinal 9의 완결 zero-crash trigger까지 포함한 실제 trigger 전체 `0/21`이다.
+- 19개 measured-drift receipt는 모두 target provider 잔존 0, clean-init signature/exit 0, Launcher-host binding count `+1` envelope, consumption 결박을 충족했다. 마지막 run은 `RESTORED_SAFE`, Simple HOME, mutation 0이다.
+- 민감도 분석에는 ordinal 9 첫 시도 `20260901T135852Z`를 포함한다. 당시 분류기 결함으로 attempt가 ERROR였지만 동일 boot, 30초 창, General HOME 렌더링, PID 안정, signature/exit 0의 trigger 원문이 완결됐다. 이를 사전 분모 원칙대로 포함하면 stale 전체는 `10/11=90.9%`다. 선택 bundle만의 `10/10`과 함께 병기하며, 첫 시도를 분모 0으로 제거해 결정론적 `100%`라고 일반화하지 않는다.
+- campaign은 단일 immutable harness revision으로 실행되지 않았다. 실기 fail-stop 뒤 clean-widget 제거 정규화, stale zero-crash 분류, 최종 Simple HOME 3-way bounded retry를 TDD로 보강했고 후속 ordinal을 계속했다. bundle은 evidence/schedule/device identity를 결박하지만 실행 source digest를 pin하지 않으므로, 결과를 사전 고정 구현의 동질 반복이 아닌 적응형 진단 campaign으로 제한한다.
+- 결론은 `OBSERVED` 유지다. 두 독립 vendor provider에서 clean/stale 정·역과 정량 차이는 강하지만, 단일 단말·단일 known-bad firmware의 반복 관찰이고 fixed build 대조와 field loop 재현은 아직 없다.

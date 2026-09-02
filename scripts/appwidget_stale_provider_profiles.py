@@ -143,6 +143,9 @@ PROFILES = {
             "widget_drag": (240, 485, 240, 240, 1500),
             "widget_remove_drag": (297, 187, 150, 70, 1200),
             "widget_remove_selector": "36시간 예보",
+            "widget_remove_resource_id": (
+                "com.hnlens.launcher3:id/widget_resize_frame"
+            ),
             "widget_education_close_resource_id": (
                 "com.hnlens.launcher3:id/edu_close_button"
             ),

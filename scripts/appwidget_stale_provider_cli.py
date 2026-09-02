@@ -13,6 +13,7 @@ from appwidget_stale_provider_orchestrator import (
     arm,
     bind,
     capture,
+    cleanup_bound_widget,
     reset_fixture,
     restore,
     trigger,
@@ -24,10 +25,10 @@ from appwidget_stale_provider_transport import AdbTransport
 
 COMMANDS = (
     "plan", "capture", "bind", "arm", "trigger", "verify", "restore",
-    "reset-fixture",
+    "reset-fixture", "cleanup-widget",
 )
 MUTATING_COMMANDS = frozenset(
-    {"bind", "arm", "trigger", "restore", "reset-fixture"}
+    {"bind", "arm", "trigger", "restore", "reset-fixture", "cleanup-widget"}
 )
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -56,6 +57,16 @@ def render_plan(profile_name: str, profile: dict[str, Any]) -> dict[str, Any]:
                     "requires_flag": "--direct-home-role-recovery",
                 },
             ]
+        if command == "reset-fixture":
+            phase["policies"] = {
+                "default": "strict-empty",
+                "campaign_only": "measured-drift",
+                "measured_drift_requires": [
+                    "--campaign-seed",
+                    "--campaign-blocks",
+                    "--campaign-ordinal",
+                ],
+            }
         phases.append(phase)
     return {
         "adb": "OFF",
@@ -84,6 +95,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--next-profile")
     parser.add_argument("--next-run-id")
     parser.add_argument("--after-reset-run-id")
+    parser.add_argument(
+        "--reset-policy",
+        choices=("strict-empty", "measured-drift"),
+        default="strict-empty",
+    )
+    parser.add_argument("--campaign-seed")
+    parser.add_argument("--campaign-blocks", type=int)
+    parser.add_argument("--campaign-ordinal", type=int)
+    parser.add_argument("--campaign-retry", action="store_true")
+    parser.add_argument("--wake-device", action="store_true")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument(
         "--adopt-existing",
@@ -196,6 +217,34 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _error("--next-profile/--next-run-id are valid only with reset-fixture")
     if args.after_reset_run_id and args.command != "capture":
         return _error("--after-reset-run-id is valid only with capture")
+    if args.wake_device and args.command != "reset-fixture":
+        return _error("--wake-device is valid only with reset-fixture")
+    campaign_values = (
+        args.campaign_seed,
+        args.campaign_blocks,
+        args.campaign_ordinal,
+    )
+    if (
+        args.reset_policy != "strict-empty"
+        or any(value is not None for value in campaign_values)
+    ) and args.command != "reset-fixture":
+        return _error("reset policy/campaign arguments are valid only with reset-fixture")
+    if args.command == "reset-fixture":
+        if args.reset_policy == "measured-drift" and any(
+            value is None for value in campaign_values
+        ):
+            return _error(
+                "measured-drift requires --campaign-seed, --campaign-blocks, "
+                "and --campaign-ordinal"
+            )
+        if args.reset_policy == "strict-empty" and any(
+            value is not None for value in campaign_values
+        ):
+            return _error("campaign arguments require --reset-policy measured-drift")
+        if args.campaign_retry and args.reset_policy != "measured-drift":
+            return _error("--campaign-retry requires --reset-policy measured-drift")
+    elif args.campaign_retry:
+        return _error("--campaign-retry is valid only with reset-fixture")
     next_profile = None
     if args.command == "reset-fixture":
         next_profile = PROFILES.get(str(args.next_profile))
@@ -246,6 +295,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 recover_package=args.recover_package,
                 direct_home_role_recovery=args.direct_home_role_recovery,
             )
+        elif args.command == "cleanup-widget":
+            payload = cleanup_bound_widget(
+                **common,
+                run_id=args.run_id,
+                execute=args.execute,
+            )
         else:
             assert next_profile is not None
             payload = reset_fixture(
@@ -255,6 +310,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 next_profile_name=str(args.next_profile),
                 next_run_id=str(args.next_run_id),
                 execute=args.execute,
+                reset_policy=args.reset_policy,
+                campaign_seed=args.campaign_seed,
+                campaign_blocks=args.campaign_blocks,
+                campaign_ordinal=args.campaign_ordinal,
+                campaign_retry=args.campaign_retry,
+                wake_device=args.wake_device,
             )
     except (GateFailure, ValueError, OSError, RuntimeError) as exc:
         state = None
