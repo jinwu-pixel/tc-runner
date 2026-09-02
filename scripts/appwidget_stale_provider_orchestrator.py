@@ -39,6 +39,14 @@ from appwidget_stale_provider_parsers import (
     ui_contains_exact_package,
 )
 from appwidget_stale_provider_preflight import preflight_identity
+from appwidget_stale_provider_provenance import (
+    HarnessProvenanceError,
+    inspect_harness,
+    provenance_mismatches,
+    require_clean_harness,
+    require_compatible_harness,
+    validate_harness_provenance,
+)
 from appwidget_stale_provider_state import assert_transition
 
 
@@ -339,7 +347,7 @@ def require_run_phase(run_directory: Path | str, expected: str | Phase) -> dict[
     return state
 
 
-def _assert_run_identity(
+def _assert_base_run_identity(
     run_directory: Path,
     state: Mapping[str, Any],
     *,
@@ -461,6 +469,288 @@ def _assert_run_identity(
             raise GateFailure("run campaign differs from predecessor receipt")
 
 
+def _read_harness_provenance(run_directory: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(
+            (run_directory / "harness_provenance.json").read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise GateFailure("run harness provenance is missing or invalid") from exc
+    if not isinstance(value, dict):
+        raise GateFailure("run harness provenance must contain an object")
+    return value
+
+
+def _source_provenance_identity(value: Mapping[str, Any]) -> dict[str, str]:
+    try:
+        checked = validate_harness_provenance(value)
+    except HarnessProvenanceError as exc:
+        raise GateFailure("fixture reset provenance is invalid") from exc
+    return {
+        "harness_commit": checked["harness_commit"],
+        "source_digest_sha256": checked["source_digest_sha256"],
+    }
+
+
+def _assert_fixture_reset_provenance(
+    *,
+    root: Path,
+    profile: Mapping[str, Any],
+    source_run_id: str,
+    current_provenance: Mapping[str, Any],
+) -> None:
+    """Reject legacy or incompatible child lineage before any ADB preflight."""
+    source_directory = _run_directory(root, profile, source_run_id)
+    try:
+        verify_evidence_manifest(source_directory)
+    except EvidenceInputError as exc:
+        raise EvidenceIntegrityFailure(
+            "reset predecessor evidence integrity verification failed"
+        ) from exc
+    recorded = _read_harness_provenance(source_directory)
+    try:
+        require_compatible_harness(recorded, current_provenance)
+    except HarnessProvenanceError as exc:
+        raise GateFailure("fixture reset provenance differs from current harness") from exc
+    try:
+        receipt = json.loads(
+            (source_directory / "fixture_reset.json").read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise GateFailure("fixture reset provenance receipt is missing or invalid") from exc
+    expected = _source_provenance_identity(recorded)
+    if (
+        not isinstance(receipt, dict)
+        or receipt.get("schema_version") != 3
+        or receipt.get("source_provenance") != expected
+    ):
+        raise GateFailure("fixture reset provenance is missing or incompatible")
+
+
+def _assert_lineage_source_provenance(
+    run_directory: Path,
+    state: Mapping[str, Any],
+    child_provenance: Mapping[str, Any],
+) -> None:
+    lineage = state.get("lineage")
+    if lineage is None:
+        return
+    if not isinstance(lineage, dict) or lineage.get("schema_version") != 2:
+        raise GateFailure("run predecessor lineage schema lacks source provenance")
+    source_run_id = lineage.get("source_run_id")
+    if not isinstance(source_run_id, str):
+        raise GateFailure("run predecessor lineage lacks a source run ID")
+    source_directory = run_directory.parent / validate_run_id(source_run_id)
+    source_provenance = _source_provenance_identity(
+        _read_harness_provenance(source_directory)
+    )
+    try:
+        receipt = json.loads(
+            (source_directory / "fixture_reset.json").read_text(encoding="utf-8")
+        )
+        consumption = json.loads(
+            (source_directory / "fixture_reset_consumption.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise GateFailure("run predecessor provenance artifacts are invalid") from exc
+    if (
+        receipt.get("schema_version") != 3
+        or receipt.get("source_provenance") != source_provenance
+        or lineage.get("source_provenance") != source_provenance
+        or not isinstance(consumption, dict)
+        or consumption.get("schema_version") != 2
+        or consumption.get("source_provenance") != source_provenance
+        or _source_provenance_identity(child_provenance) != source_provenance
+    ):
+        raise GateFailure("run predecessor source provenance differs from lineage")
+
+
+def _assert_run_identity(
+    run_directory: Path,
+    state: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    serial: str,
+    expected_model: str,
+    expected_fingerprint: str,
+    profile: Mapping[str, Any],
+) -> None:
+    """Validate a normal experiment run, including immutable source identity."""
+    _assert_base_run_identity(
+        run_directory,
+        state,
+        serial=serial,
+        expected_model=expected_model,
+        expected_fingerprint=expected_fingerprint,
+        profile=profile,
+    )
+    recorded = _read_harness_provenance(run_directory)
+    _assert_lineage_source_provenance(run_directory, state, recorded)
+    current = require_clean_harness(repo_root)
+    require_compatible_harness(recorded, current)
+
+
+def _assert_restore_run_identity(
+    run_directory: Path,
+    state: Mapping[str, Any],
+    *,
+    serial: str,
+    expected_model: str,
+    expected_fingerprint: str,
+    profile: Mapping[str, Any],
+) -> None:
+    """Apply non-provenance identity gates shared by the safety restore path."""
+    _assert_base_run_identity(
+        run_directory,
+        state,
+        serial=serial,
+        expected_model=expected_model,
+        expected_fingerprint=expected_fingerprint,
+        profile=profile,
+    )
+
+
+def _restore_lineage_mismatches(
+    run_directory: Path,
+    child_provenance: Mapping[str, Any] | None,
+) -> list[str]:
+    state = _read_state(run_directory)
+    lineage = state.get("lineage")
+    if lineage is None:
+        return []
+    if not isinstance(lineage, dict) or lineage.get("schema_version") != 2:
+        return ["legacy_schema"]
+    source_run_id = lineage.get("source_run_id")
+    if not isinstance(source_run_id, str):
+        return ["lineage_provenance"]
+    try:
+        source_directory = run_directory.parent / validate_run_id(source_run_id)
+    except (EvidenceInputError, ValueError):
+        return ["lineage_provenance"]
+    try:
+        receipt = json.loads(
+            (source_directory / "fixture_reset.json").read_text(encoding="utf-8")
+        )
+        consumption = json.loads(
+            (source_directory / "fixture_reset_consumption.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return ["legacy_schema"]
+    legacy_schema = (
+        not isinstance(receipt, dict)
+        or receipt.get("schema_version") != 3
+        or not isinstance(consumption, dict)
+        or consumption.get("schema_version") != 2
+    )
+    if legacy_schema:
+        return ["legacy_schema"]
+    if child_provenance is None:
+        return ["lineage_provenance"]
+    try:
+        _assert_lineage_source_provenance(
+            run_directory, state, child_provenance
+        )
+    except GateFailure:
+        return ["lineage_provenance"]
+    return []
+
+
+def _restore_provenance_assessment(
+    repo_root: Path, run_directory: Path
+) -> dict[str, Any]:
+    """Describe why restore is safe to allow without weakening normal phases."""
+    provenance_path = run_directory / "harness_provenance.json"
+    recorded_raw: Any = None
+    recorded: dict[str, Any] | None = None
+    recorded_error: dict[str, str] | None = None
+    if provenance_path.is_file():
+        try:
+            recorded_raw = json.loads(provenance_path.read_text(encoding="utf-8"))
+            if not isinstance(recorded_raw, dict):
+                raise HarnessProvenanceError(
+                    "run harness provenance must contain an object"
+                )
+            recorded = validate_harness_provenance(recorded_raw)
+        except (
+            OSError,
+            UnicodeError,
+            json.JSONDecodeError,
+            HarnessProvenanceError,
+        ) as exc:
+            recorded_error = {
+                "message": str(exc),
+                "type": type(exc).__name__,
+            }
+    lineage_mismatches = _restore_lineage_mismatches(
+        run_directory, recorded
+    )
+    try:
+        current = validate_harness_provenance(inspect_harness(repo_root))
+    except HarnessProvenanceError as exc:
+        mismatches = ["current_unavailable"]
+        if not provenance_path.is_file():
+            mismatches.append("legacy_missing")
+        elif recorded_error is not None:
+            mismatches.append("recorded_invalid")
+        mismatches.extend(lineage_mismatches)
+        return {
+            "current_error": {
+                "message": str(exc),
+                "type": type(exc).__name__,
+            },
+            "current_provenance": None,
+            "mismatches": mismatches,
+            "policy": "RESTORE_ONLY",
+            "recorded_error": recorded_error,
+            "recorded_provenance": recorded_raw,
+            "schema_version": 1,
+            "status": "CURRENT_UNAVAILABLE_RESTORE_ALLOWED",
+        }
+    if not provenance_path.is_file():
+        mismatches = ["legacy_missing"]
+        mismatches.extend(lineage_mismatches)
+        return {
+            "current_provenance": current,
+            "mismatches": mismatches,
+            "policy": "RESTORE_ONLY",
+            "recorded_error": None,
+            "recorded_provenance": None,
+            "schema_version": 1,
+            "status": "LEGACY_RESTORE_ALLOWED",
+        }
+    if recorded_error is not None or recorded is None:
+        return {
+            "current_provenance": current,
+            "mismatches": ["recorded_invalid", *lineage_mismatches],
+            "policy": "RESTORE_ONLY",
+            "recorded_error": recorded_error,
+            "recorded_provenance": recorded_raw,
+            "schema_version": 1,
+            "status": "RECORDED_INVALID_RESTORE_ALLOWED",
+        }
+    mismatches = [
+        *provenance_mismatches(recorded, current),
+        *lineage_mismatches,
+    ]
+    if mismatches == ["legacy_schema"]:
+        status = "LEGACY_SCHEMA_RESTORE_ALLOWED"
+    else:
+        status = "MISMATCH_RESTORE_ALLOWED" if mismatches else "MATCH"
+    return {
+        "current_provenance": current,
+        "mismatches": mismatches,
+        "policy": "RESTORE_ONLY" if mismatches else "MATCH_REQUIRED",
+        "recorded_error": None,
+        "recorded_provenance": recorded,
+        "schema_version": 1,
+        "status": status,
+    }
+
+
 def _consume_fixture_reset(
     *,
     root: Path,
@@ -472,6 +762,7 @@ def _consume_fixture_reset(
     serial: str,
     expected_model: str,
     expected_fingerprint: str,
+    current_provenance: Mapping[str, Any],
 ) -> dict[str, Any]:
     source_directory = _run_directory(root, profile, source_run_id)
     evidence_root = source_directory.parent
@@ -483,6 +774,14 @@ def _consume_fixture_reset(
             raise EvidenceIntegrityFailure(
                 "reset predecessor evidence integrity verification failed"
             ) from exc
+        recorded_provenance = _read_harness_provenance(source_directory)
+        try:
+            require_compatible_harness(recorded_provenance, current_provenance)
+        except HarnessProvenanceError as exc:
+            raise GateFailure(
+                "fixture reset provenance differs from current harness"
+            ) from exc
+        source_provenance = _source_provenance_identity(recorded_provenance)
         state = _read_state(source_directory)
         expected_source_identity = {
             "fingerprint": expected_fingerprint,
@@ -528,7 +827,7 @@ def _consume_fixture_reset(
         drift = receipt.get("binding_drift")
         measured_receipt = (
             reset_policy == "measured-drift"
-            and receipt.get("schema_version") == 2
+            and receipt.get("schema_version") == 3
             and isinstance(receipt.get("campaign"), dict)
             and isinstance(drift, dict)
             and drift.get("target_provider_after_widget_ids") == []
@@ -544,7 +843,8 @@ def _consume_fixture_reset(
             )
         )
         if (
-            receipt.get("schema_version") not in {1, 2}
+            receipt.get("schema_version") != 3
+            or receipt.get("source_provenance") != source_provenance
             or receipt.get("status") != "READY_FOR_CAPTURE"
             or receipt.get("source_run_id") != source_run_id
             or receipt.get("next_run_id") != next_run_id
@@ -576,7 +876,8 @@ def _consume_fixture_reset(
             "ready_manifest_sha256": ready_manifest_sha256,
             "reset_attempt_id": reset_attempt_id,
             "reset_receipt_sha256": receipt_sha256,
-            "schema_version": 1,
+            "schema_version": 2,
+            "source_provenance": source_provenance,
             "source_run_id": source_run_id,
             "status": "CONSUMED",
         }
@@ -596,7 +897,8 @@ def _consume_fixture_reset(
                 (source_directory / "fixture_reset_consumption.json").read_bytes()
             ).hexdigest().upper(),
             "reset_receipt_sha256": receipt_sha256,
-            "schema_version": 1,
+            "schema_version": 2,
+            "source_provenance": source_provenance,
             "source_manifest_sha256": hashlib.sha256(
                 (source_directory / "evidence_sha256.txt").read_bytes()
             ).hexdigest().upper(),
@@ -740,6 +1042,7 @@ def capture(
 ) -> dict[str, str]:
     """Collect the complete read-only baseline and create one durable run."""
     root = Path(repo_root).resolve(strict=True)
+    harness_provenance = require_clean_harness(root)
     checked_inputs = verify_inputs(root, profile)
     actual_run_id = run_id or make_run_id(_instant(now))
     if after_reset_run_id is not None:
@@ -748,6 +1051,12 @@ def capture(
             raise GateFailure("capture after reset requires an exact --run-id")
         if not profile_name:
             raise GateFailure("capture after reset requires an exact profile name")
+        _assert_fixture_reset_provenance(
+            root=root,
+            profile=profile,
+            source_run_id=after_reset_run_id,
+            current_provenance=harness_provenance,
+        )
     identity = preflight_identity(
         transport,
         serial,
@@ -768,8 +1077,10 @@ def capture(
             serial=serial,
             expected_model=expected_model,
             expected_fingerprint=expected_fingerprint,
+            current_provenance=harness_provenance,
         )
     bundle = EvidenceBundle.create(evidence_root, actual_run_id)
+    bundle.write_json("harness_provenance.json", harness_provenance)
     bundle.write_json("inputs.json", checked_inputs)
     if lineage is not None:
         bundle.write_json("lineage.json", lineage)
@@ -1458,6 +1769,7 @@ def bind(
     _assert_run_identity(
         run_directory,
         state,
+        repo_root=root,
         serial=serial,
         expected_model=expected_model,
         expected_fingerprint=expected_fingerprint,
@@ -2317,6 +2629,7 @@ def arm(
     _assert_run_identity(
         run_directory,
         state,
+        repo_root=root,
         serial=serial,
         expected_model=expected_model,
         expected_fingerprint=expected_fingerprint,
@@ -3550,6 +3863,7 @@ def trigger(
     _assert_run_identity(
         run_directory,
         state,
+        repo_root=root,
         serial=serial,
         expected_model=expected_model,
         expected_fingerprint=expected_fingerprint,
@@ -3876,6 +4190,7 @@ def verify(
     _assert_run_identity(
         run_directory,
         state,
+        repo_root=root,
         serial=serial,
         expected_model=expected_model,
         expected_fingerprint=expected_fingerprint,
@@ -4024,7 +4339,7 @@ def restore(
     root = Path(repo_root).resolve(strict=True)
     run_directory = _run_directory(root, profile, run_id)
     state = _read_state(run_directory)
-    _assert_run_identity(
+    _assert_restore_run_identity(
         run_directory,
         state,
         serial=serial,
@@ -4032,6 +4347,11 @@ def restore(
         expected_fingerprint=expected_fingerprint,
         profile=profile,
     )
+    provenance_assessment = _restore_provenance_assessment(root, run_directory)
+    if preserve_armed_state and provenance_assessment["status"] != "MATCH":
+        raise GateFailure(
+            "preserve_armed_state requires matching harness provenance"
+        )
     current_value = state.get("current_phase")
     try:
         current_phase = Phase(current_value)
@@ -4045,6 +4365,17 @@ def restore(
         raise GateFailure("baseline restore requires a recorded partial mutation")
     bundle = EvidenceBundle(run_directory)
     attempt_id = _reserve_attempt(bundle, state, "restore")
+    provenance_artifact = f"restore_provenance_{attempt_id}.json"
+    bundle.write_json(provenance_artifact, provenance_assessment)
+    provenance_result = _read_result(run_directory)
+    provenance_result.update(
+        {
+            "harness_provenance_mismatches": provenance_assessment["mismatches"],
+            "harness_provenance_restore_artifact": provenance_artifact,
+            "harness_provenance_status": provenance_assessment["status"],
+        }
+    )
+    bundle.write_json("result.json", provenance_result)
     if preserve_armed_state:
         if current_phase not in {
             Phase.STALE_ARMED,
@@ -4440,6 +4771,7 @@ def cleanup_bound_widget(
     _assert_run_identity(
         run_directory,
         state,
+        repo_root=root,
         serial=serial,
         expected_model=expected_model,
         expected_fingerprint=expected_fingerprint,
@@ -5050,10 +5382,14 @@ def reset_fixture(
     _assert_run_identity(
         run_directory,
         state,
+        repo_root=root,
         serial=serial,
         expected_model=expected_model,
         expected_fingerprint=expected_fingerprint,
         profile=profile,
+    )
+    source_provenance = _source_provenance_identity(
+        _read_harness_provenance(run_directory)
     )
     if state.get("current_phase") != Phase.RESTORED_SAFE.value:
         raise GateFailure("fixture reset requires a RESTORED_SAFE source run")
@@ -5412,7 +5748,8 @@ def reset_fixture(
         "prior_launcher_widget_ids": prior_ids,
         "reset_attempt_id": attempt_id,
         "reset_policy": reset_policy,
-        "schema_version": 2,
+        "schema_version": 3,
+        "source_provenance": source_provenance,
         "source_run_id": run_id,
         "status": "READY_FOR_CAPTURE",
         "wake_device_requested": wake_device,
@@ -5444,8 +5781,15 @@ def reset_fixture(
     }
 
 
-def _finalize_phase_manifest(function, *, attempt_kind: str | None = None):
+def _finalize_phase_manifest(
+    function,
+    *,
+    attempt_kind: str | None = None,
+    provenance_policy: str = "normal",
+):
     """Hold the run writer lock and verify evidence at every phase boundary."""
+    if provenance_policy not in {"normal", "restore"}:
+        raise ValueError("unknown phase provenance policy")
 
     @wraps(function)
     def wrapped(*args, **kwargs):
@@ -5459,6 +5803,10 @@ def _finalize_phase_manifest(function, *, attempt_kind: str | None = None):
                     raise EvidenceIntegrityFailure(
                         "run evidence integrity verification failed"
                     ) from exc
+                if provenance_policy == "normal":
+                    recorded = _read_harness_provenance(directory)
+                    current = require_clean_harness(root)
+                    require_compatible_harness(recorded, current)
                 handed_off = _read_state(directory).get("fixture_reset")
                 if (
                     isinstance(handed_off, dict)
@@ -5509,7 +5857,7 @@ bind = _finalize_phase_manifest(bind)
 arm = _finalize_phase_manifest(arm)
 trigger = _finalize_phase_manifest(trigger)
 verify = _finalize_phase_manifest(verify)
-restore = _finalize_phase_manifest(restore)
+restore = _finalize_phase_manifest(restore, provenance_policy="restore")
 cleanup_bound_widget = _finalize_phase_manifest(
     cleanup_bound_widget, attempt_kind="cleanup-widget"
 )

@@ -10,6 +10,23 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-29-appwidget-stale-provider-knowledge-pipeline-design.md`
 
+## Implementation status reconciliation (2026-09-02)
+
+아래 표가 현재 구현 상태의 권위다. 뒤의 unchecked step은 2026-08-29 당시 실행 절차를 보존한 historical checklist이며 현재 미구현을 뜻하지 않는다.
+
+| Plan scope | Current status | Evidence / boundary |
+|---|---|---|
+| Task 1 | OUT-OF-REPO / NOT VERIFIED | 개인 memory는 tc-runner 변경 범위 밖이며 이 세션에서 수정·검증하지 않음 |
+| Task 2 | NOT IMPLEMENTED | `docs/appwidget_stale_provider_verification.md`, `tests/test_appwidget_guidance_contract.py`, tracked `AGENTS.md`가 없음. 이번 bounded change에 추가하지 않음 |
+| Task 3 | PARTIAL; bundle mutation SUPERSEDED / FORBIDDEN | `BUG_LOG.md`, `RESUME.md`, `MENU_TREE.md`, RESULT cross-link와 contract test를 추가했다. `EVIDENCE_LEDGER.json` schema v2는 immutable legacy 45개의 manifest/tree digest baseline과 future provenance entry 영역을 분리한다. 원안의 sealed `result.json` provenance 삽입은 과거 bundle byte 불변 계약으로 대체되어 금지한다. APK split pin은 profile/`inputs.json`, viewport·activity topology는 profile/harness가 소유하며 issue 문서에 복제하지 않는다 |
+| Tasks 4–10 | IMPLEMENTED | 전용 profile/parser/CLI, exact preflight, evidence writer, capture/bind/arm/trigger/verify/restore가 master에 통합됨. Session A가 harness source provenance gate를 추가 |
+| Task 11 | PARTIAL | host-only appwidget/contract verification과 `CLAUDE.md` 도구 등록은 구현. Task 2 상세 playbook/guidance contract는 NOT IMPLEMENTED |
+| Tasks 12–14 | IMPLEMENTED as known-bad observation | capture, positive/negative control, RCBD campaign 및 안전 복구 evidence가 45개 legacy bundle과 RESULT series에 기록됨 |
+| Tasks 15–17 | BLOCKED | exact fixed build artifact/fingerprint가 없어 fixed A/B와 Google Go/정상 widget 회귀 미수행. Session B는 bootstrap pair 확인 후 fixed profile preparation commit으로 새 campaign authority pair를 만든다 |
+| Task 18 | DEFERRED / NOT IMPLEMENTED | dedicated harness evidence가 충분해진 뒤 core runner 승격을 별도 설계로 판단 |
+
+Session A 범위에서는 untracked `AGENTS.md`를 건드리지 않고 tracked `CLAUDE.md`만 갱신한다. 이는 아래 “두 guidance 파일 동시 반영”이라는 초기 가정을 현재 repository ownership에 맞게 대체한다. fixed build 실기는 Session B의 별도 승인 게이트다.
+
 ## Global Constraints
 
 - 이 계획의 승인은 계획 문서 작성 승인이다. 실제 파일 구현, 단말 mutation, commit, push는 각각 repo 승인 게이트를 따른다.

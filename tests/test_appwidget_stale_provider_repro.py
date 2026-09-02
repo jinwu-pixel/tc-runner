@@ -29,6 +29,275 @@ def _fresh_script(module_name: str):
     return _load_script(module_name)
 
 
+def test_harness_provenance_scope_covers_runtime_namespace_exactly():
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    expected = (
+        "scripts/appwidget_stale_provider_cli.py",
+        "scripts/appwidget_stale_provider_evidence.py",
+        "scripts/appwidget_stale_provider_models.py",
+        "scripts/appwidget_stale_provider_orchestrator.py",
+        "scripts/appwidget_stale_provider_parsers.py",
+        "scripts/appwidget_stale_provider_preflight.py",
+        "scripts/appwidget_stale_provider_profiles.py",
+        "scripts/appwidget_stale_provider_provenance.py",
+        "scripts/appwidget_stale_provider_repro.py",
+        "scripts/appwidget_stale_provider_state.py",
+        "scripts/appwidget_stale_provider_transport.py",
+    )
+    discovered = tuple(
+        sorted(
+            path.relative_to(ROOT).as_posix()
+            for path in (ROOT / "scripts").glob("appwidget_stale_provider_*.py")
+        )
+    )
+
+    assert provenance.HARNESS_PATHS == expected
+    assert discovered == expected
+
+
+def test_harness_source_canonical_json_is_sorted_fixed_and_content_only():
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    files = [
+        {"path": "scripts/z.py", "size": 1, "sha256": "A" * 64},
+        {"path": "scripts/a.py", "size": 2, "sha256": "B" * 64},
+    ]
+
+    canonical = provenance.canonical_source_bytes(files)
+
+    assert canonical == (
+        b'{"files":['
+        b'{"path":"scripts/a.py","sha256":"'
+        + b"B" * 64
+        + b'","size":2},'
+        + b'{"path":"scripts/z.py","sha256":"'
+        + b"A" * 64
+        + b'","size":1}],"schema_version":1}\n'
+    )
+    assert b"commit" not in canonical
+    assert b"repository" not in canonical
+    assert b"timestamp" not in canonical
+
+
+def _git_for_provenance(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ("git", *args),
+        cwd=repo,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+    return completed.stdout.strip()
+
+
+def _committed_harness_repo(tmp_path: Path, provenance):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _git_for_provenance(repo, "init")
+    _git_for_provenance(repo, "config", "user.name", "Harness Test")
+    _git_for_provenance(repo, "config", "user.email", "harness@example.invalid")
+    for relative in provenance.HARNESS_PATHS:
+        path = repo.joinpath(*relative.split("/"))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes((relative + "\n").encode("utf-8"))
+    (repo / "README.md").write_text("unrelated\n", encoding="utf-8")
+    _git_for_provenance(repo, "add", "--", *provenance.HARNESS_PATHS, "README.md")
+    _git_for_provenance(repo, "commit", "-m", "seed harness")
+    return repo
+
+
+def test_harness_provenance_is_deterministic_and_uses_path_scoped_commit(tmp_path):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    repo = _committed_harness_repo(tmp_path, provenance)
+    initial_head = _git_for_provenance(repo, "rev-parse", "HEAD")
+
+    first = provenance.require_clean_harness(repo)
+    second = provenance.require_clean_harness(repo)
+
+    assert first == second
+    assert first["repository_head"] == initial_head
+    assert first["harness_commit"] == initial_head
+    assert first["scope_clean"] is True
+    assert first["scope_changes"] == []
+    assert [item["path"] for item in first["files"]] == list(
+        provenance.HARNESS_PATHS
+    )
+    assert all(item["sha256"] == item["sha256"].upper() for item in first["files"])
+    assert all(not Path(item["path"]).is_absolute() for item in first["files"])
+    expected_digest = hashlib.sha256(
+        provenance.canonical_source_bytes(first["files"])
+    ).hexdigest().upper()
+    assert first["source_digest_sha256"] == expected_digest
+
+    (repo / "README.md").write_text("unrelated commit\n", encoding="utf-8")
+    _git_for_provenance(repo, "add", "--", "README.md")
+    _git_for_provenance(repo, "commit", "-m", "unrelated change")
+    unrelated_head = _git_for_provenance(repo, "rev-parse", "HEAD")
+    after_unrelated_commit = provenance.require_clean_harness(repo)
+
+    assert unrelated_head != initial_head
+    assert after_unrelated_commit["repository_head"] == unrelated_head
+    assert after_unrelated_commit["harness_commit"] == initial_head
+    assert after_unrelated_commit["source_digest_sha256"] == first[
+        "source_digest_sha256"
+    ]
+
+
+def test_harness_provenance_uses_canonical_git_bytes_across_clean_eol_forms(
+    tmp_path,
+):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    source = _committed_harness_repo(tmp_path, provenance)
+    lf_repo = tmp_path / "lf-checkout"
+    crlf_repo = tmp_path / "crlf-checkout"
+    _git_for_provenance(
+        tmp_path,
+        "clone",
+        "-c",
+        "core.autocrlf=false",
+        str(source),
+        str(lf_repo),
+    )
+    _git_for_provenance(
+        tmp_path,
+        "clone",
+        "-c",
+        "core.autocrlf=true",
+        str(source),
+        str(crlf_repo),
+    )
+
+    baseline = provenance.require_clean_harness(lf_repo)
+    crlf = provenance.require_clean_harness(crlf_repo)
+
+    assert crlf["files"] == baseline["files"]
+    assert crlf["source_digest_sha256"] == baseline["source_digest_sha256"]
+
+
+def test_harness_scoped_dirty_fails_closed_but_unrelated_dirty_is_allowed(tmp_path):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    repo = _committed_harness_repo(tmp_path, provenance)
+    unrelated = repo / "README.md"
+    unrelated.write_text("dirty but unrelated\n", encoding="utf-8")
+
+    assert provenance.require_clean_harness(repo)["scope_clean"] is True
+
+    harness_file = repo.joinpath(*provenance.HARNESS_PATHS[0].split("/"))
+    harness_file.write_bytes(b"dirty harness\n")
+    inspected = provenance.inspect_harness(repo)
+
+    assert inspected["scope_clean"] is False
+    assert inspected["scope_changes"] == [
+        " M scripts/appwidget_stale_provider_cli.py"
+    ]
+    with pytest.raises(
+        provenance.HarnessProvenanceError,
+        match="differs from HEAD",
+    ):
+        provenance.require_clean_harness(repo)
+
+
+def test_harness_assume_unchanged_cannot_hide_runtime_source_change(tmp_path):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    repo = _committed_harness_repo(tmp_path, provenance)
+    relative = provenance.HARNESS_PATHS[0]
+    _git_for_provenance(repo, "update-index", "--assume-unchanged", relative)
+    repo.joinpath(*relative.split("/")).write_bytes(b"hidden harness change\n")
+
+    assert _git_for_provenance(repo, "status", "--porcelain=v1") == ""
+    with pytest.raises(
+        provenance.HarnessProvenanceError,
+        match="differs from HEAD",
+    ):
+        provenance.require_clean_harness(repo)
+
+
+def test_harness_compatibility_ignores_only_unrelated_repository_head(tmp_path):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    repo = _committed_harness_repo(tmp_path, provenance)
+    recorded = provenance.require_clean_harness(repo)
+    (repo / "README.md").write_text("new unrelated commit\n", encoding="utf-8")
+    _git_for_provenance(repo, "add", "--", "README.md")
+    _git_for_provenance(repo, "commit", "-m", "advance unrelated head")
+    current = provenance.require_clean_harness(repo)
+
+    assert recorded["repository_head"] != current["repository_head"]
+    assert provenance.provenance_mismatches(recorded, current) == ()
+    provenance.require_compatible_harness(recorded, current)
+
+    harness_file = repo.joinpath(*provenance.HARNESS_PATHS[-1].split("/"))
+    harness_file.write_bytes(b"new committed runtime source\n")
+    _git_for_provenance(repo, "add", "--", provenance.HARNESS_PATHS[-1])
+    _git_for_provenance(repo, "commit", "-m", "change harness")
+    changed = provenance.require_clean_harness(repo)
+
+    assert provenance.provenance_mismatches(recorded, changed) == (
+        "harness_commit",
+        "source_digest_sha256",
+    )
+    with pytest.raises(
+        provenance.HarnessProvenanceError,
+        match="harness_commit, source_digest_sha256",
+    ):
+        provenance.require_compatible_harness(recorded, changed)
+
+
+def test_harness_provenance_rejects_internal_source_digest_tampering(tmp_path):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    repo = _committed_harness_repo(tmp_path, provenance)
+    recorded = provenance.require_clean_harness(repo)
+    tampered = {**recorded, "source_digest_sha256": "0" * 64}
+
+    with pytest.raises(
+        provenance.HarnessProvenanceError,
+        match="source digest does not match file records",
+    ):
+        provenance.provenance_mismatches(tampered, recorded)
+
+    for field in ("harness_commit", "repository_head"):
+        wrong_type = {**recorded, field: int("1" * 40)}
+        with pytest.raises(
+            provenance.HarnessProvenanceError,
+            match=f"{field.replace('_', ' ')} must be a string",
+        ):
+            provenance.validate_harness_provenance(wrong_type)
+
+
+def _stable_test_harness_provenance():
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    files = [
+        {"path": path, "sha256": "A" * 64, "size": index}
+        for index, path in enumerate(provenance.HARNESS_PATHS, start=1)
+    ]
+    return {
+        "files": files,
+        "harness_commit": "a" * 40,
+        "repository_head": "b" * 40,
+        "schema_version": 1,
+        "scope_changes": [],
+        "scope_clean": True,
+        "source_digest_sha256": hashlib.sha256(
+            provenance.canonical_source_bytes(files)
+        ).hexdigest().upper(),
+    }
+
+
+@pytest.fixture(autouse=True)
+def _default_clean_harness_provenance(monkeypatch):
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    monkeypatch.setattr(
+        orchestrator,
+        "require_clean_harness",
+        lambda _root: _stable_test_harness_provenance(),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "inspect_harness",
+        lambda _root: _stable_test_harness_provenance(),
+        raising=False,
+    )
+
+
 def test_profile_has_exact_known_bad_identity_and_apk_pins():
     profiles = _load_script("appwidget_stale_provider_profiles")
 
@@ -1381,6 +1650,76 @@ def test_ui_dump_preserves_raw_output_and_returns_normalized_xml(tmp_path):
     evidence.verify_evidence_manifest(bundle.directory)
 
 
+def test_capture_seals_clean_harness_provenance_before_first_adb(
+    tmp_path, monkeypatch
+):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    transport = _ScriptedTransport(models, _capture_responses(profile))
+    expected = _stable_test_harness_provenance()
+
+    def clean_before_adb(root):
+        assert Path(root) == tmp_path
+        assert transport.calls == []
+        return expected
+
+    monkeypatch.setattr(orchestrator, "require_clean_harness", clean_before_adb)
+
+    payload = orchestrator.capture(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+    )
+
+    bundle = tmp_path / payload["bundle"]
+    assert json.loads(
+        (bundle / "harness_provenance.json").read_text(encoding="utf-8")
+    ) == expected
+    manifest = (bundle / "evidence_sha256.txt").read_text(encoding="utf-8")
+    assert "  harness_provenance.json\n" in manifest
+    evidence.verify_evidence_manifest(bundle)
+
+
+def test_capture_blocks_harness_dirty_before_adb_or_bundle_creation(
+    tmp_path, monkeypatch
+):
+    models = _load_script("appwidget_stale_provider_models")
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    transport = _ScriptedTransport(models, {})
+
+    def reject_dirty(_root):
+        raise provenance.HarnessProvenanceError(
+            "runtime harness scope differs from HEAD"
+        )
+
+    monkeypatch.setattr(orchestrator, "require_clean_harness", reject_dirty)
+
+    with pytest.raises(
+        provenance.HarnessProvenanceError,
+        match="differs from HEAD",
+    ):
+        orchestrator.capture(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+        )
+
+    assert transport.calls == []
+    assert not (tmp_path / profile["evidence_root"]).exists()
+
+
 def test_capture_collects_complete_read_only_snapshot_and_durable_state(tmp_path):
     models = _load_script("appwidget_stale_provider_models")
     orchestrator = _load_script("appwidget_stale_provider_orchestrator")
@@ -1655,6 +1994,9 @@ def _seed_run(tmp_path, profile, phase="BASELINE_CAPTURED", **updates):
     state.update(updates)
     bundle.write_json("run.json", state)
     bundle.write_json("inputs.json", evidence.verify_inputs(tmp_path, profile))
+    bundle.write_json(
+        "harness_provenance.json", _stable_test_harness_provenance()
+    )
     bundle.write_json("result.json", {
         "crash_signature_count": 0,
         "diagnosis_status": "SUSPECT",
@@ -1684,6 +2026,411 @@ def _seed_run(tmp_path, profile, phase="BASELINE_CAPTURED", **updates):
         (snapshots / name).write_text("", encoding="utf-8")
     evidence.write_evidence_manifest(bundle.directory)
     return bundle
+
+
+def test_general_phase_blocks_provenance_mismatch_before_attempt_or_adb(
+    tmp_path, monkeypatch
+):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(tmp_path, profile)
+    current = {
+        **_stable_test_harness_provenance(),
+        "harness_commit": "c" * 40,
+    }
+    monkeypatch.setattr(orchestrator, "require_clean_harness", lambda _root: current)
+    transport = _ScriptedTransport(models, {})
+
+    with pytest.raises(
+        provenance.HarnessProvenanceError,
+        match="harness_commit",
+    ):
+        orchestrator.bind(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    state = json.loads((bundle.directory / "run.json").read_text(encoding="utf-8"))
+    assert state.get("attempts", []) == []
+    assert transport.calls == []
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+def test_general_phase_blocks_legacy_bundle_before_attempt_or_adb(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(tmp_path, profile)
+    (bundle.directory / "harness_provenance.json").unlink()
+    evidence.write_evidence_manifest(bundle.directory)
+    transport = _ScriptedTransport(models, {})
+
+    with pytest.raises(orchestrator.GateFailure, match="provenance is missing"):
+        orchestrator.bind(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    state = json.loads((bundle.directory / "run.json").read_text(encoding="utf-8"))
+    assert state.get("attempts", []) == []
+    assert transport.calls == []
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+@pytest.mark.parametrize(
+    ("legacy", "expected_status", "expected_mismatches"),
+    [
+        (False, "MISMATCH_RESTORE_ALLOWED", ["harness_commit"]),
+        (True, "LEGACY_RESTORE_ALLOWED", ["legacy_missing"]),
+    ],
+)
+def test_restore_records_provenance_exception_before_device_preflight(
+    tmp_path,
+    monkeypatch,
+    legacy,
+    expected_status,
+    expected_mismatches,
+):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="STALE_ARMED",
+        old_widget_id=17,
+        completed_phases=[
+            "BASELINE_CAPTURED",
+            "BOUND_GENERAL",
+            "SAFE_SIMPLE",
+            "STALE_ARMED",
+        ],
+        final_home_role=profile["simple_home"],
+        mutations_remaining=["stale_launcher_record:17"],
+    )
+    if legacy:
+        (bundle.directory / "harness_provenance.json").unlink()
+        evidence.write_evidence_manifest(bundle.directory)
+    current = {
+        **_stable_test_harness_provenance(),
+        "harness_commit": "c" * 40,
+    }
+    monkeypatch.setattr(orchestrator, "inspect_harness", lambda _root: current)
+    component = profile["app"]["provider"]
+    package = profile["app"]["package"]
+    responses = _identity_responses()
+    responses.update(
+        {
+            (
+                "shell",
+                "cmd",
+                "role",
+                "get-role-holders",
+                "android.app.role.HOME",
+            ): f"{profile['simple_home']}\n",
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): _simple_home_raw(),
+            ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\nrestore",
+            ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): "",
+            (
+                "shell",
+                "dumpsys",
+                "activity",
+                "exit-info",
+                profile["launcher_package"],
+            ): "",
+            ("shell", "dumpsys", "appwidget"): (
+                f"Providers:\n Provider{{uid=20234 cmp={component}}}\nWidgets:\n"
+            ),
+            ("shell", "dumpsys", "package", package): (
+                "appId=20234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+        }
+    )
+    transport = _ScriptedTransport(models, responses)
+    original_list_devices = transport.list_devices
+
+    def assert_recorded_before_preflight():
+        artifact = bundle.directory / "restore_provenance_restore-0001.json"
+        assert artifact.is_file()
+        assessment = json.loads(artifact.read_text(encoding="utf-8"))
+        result = json.loads(
+            (bundle.directory / "result.json").read_text(encoding="utf-8")
+        )
+        assert assessment["status"] == expected_status
+        assert assessment["mismatches"] == expected_mismatches
+        assert result["harness_provenance_status"] == expected_status
+        assert result["harness_provenance_mismatches"] == expected_mismatches
+        evidence.verify_evidence_manifest(bundle.directory)
+        return original_list_devices()
+
+    monkeypatch.setattr(transport, "list_devices", assert_recorded_before_preflight)
+
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_restore_current_inspection_failure_preserves_recorded_provenance(
+    tmp_path, monkeypatch, legacy
+):
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(tmp_path, profile)
+    if legacy:
+        (bundle.directory / "harness_provenance.json").unlink()
+
+    def unavailable(_root):
+        raise provenance.HarnessProvenanceError("Git inspection unavailable")
+
+    monkeypatch.setattr(orchestrator, "inspect_harness", unavailable)
+    assessment = orchestrator._restore_provenance_assessment(
+        tmp_path, bundle.directory
+    )
+
+    assert assessment["status"] == "CURRENT_UNAVAILABLE_RESTORE_ALLOWED"
+    assert assessment["mismatches"] == (
+        ["current_unavailable", "legacy_missing"]
+        if legacy
+        else ["current_unavailable"]
+    )
+    assert assessment["recorded_provenance"] == (
+        None if legacy else _stable_test_harness_provenance()
+    )
+
+
+def test_restore_records_legacy_and_current_unavailable_before_preflight(
+    tmp_path, monkeypatch
+):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    provenance = _load_script("appwidget_stale_provider_provenance")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="STALE_ARMED",
+        old_widget_id=17,
+        completed_phases=["BASELINE_CAPTURED", "STALE_ARMED"],
+        final_home_role=profile["simple_home"],
+        mutations_remaining=["stale_launcher_record:17"],
+    )
+    (bundle.directory / "harness_provenance.json").unlink()
+    evidence.write_evidence_manifest(bundle.directory)
+
+    def unavailable(_root):
+        raise provenance.HarnessProvenanceError("Git inspection unavailable")
+
+    monkeypatch.setattr(orchestrator, "inspect_harness", unavailable)
+    transport = _ScriptedTransport(models, _safe_restore_responses(profile))
+    original_list_devices = transport.list_devices
+
+    def assert_recorded_before_preflight():
+        artifact = bundle.directory / "restore_provenance_restore-0001.json"
+        assessment = json.loads(artifact.read_text(encoding="utf-8"))
+        result = json.loads(
+            (bundle.directory / "result.json").read_text(encoding="utf-8")
+        )
+        expected = ["current_unavailable", "legacy_missing"]
+        assert assessment["mismatches"] == expected
+        assert result["harness_provenance_mismatches"] == expected
+        evidence.verify_evidence_manifest(bundle.directory)
+        return original_list_devices()
+
+    monkeypatch.setattr(transport, "list_devices", assert_recorded_before_preflight)
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=transport,
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+def test_restore_allows_manifest_valid_invalid_provenance_but_preserve_rejects(
+    tmp_path,
+):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="STALE_ARMED",
+        old_widget_id=17,
+        completed_phases=["BASELINE_CAPTURED", "STALE_ARMED"],
+        final_home_role=profile["simple_home"],
+        mutations_remaining=["stale_launcher_record:17"],
+    )
+    bundle.write_json("harness_provenance.json", {"schema_version": 999})
+
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="preserve.*matching harness provenance",
+    ):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=_ScriptedTransport(models, {}),
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+            preserve_armed_state=True,
+        )
+
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=_ScriptedTransport(models, _safe_restore_responses(profile)),
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050618Z",
+        execute=True,
+    )
+
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    assessment = json.loads(
+        (bundle.directory / "restore_provenance_restore-0001.json").read_text(
+            "utf-8"
+        )
+    )
+    assert assessment["status"] == "RECORDED_INVALID_RESTORE_ALLOWED"
+    assert assessment["mismatches"] == ["recorded_invalid"]
+    assert assessment["recorded_error"]["type"] == "HarnessProvenanceError"
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_preserve_is_rejected_for_mismatch_or_legacy_provenance(
+    tmp_path, monkeypatch, legacy
+):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="STALE_ARMED",
+        old_widget_id=17,
+        completed_phases=[
+            "BASELINE_CAPTURED",
+            "BOUND_GENERAL",
+            "SAFE_SIMPLE",
+            "STALE_ARMED",
+        ],
+        mutations_remaining=["stale_launcher_record:17"],
+    )
+    if legacy:
+        (bundle.directory / "harness_provenance.json").unlink()
+        evidence.write_evidence_manifest(bundle.directory)
+    current = {
+        **_stable_test_harness_provenance(),
+        "harness_commit": "c" * 40,
+    }
+    monkeypatch.setattr(orchestrator, "inspect_harness", lambda _root: current)
+    transport = _ScriptedTransport(models, {})
+
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="preserve.*matching harness provenance",
+    ):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+            preserve_armed_state=True,
+        )
+
+    assert transport.calls == []
+    assert not list(bundle.directory.glob("restore_provenance_*.json"))
+    evidence.verify_evidence_manifest(bundle.directory)
+
+
+def test_restore_verifies_manifest_before_any_other_resume_gate(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    bundle = _seed_run(
+        tmp_path,
+        profile,
+        phase="STALE_ARMED",
+        old_widget_id=17,
+        completed_phases=["BASELINE_CAPTURED", "STALE_ARMED"],
+        mutations_remaining=["stale_launcher_record:17"],
+    )
+    state = json.loads((bundle.directory / "run.json").read_text("utf-8"))
+    state["fixture_reset"] = {
+        "attempt_id": "reset-fixture-0001",
+        "consumed_by_run_id": "20260829T050619Z",
+        "status": "CONSUMED",
+    }
+    bundle.write_json("run.json", state)
+    (bundle.directory / "result.json").write_text("tampered\n", encoding="utf-8")
+    transport = _ScriptedTransport(models, {})
+
+    with pytest.raises(
+        orchestrator.EvidenceIntegrityFailure,
+        match="integrity verification failed",
+    ):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050618Z",
+            execute=True,
+        )
+
+    assert transport.calls == []
 
 
 def _identity_responses():
@@ -5316,6 +6063,14 @@ def test_reset_fixture_clears_only_after_durable_intent_and_records_ready_lineag
     assert state["mutations_remaining"] == []
     assert state["fixture_reset"]["status"] == "READY_FOR_CAPTURE"
     assert record["status"] == "READY_FOR_CAPTURE"
+    assert record["schema_version"] == 3
+    assert record["source_provenance"] == {
+        "harness_commit": "a" * 40,
+        "source_digest_sha256": _stable_test_harness_provenance()[
+            "source_digest_sha256"
+        ],
+    }
+
     assert record["source_run_id"] == "20260829T050618Z"
     assert record["next_run_id"] == "20260829T050619Z"
     assert record["next_profile_name"] == "NEXT_PROFILE"
@@ -5340,6 +6095,31 @@ def test_reset_fixture_clears_only_after_durable_intent_and_records_ready_lineag
     assert result_state["fixture_reset_status"] == "READY_FOR_CAPTURE"
     assert result_state["mutations_remaining"] == []
     evidence.verify_evidence_manifest(bundle.directory)
+
+
+def _safe_restore_responses(profile):
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
+                f"{profile['simple_home']}\n"
+            ),
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): _simple_home_raw(),
+            ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\nrestore",
+            ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): "",
+            ("shell", "dumpsys", "activity", "exit-info", profile["launcher_package"]): "",
+            ("shell", "dumpsys", "appwidget"): (
+                "Providers:\n Provider{uid=20234 cmp="
+                f"{profile['app']['provider']}}}\nWidgets:\n"
+            ),
+            ("shell", "dumpsys", "package", profile["app"]["package"]): (
+                "appId=20234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+        }
+    )
+    return responses
 
 
 def test_reset_fixture_retries_transient_final_simple_activity_race(tmp_path):
@@ -5431,7 +6211,13 @@ def _seed_ready_fixture_reset(tmp_path, profile):
         "prior_launcher_host_bindings": [],
         "prior_launcher_widget_ids": [],
         "reset_attempt_id": "reset-fixture-0001",
-        "schema_version": 1,
+        "schema_version": 3,
+        "source_provenance": {
+            "harness_commit": "a" * 40,
+            "source_digest_sha256": _stable_test_harness_provenance()[
+                "source_digest_sha256"
+            ],
+        },
         "source_run_id": "20260829T050618Z",
         "status": "READY_FOR_CAPTURE",
     }
@@ -5482,6 +6268,9 @@ def test_capture_consumes_exact_reset_once_and_pins_external_lineage(tmp_path):
     child = tmp_path / "out" / "20260829T050619Z"
     source_state = json.loads((source.directory / "run.json").read_text("utf-8"))
     lineage = json.loads((child / "lineage.json").read_text("utf-8"))
+    consumption = json.loads(
+        (source.directory / "fixture_reset_consumption.json").read_text("utf-8")
+    )
     assert result["run_id"] == "20260829T050619Z"
     assert source_state["fixture_reset"]["status"] == "CONSUMED"
     assert source_state["fixture_reset"]["consumed_by_run_id"] == (
@@ -5489,6 +6278,15 @@ def test_capture_consumes_exact_reset_once_and_pins_external_lineage(tmp_path):
     )
     assert lineage["source_run_id"] == "20260829T050618Z"
     assert lineage["reset_attempt_id"] == "reset-fixture-0001"
+    assert lineage["schema_version"] == 2
+    assert lineage["source_provenance"] == {
+        "harness_commit": "a" * 40,
+        "source_digest_sha256": _stable_test_harness_provenance()[
+            "source_digest_sha256"
+        ],
+    }
+    assert consumption["schema_version"] == 2
+    assert consumption["source_provenance"] == lineage["source_provenance"]
     assert lineage["source_manifest_sha256"] == hashlib.sha256(
         (source.directory / "evidence_sha256.txt").read_bytes()
     ).hexdigest().upper()
@@ -5504,6 +6302,7 @@ def test_capture_consumes_exact_reset_once_and_pins_external_lineage(tmp_path):
     orchestrator._assert_run_identity(
         child,
         child_state,
+        repo_root=tmp_path,
         serial="SER",
         expected_model="AT-M140",
         expected_fingerprint="FINGERPRINT",
@@ -5535,6 +6334,261 @@ def test_capture_consumes_exact_reset_once_and_pins_external_lineage(tmp_path):
             run_id="20260829T050619Z",
             after_reset_run_id="20260829T050618Z",
         )
+
+
+def test_capture_rejects_legacy_fixture_reset_before_adb_preflight(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    source = _seed_ready_fixture_reset(tmp_path, profile)
+    receipt_path = source.directory / "fixture_reset.json"
+    receipt = json.loads(receipt_path.read_text("utf-8"))
+    receipt["schema_version"] = 2
+    receipt.pop("source_provenance")
+    source.write_json("fixture_reset.json", receipt)
+    evidence.verify_evidence_manifest(source.directory)
+    transport = _ScriptedTransport(models, {})
+
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="fixture reset provenance",
+    ):
+        orchestrator.capture(
+            repo_root=tmp_path,
+            profile=profile,
+            profile_name="NEXT_PROFILE",
+            transport=transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050619Z",
+            after_reset_run_id="20260829T050618Z",
+        )
+
+    assert transport.calls == []
+
+
+def test_current_lineage_provenance_mismatch_is_restore_only(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    _seed_ready_fixture_reset(tmp_path, profile)
+    orchestrator.capture(
+        repo_root=tmp_path,
+        profile=profile,
+        profile_name="NEXT_PROFILE",
+        transport=_ScriptedTransport(models, _capture_responses(profile)),
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050619Z",
+        after_reset_run_id="20260829T050618Z",
+    )
+    child = tmp_path / "out" / "20260829T050619Z"
+    child_bundle = evidence.EvidenceBundle(child)
+    lineage = json.loads((child / "lineage.json").read_text("utf-8"))
+    lineage["source_provenance"]["harness_commit"] = "c" * 40
+    child_bundle.write_json("lineage.json", lineage)
+    state = json.loads((child / "run.json").read_text("utf-8"))
+    state.update(
+        {
+            "completed_phases": ["BASELINE_CAPTURED", "STALE_ARMED"],
+            "current_phase": "STALE_ARMED",
+            "final_home_role": profile["simple_home"],
+            "lineage": lineage,
+            "mutations_remaining": ["stale_launcher_record:17"],
+            "old_widget_id": 17,
+        }
+    )
+    child_bundle.write_json("run.json", state)
+    evidence.write_evidence_manifest(child)
+
+    normal_transport = _ScriptedTransport(models, {})
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="source provenance differs from lineage",
+    ):
+        orchestrator.verify(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=normal_transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050619Z",
+        )
+    assert normal_transport.calls == []
+
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="preserve.*matching harness provenance",
+    ):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=_ScriptedTransport(models, {}),
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050619Z",
+            execute=True,
+            preserve_armed_state=True,
+        )
+
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=_ScriptedTransport(models, _safe_restore_responses(profile)),
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050619Z",
+        execute=True,
+    )
+
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    assessment = json.loads(
+        (child / "restore_provenance_restore-0001.json").read_text("utf-8")
+    )
+    assert assessment["status"] == "MISMATCH_RESTORE_ALLOWED"
+    assert assessment["mismatches"] == ["lineage_provenance"]
+    evidence.verify_evidence_manifest(child)
+
+
+def test_legacy_lineage_schema_is_restore_only(tmp_path):
+    models = _load_script("appwidget_stale_provider_models")
+    evidence = _load_script("appwidget_stale_provider_evidence")
+    orchestrator = _load_script("appwidget_stale_provider_orchestrator")
+    profile = _capture_profile_and_repo(tmp_path)
+    source = _seed_ready_fixture_reset(tmp_path, profile)
+    orchestrator.capture(
+        repo_root=tmp_path,
+        profile=profile,
+        profile_name="NEXT_PROFILE",
+        transport=_ScriptedTransport(models, _capture_responses(profile)),
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050619Z",
+        after_reset_run_id="20260829T050618Z",
+    )
+    child = tmp_path / "out" / "20260829T050619Z"
+
+    receipt = json.loads(
+        (source.directory / "fixture_reset.json").read_text("utf-8")
+    )
+    receipt["schema_version"] = 2
+    receipt.pop("source_provenance")
+    source.write_json("fixture_reset.json", receipt)
+    consumption = json.loads(
+        (source.directory / "fixture_reset_consumption.json").read_text("utf-8")
+    )
+    consumption["schema_version"] = 1
+    consumption.pop("source_provenance")
+    source.write_json("fixture_reset_consumption.json", consumption)
+
+    lineage = json.loads((child / "lineage.json").read_text("utf-8"))
+    lineage["schema_version"] = 1
+    lineage.pop("source_provenance")
+    lineage["reset_receipt_sha256"] = hashlib.sha256(
+        (source.directory / "fixture_reset.json").read_bytes()
+    ).hexdigest().upper()
+    lineage["reset_consumption_sha256"] = hashlib.sha256(
+        (source.directory / "fixture_reset_consumption.json").read_bytes()
+    ).hexdigest().upper()
+    lineage["source_manifest_sha256"] = hashlib.sha256(
+        (source.directory / "evidence_sha256.txt").read_bytes()
+    ).hexdigest().upper()
+    child_bundle = evidence.EvidenceBundle(child)
+    child_bundle.write_json("lineage.json", lineage)
+    state = json.loads((child / "run.json").read_text("utf-8"))
+    state.update(
+        {
+            "completed_phases": ["BASELINE_CAPTURED", "STALE_ARMED"],
+            "current_phase": "STALE_ARMED",
+            "final_home_role": profile["simple_home"],
+            "lineage": lineage,
+            "mutations_remaining": ["stale_launcher_record:17"],
+            "old_widget_id": 17,
+        }
+    )
+    child_bundle.write_json("run.json", state)
+    evidence.write_evidence_manifest(child)
+
+    normal_transport = _ScriptedTransport(models, {})
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="lineage schema lacks source provenance",
+    ):
+        orchestrator.verify(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=normal_transport,
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050619Z",
+        )
+    assert normal_transport.calls == []
+
+    with pytest.raises(
+        orchestrator.GateFailure,
+        match="preserve.*matching harness provenance",
+    ):
+        orchestrator.restore(
+            repo_root=tmp_path,
+            profile=profile,
+            transport=_ScriptedTransport(models, {}),
+            serial="SER",
+            expected_model="AT-M140",
+            expected_fingerprint="FINGERPRINT",
+            run_id="20260829T050619Z",
+            execute=True,
+            preserve_armed_state=True,
+        )
+
+    component = profile["app"]["provider"]
+    package = profile["app"]["package"]
+    responses = _identity_responses()
+    responses.update(
+        {
+            ("shell", "cmd", "role", "get-role-holders", "android.app.role.HOME"): (
+                f"{profile['simple_home']}\n"
+            ),
+            ("exec-out", "uiautomator", "dump", "/dev/tty"): _simple_home_raw(),
+            ("exec-out", "screencap", "-p"): b"\x89PNG\r\n\x1a\nlegacy",
+            ("shell", "logcat", "-d", "-b", "crash", "-v", "threadtime"): "",
+            ("shell", "dumpsys", "activity", "exit-info", profile["launcher_package"]): "",
+            ("shell", "dumpsys", "appwidget"): (
+                f"Providers:\n Provider{{uid=20234 cmp={component}}}\nWidgets:\n"
+            ),
+            ("shell", "dumpsys", "package", package): (
+                "appId=20234\nversionCode=216\nversionName=2.1.6\n"
+                "signatures=PackageSignatures{signatures:[498de32a]}\n"
+                "stopped=false notLaunched=false\n"
+            ),
+        }
+    )
+    restored = orchestrator.restore(
+        repo_root=tmp_path,
+        profile=profile,
+        transport=_ScriptedTransport(models, responses),
+        serial="SER",
+        expected_model="AT-M140",
+        expected_fingerprint="FINGERPRINT",
+        run_id="20260829T050619Z",
+        execute=True,
+    )
+
+    assert restored["current_phase"] == "RESTORED_SAFE"
+    assessment = json.loads(
+        (child / "restore_provenance_restore-0001.json").read_text("utf-8")
+    )
+    assert assessment["status"] == "LEGACY_SCHEMA_RESTORE_ALLOWED"
+    assert assessment["mismatches"] == ["legacy_schema"]
+    evidence.verify_evidence_manifest(child)
 
 
 def test_reset_fixture_host_binding_timeout_recovers_simple_and_keeps_reset_marker(

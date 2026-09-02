@@ -621,3 +621,47 @@ fake ADB transcript로 다음을 검증한다.
 - 민감도 분석에는 ordinal 9 첫 시도 `20260901T135852Z`를 포함한다. 당시 분류기 결함으로 attempt가 ERROR였지만 동일 boot, 30초 창, General HOME 렌더링, PID 안정, signature/exit 0의 trigger 원문이 완결됐다. 이를 사전 분모 원칙대로 포함하면 stale 전체는 `10/11=90.9%`다. 선택 bundle만의 `10/10`과 함께 병기하며, 첫 시도를 분모 0으로 제거해 결정론적 `100%`라고 일반화하지 않는다.
 - campaign은 단일 immutable harness revision으로 실행되지 않았다. 실기 fail-stop 뒤 clean-widget 제거 정규화, stale zero-crash 분류, 최종 Simple HOME 3-way bounded retry를 TDD로 보강했고 후속 ordinal을 계속했다. bundle은 evidence/schedule/device identity를 결박하지만 실행 source digest를 pin하지 않으므로, 결과를 사전 고정 구현의 동질 반복이 아닌 적응형 진단 campaign으로 제한한다.
 - 결론은 `OBSERVED` 유지다. 두 독립 vendor provider에서 clean/stale 정·역과 정량 차이는 강하지만, 단일 단말·단일 known-bad firmware의 반복 관찰이고 fixed build 대조와 field loop 재현은 아직 없다.
+
+## 17. Harness provenance amendment (2026-09-02)
+
+### 17.1 runtime exact-set
+
+Source digest의 입력은 다음 11개 runtime 모듈만이다. 테스트와 문서는 제외한다.
+
+1. `scripts/appwidget_stale_provider_cli.py`
+2. `scripts/appwidget_stale_provider_evidence.py`
+3. `scripts/appwidget_stale_provider_models.py`
+4. `scripts/appwidget_stale_provider_orchestrator.py`
+5. `scripts/appwidget_stale_provider_parsers.py`
+6. `scripts/appwidget_stale_provider_preflight.py`
+7. `scripts/appwidget_stale_provider_profiles.py`
+8. `scripts/appwidget_stale_provider_provenance.py`
+9. `scripts/appwidget_stale_provider_repro.py`
+10. `scripts/appwidget_stale_provider_state.py`
+11. `scripts/appwidget_stale_provider_transport.py`
+
+`scripts/appwidget_stale_provider_*.py` namespace에 runtime 파일이 추가되었는데 위 exact-set이 갱신되지 않으면 contract test가 실패한다. 하네스 밖의 AltBasic 등 변경은 실행을 차단하지 않는다.
+
+### 17.2 canonical source identity
+
+각 파일 record는 `path`, `size`, `sha256`만 가진다. `path`는 POSIX repo-relative 경로이며 경로 오름차순으로 정렬한다. `size`와 `sha256`은 clean scope가 실행할 `HEAD:<path>` canonical Git blob bytes의 크기와 대문자 64자리 SHA-256이다. 따라서 같은 commit은 checkout EOL 정책과 무관하게 같은 identity를 갖는다. Git status뿐 아니라 clean-filtered worktree blob과 HEAD blob을 직접 비교하여 `assume-unchanged`/`skip-worktree`로 숨겨진 변경도 차단한다. source payload는 `schema_version: 1`과 정렬된 `files`를 `ensure_ascii=false`, `sort_keys=true`, separators `(',', ':')`, 마지막 LF 하나로 직렬화한 UTF-8 bytes다. 절대경로, 시간, 환경값, repository HEAD, commit OID는 source digest 입력에서 제외한다.
+
+`harness_provenance.json`은 이 파일 목록과 `source_digest_sha256`, runtime path-scoped `harness_commit`, 참고용 `repository_head`, scoped clean 상태를 기록한다. 호환성의 권위 pair는 `harness_commit + source_digest_sha256`이며 repository HEAD가 다른 것만으로 차단하지 않는다.
+
+### 17.3 phase policy
+
+- capture와 일반 phase는 exact-set이 HEAD와 다르면 ADB preflight 전에 실패한다.
+- resume은 bundle의 pair와 현재 pair가 다르거나 provenance가 없는 legacy bundle이면 실패한다.
+- 새 child capture와 `reset-fixture`에는 provenance가 필수다. `fixture_reset schema v3`, `fixture_reset_consumption schema v2`, `lineage schema v2`가 같은 source pair를 결박한다.
+- restore는 단말 안전을 위해 mismatch/legacy/invalid provenance에서도 허용한다. 먼저 기존 `evidence_sha256.txt`를 검증하고, `restore_provenance_<attempt>.json`과 `result.json`의 mismatch 상태를 첫 device mutation 전에 봉인한다.
+- `preserve_armed_state`는 복구가 아니므로 mismatch/legacy/invalid provenance에서 거부한다.
+
+### 17.4 legacy evidence ledger
+
+기존 45개 bundle bytes는 수정하거나 재봉인하지 않는다. `AT-M140 - Launcher BUG27084/EVIDENCE_LEDGER.json` schema v2의 `legacy_baseline.entries`가 각 run ID, `evidence_sha256.txt` 자체 SHA-256과 `bundle_tree_sha256`을 고정한다. tree payload는 root `.run.lock`을 제외한 모든 regular file(`evidence_sha256.txt` 포함)을 POSIX bundle-relative path 순서로 열거하고 각 path/byte size/대문자 SHA-256을 canonical JSON으로 직렬화한다. UTF-8, `ensure_ascii=false`, `sort_keys=true`, separators `(',', ':')`, 마지막 LF 하나를 사용한다. pending/tmp/symlink는 실패한다.
+
+이후 provenance-enabled bundle은 별도 `provenance_entries`에 run ID, manifest/tree digest, `harness_commit`, `source_digest_sha256`을 기록한다. 두 영역은 정렬·고유·상호 disjoint이고, evidence root가 존재하면 실제 run ID exact-set은 두 영역 합집합이어야 한다. provenance entry pair는 bundle의 sealed `harness_provenance.json`과 일치해야 한다. root가 없는 clean clone만 명시적 NOTE이며, 새 bundle은 ledger 갱신 전까지 unledgered evidence로 실패한다.
+
+### 17.5 Session B pair transition
+
+Session A pair는 fixed profile 통합 전 bootstrap-only 기준이다. Session B는 이 pair로 clean checkout과 host tests만 확인하고 device 호출을 하지 않는다. 그 다음 fixed identity/profile을 포함한 pre-device preparation commit을 만들고 새 pair B를 계산한다. pair B에서 fresh known-bad root capture를 먼저 생성해 campaign authority pair를 확정하며 fixed root capture도 같은 pair에서 생성한다. Session A/legacy bundle은 pair B campaign의 일반 phase·child lineage·reset source·비교 root로 사용하지 않는다. pair B 확정 뒤 harness scope가 바뀌면 기존 campaign은 restore-only로 종료하고 새 pair의 campaign을 시작한다.
