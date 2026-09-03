@@ -163,6 +163,41 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 **정정 2026-08-20 (v1.1, Claude 재검증)**: 157 은 `TARGET_ABSENT` 가 아니라 `CANDIDATE_ONLY` — 핫스팟 `tile_label` 이 `QPN_002_108~113_scan_down` 에 실재한다. registry 총계 13 불변.
 추가 정정: QPN_001 page2 inventory 에 `settle_gate` 결박(transient 는 page2 일반 속성), QPN_001 literal 은 canonical 15(tile 12 + 수정/설정/전원)로 정렬.
 
+### 7.1 증거 경로 계약 (2026-08-28 T-E 슬라이스에서 확정)
+
+근거 지시문: `HANDOFF_2026-08-28_CODEX_C03_EVIDENCE_SPLIT_DIRECTIVE.md`.
+
+| 대상 | 경로 | 규칙 |
+|---|---|---|
+| per-TC | `run{n}/{tc_id}/{step_no}_{tag}.xml` | **segment 로 쪼개지 않는다** — 같은 run 에서 같은 TC 재실행을 가드가 잡아야 하기 때문 |
+| diagnostics | `run{n}/_diagnostics/{segment}/{axis}.xml` | 호출(segment)마다 분리 — split-call 덮어쓰기 차단 |
+| 판정 원장 | `run{n}/results.csv` | append. segment 열 없음(tc_id 로 구분) |
+
+- `_write_evidence` 는 **`open(..., "x")` 배타 생성**이다. 기존 경로 존재 = `EvidenceCollisionError`.
+- 이 예외는 `runtime verifier FAIL` 로 격하되지 않고 **run 전체 중단**으로 전파되며,
+  원장 어휘는 `evidence collision STOP` — `runtime mutation FAIL` 과 **구분**한다(버그 판정 아님).
+- `--segment` = `[a-z0-9_-]{1,32}`, 기본 `full`, **`--only` 동반 시 필수**(누락 = argparse 거부).
+
+### 7.2 T2 실행 캡슐 (2026-08-28 확정 — device 실행은 여전히 별도 승인)
+
+각 run 을 **두 호출로 분할**한다. 목적 = D1 mutation FAIL 이 나머지 31건의 입력 예산을
+소비하기 **전에** 걸리게 하는 것. TC 당 run 내 입력은 정확히 1회로 유지된다.
+
+| 순서 | 호출 | 대상 |
+|---|---|---|
+| 1 | `--run {n} --segment d1 --only ALTBASIC_QPN_026,ALTBASIC_QPN_053,ALTBASIC_QPN_056` | D1 터치 롱탭 3 (전부 drivable) |
+| 2 | `--run {n} --segment rest41 --only <나머지 41>` | drivable 31 + registry 10 |
+
+- **2번 호출에 `--only` 를 생략하면 안 된다.** 생략 시 44행 전체가 다시 돌아 D1 3건이 run 내
+  2회째 입력이 된다. (가드가 `evidence collision STOP` 으로 막지만, 그것은 실패 경로이지 계획이 아니다.)
+- 41 목록은 **manifest 에서 파생**한다. 손으로 적지 않는다. 검산: 44 = 34 drivable + 10 registry,
+  41 = 44 − 3.
+- registry 10 은 device 무접촉 분류만 수행 — 포함해야 `results.csv` 가 run 당 44행으로 닫힌다.
+- run1 결과로 run2 절차를 바꾸지 않는다(독립성). run2 도 동일하게 `d1 → rest41` 순서.
+- `QPN_145` 목적지 도달 시 T1 관찰기(`runner/altbasic_c03_idle_probe.py`)를 **비파괴 1회** 실행,
+  raw digest 만 evidence 로 저장한다. 영구/일시 판정은 사용자·Claude 영역(§10.3).
+- 중단: D1 `state_unchanged` FAIL = 즉시 전체 중단, **나머지 31건 입력 0**.
+
 ## 8. 상태
 
 - [x] 설계 lock (본 문서)
@@ -173,6 +208,11 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 - [x] **D1 슬라이스 호스트 구현** (`QPN_TILE_TOUCH_LONGTAP` 3건, §11.6 — 5-suite 200 passed · dry-run 34/10)
 - [x] **T1 bounded 관찰기 host 구현** (`thor2j` `e225639` — 신규 22; 2026-08-28 T0 재자격
   5-suite+probe **222 passed** · dry-run 34/10 · device 호출 0회)
+- [x] **T-E 증거 경로 슬라이스** (thor2j
+  `30beec0f15403ce325534137d9f054403df145d4`; §7.1, 2026-08-28 — 테스트 격리 · segment 분리 · write-once 가드 ·
+  34건 경로 유일성; 5-suite+probe **238 passed** · dry-run 34/10 · device 호출 0회 ·
+  Claude 독립 재현 확인)
+- [x] **T2 실행 캡슐 확정** (§7.2 — `d1` → `rest41` 분할)
 - [ ] device 2-run (별도 승인)
 
 ### 8.1 device 2-run blocker (2026-08-20 재검증에서 발견)
@@ -191,6 +231,17 @@ run1/run2 독립 → `TWO_RUN_GREEN` 만 RUNNABLE_NOW 후보. evidence
 > - B2 는 QPN_146 단독이 아니라 **TILE_LONGOK 5건 전부의 구조 결함**이었다. → §4.1
 > - 두 건 모두 해소됐으므로 drivable 31 → 29 축소 운영은 **불필요**하다.
 - 커밋: batch 대기
+
+### 8.2 device 2-run blocker (2026-08-28 T-E 슬라이스에서 발견 — 해소)
+
+| # | 대상 | 내용 | 조치 |
+|---|---|---|---|
+| B3 | `_capture_diagnostics` | `AdbDevice.shell()` 은 `CompletedProcess` 를 반환하는데 그대로 `_write_evidence` 로 넘어가 `handle.write()` 가 **`TypeError`** 를 낸다. `try` 가 `dev.shell` 만 감싸 예외가 전파됐다 | `_diagnostic_text()` 로 rc/stdout/stderr 직렬화 |
+| B4 | 테스트 격리 | `run_pilot` 계열 테스트가 `_ev_base` 미패치로 **실 evidence 트리에 기록**(`CAPTURE_FAILED: 'FakeDevice'…`). suite 실행마다 재발 | autouse fixture 로 모듈 봉인 + 누출물 14파일 삭제 |
+
+> B3 은 **실 device 실행 전에는 발현하지 않는 경로**였다. host FakeDevice 가 `dev.shell` 단계에서
+> `AttributeError` 를 내며 그 자리를 문자열로 대체해 가려왔다. 미해소 시 **T2 run1 은 첫 TC 를
+> 만지기 전 최초 diagnostics 쓰기에서 중단**됐을 것이다. B4 를 고치는 과정에서 드러났다.
 
 ## 9. `취침 모드` 부재 판별 계획 (2-run 동반, 비파괴)
 
