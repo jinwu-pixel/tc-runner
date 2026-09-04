@@ -1,0 +1,55 @@
+schema_version: 1
+explicit_documents:
+  - document_id: LGU_REQ_5G_V02_00_00
+    carrier: LGU+
+    role: REQUIREMENT
+    media: text/html
+    path: 새 폴더 (2)/LGU+/LGU+_5G_20260728/CD_20_LGU_디바이스_5G_기술요구서_V02_00_00.html
+  - document_id: LGU_PROC_5G_V02_00_00
+    carrier: LGU+
+    role: PROCEDURE
+    media: text/html
+    path: 새 폴더 (2)/LGU+/LGU+_5G_20260728/CD_20_LGU_디바이스_5G_시험절차서_V02_00_00.html
+  - document_id: KT_REQ_NSA_V1_3_0
+    carrier: KT
+    role: REQUIREMENT
+    media: application/pdf
+    path: 새 폴더 (2)/KT/20260702-KR/KT 5G NSA 단말 기능 규격 V1.3.0(배포용)_20260508.pdf
+  - document_id: KT_SAT_NSA_V1_3_0
+    carrier: KT
+    role: SAT
+    media: application/pdf
+    path: 새 폴더 (2)/KT/20260702-KR/KT 5G NSA 단말 기능 SAT 규격 V1.3.0(배포용)_20260508.pdf
+  - document_id: KT_REQ_SA_V1_6_0
+    carrier: KT
+    role: REQUIREMENT
+    media: application/pdf
+    path: 새 폴더 (2)/KT/20260702-KR/KT 5G SA 단말 기능 규격 V1.6.0(배포용)_20260429.pdf
+  - document_id: KT_SAT_SA_V1_6_0
+    carrier: KT
+    role: SAT
+    media: application/pdf
+    path: 새 폴더 (2)/KT/20260702-KR/KT 5G SA 단말 기능 SAT 규격 V1.6.0(배포용)_20260429.pdf
+discoveries:
+  - discovery_id: SKT_LEGACY_XLS_V1
+    carrier: SKT
+    role: PROCEDURE
+    media: application/vnd.ms-excel
+    base_path: 새 폴더 (2)/SKT_시험절차서_최신
+    glob: "*.xls"
+    expected_count: 66
+    id_prefix: SKT_PROC_
+    id_width: 4
+relations:
+  - relation_id: LGU_5G_V02_REQ_TO_PROC
+    kind: REQUIREMENT_TO_PROCEDURE
+    source_document_id: LGU_REQ_5G_V02_00_00
+    target_document_id: LGU_PROC_5G_V02_00_00
+  - relation_id: KT_NSA_V1_3_0_REQ_TO_SAT
+    kind: REQUIREMENT_TO_SAT
+    source_document_id: KT_REQ_NSA_V1_3_0
+    target_document_id: KT_SAT_NSA_V1_3_0
+  - relation_id: KT_SA_V1_6_0_REQ_TO_SAT
+    kind: REQUIREMENT_TO_SAT
+    source_document_id: KT_REQ_SA_V1_6_0
+    target_document_id: KT_SAT_SA_V1_6_0

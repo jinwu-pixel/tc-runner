@@ -307,6 +307,7 @@ tap 타이밍 = 재현 충실도. 신뢰성 무손실 입증 없는 단축은 �
 | `canonical_shell_rc_remediation_check.py` + `canonical_shell_rc_remediation_manifest_v1.json` | curated shell-RC 18개 blocker의 baseline/transformation manifest와 host-only fail-closed 검증 gate (P2 current projection `12/14/15`, 비대상 의미론·index·capsule scope 결박, 결정론 evidence 발행) |
 | `appwidget_stale_provider_repro.py` + `appwidget_stale_provider_*.py` | BUG27084 전용 phase harness. exact device/profile/APK gate, read-only capture, bind/arm/trigger/verify/restore/reset-fixture, sealed evidence와 RCBD lineage를 제공한다. host 구현·known-bad 실기 완료, exact fixed-build 검증 pending |
 | `appwidget_stale_provider_provenance.py` | runtime harness exact-set을 repo-relative bytes로 계산하고 `harness_commit + source_digest_sha256`을 일반 phase 호환성 기준으로 강제한다. legacy/mismatch bundle은 restore-only이며 `preserve_armed_state`는 금지 |
+| `KR3_Carrier_Requirements/tools/spec_corpus_index.py` + `check_g0a.py` | 이통3사 corpus index와 portable G0-A static gate. repo-relative root·명시적 Poppler·parent exact-set·closure/proposal freshness와 title-only MSISDN fixture 9/11/3 exact allowlist를 fail-closed 검증 |
 
 ### 5.4 운영 도구 (`tools/`)
 
@@ -523,6 +524,7 @@ commit과 push는 각각 사용자 명시 승인 범위 안에서만 수행하�
 | 2026-08-18 | shell-RC safety reclassification | audited `exported_ss_call` corpus의 16 step이 결정론적 rc 포착용 bounded scratch로 `READ_ONLY_SHELL`→`UNKNOWN_UNSAFE`, audit adapter상 `FULL_AUTO`→`MANUAL_REQUIRED`로 재분류됐다. production `execution_contract`/저장 `execution_type`에는 전파되지 않으며 두 계층 연결은 별도 정책 승인이 필요하다. | §3.3·`tests/fixtures/anchor/corpus_audit_baseline.json` | applied |
 | 2026-08-18 | capsule v5 evidence ownership | `reports/canonical_shell_rc_remediation/` verifier-owned ignored subtree는 schema-v5 capsule invariant에서 제외하고 generator/consumer가 동일 산식으로 계산한다. 무결박 subtree는 Task 9 전수 보상감사로 통제한다. | `dispatch_capsule.py`·`canonical_shell_rc_remediation_check.py` | applied |
 | 2026-08-27 | post-commit baseline identity | shell-RC remediation 커밋 `6b7213b`가 반영된 뒤 verifier/test가 pre-remediation P2를 moving `HEAD`에서 읽어 자기무효화되고, HEAD blob 기반 inventory 기대값도 commit 전에는 새 worktree를 보지 못해 전체 회귀 3건이 뒤늦게 FAIL. `099c0db`에서 immutable full OID `4c484d53…` + raw SHA 이중 pin, object/path/hash 불일치 fail-closed, inventory 정렬과 post-commit 전체 1638 passed로 보정 | §2.3(과거 baseline 참조 immutable object+content hash 이중 pin)·§7.2(post-commit 재검증) — 본문 반영 2026-08-27 | applied |
+| 2026-09-03 | KR3 G0-A portable source scope | `spec_corpus_index.py`가 사용자 절대 root/Poppler에 결박되고 corpus parent의 비-carrier sibling 2건이 미선언되어 `check_g0a.py`가 `SCOPE_PARENT_DRIFT` exit 2로 중단됐다. root를 repo-relative로, Poppler를 CLI/env 명시·부재 fail-closed로 전환하고 비-carrier 항목을 소유 rationale과 함께 allowlist에 등록한다. checker acceptance 기수 `7→9`는 contract·checker·test 같은 변경에서 동기화해 이중 pin을 유지한다 (§2.3). Carrier index에는 menu-tree probe 전용 `redaction_gate.py`를 적용하지 않고 전화번호·serial·IMEI·절대경로 수동 스캔을 commit gate로 사용하며, title-only MSISDN은 공개 `detect()` API와 source/title digest로 9 unique·11 occurrences·3 documents를 내부 결박한다. 값 SHA-256은 중복 노출 회피용이며 비밀화 수단이 아니다. IPV4 조문번호·APN bearer 오탐 개선은 Task 4.1 별도 티켓이다. | §5.3·`KR3_Carrier_Requirements/README.md` | applied |
 
 **상태 어휘**: `proposed` / `applied` / `rejected` / `superseded`
 

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "G0-A Source Registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "documents"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["document_id", "carrier", "role", "media_type", "path", "size_bytes", "sha256", "intake"],
+        "properties": {
+          "document_id": {"type": "string", "minLength": 1},
+          "carrier": {"enum": ["LGU+", "KT", "SKT"]},
+          "role": {"enum": ["REQUIREMENT", "PROCEDURE", "SAT"]},
+          "media_type": {"enum": ["text/html", "application/pdf", "application/vnd.ms-excel"]},
+          "path": {"type": "string", "minLength": 1},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "intake": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["container_status", "semantic_parse_status", "semantic_parser"],
+            "properties": {
+              "container_status": {"enum": ["READABLE", "UNREADABLE"]},
+              "semantic_parse_status": {"enum": ["NOT_ATTEMPTED", "NOT_APPLICABLE"]},
+              "semantic_parser": {"type": ["string", "null"]}
+            }
+          }
+        }
+      }
+    }
+  }
+}

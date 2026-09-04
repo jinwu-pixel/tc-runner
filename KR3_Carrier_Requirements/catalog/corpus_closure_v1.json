@@ -1,0 +1,2123 @@
+{
+  "corpus_parent": "새 폴더 (2)",
+  "documents": [
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G NSA Features SAT Specification_V1.3.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a00feaf4b720ba79cc9e65e4e0fedea64bb0a85db07460d82d1de300d1ef7858",
+      "size_bytes": 1719683,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G SA Disaster Alert Services SAT Specfication_(V1.0.1)_210405_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "13dae3299fea87e8e9c5be1ec08944fc909605b27dda2d71aac9306c6ed543ad",
+      "size_bytes": 435101,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G SA Emergency Alert Service SAT Specification_(V1.0.1)_210405_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "baa58a10c0f4d56684ddf4697f7047d4f7b0771dc095bc480c3fd511c6876969",
+      "size_bytes": 435101,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G SA Terminal Function SAT Specifications V1_v1.6.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a2dec3d683f9f00cdcbd4ac88cd3adb3def2555e6d9132ed14f1782e0d5a742d",
+      "size_bytes": 1780670,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/KT LTE Technical Requirement_v.3.8.0_en.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "53d4ceec89155269f000e104a091996a800e5b4b04ae34d6f7633ea5bcb816fb",
+      "size_bytes": 4341718,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/KT VoNR Terminal SAT Specification_v1.0.1.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "4b733ddbcba3978be51a4c0ce004b8cf0e7670f3b1f9afa516d05633ee2624ab",
+      "size_bytes": 859912,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KISA-001] Easy Spam Report Service Requirement_V4.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b61e77e3fe41913d1f2e4bdc58bcb5b10118e429de8308b71e711e132f909063",
+      "size_bytes": 1235482,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-001] KT IMS Device Requirement_v3.0.4_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "e0c2044a1d0d8a8c5e621ad908f7f40d737daaf1cce8d0a3473e319ed6cf3741",
+      "size_bytes": 2303026,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-001] KT IMS Device Specification V3.5.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "612e812cef8b69a1260b41ca4d67cfa3b5b411f17ff63c2d026641b34dfbf014",
+      "size_bytes": 2090495,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-002] KT VoLTE Device Requirement_v3.5.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b4eba30c7c1ddf1e13240a98647550ea42f6d39e2328aa8b6a9bd2bf7a1dd5cb",
+      "size_bytes": 1368413,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-003] HD Voice UI Requirements_V1.2.4_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "e0997b41f780a9047187855718f2d024b3beed4f3a1d2d18f9504e4af7eed392",
+      "size_bytes": 1120611,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-004] KT VoNR Terminal Specification_V1.1.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "c413f09a2113bc2ad18b6ae218519a1d7f2960c7cfb313777c4b18f941f01e58",
+      "size_bytes": 837443,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-001] LTE CBS Function Requirements_V1.1.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d8ef5dab1dcca7584a8e9866daba66182c89a440962013232d7a83e3d2d9e462",
+      "size_bytes": 316839,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-002] KPAS Service Requirements_V1.1.2_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d2690ea1082cede7cd3ee05608d04849015ec7218a3eadab50044f53e0357ab9",
+      "size_bytes": 282454,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-003] KT 5G SA CBS Fetures Specification_V1.0.0-201125_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a68585060777bf3e0a9993ec597d617adb33419439dae5a3ba84c2d7c1174f12",
+      "size_bytes": 272482,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-004] KT 5G SA Disaster Alert Services Specification_V1.0.1_210405_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a8579374547e1bde345e2d47245bb4166ee4025103d5cbeb32aec5a1ff2dd489",
+      "size_bytes": 362404,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-DEV-001] Device UI Requirements_V1.3.8_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "fa2a5503d80c24a5b656168c26bdef848d0b135110bb43019732ff22cbd5b858",
+      "size_bytes": 1370186,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-DEV-002] KT Indicator Display Guide_230315_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "5552ac51e8da9cbbd9895798f8e4c85620fd9e7794c6b12a55475fcf4bb80ebd",
+      "size_bytes": 92703,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-DEV-003] WCDMA & LTE Android Device Extension Porting Guide_V1.1.5_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "cd9d4f0d25166c3b0c2d10fc97509e810467f54dfa2581daa59fbc0eb5d48f33",
+      "size_bytes": 700342,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-001] KT Wireless SMS Device Requirement V3.5.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "8a905f6156135cb97fdc8bc24612ff84568c40321d98386793f61ced8a48684d",
+      "size_bytes": 1263420,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-002] OMA MMA Function Requirements_V1.2.1_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b06c9756f6cdbe4bef9ada6591f58641a0d649afd29a39481afabd8b5d0e7671",
+      "size_bytes": 1120846,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-003] KT Message Integrated Device UI Requirements_V1.2.2_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "eb134c326bc8bdb8eaa0769b9fde5c92efefa2a3037b4716697b27ef173d7b92",
+      "size_bytes": 2156575,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-004] KT SPAM Message Handling Requirements_V1.5.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "33a94682b94c9aa6f6acd17d9ca566539376515fa93a52fc6a93af7668af2d86",
+      "size_bytes": 390153,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-005] Spam Easy Report Service Requirements_V2.1.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "1a2bcef363381f4e1183f658ffcc97f2c7f21c0cbb8f44fe16d02250cc0d86b0",
+      "size_bytes": 202972,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-001] WCDMA Function Requirements v3.6.5_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "05d89774fd740f7691a0f10e3c1e54b617715801501820a753a2c02aa1d56118",
+      "size_bytes": 1129405,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-002] WCDMA Supplementary Services Device Requirements_V1.3.4_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d9c4932ab2c356b696424a42629892e7f9e3ef2ec72e01247743286235c699b5",
+      "size_bytes": 992103,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-003] KT LTE Technical Requirement_V3.8.0_20240429.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "ba92305ca11c67d40f06a32f899114174d1bf83e41f7adcda7f9d85ffa661c3a",
+      "size_bytes": 3175688,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-004] KT 5G NSA Terminal Features Specification_V1.3.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "f9b9f14e54928e8ddd987b9de61752d5135917fff1edd1d823cbd289e63e9f89",
+      "size_bytes": 3050163,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-005] KT 5G SA Terminal Feature Specification V1_v1.6.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "f5bd526432c6acf50024b32b4b415d2db593eefa1c00c56d724bcca8ee3457d1",
+      "size_bytes": 4534647,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-PROV-001] KT Wireless OTA Function Requirements_2.4.2_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "422caf8a7abce709d8896dee69473b9ea7e2af1c5837661299b2618217f61434",
+      "size_bytes": 1086393,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-PROV-002] General USIM-ME Interface Device Requirements_V1.7.3_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "9e0de3c152a6152530e9f71f47fc68f636ee096d6a61b46488b71b96826e6385",
+      "size_bytes": 4866948,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-SVC-001] Video Ringback Tone and mCID Service Device Requirements_V1.0.2_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "2555a9cc71578e8650090481705f904c872fa38d21cf8d29b382c2ebd9d26b22",
+      "size_bytes": 733382,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-SVC-002] VoLTE ShowMe Device Requirements_V1.0.3_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "afe39c02f5a745f1bd9951039048c7d38d8bcdfb85993f6e678a870cb1c1f3c6",
+      "size_bytes": 1260062,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-VT-001] KT PSVT Device Requirement_v3.4.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "327735183ffb0188beca6e688b3f2902b16ccd6c750b56dc14d41430351c9175",
+      "size_bytes": 945077,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-VT-002] PSVT UI Requirements_V2.0.1_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "c6deb032389d69469fa5e2b728af5e2f7c658095472fdde314f87e235a1f4225",
+      "size_bytes": 1139696,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-WCDMA-001] WCDMA Function Requirements_v3.6.5_changed.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "53d133310ad9954744ec2da07b09b59b5502d5823dbfd7a51c7e18fe6b1be027",
+      "size_bytes": 3357492,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-WIFI-003] KT WiFi UI Requirements V2.5.0_Cn.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "736a49966bf08b1b403a38dfa72f443b47c5061c9c4a06f045f83714065f7646",
+      "size_bytes": 1947268,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-EN/kt LTE Technical SAT Requirement_V3.8.0_En.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "eeb87aee48911e392f94f2b63e24f3d358b25206a9fd8ae5bd9dc07e514bcaff",
+      "size_bytes": 1792801,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/(2020.11.26) KT LTE 단말 OTAP 규격(V2.0.0).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d1e024f758a5b1fae59a0c7234d9e002dd6109147b10cf584cfc000052c0fe8c",
+      "size_bytes": 197242,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/(사업자 공통) VCIDMyview 서비스 단말 요구서 (v1.0.2)_0929.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "9399ecf7bd0a0acebde9506d379e6c320c62d6bec2ed461399ff63524513de97",
+      "size_bytes": 421578,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/230315_KT인디케이터 표시 가이드.docx",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "c4b439fcfd11a486908eb427a958d2192908a7de1fc5244ea0f1673119301a10",
+      "size_bytes": 92079,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Android 단말 LBS Extension 포팅가이드V1.0.2.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "f830d02d8f23b11755e268ff762730fe41380ceddd48df1deea473ba1038f1dc",
+      "size_bytes": 380360,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Android 단말 USIM Extension 포팅가이드V2.1.6(배포용)_20180628.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "e374d0d6e52fd87217c3cc29c7563b07f35b39be36261259cde74e48cfaa117f",
+      "size_bytes": 840573,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/HD.AI",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "dec7a9f8525e2d7553badf90ea058c12ce07186b25f3921721984b85ee786aa8",
+      "size_bytes": 1103930,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/LTE_Plus_230905.ai",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b86917b55ce92d6013e573bcd715b89ebbb970803370f73c0d6208cca4857246",
+      "size_bytes": 1105799,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/stat_notify_ansim_kt.png",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a72b6f25a1928ea141328037e0c35e150e758540124d40ed51f33dedf5be80d1",
+      "size_bytes": 4279,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/안심문자.png",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "1cafe1b8b9a1f6797037de5d52ada708ca2956a043c43b7418e9d3f9c2ba5e26",
+      "size_bytes": 87458,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/인디케이터 2G3GLTE ai파일.zip",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "7dcc5d3434da32d930d2f92f8dbb834a7b081d2884216cee84e776ed1a24b80f",
+      "size_bytes": 3135264,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/투심_안심_logo.ai",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "2339d359a2ab25e92a0dabf6d2a013062cf82b84f2963a848e946cf0b3aece37",
+      "size_bytes": 350682,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "KT_SAT_NSA_V1_3_0",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G NSA 단말 기능 SAT 규격 V1.3.0(배포용)_20260508.pdf",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "2fdc5deef73570bf4e93e25da780a75a2f3e189122a2b252eda4c6b17ff8aaab",
+      "size_bytes": 1172007,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "KT_REQ_NSA_V1_3_0",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G NSA 단말 기능 규격 V1.3.0(배포용)_20260508.pdf",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "ebc725e129ef71a8056588f7a48ef5810bf267dab6937c05418a225b107c44e8",
+      "size_bytes": 1896351,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "KT_SAT_SA_V1_6_0",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G SA 단말 기능 SAT 규격 V1.6.0(배포용)_20260429.pdf",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "2e5f8a4564efb46641b447e418b84837381a35294dc9f233a6eebca461c2736e",
+      "size_bytes": 1716242,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "KT_REQ_SA_V1_6_0",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G SA 단말 기능 규격 V1.6.0(배포용)_20260429.pdf",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "bb65b35b1eeb917c456d758836fa1284306c9b1b1abdbcddca96bc4f9594547a",
+      "size_bytes": 3382047,
+      "state": "ACTIVE"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "9037fb217dbe18dc38113bd384a5d7c33f89a267c1e957a7f40c22829184b68c",
+      "size_bytes": 498835,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "bf5500afe5d35231f5af77a490e07e864b58dc8b246d9a41e647801aee8d7220",
+      "size_bytes": 386965,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT IMS 단말기 규격_V3.5.0(배포용)_cl_260507.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "1ecacf8b8818f08a9d7d7fad8c57504a06391b19084eb545a872400aca2f2ca2",
+      "size_bytes": 1154237,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT PSVT 단말기 규격_V3.5.0(배포용)_cl_260507.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d4b76a4737560d66150c682bb9466487f225655080c0d4f2c1791c84a6ca7ab2",
+      "size_bytes": 834914,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT VoLTE 단말기 규격_V3.5.0(배포용)_cl_260507.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "4b753c8e2964f7501d83b78c7a4f94e0afd099ee52ba8aaaa6f32a0f4816ae0b",
+      "size_bytes": 1313379,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT VoNR 단말기 SAT 규격 V1.0.1(배포용)_230201.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "933d1f3700264a8cec96f4a12db517f81b596894f3f1806be37915531f3f2e99",
+      "size_bytes": 1008975,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT VoNR 단말기 규격_V1.1.0(배포용)_cl_260507.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "c131ae539a2e07c244a536948ce7936d84a325e4d298dcc404ade1105b59cadd",
+      "size_bytes": 878497,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804.zip",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "3aa15932478bc162045a9dcb134abfa8507d94f34657d0968f28695a9bdb7965",
+      "size_bytes": 1086450,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804.doc",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "f6147bca6417f0cddda7f295fde869f2f9c0d08cc072d2af771ee08cc72a9336",
+      "size_bytes": 605184,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "794f79c2043d7a4042884cb3dd13c9875c5cd1620149f4cab2ae950fb8e62f29",
+      "size_bytes": 1173541,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804/KT WCDMA 부가서비스 단말기 규격 변경내역 요약서(V1.3.4).doc",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b59681a23a47fa48cec941cb88c7e485983cdd5fed0c21cba7b370dcd8f332e6",
+      "size_bytes": 65536,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 메시지 MMS SMS 통합 단말 UI 규격 v1.2.2(배포용)_20170227.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "348ea08c590f97b55a4b190074d6b651514369d568ab612ebba968dbe2ab8e0f",
+      "size_bytes": 2171216,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 무선 SMS 단말기 SAT 규격 V3.4.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "216ca93311cb35ef41c4ac4f9da1d3d46fcb7cdfb32f5ae8d4841a40d9e69695",
+      "size_bytes": 964871,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 무선 SMS 단말기 규격 V3.5.0(배포용)_cl_260507.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "8cf51d48f70f218c1e1a4a52bfdf5d8e2634326073b6b35eea15dcecdb05ba22",
+      "size_bytes": 996330,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 스팸 간편신고 서비스 규격 V2.1.0(배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "4668b9a6ff910cb69db83a850d849c9b454bb5f751b87638b4129173833f7699",
+      "size_bytes": 184320,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 스팸 메시지 처리 단말기 규격 V1.5.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "e172acf1d754a854ba8c35423525f1f737accd4487c00672f4549d1598cbe536",
+      "size_bytes": 398751,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 재난문자 서비스 SAT 규격 (V1.1.2)_210405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d29e41f5ec267e1415e4e43d57d4faa91d3712a33d41fa124da481e6b34b80db",
+      "size_bytes": 432377,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 재난문자 서비스 규격 V1.1.2_210405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "6ad33decc321d4d2ebdc44c04e9c1437489cdb4ebf66530714d1c78402a3343a",
+      "size_bytes": 322789,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 SAT 규격 V2.0.1.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "71c59de44db42cae981496c2e9eac932052cf678d77d8ed1290eaf782fd5f9d6",
+      "size_bytes": 832024,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1.zip",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "39f3f6b77c302f1831218b5318d291c7be42e667f4b06cbdb8aa5092165967ea",
+      "size_bytes": 780163,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1 변경내역 요약서.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "de705bc2c3f07be24e8f1d14f0c6dc99f7335125c4fe355784aab50f81f2a6e3",
+      "size_bytes": 144079,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b59ae591404e25332fbcae72835139a886e07a5ddd379094e757b309dae7f596",
+      "size_bytes": 865213,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 SAT 규격 V3.0.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "832e306b32a2ac6845b5bc1aa7408002a79ccd3b2ceba2cd369621e4da0ab007",
+      "size_bytes": 2007976,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0.zip",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d260aa1e964f71e5111cdcffd29905884b760b3313697d61f8ec9d8a3fd9dfd3",
+      "size_bytes": 1548837,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0 변경내역 요약서.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "4c76789071ca54ce1911648409ed0f1d7fa4158d92dfeb94ba4d83f90175d610",
+      "size_bytes": 207626,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a083009cffe287678d6847f7d87d806641e2e0cb9c477fa3851888962fc6878e",
+      "size_bytes": 1788713,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 HD 보이스 UI 규격 Pre-SAT규격V1.2.4(배포용)_20180808.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "3c7bd431ba08fbe728177981030786c3b4a27343ca3e89d78d46ae96e9052f60",
+      "size_bytes": 1273420,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 HD 보이스 UI 규격V1.2.4(배포용)_20180808.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "bc5e672031e1f3f244263e7817909162377de97e37522564d81143ad3bb62206",
+      "size_bytes": 1350400,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 PSVT UI 규격 V2.0.1_20141103(배포용)_1.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "0d87d1bd67995a023c0312f748c4f7452cabe469f592012eb9164c92615dac41",
+      "size_bytes": 2106481,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 WiFi UI 규격 V2.5.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "4c66e10ae1967bd98efc8541cdd8cbc2a0e132bc95ede557ad0e78419844bfca",
+      "size_bytes": 2241511,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 단말 UI 규격 V 1.3.8(배포용)_20200918.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "caf4570c32a185a0f62a420e35154fc66ee1a52600699dcdf5f71b25cc1ee106",
+      "size_bytes": 1843292,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합단말 서비스 규격  그룹_후후 연동 단말기 규격(Type I)_V2.3.1(배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "469677be93f99561e0098e357f7247410743ee21edfbc93cbc792080adc994ae",
+      "size_bytes": 2410169,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합단말 서비스 규격 LBS 기능 규격 V2.0.4(배포용)_230208.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "0fd69e2293bf5261b3c59de1e452f3e8c554d992ddcad2c864b7d2e0cd87ba35",
+      "size_bytes": 2583649,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 후후 보이스피싱 OEM 연동 단말기 규격_V1.0.2(배포용)_260413.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "060e430053b542e73541e8e03082d7a1ed0b326c0ed0583fd57f0709a82c5373",
+      "size_bytes": 1909061,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "7efb47fd29d4822d05b61a8afb33199b885fe6a7aadeeca44c8ed72f2e30ae36",
+      "size_bytes": 613602,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/VoLTE 쇼미 단말기 규격v1.0.3_배포용_20141020.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "798c55ca9b661ad9e899122f05da1395b5415afb1dda6275919463ce65aab434",
+      "size_bytes": 2695513,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d3e7d8085a1f3a4108aaa570a71f4f59c13ac5d3637f3130fcd57f0f13f62a20",
+      "size_bytes": 328010,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt General USIM-ME 인터페이스 단말기 SAT 규격 V1.7.3(배포용)_20181212.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "5eab5b32af1a8c2f2823afd88f2d721ed4f2b6ef37ac8a1c6291c159a8938c2f",
+      "size_bytes": 2285317,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt General USIM-ME 인터페이스 단말기 규격 V1.7.3(배포용)_20181212.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "ca2b782d66939dce412c77db238c48b08d85d511afdf7c59c4afb59ddacfbf7c",
+      "size_bytes": 3857703,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTAKE_CAPABILITY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt LTE CBS 기능 규격 V1.1.0(배포용).doc",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "5652785e32ab5705e062e3bc5965c5268eb30947c8b479f0d040a5d45f7ed2b5",
+      "size_bytes": 155136,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt LTE 기능 SAT 규격 V3.8.0(배포용)_20260430.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "84bebde5328c131ed41795386d0d8b31b20388252219e33d5c83914bf79235b8",
+      "size_bytes": 1501180,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt LTE 기능 규격 V3.8.0(배포용)_20260429.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "ba92305ca11c67d40f06a32f899114174d1bf83e41f7adcda7f9d85ffa661c3a",
+      "size_bytes": 3175688,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt OMA MMS 기능 규격 V1.2.1(배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a3f727374ab3bc81462f520ce47a8a7707815d7461b8afc438ede479d53b833e",
+      "size_bytes": 1629938,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt WCDMA 기능 규격 V3.6.5.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "bfa8db164b86a97a52494552e179ea7a0c0110815c84858bea509c11908cfbb1",
+      "size_bytes": 4294165,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt eUICC RSP 기능 단말기 규격_v1.1.0_배포용_20220511.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "47c75225c989b697c80fb6238a98bc93d4737600ab800be80ab8279711f337ef",
+      "size_bytes": 2024495,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt 무선 OTA 기능 규격 V2.4.2(배포용)_20220707.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "6e57be1e7faad18537691f87f816231344b08e0d24fda891e9c4e7ef1409c1d4",
+      "size_bytes": 1130190,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/20260702-KR/kt_Android_NFC_단말기_규격_V1.2.3_배포용.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "9114e1f8d8ab8d05c663d2e9720cc3836729c713dfb4dfb7a77326d3ea5083f2",
+      "size_bytes": 835892,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 SAT 규격 V1.2.6(배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "59d66f73eabc6eb3022b7674a279c2cd3dfbbfbaff458d6627bc08254149a271",
+      "size_bytes": 3445477,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 규격 V1.2.8(배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b8cfd86d89792fcd0ecec0074381278984080cc74e96630b613bf5d08e405240",
+      "size_bytes": 1250631,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "393f4bb41a3c7ebbef3e3ecb55d2c0faac84a25ce8118e6a4e31f7096a4da8b8",
+      "size_bytes": 2411544,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 SAT 규격 V1.4.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "c9f0c4f8a771aab7d3b52dc9622b4ced2951e7b8a1cd572d2790bee16f4fc434",
+      "size_bytes": 2867724,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 규격 V1.4.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "4545e43c9aaa4218dc93acff3930bea39a08e4ed94f7199d433ed9e4349bd8e1",
+      "size_bytes": 4934625,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b8bda18d6ff3bc8f23bc87c3bfdcf72f0ec80c691033479b624d2f0b6959104c",
+      "size_bytes": 4501765,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 재난문자 서비스 규격 V1.0.0_201126.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a067d69be48de206dff9057e6a94752cba476720dbf12aecc4f16e1c089a5de6",
+      "size_bytes": 492474,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d3e7d8085a1f3a4108aaa570a71f4f59c13ac5d3637f3130fcd57f0f13f62a20",
+      "size_bytes": 328010,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G NSA 단말 기능 SAT 규격 V1.2.9_20240808_clean.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "2e18050b4536e5634ea2c972bb69c1dd14a7be4b36bb7d015bcc3f76b01f55d1",
+      "size_bytes": 1613289,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "393f4bb41a3c7ebbef3e3ecb55d2c0faac84a25ce8118e6a4e31f7096a4da8b8",
+      "size_bytes": 2411544,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 단말 기능 SAT 규격 V1.5.0_20240718.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "a83d73dfeb098bfcfc4f05ccaa2414de0329ecceff53f0de5dfa016017561253",
+      "size_bytes": 2700500,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "b8bda18d6ff3bc8f23bc87c3bfdcf72f0ec80c691033479b624d2f0b6959104c",
+      "size_bytes": 4501765,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "9037fb217dbe18dc38113bd384a5d7c33f89a267c1e957a7f40c22829184b68c",
+      "size_bytes": 498835,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "bf5500afe5d35231f5af77a490e07e864b58dc8b246d9a41e647801aee8d7220",
+      "size_bytes": 386965,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "7efb47fd29d4822d05b61a8afb33199b885fe6a7aadeeca44c8ed72f2e30ae36",
+      "size_bytes": 613602,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/KT",
+      "sha256": "d3e7d8085a1f3a4108aaa570a71f4f59c13ac5d3637f3130fcd57f0f13f62a20",
+      "size_bytes": 328010,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "LGU_REQ_5G_V02_00_00",
+      "path": "새 폴더 (2)/LGU+/LGU+_5G_20260728/CD_20_LGU_디바이스_5G_기술요구서_V02_00_00.html",
+      "root": "새 폴더 (2)/LGU+",
+      "sha256": "00032e83eb3b7999f753c1e30e4952ab160b5075d341e6008dfcb27b1319a455",
+      "size_bytes": 5424467,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "LGU_PROC_5G_V02_00_00",
+      "path": "새 폴더 (2)/LGU+/LGU+_5G_20260728/CD_20_LGU_디바이스_5G_시험절차서_V02_00_00.html",
+      "root": "새 폴더 (2)/LGU+",
+      "sha256": "fc909067efe913479660161a97de4def46a7ba806fa3f41c9498724d37e3259b",
+      "size_bytes": 1891234,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0001",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/11번가 (11번가).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "fa81f0b34f52d0cee3a232539d1d338c972aec0ff7e39ca1e4f5be311ac7d97e",
+      "size_bytes": 5120,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0002",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/11번가 쇼킹딜 (11번가 쇼킹딜).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "9833a1cc485939c71032fd87af088da6779a65860a5090d15c2c472e7246cdbc",
+      "size_bytes": 5120,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0003",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/2019-04-03 SKT 5G RF 0.9_표준시험항목.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "b2082c4491678a153079dce319795761803ee380c02c9572f04ceb848203bd6f",
+      "size_bytes": 16896,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0004",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/5G DSDS 1.0.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "06adf73ecf4760bb912f4e5d912f04d22df1a5e7b8a11b1aa9110f649f77353d",
+      "size_bytes": 40960,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0005",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/5G NR 1.20.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "de64499baaf2baf6e8e7b28c7aebe41ba88d341525b3155e9b1f95e1f5475499",
+      "size_bytes": 142848,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0006",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/DATA 3.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "a0ce4ef173ecf99a2865a37569dacffd245cb85e0067930181be14af1d4d5dbf",
+      "size_bytes": 56832,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0007",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/Field Test 1.21(5G).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "15117948d4c5df595fa331278bd44a7e21c2f9286fd18f3ab9926c426a3aa704",
+      "size_bytes": 119296,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0008",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/Field Test 1.21(LTE).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "32251d29369f2553adce69d67671f1de70d1fc605dade1120617903d81b0e030",
+      "size_bytes": 88576,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0009",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/LBS 3.01 (2).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "af37a530e08651f490d33bf30f6329d80cc3adfedef26f60f748ef658c81180f",
+      "size_bytes": 71680,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0010",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/LTE Cat M1 LTE Cat M1_LTE_0.91.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "f8d762bd6ec3fc6d50e39c6e52f78a4bd98c4d0e5b5f7d5c7abb6038c8159f6d",
+      "size_bytes": 33280,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0011",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/LTE Cat M1 LTE Cat M1_TRx_PCT_1.1.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "36564e325bfeb137c239a9c9f496b5ac468f48ac8f9fa6610c35bd444210741e",
+      "size_bytes": 140800,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0012",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/LTE Cat M1 LTE Cat M1_USIM_0.1.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "02cae12dcc9a32fea00159b09911364860764f5b2077daa11c8fce32048d2b2b",
+      "size_bytes": 8704,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0013",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/LTE RCT 1.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "0806b142d1d9eceb8c9aa78ea929071849c43a41d266eef0115330a5ae246eb7",
+      "size_bytes": 61952,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0014",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/LTE-A Pro 1.23.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "5ee9d758d0c37ad3f1875cf3e2ee1c7ddb9006b776a47a56316e8ee7f30681ea",
+      "size_bytes": 1030656,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0015",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/MelOn (4.0.1) 2018-05-25 04시07분42초__표준시험항목.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "744f4582db6470453d0d6a0a2db8bfea2fb8c964bde13f6d64f583bd4f4aaa3f",
+      "size_bytes": 69120,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0016",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/OK Cashbag (OK Cashbag).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "a2e4779eb4402e980802a6955c1506723a0d270dcbc6c9cf82547dd41c29a63e",
+      "size_bytes": 32256,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0017",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/ONE store (ONE store).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "c9fae880c718cf7312a6ff8e1d7dc50b40ac00cda365624d6d3fdb3a3b572488",
+      "size_bytes": 32256,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0018",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/R-ACR(ACR) 1.01(1).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "267d4abd3cc3a636e78a37f414fffec53355bdb0c2924294b25fbc918ca201cd",
+      "size_bytes": 22528,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0019",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/RCS 6.0 2.05_230328.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "50887fed4f21c8721de1d2112b549a7f764802e873ad67e468ec2391f618c70a",
+      "size_bytes": 528896,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0020",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/RCS_MaaP 1.0 1.00_230328.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "5f1b4330453655e51454ad7e23b21b2a831876fb59a5155f1d266a8cb534d694",
+      "size_bytes": 178688,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0021",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_HD Voice CAF 3.13.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "40627fff43a38b14202916db7f4721daf609ceea87b6dc9e0d2c9de2348735a7",
+      "size_bytes": 45568,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0022",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_HD Voice LTE 영상통화 3.23.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "7428113bff76707a46c5962847e4c94e7aa155b82ed4bd88138ed8c357a78f06",
+      "size_bytes": 166912,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0023",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_HD Voice UICC 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "360ea293230b72ae7f840b2259d49ae3fc6b1107b65f155116b5f0611d33b8d1",
+      "size_bytes": 103936,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0024",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_HD Voice 부가서비스 1.73.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "f679db9f2ee12e663c58865c2d51f446a9c21aa4ee534b5c13cc03a7c7455449",
+      "size_bytes": 183296,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0025",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_HD Voice 음성(CS) 3.25.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "9582ee520158103416afaad4dc486c8660f3159f2fbb02ea7263801ddbb44429",
+      "size_bytes": 218112,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0026",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_HD Voice_RTCP 1.02.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "d11fe5d64ade48d5b96896b67d6f9dcf2c3300f621c6574bd795a402c7974f74",
+      "size_bytes": 11776,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0027",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_LCS 1.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "d930a35207bd06ab95c9a9ef2d0b513552e18df896863fc67d43395d9fd7e580",
+      "size_bytes": 48640,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0028",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_LTE-A 2.82.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "0ee4f90d78aec3062c2cef0d5d44aa5b2b4aef261c002fa350bb68b7f572098f",
+      "size_bytes": 24064,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0029",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_SKT 로밍(Roaming) 2.41.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "ac3962933c96db110d69eb7647c45792f363dfc0cc5bba2cbbb5b348485b77fb",
+      "size_bytes": 33792,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0030",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_T 안심 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "efb15923aac5132d3e7a9f81d05352647e957ec7128ffb50a5b2f7750efddad3",
+      "size_bytes": 56320,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0031",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_T 전화 1.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "f9bf271fe4854a4a89ea30c046100904ba1ce8be61fa3866852ed74ff40785ec",
+      "size_bytes": 32768,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0032",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_USIM 호환성시험 2.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "84c9b1b2d5b48f2c422d3287cc80c9d37ec1d531aec4e54546dac3b287906a4d",
+      "size_bytes": 128512,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0033",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable Field Test 1.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "0fe8bf2cda7f94a3c0ce8849c60fdc7ba0da7cbbbdb4b20d9f6e62c6ca4f5af6",
+      "size_bytes": 147968,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0034",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable MMS 5.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "2afb30f1c825e061be8f6c7eecc29f137fbc1efc6a39713e542f943e535e5304",
+      "size_bytes": 108544,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0035",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable SMS 1.77.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "504bdc5a46d4edde8786552283445b3cafc407fcef6d12872912a94b7f3a828e",
+      "size_bytes": 120320,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0036",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable T share 1.3X.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "c53e09716610cd23058afdd4acb72f871575ad743f831ad40a923fd54deb03c8",
+      "size_bytes": 41472,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0037",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable Usability Test 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "36e2b5a8bcfe99d23843866e37322ad72994cfbc21478e2c3143367e39c88f0d",
+      "size_bytes": 36864,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0038",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable 데이터호(PS) 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "f64d25c1fe21d16c74672e01caeaeaddbd3fd092f0b672206a5c9b064374dbda",
+      "size_bytes": 16384,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0039",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable 부가서비스 1.70.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "90c4b91bb944a335d4da34dfa91ce02b3cc77db4d360b0d0b6872a22b2097be1",
+      "size_bytes": 57856,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0040",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable 위치측위 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "7c342de49f616d63ad8f87b5f5aee115d26e740fb3ed1a9057198cfbd8ad9fce",
+      "size_bytes": 30208,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0041",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wearable 음성(CS) 2.72.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "494b1d321d98abcb0ef9ac4aa461acef3ed0a37145a564cc6325417872597695",
+      "size_bytes": 112128,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0042",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_Wi-Fi 접속 1.02.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "7f29594854975d88676d4e549ef400f395045318cdd8bac70c223f7ac17a2101",
+      "size_bytes": 46592,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0043",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_데이터호(PS) 1.01(Smart).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "4c1192c36757d2c758307e32a03739d8312541666a9b2e7c5d53642935dbcf28",
+      "size_bytes": 58368,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0044",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_메시지서비스(OMA) 1.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "e4062571cca5a382996fd4934433cacebd18abde7d1ff46eac2e11e745fe8fa5",
+      "size_bytes": 375808,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0045",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_분실폰찾기 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "4555364e021828cc5c11fa237b2b9e23d3265f7af5b6d19ec68bc00bec4d5637",
+      "size_bytes": 67072,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0046",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_액세서리 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "ae3744111ab3487738ebde6f008c3983eb78b825d65268b50eb16443b19d82c6",
+      "size_bytes": 29184,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0047",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_패킷_FOTA 1.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "98a2c7db36caea2f880b1a62922c9d379d060485339adb0c2ff3b9b31f0d7804",
+      "size_bytes": 10240,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0048",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/SD QI_호환성시험 2.00.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "67adf9d66eccc844d17e3f3628bc74694380b2c54cca553737a41ab1134c1773",
+      "size_bytes": 8704,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0049",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/Smart Phone HW 1.50_230328.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "5fdff623451aef3c8d15cb245988ad143f24bec14fe727ff0facb6f94b1fd892",
+      "size_bytes": 68608,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0050",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/Syrup wallet (Syrup wallet).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "b22cf104ac6464d8376ce23ddbaa10439b9042a41d989a26809b90ec9a6c932d",
+      "size_bytes": 32256,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0051",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/Syrup 기프티콘 (Syrup 기프티콘).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "c512e5de4f6ee285e0379e1861d8aa1cc29ee7b68ed1144e5506047c561e0fb4",
+      "size_bytes": 5120,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0052",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/T map (T map).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "10e7a3f909bcd8be8919eea0b946d1b0addec83e64605cd0579fda8e01de3450",
+      "size_bytes": 5120,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0053",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/USIM 3.01 (2).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "728db2121c54f762174748f203ebfbe7dcc4cddbd5efc965d4e2066116ff9336",
+      "size_bytes": 102912,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0054",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/WCDMA 부가서비스 1.71.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "bebb45ba9fb68691450717d09ab3c21b1a6d432d75fae6654df22ae801027a54",
+      "size_bytes": 73216,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0055",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/WCDMA 영상사서함(MMC) 1.41.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "7308f98007db1c6970c603f6549e68268c9eda86e56f93817a0ce99e053a40f6",
+      "size_bytes": 50688,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0056",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/WCDMA 영상통화(VT) 2.11.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "a73ba0abd1166b78a03e24facd610a551c73b8764f56df387601f3cc19152267",
+      "size_bytes": 89088,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0057",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/WCDMA 음성(CS) 2.72.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "26bc3223b073b3b08c2ffd8e782005a8f6f72bd6d911ef6f89d51d60455622b9",
+      "size_bytes": 101888,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0058",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/WCDMA_DUAL CAF 3.12.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "ce858b169771f40fb7abaade02df55edbe73fead9f4fbdad63e40a53798252fe",
+      "size_bytes": 71680,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0059",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/Wearable HW 1.20.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "529a188d68cf27ef9604088403a38222d44672feef23b14b6a30dc240e04a1a1",
+      "size_bytes": 37888,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0060",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/h.265 1.01(1).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "b81243c9c850f6d1cb3cab36d070c5e527adb7d2af25399f2d6539c0f14c08cb",
+      "size_bytes": 43520,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0061",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/mCID 1.01(1).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "3536d96ac2c3a56d1dade4a0498b495ba2ee1055205f27cc526ab37bbdb33f52",
+      "size_bytes": 23040,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0062",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/메시지 3.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "35cc1ec8504944ab656c2ff3540796ad12cf4544dcf022ba0b184b4a8de98dbe",
+      "size_bytes": 104448,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0063",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/서비스 앱 3.01 (2).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "5b17794989798a77a2c1452f30bca9bfe91157fa896f88c512573e0afd2afcb5",
+      "size_bytes": 122368,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0064",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/영상통화 3.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "9989881a3ff17725779afda08b07c05f4aa717cf9bf5aec2b0a00ac01b395933",
+      "size_bytes": 76800,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0065",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/옥수수 (옥수수).xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "2b799e8b28b1ec0cf9fbd961741357ed7a1b68959f2ca524770cab03a67bb44d",
+      "size_bytes": 5120,
+      "state": "ACTIVE"
+    },
+    {
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "document_id": "SKT_PROC_0066",
+      "path": "새 폴더 (2)/SKT_시험절차서_최신/음성통화 3.01.xls",
+      "root": "새 폴더 (2)/SKT_시험절차서_최신",
+      "sha256": "f2e03f026c07eaea858b88cb57902e7b44122af0086972dbee1251a6e2700269",
+      "size_bytes": 245760,
+      "state": "ACTIVE"
+    },
+    {
+      "blocked_on": "INTERNAL_DECISION",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[KISA-001] Easy Spam Report Service Requirement_V4.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "b61e77e3fe41913d1f2e4bdc58bcb5b10118e429de8308b71e711e132f909063",
+      "size_bytes": 1235482,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-5G-001] 5G Device Common Requirements_V1.75.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "61d0115b1595b219c2dfd0badf8488dc18b87b43f34812b40dcb71aa416cbc12",
+      "size_bytes": 2304659,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-001] LTE MM Device Requirement_V1.86_20240405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "59c1d08533aae9940d1dad250aba8bee9c34429c85b81c9bd7fe21faf88215cd",
+      "size_bytes": 1534750,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-002] VoLTE Handsets(UICC Portability) Requirements_V3.5.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "b41027f60513ff7fa40444ac1443544df761ac02b6822f3347b8ec52bb51c62c",
+      "size_bytes": 1170891,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-003] APCS(DM) Device Interworking Requirements_V1.2.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "3e704de9c901a4a261219a8fba0c65a7e05a03368eb0a60a6f4fe851c1714e6b",
+      "size_bytes": 581617,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-004] SKT Automatic Provisioning and Config Server (APCS) Client Interoperability Specification - VoLTE Service_V1.0.7.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "341148d5bb7a092499f02df86dea236d3adf296e68145923ebaf9e107b92f4e7",
+      "size_bytes": 207356,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-005] VoLTE TAS Service Requirements_V1.1.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "7e0b526519a14a3a0726f236f4bbf5d97f895ac6b5fae47da8e5818475a56c55",
+      "size_bytes": 5712604,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-010] HD Voice Service Requirements_V1.2.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "c644b190e64ae07db266e724a880093c7a574cd6302688fdbb77d24f0abca5da",
+      "size_bytes": 1462751,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-012] IPSec Requirements_V1.3.2.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "70e9833da8b0fce2da1b29622bba85f4c4e51484c32f3312e2bb3c28481dbd6e",
+      "size_bytes": 1666100,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-013] International Roaming Requirements_V2.91_20240405.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "4dbdbff090215642349385149a77119c451765b5c7361b52f0fe556135c0b2be",
+      "size_bytes": 1366225,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-013] International Roaming Requirements_V2.92(20251022).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "9479e5050313097ff84dea1064ae1b96f50cde579d6e00b979475c7e53439a6c",
+      "size_bytes": 1285357,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-016] Tethering Traffic Branching Requirements_V1.0_20220224.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "dbded9252de5c3df6d94ee439b1dc2914c47ebb4cce1c0b8a02a67d8391ff5a9",
+      "size_bytes": 280867,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-MSG-001] SKT SMS Requirements_V1.83.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "5c3c18c93e3b1b75d5eb753acd09c1df1efa9994d6bd9255a08a7f994fa8e5cd",
+      "size_bytes": 408473,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-MSG-002] OMA MMS Requirements_V1.9(20220224).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "e836c93603fbf069bde8786362cc2812bbc28379c53560580692774ff4cc3cfd",
+      "size_bytes": 695874,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-001] WCDMA LTE QA Requirement (QAR 1.43).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "af7bf3da61bfde1a3cb4e96425deb71cab3afb4d57de75a1cd78768cc6562d9a",
+      "size_bytes": 1729426,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-004] Device DM Requirement_V1.26(20220224).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "fdd74ad5c691d4c93a377fe20079ef8b475846492dfbd2cd65b0d45a8f7ba251",
+      "size_bytes": 458411,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-010] SKT FOTA Requirements_V1.0.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "d1f398586b47e43ce41c581273e9e9870cc917fc46f40cebba37634362bee932",
+      "size_bytes": 2879903,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-012] SKT FOTA Requirements (Appendix).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "da3291fbbb3837c89260986c30d74d6a4703d43ba4b3040b395a7dadab3a242f",
+      "size_bytes": 88857,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-SVC-001] Open OS Device LCS Requirements_V1.6.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "f248b0892addc8eccb19689b8c517e30e72ac4635ade421a1d47e1d75a851407",
+      "size_bytes": 456038,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-USIM-001] Device USIM Requirements_V3.2(20220224).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "af772fff5ffb2617cc350e199cbce585170e700085e56b112b9322954dacd6eb",
+      "size_bytes": 2052774,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-USIM-001] Device USIM Requirements_V3.31(20250513).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "1ce181183b8414b5ed103a50888a2c44562d18b2456e16d681dd6a906a63490b",
+      "size_bytes": 1841515,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+      "size_bytes": 2786500,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-002] LTE PS Video Call Requirements_V1.3(20111006).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "43a8ea18f64c903d3e8863af1749731ddab8bad2752429f9114c5d5335c797ca",
+      "size_bytes": 376689,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-006] SKT APCS(Auto-Provisioning and Configuration Server) Client Interworking Requirement - LTE Video Call Service (v0.2.0).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "57c7d8cd565e94d583e5c49c05a9f0ddbf864e7df79bdf5f7b725314b24620ed",
+      "size_bytes": 711249,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-007] LTE Video Call UI Requirements_V1.3(20110826).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "43d1ed3f81809db0e117a26ca96caa3c947a7659314e13c6d3c91c90f4a5de88",
+      "size_bytes": 1418900,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-008] Video Call UI Requirements for 3 Major MNOs_V1.2(201604).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "bd2f463580d607ed9da05e90a0a50b13e069897f6da6109cbbd020da5eebd4be",
+      "size_bytes": 432706,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WCDMA-001] WCDMA SBSM Device Requirements_V3.26.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "a64808d6548cb05e5fcbb9a730c53ec3b35f5e4411b6c8be9ca2d7b0fdcc9e0e",
+      "size_bytes": 1333243,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WCDMA-001] WCDMA SBSM Device Requirements_V3.27(20241128).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "ac285cd3b738200cc97ac0d53f4ee91c13adf15dc515a477a83cc9315311b11e",
+      "size_bytes": 1105041,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WCDMA-002] WCDMA SBSM Supplementary Service Requirements_V1.7.pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "2686fe10a25b50b4de2a08c9f34ed730a0913cf3c714c04daa85193b5ba79296",
+      "size_bytes": 1334220,
+      "state": "PENDING_REVIEW"
+    },
+    {
+      "blocked_on": "CARRIER_INQUIRY",
+      "currentness": "CURRENTNESS_UNVERIFIED",
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WIFI-001] Wi-Fi Access Requirements_V1.76a(20230531).pdf",
+      "recorded_date": "2026-08-14",
+      "root": "새 폴더 (2)/THOR3_SKT_Requirements",
+      "sha256": "99c2eac3c37c71fee200b4399268ac12e0eccd0f48715cc9cbc45fa243f6b3cd",
+      "size_bytes": 1124642,
+      "state": "PENDING_REVIEW"
+    }
+  ],
+  "generator": {
+    "name": "build_corpus_closure",
+    "version": "1"
+  },
+  "schema_version": 1,
+  "source_scope_path": "KR3_Carrier_Requirements/contracts/source_scope_v2.yaml",
+  "source_scope_sha256": "888e44a5962b1db6dc6b389b1ffc92be7f1876dd820d7cce3af3e71a10e9fdcf",
+  "summary": {
+    "active": 72,
+    "currentness": {
+      "CURRENT": 0,
+      "CURRENTNESS_UNVERIFIED": 214
+    },
+    "excluded": 0,
+    "oldest_pending_recorded_date": "2026-08-14",
+    "pending_by_resolver": {
+      "CARRIER_INQUIRY": 112,
+      "INTAKE_CAPABILITY": 8,
+      "INTERNAL_DECISION": 22
+    },
+    "pending_review": 142,
+    "roots": {
+      "새 폴더 (2)/KT": {
+        "active": 4,
+        "excluded": 0,
+        "pending_review": 112,
+        "total": 116
+      },
+      "새 폴더 (2)/LGU+": {
+        "active": 2,
+        "excluded": 0,
+        "pending_review": 0,
+        "total": 2
+      },
+      "새 폴더 (2)/SKT_시험절차서_최신": {
+        "active": 66,
+        "excluded": 0,
+        "pending_review": 0,
+        "total": 66
+      },
+      "새 폴더 (2)/THOR3_SKT_Requirements": {
+        "active": 0,
+        "excluded": 0,
+        "pending_review": 30,
+        "total": 30
+      }
+    },
+    "total": 214,
+    "unclassified": 0
+  }
+}

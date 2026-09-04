@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "expected_occurrences": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "expected_unique": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "fixtures": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "occurrences": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "section_id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "section_index": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "source_path": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "source_sha256": {
+                  "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+                  "type": "string"
+                },
+                "title_sha256": {
+                  "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "source_path",
+                "source_sha256",
+                "section_index",
+                "section_id",
+                "title_sha256"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "rationale": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "value_sha256": {
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value_sha256",
+          "rationale",
+          "occurrences"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_artifact": {
+      "const": "KR3_Carrier_Requirements/catalog/corpus_index.json"
+    },
+    "tool": {
+      "const": "corpus-msisdn-fixture-allowlist-v1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "tool",
+    "source_artifact",
+    "expected_unique",
+    "expected_occurrences",
+    "fixtures"
+  ],
+  "title": "KR3 corpus MSISDN fixture allowlist v1",
+  "type": "object"
+}

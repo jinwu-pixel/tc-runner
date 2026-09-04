@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LGU Legacy Expected Ledger v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "case_count", "expected_count", "items"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "case_count": {"type": "integer", "minimum": 0},
+    "expected_count": {"type": "integer", "minimum": 0},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["legacy_expected_id", "fingerprint_sha256", "status", "tc_id", "step_no", "expected_index", "step_source_trace", "expected"],
+        "properties": {
+          "legacy_expected_id": {"type": "string", "pattern": "^LGU-EXP-[0-9]{6}$"},
+          "fingerprint_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "status": {"enum": ["ACTIVE"]},
+          "tc_id": {"type": "string", "minLength": 1},
+          "step_no": {"type": "integer", "minimum": 1},
+          "expected_index": {"type": "integer", "minimum": 1},
+          "step_source_trace": {"type": ["object", "null"]},
+          "expected": {"type": "object"}
+        }
+      }
+    }
+  }
+}

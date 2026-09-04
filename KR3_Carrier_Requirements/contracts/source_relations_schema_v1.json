@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "G0-A Source Relations v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "relations"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relation_id",
+          "kind",
+          "source_document_id",
+          "source_sha256",
+          "target_document_id",
+          "target_sha256"
+        ],
+        "properties": {
+          "relation_id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["REQUIREMENT_TO_PROCEDURE", "REQUIREMENT_TO_SAT"]},
+          "source_document_id": {"type": "string", "minLength": 1},
+          "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "target_document_id": {"type": "string", "minLength": 1},
+          "target_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

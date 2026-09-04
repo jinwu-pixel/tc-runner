@@ -1,0 +1,466 @@
+{
+  "$defs": {
+    "activeDocument": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "$ref": "#/$defs/currentnessRule"
+        }
+      ],
+      "properties": {
+        "carrier": {
+          "enum": [
+            "LGU+",
+            "KT",
+            "SKT"
+          ]
+        },
+        "currentness": {
+          "enum": [
+            "CURRENT",
+            "CURRENTNESS_UNVERIFIED"
+          ]
+        },
+        "document_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "media": {
+          "enum": [
+            "text/html",
+            "application/pdf",
+            "application/vnd.ms-excel"
+          ]
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "REQUIREMENT",
+            "PROCEDURE",
+            "SAT"
+          ]
+        },
+        "state": {
+          "const": "ACTIVE"
+        },
+        "verified_by": {
+          "$ref": "#/$defs/verifiedBy"
+        }
+      },
+      "required": [
+        "path",
+        "state",
+        "document_id",
+        "carrier",
+        "role",
+        "media",
+        "currentness"
+      ],
+      "type": "object"
+    },
+    "currentnessRule": {
+      "if": {
+        "properties": {
+          "currentness": {
+            "const": "CURRENT"
+          }
+        },
+        "required": [
+          "currentness"
+        ]
+      },
+      "then": {
+        "required": [
+          "verified_by"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "verified_by"
+          ]
+        }
+      }
+    },
+    "document": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/activeDocument",
+          "properties": {
+            "state": {
+              "const": "ACTIVE"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/excludedDocument",
+          "properties": {
+            "state": {
+              "const": "EXCLUDED"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/pendingDocument",
+          "properties": {
+            "state": {
+              "const": "PENDING_REVIEW"
+            }
+          }
+        }
+      ]
+    },
+    "excludedDocument": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "$ref": "#/$defs/currentnessRule"
+        },
+        {
+          "oneOf": [
+            {
+              "not": {
+                "anyOf": [
+                  {"required": ["superseded_by"]},
+                  {"required": ["rationale"]}
+                ]
+              },
+              "properties": {
+                "exclusion_reason": {
+                  "const": "DUPLICATE"
+                }
+              },
+              "required": [
+                "duplicate_of"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {"required": ["duplicate_of"]},
+                  {"required": ["rationale"]}
+                ]
+              },
+              "properties": {
+                "exclusion_reason": {
+                  "const": "SUPERSEDED"
+                }
+              },
+              "required": [
+                "superseded_by"
+              ]
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {"required": ["duplicate_of"]},
+                  {"required": ["superseded_by"]}
+                ]
+              },
+              "properties": {
+                "exclusion_reason": {
+                  "enum": [
+                    "REFERENCE_ONLY",
+                    "OUT_OF_SCOPE"
+                  ]
+                }
+              },
+              "required": [
+                "rationale"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "currentness": {
+          "enum": [
+            "CURRENT",
+            "CURRENTNESS_UNVERIFIED"
+          ]
+        },
+        "duplicate_of": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "exclusion_reason": {
+          "enum": [
+            "DUPLICATE",
+            "SUPERSEDED",
+            "REFERENCE_ONLY",
+            "OUT_OF_SCOPE"
+          ]
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "state": {
+          "const": "EXCLUDED"
+        },
+        "superseded_by": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "verified_by": {
+          "$ref": "#/$defs/verifiedBy"
+        }
+      },
+      "required": [
+        "path",
+        "state",
+        "exclusion_reason",
+        "currentness"
+      ],
+      "type": "object"
+    },
+    "pendingDocument": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "$ref": "#/$defs/currentnessRule"
+        }
+      ],
+      "properties": {
+        "blocked_on": {
+          "enum": [
+            "CARRIER_INQUIRY",
+            "INTERNAL_DECISION",
+            "INTAKE_CAPABILITY"
+          ]
+        },
+        "currentness": {
+          "enum": [
+            "CURRENT",
+            "CURRENTNESS_UNVERIFIED"
+          ]
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "recorded_date": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])",
+          "type": "string"
+        },
+        "state": {
+          "const": "PENDING_REVIEW"
+        },
+        "verified_by": {
+          "$ref": "#/$defs/verifiedBy"
+        }
+      },
+      "required": [
+        "path",
+        "state",
+        "blocked_on",
+        "recorded_date",
+        "currentness"
+      ],
+      "type": "object"
+    },
+    "verifiedBy": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "evidence_sha256": {
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "type": "string"
+        },
+        "evidence_type": {
+          "enum": [
+            "CARRIER_DISTRIBUTION_LIST",
+            "OFFICIAL_NOTICE"
+          ]
+        },
+        "verified_date": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_type",
+        "evidence_path",
+        "evidence_sha256",
+        "verified_date"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "corpus_parent": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_entries": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "non_corpus_entries": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "FILE",
+                  "DIRECTORY"
+                ]
+              },
+              "name": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "rationale": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "rationale"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "expected_entries",
+        "non_corpus_entries"
+      ],
+      "type": "object"
+    },
+    "corpus_roots": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_total": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "root": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "root",
+          "expected_total"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "documents": {
+      "items": {
+        "$ref": "#/$defs/document"
+      },
+      "type": "array"
+    },
+    "external_gaps": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "blocked_on": {
+            "enum": [
+              "CARRIER_INQUIRY",
+              "INTERNAL_DECISION",
+              "INTAKE_CAPABILITY"
+            ]
+          },
+          "carrier": {
+            "enum": [
+              "LGU+",
+              "KT",
+              "SKT"
+            ]
+          },
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "gap_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "recorded_date": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gap_id",
+          "carrier",
+          "description",
+          "blocked_on",
+          "recorded_date"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "relations": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "REQUIREMENT_TO_PROCEDURE",
+              "REQUIREMENT_TO_SAT"
+            ]
+          },
+          "relation_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_document_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "target_document_id": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "relation_id",
+          "kind",
+          "source_document_id",
+          "target_document_id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 2
+    }
+  },
+  "required": [
+    "schema_version",
+    "corpus_parent",
+    "corpus_roots",
+    "documents",
+    "relations",
+    "external_gaps"
+  ],
+  "title": "G0-A.1 Source Scope v2",
+  "type": "object"
+}

@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "closure_sha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "generator": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "const": "build_resolver_proposal"
+        },
+        "version": {
+          "const": "1"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    },
+    "proposals": {
+      "items": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "basis": {
+                  "const": "SHA256_DUPLICATE_IN_CORPUS"
+                }
+              },
+              "required": [
+                "basis"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "duplicate_group_paths": {
+                      "items": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "minItems": 2,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "duplicate_group_sha256": {
+                      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "duplicate_group_sha256",
+                    "duplicate_group_paths"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "basis": {
+                  "enum": [
+                    "NON_DOCUMENT_ASSET",
+                    "UNSUPPORTED_MEDIA"
+                  ]
+                }
+              },
+              "required": [
+                "basis"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "extension": {
+                      "pattern": "^\\.[a-z0-9]+(?![\\s\\S])",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "extension"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "basis": {
+                  "const": "NORMATIVITY_UNKNOWN"
+                }
+              },
+              "required": [
+                "basis"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence": {
+                  "additionalProperties": false,
+                  "maxProperties": 0,
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "basis": {
+            "enum": [
+              "NORMATIVITY_UNKNOWN",
+              "SHA256_DUPLICATE_IN_CORPUS",
+              "UNSUPPORTED_MEDIA",
+              "NON_DOCUMENT_ASSET"
+            ]
+          },
+          "blocked_on": {
+            "enum": [
+              "CARRIER_INQUIRY",
+              "INTERNAL_DECISION",
+              "INTAKE_CAPABILITY"
+            ]
+          },
+          "evidence": {
+            "type": "object"
+          },
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "basis",
+          "blocked_on",
+          "evidence",
+          "path"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_scope_sha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "summary": {
+      "additionalProperties": false,
+      "properties": {
+        "by_basis": {
+          "additionalProperties": false,
+          "properties": {
+            "NON_DOCUMENT_ASSET": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "NORMATIVITY_UNKNOWN": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "SHA256_DUPLICATE_IN_CORPUS": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "UNSUPPORTED_MEDIA": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "NORMATIVITY_UNKNOWN",
+            "SHA256_DUPLICATE_IN_CORPUS",
+            "UNSUPPORTED_MEDIA",
+            "NON_DOCUMENT_ASSET"
+          ],
+          "type": "object"
+        },
+        "by_resolver": {
+          "$ref": "#/$defs/resolverCounts"
+        },
+        "duplicate_group_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "duplicate_member_count": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "roots": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "by_resolver": {
+                "$ref": "#/$defs/resolverCounts"
+              }
+            },
+            "required": [
+              "by_resolver"
+            ],
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "by_resolver",
+        "by_basis",
+        "duplicate_group_count",
+        "duplicate_member_count",
+        "roots"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "closure_sha256",
+    "generator",
+    "proposals",
+    "schema_version",
+    "source_scope_sha256",
+    "summary"
+  ],
+  "title": "G0-A.2 Resolver Proposal v1",
+  "type": "object",
+  "$defs": {
+    "resolverCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "CARRIER_INQUIRY": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "INTERNAL_DECISION": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "INTAKE_CAPABILITY": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "CARRIER_INQUIRY",
+        "INTERNAL_DECISION",
+        "INTAKE_CAPABILITY"
+      ],
+      "type": "object"
+    }
+  }
+}

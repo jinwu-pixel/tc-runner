@@ -1,0 +1,1026 @@
+{
+  "closure_sha256": "b1291556b126f57e341600623a9e201167c4caac35388b510173fa9a938dde58",
+  "generator": {
+    "name": "build_resolver_proposal",
+    "version": "1"
+  },
+  "proposals": [
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G NSA Features SAT Specification_V1.3.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G SA Disaster Alert Services SAT Specfication_(V1.0.1)_210405_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G SA Emergency Alert Service SAT Specification_(V1.0.1)_210405_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/KT 5G SA Terminal Function SAT Specifications V1_v1.6.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/KT LTE Technical Requirement_v.3.8.0_en.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/KT VoNR Terminal SAT Specification_v1.0.1.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-EN/[KISA-001] Easy Spam Report Service Requirement_V4.0_En.pdf",
+          "새 폴더 (2)/THOR3_SKT_Requirements/[KISA-001] Easy Spam Report Service Requirement_V4.0.pdf"
+        ],
+        "duplicate_group_sha256": "b61e77e3fe41913d1f2e4bdc58bcb5b10118e429de8308b71e711e132f909063"
+      },
+      "path": "새 폴더 (2)/KT/20260702-EN/[KISA-001] Easy Spam Report Service Requirement_V4.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-001] KT IMS Device Requirement_v3.0.4_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-001] KT IMS Device Specification V3.5.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-002] KT VoLTE Device Requirement_v3.5.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-003] HD Voice UI Requirements_V1.2.4_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CALL-004] KT VoNR Terminal Specification_V1.1.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-001] LTE CBS Function Requirements_V1.1.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-002] KPAS Service Requirements_V1.1.2_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-003] KT 5G SA CBS Fetures Specification_V1.0.0-201125_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-CBS-004] KT 5G SA Disaster Alert Services Specification_V1.0.1_210405_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-DEV-001] Device UI Requirements_V1.3.8_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-DEV-002] KT Indicator Display Guide_230315_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-DEV-003] WCDMA & LTE Android Device Extension Porting Guide_V1.1.5_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-001] KT Wireless SMS Device Requirement V3.5.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-002] OMA MMA Function Requirements_V1.2.1_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-003] KT Message Integrated Device UI Requirements_V1.2.2_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-004] KT SPAM Message Handling Requirements_V1.5.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-MSG-005] Spam Easy Report Service Requirements_V2.1.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-001] WCDMA Function Requirements v3.6.5_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-002] WCDMA Supplementary Services Device Requirements_V1.3.4_En.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-EN/[KT-NET-003] KT LTE Technical Requirement_V3.8.0_20240429.pdf",
+          "새 폴더 (2)/KT/20260702-KR/kt LTE 기능 규격 V3.8.0(배포용)_20260429.pdf"
+        ],
+        "duplicate_group_sha256": "ba92305ca11c67d40f06a32f899114174d1bf83e41f7adcda7f9d85ffa661c3a"
+      },
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-003] KT LTE Technical Requirement_V3.8.0_20240429.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-004] KT 5G NSA Terminal Features Specification_V1.3.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-NET-005] KT 5G SA Terminal Feature Specification V1_v1.6.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-PROV-001] KT Wireless OTA Function Requirements_2.4.2_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-PROV-002] General USIM-ME Interface Device Requirements_V1.7.3_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-SVC-001] Video Ringback Tone and mCID Service Device Requirements_V1.0.2_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-SVC-002] VoLTE ShowMe Device Requirements_V1.0.3_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-VT-001] KT PSVT Device Requirement_v3.4.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-VT-002] PSVT UI Requirements_V2.0.1_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-WCDMA-001] WCDMA Function Requirements_v3.6.5_changed.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/[KT-WIFI-003] KT WiFi UI Requirements V2.5.0_Cn.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-EN/kt LTE Technical SAT Requirement_V3.8.0_En.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/(2020.11.26) KT LTE 단말 OTAP 규격(V2.0.0).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/(사업자 공통) VCIDMyview 서비스 단말 요구서 (v1.0.2)_0929.pdf"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".docx"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/230315_KT인디케이터 표시 가이드.docx"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/Android 단말 LBS Extension 포팅가이드V1.0.2.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/Android 단말 USIM Extension 포팅가이드V2.1.6(배포용)_20180628.pdf"
+    },
+    {
+      "basis": "NON_DOCUMENT_ASSET",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "extension": ".ai"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/HD.AI"
+    },
+    {
+      "basis": "NON_DOCUMENT_ASSET",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "extension": ".ai"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/LTE_Plus_230905.ai"
+    },
+    {
+      "basis": "NON_DOCUMENT_ASSET",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "extension": ".png"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/stat_notify_ansim_kt.png"
+    },
+    {
+      "basis": "NON_DOCUMENT_ASSET",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "extension": ".png"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/안심문자.png"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".zip"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/인디케이터 2G3GLTE ai파일.zip"
+    },
+    {
+      "basis": "NON_DOCUMENT_ASSET",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "extension": ".ai"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/Assets/투심_안심_logo.ai"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf"
+        ],
+        "duplicate_group_sha256": "9037fb217dbe18dc38113bd384a5d7c33f89a267c1e957a7f40c22829184b68c"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf"
+        ],
+        "duplicate_group_sha256": "bf5500afe5d35231f5af77a490e07e864b58dc8b246d9a41e647801aee8d7220"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT IMS 단말기 규격_V3.5.0(배포용)_cl_260507.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT PSVT 단말기 규격_V3.5.0(배포용)_cl_260507.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT VoLTE 단말기 규격_V3.5.0(배포용)_cl_260507.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT VoNR 단말기 SAT 규격 V1.0.1(배포용)_230201.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT VoNR 단말기 규격_V1.1.0(배포용)_cl_260507.pdf"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".zip"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804.zip"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".doc"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804.doc"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804.pdf"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".doc"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT WCDMA 부가서비스 단말기 규격 V1.3.4_140804/KT WCDMA 부가서비스 단말기 규격 변경내역 요약서(V1.3.4).doc"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 메시지 MMS SMS 통합 단말 UI 규격 v1.2.2(배포용)_20170227.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 무선 SMS 단말기 SAT 규격 V3.4.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 무선 SMS 단말기 규격 V3.5.0(배포용)_cl_260507.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 스팸 간편신고 서비스 규격 V2.1.0(배포용).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 스팸 메시지 처리 단말기 규격 V1.5.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 재난문자 서비스 SAT 규격 (V1.1.2)_210405.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 재난문자 서비스 규격 V1.1.2_210405.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 SAT 규격 V2.0.1.pdf"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".zip"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1.zip"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1 변경내역 요약서.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1/KT 통합 단말 망접속 규격 그룹 WiFi 공통 기능 규격 V2.0.1.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 SAT 규격 V3.0.0.pdf"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".zip"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0.zip"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0 변경내역 요약서.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0/KT 통합 단말 망접속 규격 그룹 WiFi 무선 단말 기능 규격 V3.0.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 HD 보이스 UI 규격 Pre-SAT규격V1.2.4(배포용)_20180808.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 HD 보이스 UI 규격V1.2.4(배포용)_20180808.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 PSVT UI 규격 V2.0.1_20141103(배포용)_1.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 WiFi UI 규격 V2.5.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합 단말 서비스 규격 그룹 단말 UI 규격 V 1.3.8(배포용)_20200918.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합단말 서비스 규격  그룹_후후 연동 단말기 규격(Type I)_V2.3.1(배포용).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 통합단말 서비스 규격 LBS 기능 규격 V2.0.4(배포용)_230208.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/KT 후후 보이스피싱 OEM 연동 단말기 규격_V1.0.2(배포용)_260413.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf"
+        ],
+        "duplicate_group_sha256": "7efb47fd29d4822d05b61a8afb33199b885fe6a7aadeeca44c8ed72f2e30ae36"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/VoLTE 쇼미 단말기 규격v1.0.3_배포용_20141020.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260515/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf"
+        ],
+        "duplicate_group_sha256": "d3e7d8085a1f3a4108aaa570a71f4f59c13ac5d3637f3130fcd57f0f13f62a20"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt General USIM-ME 인터페이스 단말기 SAT 규격 V1.7.3(배포용)_20181212.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt General USIM-ME 인터페이스 단말기 규격 V1.7.3(배포용)_20181212.pdf"
+    },
+    {
+      "basis": "UNSUPPORTED_MEDIA",
+      "blocked_on": "INTAKE_CAPABILITY",
+      "evidence": {
+        "extension": ".doc"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/kt LTE CBS 기능 규격 V1.1.0(배포용).doc"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt LTE 기능 SAT 규격 V3.8.0(배포용)_20260430.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-EN/[KT-NET-003] KT LTE Technical Requirement_V3.8.0_20240429.pdf",
+          "새 폴더 (2)/KT/20260702-KR/kt LTE 기능 규격 V3.8.0(배포용)_20260429.pdf"
+        ],
+        "duplicate_group_sha256": "ba92305ca11c67d40f06a32f899114174d1bf83e41f7adcda7f9d85ffa661c3a"
+      },
+      "path": "새 폴더 (2)/KT/20260702-KR/kt LTE 기능 규격 V3.8.0(배포용)_20260429.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt OMA MMS 기능 규격 V1.2.1(배포용).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt WCDMA 기능 규격 V3.6.5.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt eUICC RSP 기능 단말기 규격_v1.1.0_배포용_20220511.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt 무선 OTA 기능 규격 V2.4.2(배포용)_20220707.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/20260702-KR/kt_Android_NFC_단말기_규격_V1.2.3_배포용.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 SAT 규격 V1.2.6(배포용).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 규격 V1.2.8(배포용).pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf"
+        ],
+        "duplicate_group_sha256": "393f4bb41a3c7ebbef3e3ecb55d2c0faac84a25ce8118e6a4e31f7096a4da8b8"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 SAT 규격 V1.4.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 규격 V1.4.0.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf"
+        ],
+        "duplicate_group_sha256": "b8bda18d6ff3bc8f23bc87c3bfdcf72f0ec80c691033479b624d2f0b6959104c"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 재난문자 서비스 규격 V1.0.0_201126.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260515/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf"
+        ],
+        "duplicate_group_sha256": "d3e7d8085a1f3a4108aaa570a71f4f59c13ac5d3637f3130fcd57f0f13f62a20"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260515/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G NSA 단말 기능 SAT 규격 V1.2.9_20240808_clean.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/KT_5G_20260515/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf"
+        ],
+        "duplicate_group_sha256": "393f4bb41a3c7ebbef3e3ecb55d2c0faac84a25ce8118e6a4e31f7096a4da8b8"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G NSA 단말 기능 규격 V1.2.9_20240808_clean.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 단말 기능 SAT 규격 V1.5.0_20240718.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/KT_5G_20260515/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf"
+        ],
+        "duplicate_group_sha256": "b8bda18d6ff3bc8f23bc87c3bfdcf72f0ec80c691033479b624d2f0b6959104c"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 단말 기능 규격 V1.5.0_20240718.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf"
+        ],
+        "duplicate_group_sha256": "9037fb217dbe18dc38113bd384a5d7c33f89a267c1e957a7f40c22829184b68c"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 SAT 규격 (V1.0.1)_210405.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf"
+        ],
+        "duplicate_group_sha256": "bf5500afe5d35231f5af77a490e07e864b58dc8b246d9a41e647801aee8d7220"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/KT 5G SA 재난문자 서비스 규격 V1.0.1_210405.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf"
+        ],
+        "duplicate_group_sha256": "7efb47fd29d4822d05b61a8afb33199b885fe6a7aadeeca44c8ed72f2e30ae36"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/LTE and 5G Android 단말 Extension 포팅가이드 V1.1.5 (배포용).pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-KR/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260515/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf",
+          "새 폴더 (2)/KT/KT_5G_20260522/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf"
+        ],
+        "duplicate_group_sha256": "d3e7d8085a1f3a4108aaa570a71f4f59c13ac5d3637f3130fcd57f0f13f62a20"
+      },
+      "path": "새 폴더 (2)/KT/KT_5G_20260522/kt 5G SA CBS 기능 규격 V1.0.0-201125.pdf"
+    },
+    {
+      "basis": "SHA256_DUPLICATE_IN_CORPUS",
+      "blocked_on": "INTERNAL_DECISION",
+      "evidence": {
+        "duplicate_group_paths": [
+          "새 폴더 (2)/KT/20260702-EN/[KISA-001] Easy Spam Report Service Requirement_V4.0_En.pdf",
+          "새 폴더 (2)/THOR3_SKT_Requirements/[KISA-001] Easy Spam Report Service Requirement_V4.0.pdf"
+        ],
+        "duplicate_group_sha256": "b61e77e3fe41913d1f2e4bdc58bcb5b10118e429de8308b71e711e132f909063"
+      },
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[KISA-001] Easy Spam Report Service Requirement_V4.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-5G-001] 5G Device Common Requirements_V1.75.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-001] LTE MM Device Requirement_V1.86_20240405.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-002] VoLTE Handsets(UICC Portability) Requirements_V3.5.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-003] APCS(DM) Device Interworking Requirements_V1.2.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-004] SKT Automatic Provisioning and Config Server (APCS) Client Interoperability Specification - VoLTE Service_V1.0.7.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-005] VoLTE TAS Service Requirements_V1.1.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-010] HD Voice Service Requirements_V1.2.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-012] IPSec Requirements_V1.3.2.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-013] International Roaming Requirements_V2.91_20240405.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-013] International Roaming Requirements_V2.92(20251022).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-016] Tethering Traffic Branching Requirements_V1.0_20220224.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-MSG-001] SKT SMS Requirements_V1.83.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-MSG-002] OMA MMS Requirements_V1.9(20220224).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-001] WCDMA LTE QA Requirement (QAR 1.43).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-004] Device DM Requirement_V1.26(20220224).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-010] SKT FOTA Requirements_V1.0.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-QAR-012] SKT FOTA Requirements (Appendix).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-SVC-001] Open OS Device LCS Requirements_V1.6.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-USIM-001] Device USIM Requirements_V3.2(20220224).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-USIM-001] Device USIM Requirements_V3.31(20250513).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-002] LTE PS Video Call Requirements_V1.3(20111006).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-006] SKT APCS(Auto-Provisioning and Configuration Server) Client Interworking Requirement - LTE Video Call Service (v0.2.0).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-007] LTE Video Call UI Requirements_V1.3(20110826).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-008] Video Call UI Requirements for 3 Major MNOs_V1.2(201604).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WCDMA-001] WCDMA SBSM Device Requirements_V3.26.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WCDMA-001] WCDMA SBSM Device Requirements_V3.27(20241128).pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WCDMA-002] WCDMA SBSM Supplementary Service Requirements_V1.7.pdf"
+    },
+    {
+      "basis": "NORMATIVITY_UNKNOWN",
+      "blocked_on": "CARRIER_INQUIRY",
+      "evidence": {},
+      "path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-WIFI-001] Wi-Fi Access Requirements_V1.76a(20230531).pdf"
+    }
+  ],
+  "schema_version": 1,
+  "source_scope_sha256": "888e44a5962b1db6dc6b389b1ffc92be7f1876dd820d7cce3af3e71a10e9fdcf",
+  "summary": {
+    "by_basis": {
+      "NON_DOCUMENT_ASSET": 5,
+      "NORMATIVITY_UNKNOWN": 112,
+      "SHA256_DUPLICATE_IN_CORPUS": 17,
+      "UNSUPPORTED_MEDIA": 8
+    },
+    "by_resolver": {
+      "CARRIER_INQUIRY": 112,
+      "INTAKE_CAPABILITY": 8,
+      "INTERNAL_DECISION": 22
+    },
+    "duplicate_group_count": 8,
+    "duplicate_member_count": 17,
+    "roots": {
+      "새 폴더 (2)/KT": {
+        "by_resolver": {
+          "CARRIER_INQUIRY": 83,
+          "INTAKE_CAPABILITY": 8,
+          "INTERNAL_DECISION": 21
+        }
+      },
+      "새 폴더 (2)/THOR3_SKT_Requirements": {
+        "by_resolver": {
+          "CARRIER_INQUIRY": 29,
+          "INTAKE_CAPABILITY": 0,
+          "INTERNAL_DECISION": 1
+        }
+      }
+    },
+    "total": 142
+  }
+}

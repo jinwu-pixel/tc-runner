@@ -1,0 +1,29 @@
+{
+  "relations": [
+    {
+      "kind": "REQUIREMENT_TO_SAT",
+      "relation_id": "KT_NSA_V1_3_0_REQ_TO_SAT",
+      "source_document_id": "KT_REQ_NSA_V1_3_0",
+      "source_sha256": "ebc725e129ef71a8056588f7a48ef5810bf267dab6937c05418a225b107c44e8",
+      "target_document_id": "KT_SAT_NSA_V1_3_0",
+      "target_sha256": "2fdc5deef73570bf4e93e25da780a75a2f3e189122a2b252eda4c6b17ff8aaab"
+    },
+    {
+      "kind": "REQUIREMENT_TO_SAT",
+      "relation_id": "KT_SA_V1_6_0_REQ_TO_SAT",
+      "source_document_id": "KT_REQ_SA_V1_6_0",
+      "source_sha256": "bb65b35b1eeb917c456d758836fa1284306c9b1b1abdbcddca96bc4f9594547a",
+      "target_document_id": "KT_SAT_SA_V1_6_0",
+      "target_sha256": "2e5f8a4564efb46641b447e418b84837381a35294dc9f233a6eebca461c2736e"
+    },
+    {
+      "kind": "REQUIREMENT_TO_PROCEDURE",
+      "relation_id": "LGU_5G_V02_REQ_TO_PROC",
+      "source_document_id": "LGU_REQ_5G_V02_00_00",
+      "source_sha256": "00032e83eb3b7999f753c1e30e4952ab160b5075d341e6008dfcb27b1319a455",
+      "target_document_id": "LGU_PROC_5G_V02_00_00",
+      "target_sha256": "fc909067efe913479660161a97de4def46a7ba806fa3f41c9498724d37e3259b"
+    }
+  ],
+  "schema_version": 1
+}

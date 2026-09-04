@@ -1,0 +1,140 @@
+{
+  "expected_occurrences": 11,
+  "expected_unique": 9,
+  "fixtures": [
+    {
+      "occurrences": [
+        {
+          "section_id": "1",
+          "section_index": 74,
+          "source_path": "새 폴더 (2)/KT/20260702-KR/VoLTE 쇼미 단말기 규격v1.0.3_배포용_20141020.pdf",
+          "source_sha256": "798c55ca9b661ad9e899122f05da1395b5415afb1dda6275919463ce65aab434",
+          "title_sha256": "e3ca54d78dc62f5f2c21d5d0430c9b7b27d00075df9dabb903a9a246eb30b0bd"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "1814e7e69df3d541bd9b70672f040965fb1ee374fbeb9520d83f3dac3c86e008"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "1",
+          "section_index": 107,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "496879668bcbaa382c78738f26cadc819b97fd5be5b11da9f9f9d064469a9f84"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "2e23efac6468a7947436b2fb838bf2251d0f6b906fa700fbe40e04cfdd658058"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "2",
+          "section_index": 108,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "abe48521d0517dfa8916b33ed996da345519e9825858e7278d6725e854fd24d7"
+        },
+        {
+          "section_id": "1",
+          "section_index": 119,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "92aeb02637ebc673f1a419243f6f98aa0535894c249f7a6d56f405109f25b7f4"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "3b115e22d0cdb6c7870465ab4cba9a9683cbd788f0b69b4fed1e6d723dd8cdc1"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "1",
+          "section_index": 110,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "8174ca3a9cf8ac36b44fa3c44191c512f2127d50ad1527f634b8cb06bfcd8826"
+        },
+        {
+          "section_id": "1",
+          "section_index": 121,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "8822aa3e32445fd92dad891edb50aabb083db90d12e825ba746dd1296df43f86"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "43f19ba80684d7863c97b4b22338f1242f239679e75c3c6a22ff401cffd48e8b"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "2",
+          "section_index": 75,
+          "source_path": "새 폴더 (2)/KT/20260702-KR/VoLTE 쇼미 단말기 규격v1.0.3_배포용_20141020.pdf",
+          "source_sha256": "798c55ca9b661ad9e899122f05da1395b5415afb1dda6275919463ce65aab434",
+          "title_sha256": "6f299bdaf037f6de22088c1f0e7d36bb8634e71a517b11c283dfb9e66caba27c"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "4ae1d9f15f79309ca9742e8e42e2a89a683f359d7de074270c17c778bce766ec"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "1",
+          "section_index": 119,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "92aeb02637ebc673f1a419243f6f98aa0535894c249f7a6d56f405109f25b7f4"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "6d2b576a8ed5d37208e76bf56dd41004bf9f98a13b019956c8eca5acb47ab0b0"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "1",
+          "section_index": 113,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "e47685bed9396d2da647ea60d07418b677d36b7b6e7a7cd5874861442ce3d83e"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "729005c74238b04f9d0e9cef5d5a8afe0b4a0e1294367574fbd79f1c55b9bf0c"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "3",
+          "section_index": 35,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-LTE-005] VoLTE TAS Service Requirements_V1.1.0.pdf",
+          "source_sha256": "7e0b526519a14a3a0726f236f4bbf5d97f895ac6b5fae47da8e5818475a56c55",
+          "title_sha256": "8b5eeb2795bb9145f32eaef5b219bbc539711a16f20a05ef96f7f4a71d4cf4cf"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "c6d7e68cd5d90ad14a0b6955c1b920e312d5a183b1f5c0f154747ca2933cd2d9"
+    },
+    {
+      "occurrences": [
+        {
+          "section_id": "2",
+          "section_index": 114,
+          "source_path": "새 폴더 (2)/THOR3_SKT_Requirements/[SKT-VT-001] IMS Voice Video Call Requirement_V1.7.3(20140404).pdf",
+          "source_sha256": "474ab999931f24ef37a37c7814ab18f9fcde9edbe36a282f3b4fb5d005cf1a26",
+          "title_sha256": "535eb3b31696985e990f88f083ef67b6d5422bb68422472e937b53759dc181c3"
+        }
+      ],
+      "rationale": "carrier-authored specification test fixture; not observed user data",
+      "value_sha256": "f8329de4126820694a0c9c2bd82d62fa9856a8d0981315d63038c0daabee2da5"
+    }
+  ],
+  "schema_version": 1,
+  "source_artifact": "KR3_Carrier_Requirements/catalog/corpus_index.json",
+  "tool": "corpus-msisdn-fixture-allowlist-v1"
+}

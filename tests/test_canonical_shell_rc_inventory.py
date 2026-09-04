@@ -460,7 +460,7 @@ def test_current_head_inventory_matches_reviewed_target_set() -> None:
     report = AUDIT.collect_inventory(REPO)
 
     assert report.summary == {
-        "tracked_yaml_files": 619,
+        "tracked_yaml_files": 621,
         "raw_runnable_rc_files": 112,
         "canonical_preflight_pass_files": 112,
         "canonical_preflight_reject_files": 0,
